@@ -15,6 +15,19 @@
 
 Synapse is a [Claude Skill](https://claude.ai/docs/skills) that helps you write technical blog posts following the styles of the world's leading AI research institutions. Like a synapse connecting ideas to expression, it bridges the gap between research papers and engaging technical content.
 
+## Name & Pronunciation
+
+**Synapse** /ˈsɪnæps/ — pronounced like **"sin-aps"**
+
+A **synapse** is the junction where information flows from one neuron to another in the nervous system. This name embodies the project's mission:
+
+- 🔗 **Connects** research to writing
+- ⚡ **Transmits** ideas efficiently
+- 🧠 **Strengthens** with use
+- 🌐 **Networks** knowledge together
+
+Just as biological synapses enable information flow between neurons, Synapse bridges AI research papers and technical blog writing—helping researchers transform complex papers into clear, engaging technical articles.
+
 ## Why Synapse?
 
 A **synapse** is the junction where information flows from one neuron to another. This skill embodies that connection:
