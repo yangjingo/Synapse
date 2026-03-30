@@ -1,7 +1,7 @@
 # Synapse
 
 <div align="center">
-<img src="assets/logo.png" alt="Synapse Logo" width="180">
+<img src="assets/logo.svg" alt="Synapse Logo" width="180">
 
 **AI-Powered Engineering Content Architect**
 
