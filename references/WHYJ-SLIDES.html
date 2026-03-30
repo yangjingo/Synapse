@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Why.J Engineering Theater - The Complete 11-Page Guide</title>
+    <!-- Reveal.js & KaTeX Assets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #FFFFFF;
+            --grid-line: #FAFAFA;
+            --main-color: #1E1E1E;
+            --accent-claude: #d97757;
+            --item-bg: rgba(217, 119, 87, 0.05);
+            --strong-bg: rgba(217, 119, 87, 0.12);
+            --font-hand: 'Gochi Hand', cursive;
+            --font-mono: 'JetBrains Mono', monospace;
+            --shadow: 12px 12px 0px #1E1E1E;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .reveal { font-family: var(--font-hand); color: var(--main-color); }
+        .reveal .slides { text-align: left; }
+
+        a { color: var(--accent-claude) !important; text-decoration: none !important; }
+        a:hover { opacity: 0.7; text-decoration: underline !important; }
+
+        .header-layer { border-bottom: 8px solid var(--main-color); margin-bottom: 60px; padding-bottom: 25px; }
+        .header-layer h2 { font-family: var(--font-hand) !important; font-weight: 800; font-size: clamp(2.5rem, 6vw, 5rem) !important; margin: 0 !important; color: var(--main-color) !important; }
+
+        .canvas-layer { display: grid; grid-template-columns: 65% 35%; gap: 60px; align-items: start; min-height: 500px; }
+        .canvas-layer.push-left { display: flex !important; justify-content: flex-start !important; align-items: center !important; width: 100%; min-height: 400px; padding-left: 5%; }
+
+        .canvas-text { font-size: clamp(1.2rem, 2.8vw, 2.5rem); line-height: 1.4; }
+        .canvas-text ul { list-style: none; padding: 0; margin: 0; display: inline-block; text-align: left; }
+        .canvas-text li { margin-bottom: 30px; position: relative; padding: 15px 15px 15px 55px; border-radius: 8px; transition: background 0.2s ease; }
+        .canvas-text li:hover { background: var(--item-bg); }
+        .canvas-text li::before { content: "→"; position: absolute; left: 15px; font-weight: 800; color: var(--accent-claude); }
+
+        .no-bullet .canvas-text li { padding-left: 20px; }
+        .no-bullet .canvas-text li::before { content: ""; }
+
+        strong { background: var(--strong-bg); padding: 2px 8px; border-radius: 4px; display: inline-block; transform: rotate(-0.5deg); font-weight: 800; }
+
+        .visual-box { border: 6px solid var(--main-color); background: #fff; height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: var(--shadow); position: relative; }
+
+        .code-container { border: 4px solid var(--main-color); background: #1E1E1E; padding: 20px; box-shadow: var(--shadow); border-radius: 8px; width: 100%; }
+        pre { margin: 0 !important; background: transparent !important; }
+        code { font-family: var(--font-mono) !important; font-size: 0.85rem !important; color: #d4d4d4 !important; }
+        .code-keyword { color: var(--accent-claude); font-weight: bold; }
+
+        .math-container { border: 4px solid var(--accent-claude); background: #fff; padding: 40px 20px; box-shadow: var(--shadow); border-radius: 8px; text-align: center; font-size: 2.2rem; width: 100%; }
+
+        .pulse-layer { position: absolute; bottom: 20px; left: 55px; background: #fff; border: 6px solid var(--main-color); padding: 25px 50px; transform: rotate(-1.5deg); box-shadow: var(--shadow); font-weight: 800; font-size: clamp(1rem, 2.5vw, 2rem); z-index: 10; }
+
+        .ui-label { position: absolute; top: 10px; right: 15px; font-family: var(--font-hand); font-size: 1.2rem; opacity: 0.4; letter-spacing: 2px; text-transform: uppercase; }
+        .footer-metadata { position: absolute; bottom: 30px; left: 5%; font-family: var(--font-hand); font-size: 1rem; opacity: 0.4; letter-spacing: 1px; display: flex; gap: 30px; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- 00 Cover -->
+            <section data-transition="none">
+                <div class="header-layer" style="border-bottom: none; padding-left: 5%; margin-top: 10%;">
+                    <div class="ui-label">00 / Cover</div>
+                    <h1 style="font-size: clamp(3.5rem, 8vw, 6rem); font-weight: 800; margin: 0; line-height: 1.1;">Why.J Theater</h1>
+                    <h2 style="margin-top: 40px; font-size: clamp(1.5rem, 3.5vw, 3rem);"><strong>面向开发者的 11-Page 简约演讲协议手册</strong></h2>
+                    <div style="margin-top: 80px; font-size: 1.8rem; opacity: 0.8; display: flex; gap: 60px;">
+                        <span>Author: <strong>Why.J</strong></span>
+                        <span>Date: <strong>2026.03.29</strong></span>
+                    </div>
+                    <div style="margin-top: 25px; font-size: 1.2rem; opacity: 0.6;">Source: <a href="#" target="_blank"><strong>"The Engineering Presentation Manifesto"</strong></a></div>
+                </div>
+            </section>
+
+            <!-- 01 Handshake -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">01 / Context</div><h2>现状：被碎片的 Chat 淹没的技术灵魂</h2></div>
+                <div class="canvas-layer"><div class="canvas-text"><ul><li><strong>现状</strong>: 大量深度技术被掩埋在碎片化的笔记中。</li><li><strong>痛点</strong>: 传统的 PPT 正在掩盖深度的工程逻辑。</li><li><strong>方案</strong>: 建立一套 <strong>O(1) 复杂度</strong> 的视觉协议。</li></ul></div>
+                <div class="visual-box"><div style="font-weight: 800; font-size: 1.5em; color: var(--accent-claude);">FLOW</div></div></div>
+                <div class="pulse-layer">「 停止对话，开始推理。 」</div>
+                <div class="footer-metadata"><span>2026.03.29</span> | <a href="#" target="_blank">"Why.J Style Manifesto"</a></div>
+            </section>
+
+            <!-- 02 Agenda -->
+            <section data-transition="none" class="no-bullet">
+                <div class="header-layer"><div class="ui-label">02 / Agenda</div><h2>Contents: 解构简约协议</h2></div>
+                <div class="canvas-layer push-left"><div class="canvas-text"><ul><li><strong>Q1</strong>: 什么是 **O(1) 逻辑复杂度** 的排版准则？</li><li><strong>Q2</strong>: 为什么 **Push-Left** 是唯一的布局真理？</li><li><strong>Q3</strong>: 如何通过 **Markdown DSL** 实现秒级渲染？</li><li><strong>Q4</strong>: **赤土黄** 配色背后的工程美学逻辑？</li></ul></div></div>
+            </section>
+
+            <!-- 03 Philosophy -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">03 / Philosophy</div><h2>核心哲学：O(1) 认知载荷</h2></div>
+                <div class="canvas-layer"><div class="canvas-text"><ul><li><strong>原子化</strong>: 每一页只传递 **1个核心逻辑**。</li><li><strong>去嵌套</strong>: 严禁逻辑循环，只允许线性向下。</li><li><strong>5秒原则</strong>: 读者应在 5 秒内扫描完所有 Point。</li></ul></div><div class="visual-box" style="font-size: 3em; font-weight: 800;">O(1)</div></div>
+                <div class="pulse-layer">「 简洁是复杂的另一种重构。 」</div>
+            </section>
+
+            <!-- 04 Header Layer -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">04 / Layer A</div><h2>标题层：上下文的绝对隔离</h2></div>
+                <div class="canvas-layer"><div class="canvas-text"><ul><li><strong>视觉锚点</strong>: 8px 粗实线划定 **Context** 边界。</li><li><strong>语义化</strong>: 标题应是一个深刻的问题。</li><li><strong>统治力</strong>: <code>clamp</code> 确保全平台视觉重心。</li></ul></div><div class="visual-box"><div style="width: 80%; height: 10px; background: var(--main-color);"></div></div></div>
+                <div class="pulse-layer">「 每一个 Slide 都是一个独立的模块。 」</div>
+            </section>
+
+            <!-- 05 Canvas Layer -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">05 / Layer B</div><h2>演示层：65/35 的非对称美学</h2></div>
+                <div class="canvas-layer"><div class="canvas-text"><ul><li><strong>Logic Block</strong>: 左侧承载高密度的列表逻辑。</li><li><strong>Visual Detail</strong>: 右侧承载辅助图块。</li><li><strong>呼吸感</strong>: 右侧 40% 留白。</li></ul></div><div class="visual-box"><div style="border: 2px dashed #ddd; width: 65%; height: 100%; position: absolute; left: 0;"></div></div></div>
+                <div class="pulse-layer">「 留白是 CPU 的缓存空间。 」</div>
+            </section>
+
+            <!-- 06 Pulse Layer -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">06 / Layer C</div><h2>脉冲层：左下角的灵魂一击</h2></div>
+                <div class="canvas-layer"><div class="canvas-text"><ul><li><strong>位置</strong>: 强制定位在左侧逻辑块正下方。</li><li><strong>旋转</strong>: **-1.5度** 打破工程的死板。</li><li><strong>硬阴影</strong>: 12px 厚重投影产生悬浮感。</li></ul></div><div class="visual-box" style="border: none; box-shadow: none;"><div class="pulse-layer" style="position: static;">「 结论不狠，演讲不稳。 」</div></div></div>
+                <div class="pulse-layer">「 结论是逻辑的唯一出口。 」</div>
+            </section>
+
+            <!-- 07 Visuals -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">07 / Aesthetics</div><h2>视觉语法：赤土黄与马克笔</h2></div>
+                <div class="canvas-layer"><div class="canvas-text"><ul><li><strong>Claude Color</strong>: `#d97757` 智性温暖感。</li><li><strong>Marker Effect</strong>: <code>strong</code> 触发涂抹。</li><li><strong>Grid</strong>: 40px 极致淡化网格线。</li></ul></div><div class="visual-box"><div style="font-size: 2em;"><strong>SMART MARKER</strong></div></div></div>
+                <div class="pulse-layer">「 配色即品牌，品牌即信任。 」</div>
+            </section>
+
+            <!-- 08 Code Example -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">08 / Code</div><h2>硬核实现：DSL 映射逻辑</h2></div>
+                <div class="canvas-layer"><div class="canvas-text"><ul><li><strong>逻辑注入</strong>: Markdown 标签直接映射 Grid。</li><li><strong>样式解耦</strong>: 内容与视觉彻底分离。</li><li><strong>高亮准则</strong>: 为核心逻辑路径染色。</li></ul></div>
+                <div class="code-container"><pre><code><span style="color: #6a9955;">// Why.J Style Parser</span>
+<span class="code-keyword">function</span> <span style="color: #dcdcaa;">renderPulse</span>(text) {
+  <span class="code-keyword">return</span> `<span style="color: #ce9178;">&lt;div class="pulse"&gt;${text}&lt;/div&gt;</span>`;
+}</code></pre></div></div>
+                <div class="pulse-layer">「 代码是演讲的终极证据。 」</div>
+            </section>
+
+            <!-- 09 Math Example -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">09 / Math</div><h2>直觉公式：推理的伸缩法则</h2></div>
+                <div class="canvas-layer"><div class="canvas-text"><ul><li><strong>计算主权</strong>: 性能与时间成正比。</li><li><strong>数学直觉</strong>: 每一个算力单元都在纠错。</li></ul></div>
+                <div class="math-container" id="formula-whyj-final"></div></div>
+                <div class="pulse-layer">「 数学是逻辑的骨骼。 」</div>
+            </section>
+
+            <!-- 10 Takeaways -->
+            <section data-transition="none">
+                <div class="header-layer"><div class="ui-label">10 / Summary</div><h2>Takeaways：简约表达终极准则</h2></div>
+                <div class="canvas-layer push-left"><div class="canvas-text"><ul><li><strong>极简主义</strong>: 视觉只是 README，你才是主进程。</li><li><strong>线性思维</strong>: 拒绝嵌套循环，只走 <strong>O(1) 路径</strong>。</li><li><strong>行动导向</strong>: 结尾必须触发明确行动。</li></ul></div></div>
+            </section>
+
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script>
+        const el = document.getElementById('formula-whyj-final');
+        if(el) katex.render("P(\\text{success}) \\propto \\log(\\text{Compute}_{\\text{reasoning}})", el, { throwOnError: false });
+        Reveal.initialize({ hash: true, center: true, transition: 'none', width: 1400, height: 900, margin: 0.05 });
+    </script>
+</body>
+</html>

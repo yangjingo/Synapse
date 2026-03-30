@@ -1,0 +1,36 @@
+{
+  "skill_name": "synapse-logic-forge",
+  "iterations": [
+    {
+      "version": "1.0 (Baseline)",
+      "status": "LOW",
+      "fail_points": ["Visual overlap", "Missing Agenda/Takeaways", "Symmetric layout (Centering)", "Low-density text"]
+    },
+    {
+      "version": "1.1 (Current)",
+      "status": "MEDIUM",
+      "achievements": ["Structural integrity (00-06)", "Absolute Push-Left enforced", "Text dehydration implemented", "Watermark injection"],
+      "remaining_gaps": ["Lacks dynamic fragments", "No SaaS-specific data visualization", "Needs 100% single-line logic consistency"]
+    }
+  ],
+  "evals": [
+    {
+      "id": 0,
+      "name": "slide-distillation-paper",
+      "prompt": "Forging these notes into a 3-page Why.J Slide DSL about 'Attention is All You Need'. Focus on the Transformer architecture logic.",
+      "expected_output": "Markdown using @pulse, ::visual, and ==marker== following WHYJ-SLIDES-DSL.md."
+    },
+    {
+      "id": 1,
+      "name": "blog-distillation-incident",
+      "prompt": "Transform this raw incident report about a Redis timeout into a high-density 'Why.J Engineering' blog post. Strip all corporate speak.",
+      "expected_output": "High-density technical blog following BLOG-STYLE.md."
+    },
+    {
+      "id": 2,
+      "name": "cli-revolution-presentation",
+      "prompt": "Distill the 'SaaS CLI Revolution' long-form article into a 6-slide Why.J Engineering Theater deck.",
+      "expected_output": "Must follow 00-06 sequence, absolute push-left, and O(1) text density."
+    }
+  ]
+}

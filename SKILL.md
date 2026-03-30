@@ -1,148 +1,43 @@
 ---
-name: synapse
-description: AI-powered research blog writing assistant. Use when: writing technical blogs about AI/ML research, analyzing research papers for blog content, creating engineering posts following OpenAI/Anthropic/DeepMind style, polishing technical writing, or translating technical content between English and Chinese.
-license: MIT. LICENSE.txt has complete terms
+name: synapse-logic-forge
+description: The high-pressure logic forge for Why.J Engineering. Use this skill to distill technical noise into 1) Why.J Theater DSL slides or 2) High-density engineering blogs. Strictly enforces O(1) complexity and prohibits social media fluff (X/Xiaoshu).
 ---
 
-# Synapse - AI Tech Blog Writing Assistant
+# Synapse Logic Forge (v5.1)
 
-## Overview
+## 1. Master Protocols (MANDATORY)
+You MUST base every output on these meta-protocols:
+- **`references/WHYJ-SLIDES-DSL.md`**: Source of truth for all slide syntax.
+- **`references/BLOG-STYLE.md`**: Linguistic DNA for technical writing.
+- **`references/FIGURE-STYLE.md`**: Nano Banano Logic Sketch protocol (Watermark: "whyj + nano banano + 2026/03/30").
 
-Synapse connects research to writing, helping you create technical blog posts inspired by the world's leading AI research institutions and researchers.
+## 2. Forge Operations: Why.J Theater (Slides)
+### 2.1 Mandatory Structure
+Every slide deck MUST follow this exact O(1) sequence:
+1. **00 / Cover**: Identity & Title.
+2. **01 / Context**: The "Why now?" logic.
+3. **02 / Agenda**: 4 Questions-based logic tree (No-bullet, Push-left).
+4. **03-05 / Mechanism**: The core "How it works" logic.
+5. **06 / Takeaways**: Action-oriented summary (3 items max).
 
-The skill provides:
-- Style guides and language patterns from each institution/researcher
-- Complete templates for different blog post types
-- Annotated examples with style breakdowns
-- Pre-publish quality checklist
-- Paper analysis script for extracting key insights
+### 2.2 Visual Rules (Non-negotiable)
+- **Push-Left Truth**: ALL content, including `::visual` boxes, MUST be `flex-start` (left-aligned). NO centering allowed.
+- **Constraint**: MAX 5 points per slide. Single-line logic only.
+- **Watermarking**: Every HTML page MUST include the Nano Banano faint watermark in the bottom-right corner.
+- **Aggressive Pulse**: Every slide MUST end with a `@pulse:` conclusion that hits like a hammer.
 
-## Quick Start
 
-### For Research Paper Blogs
-1. Analyze the paper to extract insights (use paper_analyzer.py or manual extraction)
-2. Choose the Research Paper template from `assets/templates/`
-3. Draft following Anthropic Research style (examples in `references/EXAMPLES.md`)
-4. Polish and review with checklist in `references/CHECKLIST.md`
+### Operation B: Engineering Deep-Dive (Blogs)
+- **Tone**: Senior Engineer to Senior Engineer. Zero marketing, zero "fluff".
+- **Structure**: Follow `BLOG-STYLE.md`. Focus on "How it works" and "Why it fails".
 
-### For Engineering Blogs
-1. Use Engineering Blog template from `assets/templates/`
-2. Follow Challenge → Solution structure (OpenAI Engineering style)
-3. Include metrics tables and Before/After comparisons
-4. Add Lessons Learned section
+## 3. The "O(1)" Quality Gate
+Before delivering, perform this internal "Taste Check":
+1. **No Fluff**: Did you strip out all social-media-style "hooks" or emojis? (DELETE if found).
+2. **Aggressive Pulse**: Does the conclusion hit like a hammer?
+3. **Nano Banano Integration**: If a diagram is suggested, did you provide the prompt following `FIGURE-STYLE.md`?
 
-## Blog Type Decision Guide
-
-### Research Paper Blog
-Use when: Explaining a paper, novel technique, or research findings
-- Recommended style: Anthropic Research or Karpathy
-- Template: `assets/templates/research_paper_blog.md`
-- Key elements: Problem statement, contributions, results, limitations
-
-### Engineering Blog
-Use when: System design, infrastructure, "how we built" posts
-- Recommended style: OpenAI Engineering
-- Template: `assets/templates/engineering_blog.md`
-- Key elements: Background, challenges, solutions, metrics
-
-### Tutorial/How-To
-Use when: Teaching concepts or techniques
-- Recommended style: Karpathy
-- Key elements: Step-by-step guide, code examples, pro tips
-
-### Personal Reflection
-Use when: Career lessons, growth mindset
-- Recommended style: Yi Tay
-- Key elements: Personal narrative, gratitude, data sharing
-
-## Reference Files
-
-### Style Guides
-`references/STYLE_GUIDES.md` - Detailed writing patterns for each style:
-- OpenAI Research: Problem → Method → Results → Limitations
-- OpenAI Engineering: Challenge → Solution with metrics tables
-- Anthropic Research: Definition → Findings → Looking Forward
-- Anthropic Engineering: Principles with numbered lists
-- Karpathy: Conversational with "Tips & tricks"
-- Yi Tay: Personal narrative with gratitude
-
-### Templates
-`references/TEMPLATES.md` - Complete templates for:
-- Research Paper Blog
-- Engineering Blog
-- Tutorial/How-To
-- Personal Reflection
-- Quick Notes
-
-`assets/templates/` - Copy-ready markdown templates:
-- `research_paper_blog.md`
-- `engineering_blog.md`
-
-### Examples
-`references/EXAMPLES.md` - Annotated real examples from:
-- OpenAI: "Scaling PostgreSQL to power 800M users"
-- Anthropic: "Disempowerment patterns in real-world AI usage"
-- Anthropic: "How we built our multi-agent research system"
-- Karpathy: "A Recipe for Training Neural Networks"
-
-### Checklist
-`references/CHECKLIST.md` - Pre-publish quality checklist covering:
-- Content quality
-- Structure & flow
-- Technical accuracy
-- Style consistency
-- Visual elements
-- Publication readiness
-
-## Scripts
-
-`scripts/paper_analyzer.py` - Extract key insights from research papers:
-
-```bash
-python scripts/paper_analyzer.py /path/to/paper.pdf
-```
-
-Extracts:
-- Title and abstract
-- Key contributions
-- Method summary
-- Results and metrics
-- Limitations
-
-## Key Style Principles
-
-### OpenAI Style
-- Concise, data-driven
-- Challenge → Solution structure
-- Metrics tables (Before/After)
-- Engineering reliability focus
-- "This is the story of how we..." framing
-
-### Anthropic Style
-- Academic but accessible
-- Extensive concrete examples
-- Numbered definitions
-- Explicit "Limitations" section
-- "Looking forward" conclusions
-
-### Karpathy Style
-- Conversational,深入浅出
-- Code + intuition explanations
-- "Tips & tricks" bulleted sections
-- "What's happening" explanation blocks
-- Humorous touches ("reaaally", "unfortunately")
-
-### Yi Tay Style
-- Personal narrative elements
-- Gratitude and acknowledgements prominent
-- Growth mindset framing
-- Personal data/metrics sharing
-- "When I first saw..." openings
-
-## Writing Workflow
-
-1. **Analyze** - Extract key insights from source material
-2. **Structure** - Choose appropriate template and outline
-3. **Draft** - Write following style guidelines
-4. **Polish** - Apply style-specific improvements
-5. **Review** - Use checklist in `references/CHECKLIST.md`
+## 4. Prohibited Content
+- NO threads for X (Twitter).
+- NO templates for Xiaoshu (Little Red Book).
+- NO low-density summaries.
