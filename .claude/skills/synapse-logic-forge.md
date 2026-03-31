@@ -1,12 +1,9 @@
 ---
 name: synapse-logic-forge
 description: The high-pressure logic forge for Why.J Engineering. Use this skill to distill technical noise into 1) Why.J Theater DSL slides or 2) High-density engineering blogs. Strictly enforces O(1) complexity and prohibits social media fluff (X/Xiaoshu).
-repository: https://github.com/yangjingo/Synapse
-homepage: https://github.com/yangjingo/Synapse
-version: 0.1
 ---
 
-# Synapse Logic Forge (v0.1)
+# Synapse Logic Forge (v5.1)
 
 ## 1. Master Protocols (MANDATORY)
 You MUST base every output on these meta-protocols:

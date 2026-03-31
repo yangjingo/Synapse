@@ -12,10 +12,14 @@
 ## Overview
 Synapse is a Claude Skill that transforms technical notes into high-end engineering blogs and "Why.J Theater" slides. It bridges the gap between deep logic and world-class presentation.
 
-## Installation
+## Installation (Claude Code)
+Install the **Synapse Logic Forge** skill globally:
+
 ```bash
-claude plugin install https://github.com/yangjingo/Synapse
+npx skills add https://github.com/yangjingo/Synapse
 ```
+
+Once installed, you can trigger the forge by asking Claude to **"Distill these notes into Why.J Theater slides"** or **"Write a high-density engineering blog based on this logic."**
 
 ## Core Capabilities
 - **Research Blog**: Academic rigor with OpenAI/Anthropic styles.
