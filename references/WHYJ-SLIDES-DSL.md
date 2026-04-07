@@ -1,4 +1,4 @@
-# WHY.J SLIDES DSL (v2.0)
+# WHY.J SLIDES DSL
 
 本协议定义了用于生成 "Why.J Style" 工程演讲幻灯片的标准 Markdown 扩展语法。
 
@@ -60,6 +60,6 @@
 1. **00 / Cover**
 2. **01 / Context**
 3. **02 / Agenda**
-4. **03-05 / Mechanism** (逻辑详情，列表项必须全部展开)
-5. **06 / Takeaways**
-6. **07 / Reference** (引用汇总页)
+4. **03-08 / Mechanism** (逻辑详情，列表项必须全部展开)
+5. **09 / Takeaways**
+6. **10 / Reference** (引用汇总页)

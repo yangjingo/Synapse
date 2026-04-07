@@ -8,13 +8,14 @@
 
 ## 2. Mandatory Structural Layering
 
-Every Why.J presentation MUST follow this O(1) sequence:
+Every Why.J presentation MUST follow this 10-page logic to maintain Agentic Taste:
 
 - **00 / Cover**: Identity (Why.J) & Title.
 - **01 / Context**: The "Why Now?" logic & Global Handshake.
 - **02 / Agenda**: 4 Questions-based logic tree (No-bullet, Push-left).
-- **03-05 / Mechanism**: High-density engineering flow (65/35 asymmetry).
-- **06 / Takeaways**: Action-oriented summary & MR/Action trigger.
+- **03-08 / Mechanism**: Deep engineering sub-logics (Flexible based on content). All points MUST be expanded.
+- **09 / Takeaways**: Final action-oriented summary.
+- **10 / Reference**: Source verification page.
 
 ## 3. The Rendering Engine (HTML Source)
 

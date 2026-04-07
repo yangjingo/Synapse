@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>
+      CLI Revolution: The Agentic Interface | Why.J Engineering Theater
+    </title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=JetBrains+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --grid-line: #fafafa;
+        --main-color: #1e1e1e;
+        --accent-claude: #d97757;
+        --item-bg: rgba(217, 119, 87, 0.05);
+        --strong-bg: rgba(217, 119, 87, 0.12);
+        --font-hand: "Gochi Hand", cursive;
+        --font-mono: "JetBrains Mono", monospace;
+        --shadow: 12px 12px 0px #1e1e1e;
+      }
+      body {
+        background-color: var(--bg-color);
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .reveal {
+        font-family: var(--font-hand);
+        color: var(--main-color);
+      }
+      .reveal .slides {
+        text-align: left;
+      }
+      .header-layer {
+        border-bottom: 8px solid var(--main-color);
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        position: relative;
+      }
+      .header-layer h2 {
+        font-family: var(--font-hand) !important;
+        font-weight: 800;
+        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+        margin: 0 !important;
+        color: var(--main-color) !important;
+        text-transform: none !important;
+      }
+      .ui-label {
+        position: absolute;
+        top: -30px;
+        right: 0;
+        font-size: 1rem;
+        opacity: 0.3;
+        letter-spacing: 2px;
+      }
+      .canvas-layer {
+        display: grid;
+        grid-template-columns: 65% 35%;
+        gap: 40px;
+        align-items: start;
+      }
+      .canvas-text {
+        font-size: clamp(1.1rem, 2.2vw, 2rem);
+        line-height: 1.3;
+      }
+      .canvas-text ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .canvas-text li {
+        margin-bottom: 20px;
+        padding: 10px 10px 10px 45px;
+        position: relative;
+        border-radius: 6px;
+      }
+      .canvas-text li::before {
+        content: "→";
+        position: absolute;
+        left: 10px;
+        color: var(--accent-claude);
+        font-weight: 800;
+      }
+      strong {
+        background: var(--strong-bg);
+        padding: 0 6px;
+        border-radius: 4px;
+      }
+      .visual-box {
+        border: 5px solid var(--main-color);
+        background: #fff;
+        padding: 25px;
+        box-shadow: var(--shadow);
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .code-container {
+        background: #1e1e1e;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: #d4d4d4;
+        overflow: hidden;
+      }
+      .pulse-layer {
+        display: inline-block;
+        margin-top: 30px;
+        background: #fff;
+        border: 4px solid var(--main-color);
+        padding: 15px 30px;
+        box-shadow: 8px 8px 0px #1e1e1e;
+        transform: rotate(-1.5deg);
+        font-weight: 800;
+        font-size: 1.4rem;
+      }
+      .footer-watermark {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 0.7rem;
+        opacity: 0.1;
+      }
+      .reference-tag {
+        font-size: 0.8rem;
+        opacity: 0.5;
+        margin-top: 10px;
+        display: block;
+        color: var(--accent-claude) !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- 00 / Cover -->
+        <section data-transition="none">
+          <div class="header-layer" style="border: none; margin-top: 15%">
+            <div class="ui-label">00 / Cover</div>
+            <h1 style="font-size: 5rem; margin: 0">CLI Revolution</h1>
+            <h2 style="color: var(--accent-claude) !important">
+              The Agent's Native Interface
+            </h2>
+            <div style="margin-top: 40px; font-size: 1.5rem">
+              解构 SaaS 接口复兴背后的 ACI 逻辑与工程品味
+            </div>
+          </div>
+          <div class="pulse-layer">「 停止对话，开始推理。 」</div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 01 / Context -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">01 / Context</div>
+            <h2>现状：两条线的汇合与一个交汇点</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>SaaS 复兴</strong>: 飞书、钉钉、Google CLI
+                  密集发布，接口正在去界面化。
+                </li>
+                <li>
+                  <strong>AI 转向</strong>: Claude Code / Gemini CLI
+                  成为深度开发者的交互重心。
+                </li>
+                <li>
+                  <strong>本质</strong>: ==CLI 是 Agent
+                  时代的天然连接点==，具备极高的确定性。
+                </li>
+              </ul>
+              <div class="pulse-layer" style="font-size: 1.1rem">
+                「 这是软件接口的结构性复兴。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div
+                style="
+                  font-weight: 800;
+                  font-size: 1.5rem;
+                  color: var(--accent-claude);
+                "
+              >
+                SaaS ↔ AGENT
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 02 / Agenda -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">02 / Agenda</div>
+            <h2>Contents: 解构 CLI 革命协议</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>Q1</strong>: 为什么 ==O(1) Token 效率== 是 CLI
+                  获胜的关键？
+                </li>
+                <li>
+                  <strong>Q2</strong>: 如何从 Tool-calling 转向
+                  ==Code-as-Action== 范式？
+                </li>
+                <li>
+                  <strong>Q3</strong>: 为什么飞书和钉钉都在做
+                  ==Built-for-Agent== 的设计？
+                </li>
+                <li>
+                  <strong>Q4</strong>: 当 GUI 退居幕后，SaaS
+                  商业逻辑将如何重塑？
+                </li>
+              </ul>
+            </div>
+            <div class="visual-box" style="border-style: dashed; opacity: 0.4">
+              Visual: Logic Tree Matrix
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 03 / Mechanism -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">03 / Mechanism</div>
+            <h2>母语优势：LLM 的 Unix 哲学复兴</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>训练分布</strong>: LLM 在海量源码与文档中练就了极强的
+                  CLI 直觉。
+                </li>
+                <li>
+                  <strong>管道编排</strong>: Unix 管道哲学天然适配 Agent
+                  的多步逻辑编排流。
+                </li>
+                <li>
+                  <strong>确定性</strong>: 纯文本 I/O
+                  彻底消除截屏识别幻觉与模态转换损耗。
+                </li>
+              </ul>
+              <div class="pulse-layer" style="font-size: 1.1rem">
+                「 简洁是 Token 效率的唯一救赎。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div class="code-container">
+                <pre><code>$ cat logs.txt | grep "ERROR" | awk '{print $NF}'
+# 极简命令实现复杂过滤，Token 损耗近乎为零</code></pre>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 04 / Mechanism -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">04 / Mechanism</div>
+            <h2>ACI：从猜接口到做工程</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>Tool-calling 局限</strong>:
+                  预定义静态列表昂贵且容易引发幻觉。
+                </li>
+                <li>
+                  <strong>Code-as-Action</strong>:
+                  模型直接编写动态脚本（Bash/Python）来发现并操作。
+                </li>
+                <li>
+                  <strong>状态闭环</strong>: CLI 提供了 Agent
+                  推理所需的“非黑即白”的硬反馈。
+                </li>
+              </ul>
+              <div class="pulse-layer" style="font-size: 1.1rem">
+                「 复杂的工具列表是 Agent 的杂讯。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div style="font-weight: 800; color: var(--accent-claude)">
+                AGENTIC LOOP:
+              </div>
+              <div style="margin-top: 20px; font-size: 1.2rem">
+                Reason → Code (CLI) → Observation → Reason
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 05 / Mechanism -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">05 / Mechanism</div>
+            <h2>Built-for-Agent：飞书与钉钉的实践</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>自愈架构</strong>: 提供结构化报错，引导 Agent
+                  实时自动修复参数。
+                </li>
+                <li>
+                  <strong>预演模式</strong>: 内置
+                  <code>--dry-run</code>，注入工程安全基因。
+                </li>
+                <li>
+                  <strong>动态发现</strong>: 拒绝硬编码，适配 AI
+                  的探索式交互逻辑。
+                </li>
+              </ul>
+              <div class="pulse-layer" style="font-size: 1.1rem">
+                「 接口友好度决定了下个十年的竞争力。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div class="code-container">
+                <pre><code>lark-cli message send --to "LogicForge" --text "Update"
+# 结构化输出确保 Observation 极其清晰</code></pre>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 06 / Mechanism -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">06 / Mechanism</div>
+            <h2>确定性验证：State-check 胜过 Vibe-check</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>难题</strong>: 传统的 Chat
+                  模式只能靠“感觉”来判断好坏。
+                </li>
+                <li>
+                  <strong>验证源</strong>: 通过 ==Exit Code== 和 ==File State==
+                  进行硬核验证。
+                </li>
+                <li>
+                  <strong>唯一指标</strong>: 成功率（Pass@1）是衡量 Agent
+                  推理能力的唯一硬通货。
+                </li>
+              </ul>
+              <div class="pulse-layer" style="font-size: 1.1rem">
+                「 没有验证的 Agent 只是在进行随机游走。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div style="font-weight: 800; color: var(--accent-claude)">
+                VERIFICATION ORACLE:
+              </div>
+              <ul style="list-style: none; margin-top: 15px; font-size: 0.9em">
+                <li>1. Env Setup (Docker)</li>
+                <li>2. Agent Action (CLI)</li>
+                <li>3. State Check (Binary)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 07 / Mechanism -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">07 / Mechanism</div>
+            <h2>去界面化：当 GUI 退居幕后</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>新定位</strong>: SaaS 正在从 GUI 容器演变为 Agent
+                  的后端服务。
+                </li>
+                <li>
+                  <strong>逻辑前移</strong>: 所有的交互逻辑首先在 CLI
+                  层完成原子化闭环。
+                </li>
+                <li>
+                  <strong>商业重塑</strong>: API 颗粒度与 CLI
+                  友好度成为新的商业壁垒。
+                </li>
+              </ul>
+              <div class="pulse-layer" style="font-size: 1.1rem">
+                「 GUI 不会死，但它将成为仪表盘而非操纵杆。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div style="font-style: italic; opacity: 0.6; font-size: 0.9rem">
+                [ Nano Banano Logic Sketch ]<br />
+                Agent driving CLI engine while GUI shows logs.
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 08 / Mechanism -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">08 / Mechanism</div>
+            <h2>Agentic Engineering：品味决定成败</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>README 驱动</strong>: 好的 README 是 Agent
+                  掌握工具的最短路径。
+                </li>
+                <li>
+                  <strong>Context 管理</strong>: 每一条命令都在计算对 ==Context
+                  RAM== 的消耗。
+                </li>
+                <li>
+                  <strong>确定性品味</strong>:
+                  拒绝模糊，追求每一次交互的原子化与幂等性。
+                </li>
+              </ul>
+              <div class="pulse-layer" style="font-size: 1.1rem">
+                「 品味是 Agent 工程的最后一道防线。 」
+              </div>
+            </div>
+            <div class="visual-box" style="border: none; box-shadow: none">
+              <img
+                src="../assets/logo.png"
+                style="width: 200px; opacity: 0.1"
+              />
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 09 / Takeaways -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">09 / Takeaways</div>
+            <h2>总结：迎接接口的结构性复兴</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>去界面化</strong>: 核心业务逻辑必须首先具备 CLI
+                  原子化能力。
+                </li>
+                <li>
+                  <strong>协议优先</strong>: CLI 优先设计将决定开发者与 Agent
+                  体验的生死。
+                </li>
+                <li>
+                  <strong>行动</strong>: 立即对你的产品进行 CLI-Friendly
+                  度审计，清理盲点。
+                </li>
+              </ul>
+              <div class="pulse-layer">「 停止对话，开始推理。 」</div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+
+        <!-- 10 / Reference -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">10 / Reference</div>
+            <h2>工程引用与深度阅读</h2>
+          </div>
+          <div class="canvas-text">
+            <ul>
+              <li>
+                <strong>Source</strong>: CodeAct (ICML 2024) | SWE-bench (ICLR
+                2024)
+              </li>
+              <li>
+                <strong>Model</strong>: Gemini-2.5-Flash-Preview |
+                Claude-3.7-Sonnet
+              </li>
+              <li><strong>Logic</strong>: Synapse Logic Forge</li>
+            </ul>
+            <a href="https://os-world.github.io/" class="reference-tag"
+              >OSWorld: Benchmark for Multimodal Agents in CLI</a
+            >
+            <a href="https://www.swebench.com/" class="reference-tag"
+              >SWE-bench: Evaluating Software Engineering Agents</a
+            >
+          </div>
+          <div class="footer-watermark">whyj + nano banano + 2026/04/07</div>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+        center: true,
+        transition: "none",
+        width: 1400,
+        height: 900,
+        margin: 0.05,
+      });
+    </script>
+  </body>
+</html>

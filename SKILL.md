@@ -6,23 +6,23 @@ homepage: https://github.com/yangjingo/Synapse
 version: 0.1
 ---
 
-# Synapse Logic Forge (v0.1)
+# Synapse Logic Forge
 
-## 1. Master Protocols (MANDATORY)
-You MUST base every output on these meta-protocols:
+## 1. Agentic Taste (MANDATORY)
+You MUST base every output on these high-pressure Agentic Taste standards. This is not just a protocol; it's about **how to use an Agent with taste**:
 - **`references/WHYJ-SLIDES-DSL.md`**: Source of truth for all slide syntax.
 - **`references/BLOG-STYLE.md`**: Linguistic DNA for technical writing.
-- **`references/FIGURE-STYLE.md`**: Nano Banano Logic Sketch protocol (Watermark: "whyj + nano banano + 2026/03/30").
+- **`references/FIGURE-STYLE.md`**: Nano Banano Logic Sketch (Watermark: "whyj + nano banano + 2026/03/30").
 
 ## 2. Forge Operations: Why.J Theater (Slides)
-### 2.1 Structural Flow (Non-linear Page Count)
-Every slide deck MUST follow this logical sequence, though the number of pages in the "Mechanism" phase may scale with technical depth:
+### 2.1 Structural Sequence (Minimum 10-Page Logic)
+Every slide deck MUST follow this structured sequence to maintain its Agentic Taste:
 1. **00 / Cover**: Identity & Title.
-2. **01 / Context**: The "Why now?" logic & Problem statement.
+2. **01 / Context**: The "Why now?" logic & Global Problem Statement.
 3. **02 / Agenda**: 4 Questions-based logic tree (No-bullet, Push-left).
-4. **03-N / Mechanism**: High-density engineering flow. Each slide MUST focus on exactly **ONE** sub-logic (O(1) complexity).
-5. **Takeaways**: Action-oriented summary (3 items max).
-6. **Reference**: Verified source list (NeurIPS/ICLR/Official Blogs).
+4. **03-08 / Mechanism**: Core Engineering Sub-Logics. These pages are flexible based on technical depth. **MANDATORY**: All list items (`<li>`) MUST be fully expanded; no collapsed points.
+5. **09 / Takeaways**: Action-oriented summary (3 items max).
+6. **10 / Reference**: Verified Source List (NeurIPS/ICLR/Official Blogs).
 
 ### 2.2 Post-Generation Tooling (MANDATORY)
 After generating or modifying any HTML/DSL files, you MUST:
