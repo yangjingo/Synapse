@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh">
   <head>
     <meta charset="utf-8" />
@@ -6,8 +6,9 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Why.J Engineering Theater - Master Template</title>
-    <!-- Reveal.js & KaTeX Assets -->
+    <title>
+      CLI Revolution: The Agentic Interface | Why.J Engineering Theater
+    </title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css"
@@ -25,7 +26,6 @@
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&family=JetBrains+Mono&display=swap"
       rel="stylesheet"
     />
-
     <style>
       :root {
         --bg-color: #ffffff;
@@ -38,14 +38,13 @@
         --font-mono: "JetBrains Mono", monospace;
         --shadow: 12px 12px 0px #1e1e1e;
       }
-
       body {
         background-color: var(--bg-color);
-        background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
           linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
         background-size: 40px 40px;
       }
-
       .reveal {
         font-family: var(--font-hand);
         color: var(--main-color);
@@ -53,7 +52,6 @@
       .reveal .slides {
         text-align: left;
       }
-
       .header-layer {
         border-bottom: 8px solid var(--main-color);
         margin-bottom: 40px;
@@ -68,7 +66,6 @@
         color: var(--main-color) !important;
         text-transform: none !important;
       }
-
       .ui-label {
         position: absolute;
         top: -30px;
@@ -78,7 +75,6 @@
         letter-spacing: 2px;
         text-transform: uppercase;
       }
-
       .canvas-layer {
         display: grid;
         grid-template-columns: 65% 35%;
@@ -86,15 +82,6 @@
         align-items: start;
         min-height: 500px;
       }
-      .canvas-layer.push-left {
-        display: flex !important;
-        justify-content: flex-start !important;
-        align-items: center !important;
-        width: 100%;
-        min-height: 400px;
-        padding-left: 5%;
-      }
-
       .canvas-text {
         font-size: clamp(1.1rem, 2.2vw, 2rem);
         line-height: 1.3;
@@ -106,25 +93,17 @@
       }
       .canvas-text li {
         margin-bottom: 20px;
-        position: relative;
         padding: 10px 10px 10px 45px;
+        position: relative;
         border-radius: 6px;
       }
       .canvas-text li::before {
         content: "→";
         position: absolute;
         left: 10px;
-        font-weight: 800;
         color: var(--accent-claude);
+        font-weight: 800;
       }
-
-      .no-bullet .canvas-text li {
-        padding-left: 20px;
-      }
-      .no-bullet .canvas-text li::before {
-        content: "";
-      }
-
       strong {
         background: var(--strong-bg);
         padding: 0 6px;
@@ -133,7 +112,6 @@
         transform: rotate(-0.5deg);
         font-weight: 800;
       }
-
       .visual-box {
         border: 5px solid var(--main-color);
         background: #fff;
@@ -149,30 +127,38 @@
         transform: scale(var(--visual-scale, 1)) translateY(var(--visual-y, 0));
         transform-origin: center;
       }
-      .visual-box img {
+      .code-container {
+        background: #1e1e1e;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: #d4d4d4;
+        overflow: hidden;
         width: 100%;
-        height: 100%;
-        object-fit: contain;
       }
-
       .pulse-layer {
         position: absolute;
         bottom: 20px;
         left: 55px;
         background: #fff;
-        border: 6px solid var(--main-color);
-        padding: 20px 40px;
+        border: 4px solid var(--main-color);
+        padding: 15px 30px;
+        box-shadow: 8px 8px 0px #1e1e1e;
         transform: rotate(var(--pulse-rotate, -1.5deg)) translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1));
-        box-shadow: var(--shadow);
         font-weight: 800;
         font-size: clamp(1.2rem, 2vw, 2.2rem);
         z-index: 10;
         transform-origin: center;
       }
-
-      .ref-list li {
-        margin-bottom: 12px;
-        font-size: 1.1rem;
+      .footer-watermark {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        font-family: var(--font-hand);
+        font-size: 0.8rem;
+        opacity: 0.1;
+        color: #999;
       }
       .reference-tag {
         font-size: 0.8rem;
@@ -186,64 +172,49 @@
         opacity: 1;
         text-decoration: underline;
       }
-
-      .footer-watermark {
-        position: absolute;
-        bottom: 30px;
-        right: 30px;
-        font-family: var(--font-hand);
-        font-size: 0.8rem;
-        opacity: 0.1; /* Nano Banano Faint Protocol */
-        color: #999;
-      }
     </style>
   </head>
   <body>
     <div class="reveal">
       <div class="slides">
-        <!-- 00 Cover -->
+        <!-- 00 / Cover -->
         <section data-transition="none">
-          <div
-            class="header-layer"
-            style="border-bottom: none; padding-left: 5%; margin-top: 15%"
-          >
+          <div class="header-layer" style="border: none; margin-top: 15%; padding-left: 5%;">
             <div class="ui-label">00 / Cover</div>
-            <h1 style="font-size: 5rem; font-weight: 800; margin: 0; line-height: 1;">
-              Project Name
-            </h1>
+            <h1 style="font-size: 5rem; margin: 0; line-height: 1;">CLI Revolution</h1>
             <h2 style="margin-top: 30px; color: var(--accent-claude) !important;">
-              Subtitle or Main Thesis Goes Here
+              The Agentic Interface
             </h2>
             <div style="margin-top: 60px; font-family: var(--font-hand); font-size: 1.2rem; line-height: 2; opacity: 0.8">
-              Version: <strong>0.1</strong> &nbsp;&nbsp; Author: <strong>Why.J</strong> &nbsp;&nbsp; Date: <strong>YYYY/MM/DD</strong>
+              Version: <strong>1.0</strong> &nbsp;&nbsp; Author: <strong>Why.J</strong> &nbsp;&nbsp; Date: <strong>2026/04/14</strong>
             </div>
           </div>
-          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+          <div class="footer-watermark">whyj + synapse-cli + 2026/04/14</div>
         </section>
 
-        <!-- 01 Context -->
+        <!-- 01 / Context -->
         <section data-transition="none">
           <div class="header-layer">
             <div class="ui-label">01 / Context</div>
-            <h2>Problem Context or Global Trend</h2>
+            <h2>两条线的汇合与一个交汇点</h2>
           </div>
           <div class="canvas-layer">
             <div class="canvas-text">
               <ul>
-                <li><strong>Observation</strong>: First key insight about the industry.</li>
-                <li><strong>Pain Point</strong>: The friction preventing the O(1) efficiency.</li>
-                <li><strong>Shift</strong>: The paradigm shift we are documenting.</li>
+                <li><strong>SaaS 复兴</strong>: 接口正在去界面化。</li>
+                <li><strong>AI 转向</strong>: CLI 成为深度开发者的交互重心。</li>
+                <li><strong>本质</strong>: ==CLI 是 Agent 时代的天然连接点==。</li>
               </ul>
-              <div class="pulse-layer" style="--pulse-scale: 1.05">「 The soul of the slide goes here. 」</div>
+              <div class="pulse-layer" style="--pulse-scale: 1.05">「 这是软件接口的结构性复兴。 」</div>
             </div>
             <div class="visual-box" style="--visual-scale: 0.9">
-              <div style="font-weight: 800; font-size: 1.5rem; color: var(--accent-claude);">VISUAL_01</div>
+              <div style="font-weight: 800; font-size: 1.5rem; color: var(--accent-claude);">SaaS ↔ AGENT</div>
             </div>
           </div>
-          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+          <div class="footer-watermark">whyj + synapse-cli + 2026/04/14</div>
         </section>
 
-        <!-- 02 Outline -->
+        <!-- 02 / Outline -->
         <section data-transition="none" class="no-bullet">
           <div class="header-layer">
             <div class="ui-label">02 / Outline</div>
@@ -252,53 +223,81 @@
           <div class="canvas-layer push-left">
             <div class="canvas-text">
               <ul>
-                <li><strong>Q1</strong>: First core engineering question?</li>
-                <li><strong>Q2</strong>: Second structural inquiry?</li>
-                <li><strong>Q3</strong>: Third mechanism breakdown?</li>
-                <li><strong>Q4</strong>: Final summary/takeaway logic?</li>
+                <li><strong>Q1</strong>: 为什么 ==O(1) Token 效率== 是 CLI 获胜的关键？</li>
+                <li><strong>Q2</strong>: 如何从 Tool-calling 转向 ==Code-as-Action== 范式？</li>
+                <li><strong>Q3</strong>: 为什么飞书和钉钉都在做 ==Built-for-Agent== 的设计？</li>
+                <li><strong>Q4</strong>: 当 GUI 退居幕后，SaaS 商业逻辑将如何重塑？</li>
               </ul>
             </div>
           </div>
-          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+          <div class="footer-watermark">whyj + synapse-cli + 2026/04/14</div>
         </section>
 
-        <!-- 10 Takeaways -->
+        <!-- 03 / Mechanism -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">03 / Mechanism</div>
+            <h2>母语优势：LLM 的 Unix 哲学复兴</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li><strong>训练分布</strong>: LLM 在海量源码中练就了 CLI 直觉。</li>
+                <li><strong>管道编排</strong>: Unix 管道天然适配 Agent 逻辑流。</li>
+                <li><strong>确定性</strong>: 纯文本 I/O 消除幻觉损耗。</li>
+              </ul>
+              <div class="pulse-layer" style="--pulse-scale: 1.1">「 简洁是 Token 效率的唯一救赎。 」</div>
+            </div>
+            <div class="visual-box" data-scale="1.15">
+              <div class="code-container">
+                <pre><code>$ cat logs.txt | grep "ERROR" | awk '{print $NF}'</code></pre>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + synapse-cli + 2026/04/14</div>
+        </section>
+
+        <!-- 10 / Takeaways -->
         <section data-transition="none" class="no-bullet">
           <div class="header-layer">
             <div class="ui-label">10 / Summary</div>
-            <h2>Takeaways & Future Actions</h2>
+            <h2>Takeaways</h2>
           </div>
           <div class="canvas-layer push-left">
             <div class="canvas-text">
               <ul>
-                <li><strong>Action 1</strong>: What should be done immediately.</li>
-                <li><strong>Action 2</strong>: The medium-term goal.</li>
-                <li><strong>Action 3</strong>: The ultimate state of engineering.</li>
+                <li><strong>去界面化</strong>: 核心业务逻辑必须具备 CLI 能力。</li>
+                <li><strong>协议优先</strong>: CLI 优先设计决定 Agent 体验。</li>
+                <li><strong>行动</strong>: 立即进行 CLI-Friendly 度审计。</li>
               </ul>
             </div>
           </div>
-          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+          <div class="footer-watermark">whyj + synapse-cli + 2026/04/14</div>
         </section>
 
-        <!-- 11 Reference -->
+        <!-- 11 / Reference -->
         <section data-transition="none">
           <div class="header-layer">
             <div class="ui-label">11 / Reference</div>
             <h2>Reference</h2>
           </div>
           <div class="canvas-text">
-            <ul class="ref-list">
-              <li><strong>Source Name</strong> - Author - https://link.to.resource/</li>
+            <ul>
+              <li><strong>Source</strong>: CodeAct (ICML 2024) | SWE-bench (ICLR 2024)</li>
             </ul>
-            <a href="#" class="reference-tag">Related Project / Manifesto Link</a>
+            <a href="https://os-world.github.io/" class="reference-tag">OSWorld: Benchmark for Multimodal Agents in CLI</a>
+            <a href="https://www.swebench.com/" class="reference-tag">SWE-bench: Evaluating Software Engineering Agents</a>
           </div>
-          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+          <div class="footer-watermark">whyj + synapse-cli + 2026/04/14</div>
         </section>
       </div>
     </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
     <script>
+      // Apply visual-scale from data-scale attribute
+      document.querySelectorAll(".visual-box[data-scale]").forEach((box) => {
+        box.style.setProperty("--visual-scale", box.getAttribute("data-scale"));
+      });
       Reveal.initialize({
         hash: true,
         center: true,
