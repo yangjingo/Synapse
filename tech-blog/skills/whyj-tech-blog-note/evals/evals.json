@@ -1,0 +1,17 @@
+{
+  "skill_name": "whyj-tech-blog-note",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "把 DeepSeek-V4 论文整理成 WhyJ 风格的技术博客笔记，不要写成中性总结。",
+      "expected_output": "A thesis-first WhyJ-style engineering note with strong mechanism-driven judgment and a hard closing pulse.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "把一个 vLLM 推理优化报告改写成 WhyJ 风格的博客笔记，保留 tradeoff，不要套话。",
+      "expected_output": "A dense WhyJ-style engineering note that foregrounds bottlenecks, tradeoffs, and ends with an aggressive pulse.",
+      "files": []
+    }
+  ]
+}

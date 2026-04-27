@@ -34,6 +34,9 @@
 
 - `::reference [Title] [URL] ::`
   - 用于在幻灯片底部或右侧插入参考链接，样式为极简手写字体。
+- `Reference` 页的列表项支持两种模板：
+  - `Title - Source - URL`（书籍/论文）
+  - `Title - URL`（项目/工具）
 
 ## 2. 标准示例 (Standard Example)
 
@@ -53,6 +56,21 @@
 ::pulse [「 停止对话，开始推理。 」] [rotate=-2deg y=20px] ::
 
 ::reference [Engineering Manifesto] [https://whyj.io/manifesto] ::
+```
+
+```markdown
+---
+
+# 11 / Reference
+
+## Reference
+
+- **Refactoring 2nd Edition** - Martin Fowler - https://book-refactoring2.ifmicro.com/
+- **The Way of Code** - Rick Rubin - https://www.thewayofcode.com
+- **Claude Code Wiki** - https://openedclaude.github.io/claude-reviews-claude
+- **Nano-Claude Artifacts** - https://github.com/yangjingo/nano-claude
+
+::reference [SWE-bench: Evaluating Engineering Agents] [https://www.swebench.com/] ::
 ```
 
 ## 3. 结构化序列 (Sequence)

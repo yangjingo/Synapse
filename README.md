@@ -1,4 +1,4 @@
-# Synapse Logic Forge
+# Synapse Forge
 
 <div align="center">
 <img src="assets/logo.svg" alt="Synapse Logo" width="180">
@@ -11,43 +11,45 @@
 
 ---
 
-## ⚡ Quick Integration
+## Skills
 
-### For AI Agents (Copy & Paste to Claude Code / Gemini CLI)
-If you are already in a chat session, simply paste the following:
+| Skill | Directory | Purpose |
+|-------|-----------|---------|
+| `synapse-forge` | root `SKILL.md` | Master orchestrator for slides + blog |
+| `synapse-design` | `skills/synapse-design/` | Source material → blog.md + blog.html |
+| `synapse-figure` | `skills/synapse-figure/` | Technical illustration orchestration |
+| `synapse-viz` | `skills/synapse-viz/` | PyTorch model structure visualization |
+| `synapse-pretext` | `skills/synapse-pretext/` | Pretext text layout integration |
+| `synapse-remotion` | `skills/synapse-remotion/` | Remotion animation integration |
 
-> **"Hey Claude, please install the Synapse Logic Forge skill from `https://github.com/yangjingo/Synapse` and adopt its Agentic Engineering Taste for this workspace."**
+## Quick Integration
 
-### For Humans (Terminal Command)
 ```bash
 npx skills add https://github.com/yangjingo/Synapse
 ```
 
----
+## Usage
 
-## 🛠️ Usage (Forge Commands)
+- **Slides**: *"Forge a Why.J Theater slide deck from these logs."*
+- **Blog**: *"Distill this paper into a WhyJ-style blog. Skip the fluff."*
+- **Visual**: *"Give me a Nano Banano hand-drawn prompt for this logic."*
 
-Once installed, use these high-density prompts to trigger the forge:
+## Directory Structure
 
-- **Slides**: *"Forge a 'Why.J Theater' slide deck from these logs. Show some Agentic Taste."*
-- **Blog**: *"Distill this paper into a high-density blog following BLOG-STYLE.md. Skip the fluff."*
-- **Visual**: *"Give me a Nano Banano hand-drawn prompt for this logic. Watermark required."*
-
----
-
-## 📐 Agentic Taste
-- **Modern DSL**: Source of truth for slide syntax (`::image`, `::pulse`, `::code`, `::math`).
-- **O(1) Complexity**: Every output is stripped of marketing noise and social media hooks.
-- **Auto-Formatting**: Integrated `prettier` invocation for expanded `<li>` logic.
-
-## 📂 Directory Structure
-- `SKILL.md`: The brain—main instruction set for the AI Skill.
-- `references/`: Visual & Linguistic DNA (The "Why.J Style").
-- `examples/`: Validated engineering slides (Reference layer included).
-- `scripts/`: Safety & Verification utilities (URL Validator).
-
+```
+SKILL.md              ← Root skill definition (v6.0)
+skills/               ← Sub-skill directories (each with SKILL.md + source material)
+  synapse-design/     ← Blog production (references, assets, evals)
+  synapse-figure/     ← Illustration orchestration (references, assets, scripts)
+  synapse-viz/        ← PyTorch visualization (references, assets, scripts)
+  synapse-pretext/    ← Pretext text layout
+  synapse-remotion/   ← Remotion animation
+references/           ← Master protocols (DSL, blog style, figure style)
+examples/             ← Slide decks and blog examples
+scripts/              ← Validators and utilities
+```
 
 ---
 <div align="center">
-<strong>Synapse Logic Forge</strong>
+<strong>Synapse Forge v6.0</strong>
 </div>

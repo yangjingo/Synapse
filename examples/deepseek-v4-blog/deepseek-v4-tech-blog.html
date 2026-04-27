@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepSeek-V4 的核心不是更大的 MoE，而是重写 long-context 的 cost curve</title>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #fffdf8;
+      --ink: #141413;
+      --muted: #6e6a63;
+      --line: #e8e6dc;
+      --line-strong: #d7d2c7;
+      --orange: #d97757;
+      --blue: #6a9bcc;
+      --green: #788c5d;
+      --font-head: Poppins, Arial, sans-serif;
+      --font-body: Lora, Georgia, serif;
+      --font-mono: "Cascadia Code", "JetBrains Mono", monospace;
+      --page: 1240px;
+      --article: 1140px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      line-height: 1.76;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: var(--ink);
+      text-decoration-color: rgba(217, 119, 87, 0.45);
+      text-underline-offset: 0.18em;
+    }
+
+    .page {
+      width: min(var(--page), calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 80px;
+    }
+
+    .outline-toggle {
+      position: fixed;
+      left: 18px;
+      top: 22px;
+      z-index: 30;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid rgba(20, 20, 19, 0.12);
+      background: rgba(255, 253, 248, 0.88);
+      color: var(--ink);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .outline-toggle:hover {
+      transform: translateY(-1px);
+      border-color: rgba(217, 119, 87, 0.34);
+      background: rgba(255, 253, 248, 0.96);
+    }
+
+    .outline-panel {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: min(300px, calc(100vw - 44px));
+      z-index: 40;
+      padding: 72px 22px 24px;
+      border-right: 1px solid var(--line);
+      background: rgba(250, 249, 245, 0.96);
+      backdrop-filter: blur(14px);
+      transform: translateX(-100%);
+      transition: transform 260ms ease;
+      overflow-y: auto;
+    }
+
+    .outline-panel.is-open {
+      transform: translateX(0);
+    }
+
+    .outline-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .outline-title {
+      margin: 0 0 18px;
+      color: var(--ink);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .outline-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .outline-list li + li {
+      margin-top: 10px;
+    }
+
+    .outline-list a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .outline-list a:hover {
+      color: var(--ink);
+    }
+
+    .outline-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 35;
+      background: rgba(20, 20, 19, 0.12);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    .outline-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--font-head);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .hero {
+      padding: 28px 0 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: var(--orange);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pretext-target .pretext-line {
+      display: block;
+    }
+
+    h1.pretext-target .pretext-line,
+    .deck.pretext-target .pretext-line,
+    figcaption.pretext-target .pretext-line {
+      display: block;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: var(--font-head);
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    h1 {
+      max-width: 14ch;
+      font-size: clamp(42px, 6vw, 76px);
+      line-height: 0.94;
+      letter-spacing: -0.06em;
+    }
+
+    .deck {
+      margin: 18px 0 0;
+      max-width: none;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1.7;
+    }
+
+    .thesis {
+      margin-top: 24px;
+      max-width: none;
+      padding-top: 14px;
+      border-top: 2px solid var(--orange);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .thesis strong {
+      font-family: var(--font-head);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--orange);
+    }
+
+    .stage-wrap {
+      margin-top: 34px;
+      position: relative;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(232, 230, 220, 0.18), rgba(255, 253, 248, 0.9) 18%, rgba(255, 253, 248, 0.95) 82%, rgba(232, 230, 220, 0.14));
+      overflow: hidden;
+    }
+
+    .stage {
+      position: relative;
+      height: 420px;
+      isolation: isolate;
+    }
+
+    .stage::before,
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .stage::before {
+      background:
+        radial-gradient(circle at var(--spot-x, 70%) var(--spot-y, 35%), rgba(217, 119, 87, 0.14), transparent 18%),
+        radial-gradient(circle at calc(var(--spot-x, 70%) - 12%) calc(var(--spot-y, 35%) + 18%), rgba(106, 155, 204, 0.10), transparent 22%),
+        radial-gradient(circle at calc(var(--spot-x, 70%) + 8%) calc(var(--spot-y, 35%) - 12%), rgba(120, 140, 93, 0.08), transparent 16%);
+      transition: background-position 120ms linear;
+    }
+
+    .stage::after {
+      background:
+        linear-gradient(180deg, var(--bg), transparent 18%, transparent 82%, var(--bg)),
+        linear-gradient(90deg, var(--bg), transparent 10%, transparent 90%, var(--bg));
+      opacity: 0.92;
+    }
+
+    .stage-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(20, 20, 19, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 20, 19, 0.04) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.5), rgba(0,0,0,0.12));
+      opacity: 0.55;
+    }
+
+    .stage-lines {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .line {
+      position: absolute;
+      left: 32px;
+      right: 32px;
+      white-space: nowrap;
+      font-family: var(--font-head);
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      color: rgba(20, 20, 19, 0.18);
+      transform-origin: left center;
+      will-change: transform, color, opacity;
+      user-select: none;
+    }
+
+    .line.accent-orange { color: rgba(217, 119, 87, 0.56); }
+    .line.accent-blue { color: rgba(106, 155, 204, 0.52); }
+    .line.accent-green { color: rgba(120, 140, 93, 0.5); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: var(--font-head);
+      font-size: 24px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .essay {
+      position: relative;
+      width: min(var(--article), 100%);
+      margin: 34px auto 0;
+      overflow: hidden;
+    }
+
+    .essay-backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(250, 249, 245, 0.94), rgba(250, 249, 245, 0.74) 14%, rgba(250, 249, 245, 0.72) 86%, rgba(250, 249, 245, 0.95));
+      mask-image: linear-gradient(180deg, transparent 0, rgba(0,0,0,0.92) 8%, rgba(0,0,0,0.92) 92%, transparent 100%);
+    }
+
+    .essay-backdrop::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at var(--essay-spot-x, 50%) var(--essay-spot-y, 18%), rgba(217, 119, 87, 0.10), transparent 16%),
+        radial-gradient(circle at calc(var(--essay-spot-x, 50%) + 12%) calc(var(--essay-spot-y, 18%) + 8%), rgba(106, 155, 204, 0.08), transparent 20%),
+        radial-gradient(circle at calc(var(--essay-spot-x, 50%) - 10%) calc(var(--essay-spot-y, 18%) + 20%), rgba(120, 140, 93, 0.06), transparent 18%);
+    }
+
+    .essay-backdrop::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(20, 20, 19, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 20, 19, 0.03) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: 0.45;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.10), rgba(0,0,0,0.42), rgba(0,0,0,0.10));
+    }
+
+    .essay-lines {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .essay-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      white-space: nowrap;
+      font-family: var(--font-head);
+      font-size: clamp(14px, 1.8vw, 19px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: rgba(20, 20, 19, 0.08);
+      transform-origin: left center;
+      will-change: transform, opacity;
+      user-select: none;
+    }
+
+    .essay-line.accent-orange { color: rgba(217, 119, 87, 0.13); }
+    .essay-line.accent-blue { color: rgba(106, 155, 204, 0.12); }
+    .essay-line.accent-green { color: rgba(120, 140, 93, 0.11); }
+
+    .essay > *:not(.essay-backdrop) {
+      position: relative;
+      z-index: 1;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--font-head);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .meta-row a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 160ms ease;
+    }
+
+    .meta-row a:hover {
+      color: var(--ink);
+    }
+
+    .tldr {
+      margin-top: 26px;
+      padding: 18px 0 0;
+      border-top: 1px solid var(--line);
+      opacity: 0;
+      transform: translate3d(0, 22px, 0);
+      transition: opacity 720ms ease, transform 720ms ease;
+    }
+
+    .tldr.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .tldr-label {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--orange);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tldr-list {
+      margin: 0;
+      padding-left: 18px;
+      max-width: none;
+      font-size: 17px;
+    }
+
+    .tldr-list li + li {
+      margin-top: 8px;
+    }
+
+    .section {
+      margin-top: 54px;
+      opacity: 0;
+      transform: translate3d(0, 28px, 0);
+      transition: opacity 720ms ease, transform 720ms ease;
+    }
+
+    .section.is-visible,
+    .finale.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .section-tag {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-family: var(--font-head);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      max-width: none;
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+    }
+
+    h3 {
+      margin: 28px 0 10px;
+      max-width: none;
+      font-size: 24px;
+      line-height: 1.14;
+      letter-spacing: -0.035em;
+    }
+
+    p {
+      margin: 16px 0 0;
+      max-width: none;
+      font-size: 18px;
+    }
+
+    ul {
+      margin: 14px 0 0;
+      padding-left: 20px;
+      max-width: none;
+      font-size: 18px;
+    }
+
+    li + li { margin-top: 10px; }
+
+    figure {
+      margin: 32px auto 0;
+      width: 100%;
+      padding: 0;
+      transition: transform 260ms ease, filter 260ms ease;
+    }
+
+    .figure-media {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    figure img {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      transition: transform 320ms ease, border-color 220ms ease, box-shadow 320ms ease;
+    }
+
+    figcaption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .figure-caption-center figcaption {
+      text-align: center;
+    }
+
+    .figure-wide {
+      width: min(calc(100% + 120px), 1100px);
+      margin-left: -60px;
+      margin-right: 0;
+    }
+
+    .figure-wide .figure-media {
+      min-height: clamp(300px, 34vw, 430px);
+      padding: 18px;
+    }
+
+    .figure-wide img {
+      max-height: clamp(264px, 31vw, 394px);
+    }
+
+    .figure-tight {
+      max-width: 740px;
+    }
+
+    .figure-tight .figure-media {
+      min-height: clamp(240px, 28vw, 340px);
+      padding: 16px;
+    }
+
+    .figure-tight img {
+      max-height: clamp(208px, 24vw, 300px);
+    }
+
+    .figure-tight figcaption {
+      max-width: none;
+    }
+
+    .figure-wide figcaption {
+      max-width: none;
+    }
+
+    figure.is-focused .figure-media {
+      border-color: var(--line-strong);
+      box-shadow: 0 18px 36px rgba(20, 20, 19, 0.08);
+    }
+
+    figure.is-focused figcaption {
+      color: var(--ink);
+    }
+
+    .notebook {
+      margin-top: 22px;
+      max-width: none;
+      padding: 14px 0 0 14px;
+      border-left: 2px solid var(--blue);
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      opacity: 0;
+      transform: translate3d(0, 20px, 0);
+      transition: opacity 720ms ease, transform 720ms ease, border-color 240ms ease;
+    }
+
+    .notebook strong {
+      color: var(--ink);
+      font-family: var(--font-head);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .notebook.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .notebook.is-focused {
+      border-color: var(--orange);
+    }
+
+    .verdict {
+      margin-top: 18px;
+      max-width: none;
+      padding-left: 14px;
+      border-left: 3px solid var(--orange);
+      font-family: var(--font-head);
+      font-size: 14px;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+      transition: opacity 680ms ease, transform 680ms ease;
+    }
+
+    .verdict.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .finale {
+      margin-top: 60px;
+      padding-top: 22px;
+      border-top: 2px solid var(--line-strong);
+      opacity: 0;
+      transform: translate3d(0, 28px, 0);
+      transition: opacity 720ms ease, transform 720ms ease;
+    }
+
+    .finale h2 {
+      max-width: 14ch;
+    }
+
+    .pulse {
+      margin-top: 20px;
+      max-width: none;
+      font-family: var(--font-head);
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+      background: rgba(20, 20, 19, 0.05);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(var(--page), calc(100% - 20px));
+        padding-top: 16px;
+      }
+
+      .outline-toggle {
+        left: 10px;
+        top: 12px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .metrics { grid-template-columns: 1fr; }
+
+      .stage {
+        height: 340px;
+      }
+
+      h1,
+      h2,
+      h3,
+      .deck,
+      .thesis,
+      p,
+      ul,
+      .verdict,
+      .pulse {
+        max-width: none;
+      }
+
+      p,
+      ul,
+      .notebook {
+        font-size: 17px;
+      }
+
+      .figure-wide {
+        width: 100%;
+        margin-left: 0;
+        margin-right: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="outline-toggle" id="outline-toggle" type="button" aria-expanded="false" aria-controls="outline-panel">
+    <span>Outline</span>
+  </button>
+  <div class="outline-backdrop" id="outline-backdrop"></div>
+  <aside class="outline-panel" id="outline-panel" aria-hidden="true">
+    <button class="outline-close" id="outline-close" type="button" aria-label="Close outline">Close</button>
+    <div class="outline-title">Outline</div>
+    <ol class="outline-list">
+      <li><a href="#problem">1. Overview</a></li>
+      <li><a href="#design">2. 模型架构</a></li>
+      <li><a href="#systems">3. 系统与效率</a></li>
+      <li><a href="#bottom-line">4. 小结</a></li>
+      <li><a href="#references">5. 参考</a></li>
+    </ol>
+  </aside>
+  <div class="page">
+    <div class="topbar">
+      <div class="brand">yangjing</div>
+      <div>2026/04/26</div>
+      <div>~11 min read</div>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">DeepSeek-V4 / Long Context / Systems</div>
+      <h1 class="pretext-target" data-pretext-role="title">DeepSeek-V4 的核心不是更大的 MoE</h1>
+      <p class="deck pretext-target" data-pretext-role="lead">DeepSeek-V4 的重点不是模型继续做大，而是用 hybrid attention 把 long-context 的收益明确写进结构、残差路径、KV cache 和运行时的联合设计里。</p>
+      <div class="thesis">
+        <strong>One Thesis</strong><br>
+        这篇论文更像系统论文。它改写的不是模型 headline，而是 1M context 的 cost curve。
+      </div>
+
+      <div class="stage-wrap">
+        <div class="stage" id="mesmerizing-stage">
+          <div class="stage-grid"></div>
+          <div class="stage-lines" id="stage-lines"></div>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <strong>1.6T / 49B</strong>
+          <span>DeepSeek-V4-Pro total / activated params</span>
+        </div>
+        <div class="metric">
+          <strong>284B / 13B</strong>
+          <span>DeepSeek-V4-Flash total / activated params</span>
+        </div>
+        <div class="metric">
+          <strong>1,000,000</strong>
+          <span>论文讨论的最大 context length</span>
+        </div>
+        <div class="metric">
+          <strong>27% / 10%</strong>
+          <span>V4-Pro 在 1M context 下的 FLOPs / KV cache 对比 V3.2</span>
+        </div>
+      </div>
+    </section>
+
+    <article class="essay" id="essay-root">
+      <div class="essay-backdrop">
+        <div class="essay-lines" id="essay-lines"></div>
+      </div>
+      <nav class="meta-row" id="article-nav">
+        <a href="#problem">1. Overview</a>
+        <a href="#design">2. 模型架构</a>
+        <a href="#systems">3. 系统与效率</a>
+        <a href="#bottom-line">4. 小结</a>
+        <a href="#references">5. 参考</a>
+      </nav>
+
+      <section class="tldr">
+        <div class="tldr-label">TL;DR</div>
+        <ul class="tldr-list">
+          <li>DeepSeek-V4 真正重要的不是模型更大，而是 long-context 的成本曲线被结构和 runtime 一起改了。</li>
+          <li><code>CSA + HCA</code> 不是两个零散 trick，而是按距离分层的 hybrid attention；<code>mHC</code> 负责把这条路径稳定下来。</li>
+          <li><code>Muon</code>、iterative clip、KV cache 和融合算子不是附属工程，而是把这套结构推到可训练、可部署区间的配套条件。</li>
+        </ul>
+      </section>
+
+        <section class="section" id="problem">
+          <div class="section-tag">Overview</div>
+          <h2>1. Overview</h2>
+          <p>论文的正式标题是 <code>DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence</code>，PDF 原文可见：<a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf">https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf</a>。这个标题本身已经把讨论边界说得很清楚：重点不是更大的参数规模，而是 million-token context 在效率上的可实现性。</p>
+          <p>如果要先用一句话概括这篇工作的核心贡献，那就是：它试图突破现有大模型在处理超长上下文时的效率瓶颈，并且把这个目标同时落实到模型结构、训练稳定性和运行时实现里。</p>
+          <p>更具体地说，通过采用混合的 <code>CSA</code> 和 <code>HCA</code>，再加上对计算和存储的精度优化，与 <code>DeepSeek-V3.2</code> 相比，<code>DeepSeek-V4</code> 系列实现了显著更低的推理 FLOPs 和大幅缩小的 KV cache 大小，尤其是在长上下文场景下。</p>
+          <p>长上下文已经不是“能不能做”的问题，而是“能不能正常部署”的问题。上下文一旦拉到百万级，注意力计算、KV cache、通信和存储层次会一起上升成系统瓶颈。如果论文只是在介绍一个新的 attention trick，它最多只能说明结构有意思，不能说明系统真的付得起。</p>
+          <p>DeepSeek-V4 的价值在于，它没有把问题写小。它真正回答的是：远场上下文为什么会把成本推爆，单一路径压缩为什么容易把质量一起压坏，以及如果目标是 reasoning 和 agent loop，结构和 serving economics 应该怎样一起设计。</p>
+          <p>如果把发布背景也算进去，这次还有一个很强的额外感受。大概从春节前开始，外部就一直处在一种“V4 下周就发”的等待里。真正发出来以后，我印象最深的反而不是某个 headline，而是官方稿件里那句「不诱于誉, 不恐于诽, 率道而行, 端然正己。」这句话和 V4 本身的工程气质很一致：少一点姿态，多一点把路线走通。引文来源可参见官方公众号稿件和官方新闻页：</p>
+          <ul>
+            <li><a href="https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw">DeepSeek-V4详细分析(1): 算法和模型结构</a></li>
+            <li><a href="https://api-docs.deepseek.com/zh-cn/news/news260424">DeepSeek API Docs 新闻页</a></li>
+          </ul>
+          <div class="notebook">
+            <strong>Notebook margin</strong><br>
+            我读这篇论文时最先停下来的地方，不是 benchmark，而是它默认你已经接受一件事：长上下文到了这个级别，先坏掉的通常不是模型想法，而是系统预算。
+          </div>
+          <figure class="figure-wide">
+            <div class="figure-media">
+              <img src="./figures/model_architecture.jpg" alt="DeepSeek-V4 model architecture">
+            </div>
+            <figcaption class="pretext-target" data-pretext-role="caption">主图：真正该读的是哪些路径被一起重写，而不是又多了几个模块。long-context、residual、cache 和 runtime 被放进了同一个结构里。</figcaption>
+          </figure>
+          <div class="verdict">主判断：DeepSeek-V4 真正改写的是 long-context 的 cost curve，不是论文页上的参数规模。</div>
+        </section>
+
+        <section class="section" id="design">
+          <div class="section-tag">Architecture</div>
+          <h2>2. 模型架构</h2>
+          <p>在结构层面，总体可以先把 DeepSeek-V4 理解成“保留主干、重写长上下文路径”的版本。DeepSeek-V4 系列保留了 Transformer 架构和多 Token 预测（<code>MTP</code>）模块，同时在 DeepSeek-V3 的基础上引入了若干关键升级：</p>
+          <ul>
+            <li>引入流形约束超连接（<code>mHC</code>）来增强传统残差连接。</li>
+            <li>设计混合注意力架构，通过压缩稀疏注意力和重度压缩注意力显著提升长上下文效率。</li>
+          </ul>
+          <p>如果只记模块名，很容易把 DeepSeek-V4 读成一篇“又加了两个注意力变体”的论文。更准确的读法是：它把 attention 拆成了分层职责明确的 hybrid path。近场路径保精度，中远场路径做压缩和选择，极远场路径进一步做高倍率摘要。</p>
+          <p>真正把 <code>1M context</code> 推出工程区间的，从来不是某一个矩阵乘，而是你是否还在用同一种表示去覆盖完全不同的距离分布。V4 的关键判断是：attention 本来就不该是单一路径。</p>
+
+          <h3><code>CSA</code>：压缩远场，但保留近场精度</h3>
+          <p><code>CSA</code> 的逻辑比较直接。它先把一段 token 的 KV 压缩成更粗的表示，然后只对压缩后的表示做选择性注意力，同时保留 sliding-window 分支，确保最近上下文仍然有高分辨率路径。</p>
+          <p>这里还有一个很具体但很重要的实现细节。在 <code>CSA</code> 的架构图里，压缩后的 KV 上还会额外拼接一个 <code>128</code> token 的滑动窗口 KV。这样一来，<code>Q</code> 和 <code>KV</code> 在 <code>seq</code> 维度上就不再一致：<code>Q</code> 仍然对应当前查询序列，而 <code>KV</code> 则是“压缩远场表示 + 近场滑动窗口”的拼接结果。在这种情况下，V4 这里比较直接地选择了 <code>MQA</code> 的处理方式，把这类不对称的 <code>Q/KV</code> 访问路径先稳定地落到 attention 实现上。</p>
+          <p>这么做还有一个直接的数值动机：避免注意力 logits 在这类拼接后的不对称路径里进一步放大。尤其当远场压缩表示和近场窗口表示同时进入同一条 attention 路径时，如果处理方式不够克制，logits 很容易因为尺度不一致而变得更难控制。</p>
+          <ul>
+            <li>压缩负责把 sequence-level memory footprint 压下来。</li>
+            <li>稀疏选择负责把远场计算量压下来。</li>
+            <li>sliding-window 分支负责保住局部高分辨率依赖。</li>
+          </ul>
+
+          <h3><code>HCA</code>：把极长路径的代价进一步砍掉</h3>
+          <p><code>HCA</code> 的任务更直接。它不是在近场精度上做平衡，而是在更远的路径上换取更高压缩倍率，让“表示更少”直接转化成“代价更低”。</p>
+          <p>单一路径压缩通常只能在精度和成本之间硬选一个。V4 的方法是先承认不同距离有不同语义，再把这个事实写进结构里：</p>
+          <ul>
+            <li>最近邻上下文需要密集、局部、细粒度的访问。</li>
+            <li>可选择的远场上下文需要压缩后再检索。</li>
+            <li>更远的长尾上下文只值得保留少量高价值摘要。</li>
+          </ul>
+          <p>这就是 hybrid attention 真正值钱的地方。它不是把几个 trick 拼盘式地塞进模型，而是把“距离”本身变成了架构变量。</p>
+
+          <h3>为什么这里不用 <code>engram</code></h3>
+          <p>如果目标是 reasoning、agent trace 和长链条工具调用，<code>engram</code> 这类更偏记忆体语义的路线并不是不能工作，但它回答的问题和 V4 不一样。<code>engram</code> 更像在问能不能把历史压成可召回的记忆单元；V4 在问，如果上下文长度本身不消失，在线推理成本怎么下降。</p>
+          <ul>
+            <li><code>engram</code> 倾向把长历史转成显式 memory abstraction。</li>
+            <li>V4 则优先把原始 token 路径本身做便宜。</li>
+          </ul>
+          <p>这让 V4 避免额外引入记忆接口、召回一致性语义和新的失真来源。它更保守，但也更适合通用 serving。</p>
+
+          <h3><code>mHC</code>：把残差稳定性提升成基础设施</h3>
+          <p>长上下文压缩、MoE、混合精度和定制 kernel 一旦叠起来，模型不会天然稳定。<code>mHC</code> 的作用不是让结构更复杂，而是把残差稳定性提升成基础设施。</p>
+          <figure class="figure-tight">
+            <div class="figure-media">
+              <img src="./figures/mhc_arch.jpg" alt="DeepSeek-V4 mHC architecture">
+            </div>
+            <figcaption class="pretext-target" data-pretext-role="caption">结构图：mHC 不是装饰层。它的任务是保证前面的 long-context 收益不是建立在脆弱残差之上。</figcaption>
+          </figure>
+          <p><code>mHC</code> 和 attention 的关系也不是简单的前后相邻，而是互相兜底：hybrid attention 负责改写成本结构，<code>mHC</code> 负责让这条新路径仍然保有可训练、可叠加、可放大的残差行为。</p>
+          <p>特别是在 MoE、低精度和长路径压缩叠加时，先出问题的往往不是理论容量，而是信号传输的一致性。</p>
+
+          <h3><code>Muon</code>、iterative clip 为什么也属于主线</h3>
+          <p>如果只把 V4 理解成 inference 论文，就会漏掉一个事实：它之所以敢这么激进，是因为训练侧在主动给这套结构铺路。<code>Muon</code>、iterative clip 这些东西不只是优化器或稳定化小技巧，而是在处理三个直接问题：</p>
+          <ul>
+            <li>更复杂的混合路径会放大梯度统计的不均匀。</li>
+            <li>更长的上下文会放大训练后期的极端更新。</li>
+            <li>更多并行和混合精度会让偶发不稳定更容易积累成系统性问题。</li>
+          </ul>
+          <p>这里还有一个值得强调的点。DeepSeek-V4 的注意力架构允许直接在 attention query 和 KV 条目上应用 <code>RMSNorm</code>，这会显著降低 attention logits 爆炸的风险。也正因为这层数值稳定性已经前移到 attention 结构本身，<code>Muon</code> 优化器这里不再需要采用 <code>QK-Clip</code> 这类补丁式约束。换句话说，<code>Muon</code> 的改进不是孤立发生的，它依赖于前面的 attention 设计已经先把最容易失控的数值路径压住。</p>
+          <p>更合理的理解是，V4 不是先有一个完美结构，再让训练去适配；而是结构、残差和训练约束一起协商出一个能放大的工作点。</p>
+          <p>如果继续往训练框架层看，V4 的效率改进也不只是优化器本身。它通过张量级别的 checkpointing 扩展了自动求导框架，以实现更细粒度的重计算控制；同时又围绕 <code>Muon</code> 设计了混合 <code>ZeRO</code> 策略，叠加通过重计算和融合核实现的低成本 <code>mHC</code>，以及用于管理压缩注意力的两阶段上下文并行。这些东西单独看都像框架细节，但合起来决定了这套结构能不能在训练侧跑得动。</p>
+          <div class="verdict">结论：如果残差路径不稳，前面的 long-context 收益很可能只能停留在图上。</div>
+        </section>
+
+        <section class="section" id="systems">
+          <div class="section-tag">Systems</div>
+          <h2>3. 系统与效率</h2>
+          <p>DeepSeek-V4 更像系统论文，是因为它没有把收益停在模型图上。MoE 的问题不只是单算子快不快，而是 dispatch、compute、combine 能不能真正重叠。KV cache 的问题也不再是分几块显存，而是怎样被当成分层存储系统来处理。</p>
+          <p>如果只看运行时，这一段很容易被理解成纯调度问题，但 V4 在 <code>MoE</code> 模块本身也沿着 <code>DeepSeek-V3</code> 做了改进。路由上可以区分出两类方式：一类是传统的 learned routing，另一类是 hash routing。与此同时，路由计算里的 <code>softmax</code> 也被替换成了 <code>softplus + sqrt</code> 形式。这个改动的意义不只是“换一个函数”，而是让路由打分和归一化的数值行为更可控，避免路由分布过于尖锐，把前面的长上下文和混合路径压力进一步放大到专家选择上。</p>
+          <p>更关键的是，论文里结合 <code>MegaMoE</code> 的做法，试图把 <code>MoE</code> 上最昂贵的几条路径一起重排掉：计算、通信和内存访问尽量完全重叠。这个方向很重要，因为对 <code>MoE</code> 来说，系统瓶颈往往不是专家算子本身，而是专家之间的数据搬运和等待时间。V4 在这块的思路很明确，就是不要让专家计算孤立地跑，而是把它放回整条流水线里看。</p>
+          <p>同样地，<code>FP4</code>、deterministic kernels、shared-prefix reuse、on-disk reuse 这些词单看都像工程细节，但合起来才是“这套结构能不能真的跑”的答案。</p>
+          <div class="notebook">
+            <strong>Notebook margin</strong><br>
+            这里我最认同的一点是：一旦 context 进入百万级，KV cache 就不该再被写成“实现细节”。它已经是存储系统问题了。
+          </div>
+          <p>更进一步说，hybrid attention 能不能成立，很大程度上取决于 KV cache 语义有没有一起变。因为一旦同时存在原始窗口、高压缩表示、远场索引和 prefix reuse，cache 里存的就不再只是某层某头的 K/V 张量，而是多种距离层次和多种更新粒度共存的状态。</p>
+          <p>推理框架层面，V4 这里进一步把这件事落成了一种异构 KV cache 结构，并且引入磁盘存储策略来支持高效的 shared-prefix reuse。也就是说，它不是把前缀复用理解成一次性的工程优化，而是直接把“热前缀在更高层、冷前缀可以下沉”写进了缓存设计里。</p>
+          <figure class="figure-wide figure-caption-center">
+            <div class="figure-media">
+              <img src="./figures/compressor_swimlane.png" alt="Compressor / indexer / KV cache path">
+            </div>
+            <figcaption class="pretext-target" data-pretext-role="caption">系统路径图：compressor、indexer、KV cache 不是附属说明，而是 long-context 怎样从结构收益变成系统收益的关键中间层。</figcaption>
+          </figure>
+          <h3><code>FP4</code>、定制 kernel 和融合算子，才是“能不能真的跑”的分界线</h3>
+          <p>这些词单看都像工程细节，但合起来才构成 V4 的真正声明：结构创新不是停在论文图上，而是进入了长期可维护的软件系统。从现有实现文档看，<code>Compressor</code>、<code>CompressEpilog</code>、<code>LightningIndexer</code>、<code>SAS</code>、<code>hc_pre</code>、<code>hc_post</code> 这些融合算子也不只是省一次 launch。它们更大的作用，是把 V4 新引入的数据路径直接固化进执行图里。</p>
+          <ul>
+            <li>压缩和 cache 更新一起发生。</li>
+            <li>索引选择和 attention 前处理一起发生。</li>
+            <li><code>mHC</code> 的 pre/post mapping 被做成稳定的前后处理路径。</li>
+          </ul>
+          <p>在低精度这块，V4 还把 <code>FP4</code> 量化感知训练明确用到了 <code>MoE</code> 专家权重和 indexer 的 <code>QK</code> 路径上。这个选择的重点不是“又多了一种量化格式”，而是它同时在压权重内存、访存带宽和相关计算量。</p>
+          <p>另一方面，部分 kernel 明确使用了 <code>TileLang</code> 来平衡开发生产力和运行时效率。这类选择的价值在于，复杂融合算子不再只能依赖极重的手写后端，而是开始有机会在可维护性和性能之间找到中间地带。</p>
+          <p>再往下看，训推一致也是这一段不能忽略的点。V4 提供了高效的 batch-invariant 和 deterministic 算子库来保证训推一致，这意味着同一套结构不只是“训练时能跑、推理时也能跑”，而是两边尽量共享相同的数值行为和执行语义。</p>
+          <p>hybrid attention 一旦上线，真正的瓶颈通常不是理论 FLOPs，而是张量搬运、cache 写回、同步点和跨流调度。融合算子做的事，本质上是在减少结构设计和实际执行之间的缝。</p>
+          <p>如果想直接看运行时落地而不是只看论文描述，一个比较好的入口是官方公开的 <code>inference</code> 目录：<a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/tree/main/inference">https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/tree/main/inference</a>。这个入口至少能把“结构怎么落到推理侧”这件事和具体实现路径对应起来。</p>
+          <ul>
+            <li>优化 EP 时，不要只盯 GEMM，要盯调度级重叠。</li>
+            <li>KV cache 要按存储层次看，而不是按临时缓存看。</li>
+            <li>deterministic runtime 会越来越早地进入主舞台。</li>
+          </ul>
+        </section>
+
+        <section class="section" id="economics">
+          <div class="section-tag">Cost Curve</div>
+          <h2>这篇论文真正值钱的，是成本曲线真的被改了</h2>
+          <p>最值得盯住的一组数字，不是单个 benchmark，而是 <code>1M context</code> 下的推理 FLOPs 和 KV cache。按照论文表述，相比 DeepSeek-V3.2，<code>DeepSeek-V4-Pro</code> 在 <code>1M</code> context 下只需要 <code>27%</code> 的 single-token inference FLOPs 和 <code>10%</code> 的 KV cache；<code>DeepSeek-V4-Flash</code> 分别只需要 <code>10%</code> 和 <code>7%</code>。</p>
+          <p>这些结果和前面的结构分析是对应的。混合 <code>CSA</code> / <code>HCA</code> 负责把远场路径的表示和访问成本压下来，计算与存储精度优化进一步把推理 FLOPs 和 KV cache 往下压，因此长上下文下的收益会比短上下文更明显。</p>
+          <p>如果这些收益在真实 workload 下大体成立，那么长上下文的讨论重心就变了。问题不再是“能不能支持更长 token”，而是“更长 token 有没有进入可运营区间”。</p>
+          <div class="verdict">真正的分界线不是模型能看多长，而是系统付不付得起多长。</div>
+        </section>
+
+        <section class="finale" id="bottom-line">
+          <div class="section-tag">Summary</div>
+          <h2>4. 小结</h2>
+          <p>它在说另一件更重要的事：如果目标是让 reasoning、agent loop 和超长上下文真正可用，那么模型结构、残差路径、KV cache、并行调度和 runtime 必须一起被设计。DeepSeek-V4 值得记住的地方，就在这里。</p>
+          <div class="pulse">真正的故事不是模型又大了一点。真正的故事是 runtime 到底能不能把这张架构支票兑现。</div>
+          <p>如果把全文压成最后一句结论，我的判断会更直接一点：除了对 Infra 团队不太友好以外，这仍然是一个非常不错的工作。原因也很明确，它在算力和 KV cache 开销上都做了大幅降低，这不仅让长上下文推理更接近可运营区间，也会利好在国产卡平台上构建更低成本的推理系统。</p>
+          <p>如果要把这次发布的技术判断和气质判断压成一句话，我会保留官方稿件里的那句：「不诱于誉, 不恐于诽, 率道而行, 端然正己。」它放在这里并不是为了做态度展示，而是因为 V4 的整套设计，确实更像是在按自己的工程路线把问题一层层做穿。</p>
+        </section>
+
+        <section class="section" id="references">
+          <div class="section-tag">References</div>
+          <h2>参考链接</h2>
+          <ul>
+            <li><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf">DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence</a></li>
+            <li><a href="https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw">DeepSeek-V4详细分析(1): 算法和模型结构</a></li>
+            <li><a href="https://api-docs.deepseek.com/zh-cn/news/news260424">DeepSeek-V4 预览版：迈入百万上下文普惠时代</a></li>
+            <li><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/tree/main/inference">deepseek-ai/DeepSeek-V4-Pro / inference</a></li>
+            <li><a href="https://www.zhihu.com/question/2030963929510310856/answer/2031734018199270833">DeepSeek V4 预览版本上线并同步开源，哪些亮点值得关注？ - kaiyuan的回答 - 知乎</a></li>
+          </ul>
+        </section>
+    </article>
+  </div>
+
+  <script type="module">
+    import { prepareWithSegments, layoutWithLines } from 'https://esm.sh/@chenglou/pretext';
+
+    (() => {
+      const stage = document.getElementById('mesmerizing-stage');
+      const stageLinesRoot = document.getElementById('stage-lines');
+      const essayRoot = document.getElementById('essay-root');
+      const essayLinesRoot = document.getElementById('essay-lines');
+      const outlineToggle = document.getElementById('outline-toggle');
+      const outlinePanel = document.getElementById('outline-panel');
+      const outlineBackdrop = document.getElementById('outline-backdrop');
+      const outlineClose = document.getElementById('outline-close');
+      if (!stage || !stageLinesRoot || !essayRoot || !essayLinesRoot || !outlineToggle || !outlinePanel || !outlineBackdrop || !outlineClose) return;
+
+      const heroSource = [
+        'DeepSeek-V4 真正重要的不是模型更大，而是 long-context 的成本曲线被结构和 runtime 一起改了。',
+        'CSA + HCA 不是两个零散 trick，而是按距离分层的 hybrid attention；mHC 负责让这种更激进的路径稳定下来。',
+        'Muon、iterative clip、KV cache 和融合算子这些工程条件，决定这套结构能否进入可训练、可部署区间。'
+      ].join(' ');
+
+      const stagePointer = { x: 0.72, y: 0.34 };
+      const essayPointer = { x: 0.48, y: 0.18 };
+      let stageRows = [];
+      let essayRows = [];
+      let rafId = 0;
+      const pretextTargets = Array.from(document.querySelectorAll('.pretext-target'));
+
+      function getLinesFromPretext(text, font, maxWidth, lineHeight) {
+        const prepared = prepareWithSegments(text, font);
+        const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+        return lines.map(line => line.text);
+      }
+
+      function renderPretextBlock(node) {
+        const role = node.dataset.pretextRole || 'body';
+        const text = node.dataset.pretextText || node.textContent.trim();
+        if (!node.dataset.pretextText) node.dataset.pretextText = text;
+
+        const style = getComputedStyle(node);
+        const font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        const lineHeightPx = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.4;
+        const maxWidth = Math.max(40, node.clientWidth || node.getBoundingClientRect().width);
+        const lines = getLinesFromPretext(text, font, maxWidth, lineHeightPx);
+
+        node.innerHTML = '';
+        lines.forEach((line, index) => {
+          const span = document.createElement('span');
+          span.className = `pretext-line pretext-line-${role}`;
+          span.textContent = line;
+          if (role === 'title' && index < lines.length - 1) {
+            span.style.marginBottom = '0.04em';
+          }
+          if (role === 'lead' && index < lines.length - 1) {
+            span.style.marginBottom = '0.08em';
+          }
+          if (role === 'caption' && index < lines.length - 1) {
+            span.style.marginBottom = '0.02em';
+          }
+          node.appendChild(span);
+        });
+      }
+
+      function renderAllPretextBlocks() {
+        pretextTargets.forEach(renderPretextBlock);
+      }
+
+      function buildStageRows() {
+        const width = stage.clientWidth;
+        const height = stage.clientHeight;
+        const sidePadding = width < 700 ? 20 : 32;
+        const usable = Math.max(220, width - sidePadding * 2);
+        const fontSize = Math.max(18, Math.min(26, width * 0.022));
+        const lineHeight = Math.round(fontSize * 1.28);
+        const font = `600 ${fontSize}px Poppins, Arial, sans-serif`;
+        const repeated = Array.from({ length: 7 }, () => heroSource).join(' ');
+        const wrapped = getLinesFromPretext(repeated, font, usable * 0.92, lineHeight);
+        const top = Math.max(32, (height - wrapped.length * lineHeight) / 2);
+
+        stageLinesRoot.innerHTML = '';
+        stageRows = wrapped.map((text, index) => {
+          const el = document.createElement('div');
+          el.className = 'line';
+          if (index % 9 === 2) el.classList.add('accent-orange');
+          if (index % 11 === 5) el.classList.add('accent-blue');
+          if (index % 13 === 7) el.classList.add('accent-green');
+          el.textContent = text;
+          el.style.top = `${top + index * lineHeight}px`;
+          el.style.left = `${sidePadding}px`;
+          el.style.fontSize = `${fontSize}px`;
+          stageLinesRoot.appendChild(el);
+          return { el, index, baseTop: top + index * lineHeight };
+        });
+      }
+
+      function buildEssayRows() {
+        const textParts = Array.from(essayRoot.querySelectorAll('h2, h3, p, li, figcaption, .pulse, .verdict'))
+          .map(node => node.textContent.trim())
+          .filter(Boolean);
+        const width = essayRoot.clientWidth;
+        const usable = Math.max(260, width - 16);
+        const fontSize = Math.max(14, Math.min(19, width * 0.024));
+        const lineHeight = Math.round(fontSize * 1.9);
+        const font = `600 ${fontSize}px Poppins, Arial, sans-serif`;
+        const repeated = textParts.join('   ');
+        const wrapped = getLinesFromPretext(repeated, font, usable * 0.96, lineHeight);
+
+        essayLinesRoot.innerHTML = '';
+        essayRows = wrapped.map((text, index) => {
+          const el = document.createElement('div');
+          el.className = 'essay-line';
+          if (index % 10 === 3) el.classList.add('accent-orange');
+          if (index % 12 === 6) el.classList.add('accent-blue');
+          if (index % 14 === 9) el.classList.add('accent-green');
+          el.textContent = text;
+          el.style.top = `${18 + index * lineHeight}px`;
+          el.style.fontSize = `${fontSize}px`;
+          el.style.left = '8px';
+          essayLinesRoot.appendChild(el);
+          return { el, index, baseTop: 18 + index * lineHeight };
+        });
+
+        const minHeight = 40 + wrapped.length * lineHeight;
+        essayRoot.style.minHeight = `${Math.max(minHeight, essayRoot.scrollHeight)}px`;
+      }
+
+      function animate(time) {
+        const stageWidth = stage.clientWidth;
+        const stageHeight = stage.clientHeight;
+        stage.style.setProperty('--spot-x', `${stagePointer.x * 100}%`);
+        stage.style.setProperty('--spot-y', `${stagePointer.y * 100}%`);
+
+        stageRows.forEach(({ el, index, baseTop }) => {
+          const nx = stagePointer.x * stageWidth;
+          const ny = stagePointer.y * stageHeight;
+          const dx = nx - stageWidth * 0.5;
+          const dy = ny - baseTop;
+          const wave = Math.sin(time * 0.0011 + index * 0.55) * 18;
+          const drift = Math.cos(time * 0.00065 + index * 0.32) * 9;
+          const pointerPull = dx * 0.018 * Math.exp(-Math.abs(dy) / 160);
+          const vertical = Math.sin(time * 0.0009 + index * 0.45) * 3;
+          const rotate = Math.sin(time * 0.00055 + index * 0.18) * 0.45;
+          const opacity = 0.74 - Math.min(Math.abs(dy) / stageHeight, 0.45);
+          el.style.opacity = String(Math.max(0.14, opacity));
+          el.style.transform = `translate3d(${wave + drift + pointerPull}px, ${vertical}px, 0) rotate(${rotate}deg)`;
+        });
+
+        const essayWidth = essayRoot.clientWidth;
+        const essayHeight = essayRoot.clientHeight;
+        essayRoot.style.setProperty('--essay-spot-x', `${essayPointer.x * 100}%`);
+        essayRoot.style.setProperty('--essay-spot-y', `${essayPointer.y * 100}%`);
+
+        essayRows.forEach(({ el, index, baseTop }) => {
+          const nx = essayPointer.x * essayWidth;
+          const ny = essayPointer.y * essayHeight;
+          const dx = nx - essayWidth * 0.5;
+          const dy = ny - baseTop;
+          const wave = Math.sin(time * 0.00062 + index * 0.49) * 10;
+          const drift = Math.cos(time * 0.00041 + index * 0.21) * 6;
+          const pointerPull = dx * 0.012 * Math.exp(-Math.abs(dy) / 240);
+          const vertical = Math.sin(time * 0.0005 + index * 0.33) * 2;
+          const rotate = Math.sin(time * 0.00031 + index * 0.15) * 0.18;
+          const opacity = 0.42 - Math.min(Math.abs(dy) / essayHeight, 0.26);
+          el.style.opacity = String(Math.max(0.05, opacity));
+          el.style.transform = `translate3d(${wave + drift + pointerPull}px, ${vertical}px, 0) rotate(${rotate}deg)`;
+        });
+
+        rafId = requestAnimationFrame(animate);
+      }
+
+      function updateStagePointer(event) {
+        const rect = stage.getBoundingClientRect();
+        stagePointer.x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+        stagePointer.y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+      }
+
+      function updateEssayPointer(event) {
+        const rect = essayRoot.getBoundingClientRect();
+        essayPointer.x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+        essayPointer.y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+      }
+
+      stage.addEventListener('pointermove', updateStagePointer);
+      stage.addEventListener('pointerleave', () => {
+        stagePointer.x = 0.72;
+        stagePointer.y = 0.34;
+      });
+
+      essayRoot.addEventListener('pointermove', updateEssayPointer);
+      essayRoot.addEventListener('pointerleave', () => {
+        essayPointer.x = 0.48;
+        essayPointer.y = 0.18;
+      });
+
+      const revealTargets = Array.from(document.querySelectorAll('.tldr, .section, .finale, .notebook, .verdict'));
+      const revealObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.14, rootMargin: '0px 0px -6% 0px' });
+      revealTargets.forEach(node => revealObserver.observe(node));
+
+      const figures = Array.from(document.querySelectorAll('figure'));
+      figures.forEach(figure => {
+        figure.addEventListener('pointermove', event => {
+          const rect = figure.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width - 0.5;
+          const y = (event.clientY - rect.top) / rect.height - 0.5;
+          const img = figure.querySelector('img');
+          if (!img) return;
+          figure.classList.add('is-focused');
+          img.style.transform = `scale(1.018) translate3d(${x * 10}px, ${y * 8}px, 0)`;
+        });
+        figure.addEventListener('pointerleave', () => {
+          const img = figure.querySelector('img');
+          figure.classList.remove('is-focused');
+          if (img) img.style.transform = '';
+        });
+        figure.addEventListener('click', () => {
+          const isFocused = figure.classList.toggle('is-focused');
+          const img = figure.querySelector('img');
+          if (img && !isFocused) img.style.transform = '';
+        });
+      });
+
+      const notebooks = Array.from(document.querySelectorAll('.notebook'));
+      notebooks.forEach(note => {
+        note.addEventListener('pointerenter', () => note.classList.add('is-focused'));
+        note.addEventListener('pointerleave', () => note.classList.remove('is-focused'));
+      });
+
+      function setOutlineOpen(open) {
+        outlinePanel.classList.toggle('is-open', open);
+        outlineBackdrop.classList.toggle('is-open', open);
+        outlineToggle.setAttribute('aria-expanded', String(open));
+        outlinePanel.setAttribute('aria-hidden', String(!open));
+      }
+
+      outlineToggle.addEventListener('click', () => {
+        const next = outlineToggle.getAttribute('aria-expanded') !== 'true';
+        setOutlineOpen(next);
+      });
+      outlineClose.addEventListener('click', () => setOutlineOpen(false));
+      outlineBackdrop.addEventListener('click', () => setOutlineOpen(false));
+      outlinePanel.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => setOutlineOpen(false));
+      });
+      window.addEventListener('keydown', event => {
+        if (event.key === 'Escape') setOutlineOpen(false);
+      });
+
+      window.addEventListener('resize', () => {
+        renderAllPretextBlocks();
+        buildStageRows();
+        buildEssayRows();
+      });
+      renderAllPretextBlocks();
+      buildStageRows();
+      buildEssayRows();
+      rafId = requestAnimationFrame(animate);
+
+      window.addEventListener('beforeunload', () => {
+        if (rafId) cancelAnimationFrame(rafId);
+      });
+    })();
+  </script>
+</body>
+</html>

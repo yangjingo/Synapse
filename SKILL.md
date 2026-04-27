@@ -1,48 +1,87 @@
 ---
-name: synapse-logic-forge
-description: The high-pressure logic forge for Why.J Engineering. Use this skill to distill technical noise into 1) Why.J Theater DSL slides or 2) High-density engineering blogs. Strictly enforces O(1) complexity and prohibits social media fluff (X/Xiaoshu).
+name: synapse-forge
+description: Master skill for Why.J Engineering. Distills technical noise into Why.J Theater DSL slides or high-density engineering blogs via sub-skills. Orchestrates synapse-blog, synapse-fig, and synapse-viz.
 repository: https://github.com/yangjingo/Synapse
 homepage: https://github.com/yangjingo/Synapse
-version: 0.2
+version: 6.0
 ---
 
-# Synapse Logic Forge
+# Synapse Forge
 
-## 1. Agentic Taste (MANDATORY)
-You MUST base every output on these high-pressure Agentic Taste standards. This is not just a protocol; it's about **how to use an Agent with taste**:
-- **`references/WHYJ-SLIDES.html`**: The Master Template for all slide decks.
-- **`references/WHYJ-SLIDES-DSL.md`**: Source of truth for all slide syntax.
-- **`references/BLOG-STYLE.md`**: Linguistic DNA for technical writing.
-- **`references/FIGURE-STYLE.md`**: Nano Banano Logic Sketch (Watermark: "whyj + {project_id} + YYYY/MM/DD").
+Master orchestrator for the Synapse skill system.
 
-## 2. Forge Operations: Why.J Theater (Slides)
-### 2.1 Structural Sequence (Minimum 11-Page Logic)
-Every slide deck MUST follow this structured sequence to maintain its Agentic Taste:
-1. **00 / Cover**: Identity & Title. Use `YYYY/MM/DD` for dates.
-2. **01 / Context**: The "Why now?" logic & Global Problem Statement.
-3. **02 / Outline**: 4 Questions-based logic tree (No-bullet, Push-left). **MANDATORY**.
-4. **03-09 / Mechanism**: Core Engineering Sub-Logics. Flexible based on technical depth.
-5. **10 / Takeaways**: Action-oriented summary (3 items max).
-6. **11 / Reference**: Verified Source List (NeurIPS/ICLR/Official Blogs). Simplified header: "Reference".
+## Sub-Skills
 
-### 2.2 Engineering Patterns (MANDATORY)
-- **Figure Zooming**: Use `data-scale="1.2"` (or higher) on `.visual-box` to emphasize complex diagrams.
-- **Watermarking**: Every HTML page MUST include the faint watermark: `whyj + {project_id} + YYYY/MM/DD`.
-- **H2 Dominance**: Ensure `text-transform: none !important;` for all slide headers to preserve case-sensitive technical terms.
-- **Reference Tags**: Use `.reference-tag` class for external links in the final slide.
+| Skill | Directory | Purpose |
+|-------|-----------|---------|
+| `synapse-design` | `skills/synapse-design/` | Source material → blog.md + blog.html |
+| `synapse-figure` | `skills/synapse-figure/` | Technical illustration orchestration |
+| `synapse-viz` | `skills/synapse-viz/` | PyTorch model structure visualization |
+| `synapse-pretext` | `skills/synapse-pretext/` | Pretext text layout integration |
+| `synapse-remotion` | `skills/synapse-remotion/` | Remotion animation integration |
 
-### 2.3 Visual Rules (Non-negotiable)
-- **Push-Left Truth**: ALL content, including `visual-box`, MUST be `flex-start` (left-aligned). NO centering allowed.
-- **Constraint**: MAX 5 points per slide. Single-line logic only.
-- **Aggressive Pulse**: Every slide MUST end with a `pulse-layer` conclusion that hits like a hammer. Support `--pulse-scale` for emphasis.
+## Master Protocols (MANDATORY)
 
-## 3. The "O(1)" Quality Gate
-Before delivering, perform this internal "Taste Check":
-1. **No Fluff**: Did you strip out all social-media-style "hooks" or emojis? (DELETE if found).
-2. **Date Protocol**: Did you use the non-specific `YYYY/MM/DD` for the template or the correct session date for the draft?
-3. **Nano Banano Integration**: If a diagram is suggested, did you provide the prompt following `FIGURE-STYLE.md`?
+All outputs MUST follow these references:
 
-## 4. Prohibited Content
-- NO threads for X (Twitter).
-- NO templates for Xiaoshu (Little Red Book).
-- NO low-density summaries.
+- `references/WHYJ-SLIDES.html` — Master template for slide decks
+- `references/WHYJ-SLIDES-DSL.md` — DSL syntax source of truth
+- `references/BLOG-STYLE.md` / `BLOG-STYLE-CN.md` — Blog writing DNA
+- `references/FIGURE-STYLE.md` — Nano Banano logic sketch protocol
+- `references/SLIDES-STYLE.md` — Slide visual style guide
+
+## Operation A: Why.J Theater (Slides)
+
+### Structural Sequence
+
+1. **00 / Cover** — Identity & Title (`YYYY/MM/DD`)
+2. **01 / Context** — "Why now?" & problem statement
+3. **02 / Agenda** — 4-question logic tree (no-bullet, push-left)
+4. **03-N / Mechanism** — Core sub-logics, one per slide, O(1) complexity
+5. **Takeaways** — 3 items max
+6. **Reference** — Verified source list
+
+### Visual Rules
+
+- **Push-Left Truth**: All content `flex-start`, NO centering
+- **Max 5 points per slide**, single-line logic only
+- **Watermark**: `whyj + {project_id} + YYYY/MM/DD` on every page
+- **Aggressive Pulse**: Every slide ends with `@pulse:` hammer conclusion
+- **Figure Zoom**: `data-scale="1.2"` on `.visual-box` for complex diagrams
+- **H2 Dominance**: `text-transform: none !important` for headers
+- **Reference Tags**: `.reference-tag` class for external links
+
+### Post-Generation (MANDATORY)
+
+Run `npx prettier --write [file]` after generating any HTML/DSL.
+
+## Operation B: Engineering Blog
+
+Delegate to **`synapse-design`** skill. Core principles:
+
+- Senior-to-senior tone, zero marketing
+- Thesis-first, mechanism-driven
+- Follow `references/BLOG-STYLE.md`
+
+## O(1) Quality Gate
+
+Before delivering, verify:
+
+1. **No Fluff** — Stripped all social-media hooks and emojis
+2. **Aggressive Pulse** — Conclusion hits like a hammer
+3. **Nano Banano** — Diagram prompts follow `FIGURE-STYLE.md`
+
+## Trigger
+
+Use when the user asks for:
+
+- Why.J Theater slide deck or DSL slides
+- full Synapse orchestration (slides + figures + blog)
+- `做PPT`, `演讲稿`, `技术分享`, `做成 slides`, `按 WhyJ 风格整理`
+- any request spanning multiple synapse sub-skills
+
+## Prohibited
+
+- NO X/Twitter threads
+- NO Xiaoshu (Little Red Book) templates
+- NO low-density summaries

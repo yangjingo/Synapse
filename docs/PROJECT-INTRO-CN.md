@@ -36,16 +36,29 @@
 - 这是一种“认知负荷最小化”的视觉方案。
 - 所有的图表必须带有 `whyj + nano banano` 的水印，象征着这不仅是生成的，更是经过“人工锻造”校验过的逻辑。
 
-## 3. 工程实战：从 Hook 到 Merge
+## 3. 技能体系：6 个独立的 Synapse Skill
+
+| Skill | 目录 | 用途 | 触发词示例 |
+|-------|------|------|-----------|
+| `synapse-forge` | root `SKILL.md` | 主技能，编排 slides + blog | `做PPT`, `技术分享` |
+| `synapse-design` | `skills/synapse-design/` | 源材料 → blog.md + blog.html | `写成博客笔记`, `按 WhyJ 风格写` |
+| `synapse-figure` | `skills/synapse-figure/` | 技术插图编排（架构图、流水线、benchmark） | `插图规范`, `figure spec` |
+| `synapse-viz` | `skills/synapse-viz/` | PyTorch 模型结构可视化 | `模型结构图`, `torchvista` |
+| `synapse-pretext` | `skills/synapse-pretext/` | Pretext 文本布局集成 | `pretext`, `文本动画` |
+| `synapse-remotion` | `skills/synapse-remotion/` | Remotion 动画集成 | `remotion`, `动画` |
+
+每个子技能独立存放在 `skills/` 对应目录下，包含 SKILL.md 定义及所有源材料（references、assets、scripts）。
+
+## 4. 工程实战：从 Hook 到 Merge
 
 Synapse 的典型工作流展示了什么是真正的 **README-driven development**:
 
 1. **Forge (锻造)**: 输入杂乱的原始 Log 或论文 PDF。
-2. **Distill (提纯)**: 触发 `synapse-logic-forge` 技能，强制模型进入“高压模式”。
-3. **Validate (校验)**: 通过内置的 `url_validator.py` 和 `prettier` 自动格式化，确保输出物在工程上是合规的。
+2. **Distill (提纯)**: 触发 `synapse-forge` 主技能，自动编排子技能进入”高压模式”。
+3. **Validate (校验)**: 通过内置的 validator 脚本和 `prettier` 自动格式化，确保输出物在工程上是合规的。
 4. **Merge (合并)**: 将提纯后的逻辑直接并入项目的 `references` 或 `examples`。
 
-## 4. 智性克制：我们不确定未来，但深知当下
+## 5. 智性克制：我们不确定未来，但深知当下
 
 Synapse 承认技术的局限性。我们不承诺 AI 能解决所有架构问题，但我们承诺：**通过 Synapse 产出的每一行文字、每一张幻灯片，都必须是“干货直给”的硬核随笔。**
 
