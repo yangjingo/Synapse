@@ -66,7 +66,7 @@ Relevant sources:
 - Stitch docs overview
   Source: https://stitch.withgoogle.com/docs/design-md/overview
 
-Useful trigger for `theme-factory` or future DESIGN.md output:
+Useful trigger for `synapse-design` or future DESIGN.md output:
 
 - the user wants a reusable palette across many technical figures
 - the user wants consistent type hierarchy across a whole blog series
@@ -107,7 +107,7 @@ Relevant source:
   - emphasizes intentional pixels, maintainability, accessibility, and code ownership
   Source: https://tailwindcss.com/plus/ui-kit?ref=sidebar
 
-Useful trigger for `frontend-design`:
+Useful trigger for `synapse-design`:
 
 - the output should become a reusable article component library
 - the technical figures need card, panel, callout, badge, or layout primitives
@@ -119,11 +119,11 @@ Use these systems in this order:
 
 1. `infra-llm-blog-illustration`
    Define figure purpose, figure class, and information hierarchy.
-2. `pretext`
+2. `synapse-pretext`
    Refine label layout, multiline wrapping, title routing, and dense editorial typography.
-3. `theme-factory`
+3. `synapse-design`
    Turn accents into a coherent tokenized palette.
-4. `frontend-design`
+4. `synapse-design`
    Implement the system in HTML/CSS/React when needed.
 5. `remotion-best-practices`
    Implement code-driven animation when the output is motion rather than a static image.

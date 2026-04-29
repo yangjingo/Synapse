@@ -30,8 +30,8 @@ Use this as the default workflow for figure work in infra, systems, and LLM writ
 3. Choose the motion pattern.
 4. Write the reveal sequence.
 5. Choose the implementation path:
-   - `imagegen` for static generated image
-   - `remotion-best-practices` for code-driven animation
+   - `synapse-figure` for static generated image
+   - `synapse-gif` for animated output (GIF or Remotion)
 6. Review whether motion improved explanation or only added noise.
 
 ### Required Output

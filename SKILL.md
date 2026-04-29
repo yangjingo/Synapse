@@ -1,6 +1,6 @@
 ---
-name: synapse-forge
-description: Master skill for Why.J Engineering. Distills technical noise into Why.J Theater DSL slides or high-density engineering blogs via sub-skills. Orchestrates synapse-blog, synapse-fig, and synapse-viz.
+name: synapse
+description: Master skill for Why.J Engineering. Distills technical noise into Why.J Theater DSL slides or high-density engineering blogs via sub-skills. Orchestrates synapse-forge, synapse-design, synapse-figure, synapse-viz, synapse-pretext, and synapse-gif.
 repository: https://github.com/yangjingo/Synapse
 homepage: https://github.com/yangjingo/Synapse
 version: 6.0
@@ -14,11 +14,13 @@ Master orchestrator for the Synapse skill system.
 
 | Skill | Directory | Purpose |
 |-------|-----------|---------|
+| `synapse-forge` | `skills/synapse-forge/` | Raw material ingestion & refinement (熔炉) |
 | `synapse-design` | `skills/synapse-design/` | Source material → blog.md + blog.html |
 | `synapse-figure` | `skills/synapse-figure/` | Technical illustration orchestration |
 | `synapse-viz` | `skills/synapse-viz/` | PyTorch model structure visualization |
 | `synapse-pretext` | `skills/synapse-pretext/` | Pretext text layout integration |
-| `synapse-remotion` | `skills/synapse-remotion/` | Remotion animation integration |
+| `synapse-gif` | `skills/synapse-gif/` | Animated GIFs + Remotion technical animations |
+| `synapse-excalidraw` | `skills/synapse-excalidraw/` | Mermaid/screenshot → Excalidraw → animated hand-drawn diagrams |
 
 ## Master Protocols (MANDATORY)
 
@@ -26,9 +28,9 @@ All outputs MUST follow these references:
 
 - `references/WHYJ-SLIDES.html` — Master template for slide decks
 - `references/WHYJ-SLIDES-DSL.md` — DSL syntax source of truth
-- `references/BLOG-STYLE.md` / `BLOG-STYLE-CN.md` — Blog writing DNA
-- `references/FIGURE-STYLE.md` — Nano Banano logic sketch protocol
 - `references/SLIDES-STYLE.md` — Slide visual style guide
+- Blog style → `skills/synapse-design/references/BLOG-STYLE.md`
+- Figure style → `skills/synapse-figure/references/FIGURE-STYLE.md`
 
 ## Operation A: Why.J Theater (Slides)
 
@@ -55,13 +57,19 @@ All outputs MUST follow these references:
 
 Run `npx prettier --write [file]` after generating any HTML/DSL.
 
+## Operation A.5: Material Ingestion (Forge)
+
+When user provides URLs, local files, or raw material:
+
+Delegate to **`synapse-forge`** skill to produce structured `forge-output.md` before proceeding to Operation A or B.
+
 ## Operation B: Engineering Blog
 
 Delegate to **`synapse-design`** skill. Core principles:
 
 - Senior-to-senior tone, zero marketing
 - Thesis-first, mechanism-driven
-- Follow `references/BLOG-STYLE.md`
+- Follow `skills/synapse-design/references/BLOG-STYLE.md`
 
 ## O(1) Quality Gate
 
@@ -69,7 +77,7 @@ Before delivering, verify:
 
 1. **No Fluff** — Stripped all social-media hooks and emojis
 2. **Aggressive Pulse** — Conclusion hits like a hammer
-3. **Nano Banano** — Diagram prompts follow `FIGURE-STYLE.md`
+3. **Nano Banano** — Diagram prompts follow `skills/synapse-figure/references/FIGURE-STYLE.md`
 
 ## Trigger
 

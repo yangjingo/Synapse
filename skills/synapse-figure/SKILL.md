@@ -34,10 +34,10 @@ Use the current local corpus as calibration:
 - Separate `visual style`, `information pattern`, and `editorial purpose`.
 - Prefer conclusions that can be reused in future blogs or paper summaries.
 - Keep source-specific notes in `references/source-inventory.md`, not in this file.
-- Delegate typography, text-layout, and line-breaking decisions to the `pretext` skill when text geometry matters.
-- Delegate palette and visual-system tokenization to `theme-factory` when the task needs a reusable color system.
-- Delegate high-fidelity UI or web implementation to `frontend-design` when the output must ship as HTML/CSS/React.
-- Delegate final raster illustration generation to `imagegen` when the task requires actual generated figure assets.
+- Delegate typography, text-layout, and line-breaking decisions to the `synapse-pretext` skill when text geometry matters.
+- Delegate palette and visual-system tokenization to `synapse-design` when the task needs a reusable color system.
+- Delegate high-fidelity UI or web implementation to `synapse-design` when the output must ship as HTML/CSS/React.
+- Delegate final raster illustration generation to `synapse-figure` when the task requires actual generated figure assets.
 - Delegate code-driven motion graphics to `remotion-best-practices` when the figure should become an animation or video artifact.
 - Borrow code-native component discipline from Tailwind Catalyst patterns when the figure system needs reusable panels, callouts, badges, or layout primitives.
 - Treat `references/design-md-bridge.md` as the design-profile overlay. Use it for style direction; do not let it override the core requirement for technical rigor.
@@ -50,18 +50,18 @@ Use this skill as the orchestrator for technical figure language.
 
 Call other skills when the task crosses into their specialty:
 
-- Use `pretext` for:
+- Use `synapse-pretext` for:
   - text measurement
   - title routing
   - multiline label layout
   - dense editorial typography
   - bubble, chip, or obstacle-aware text flow
-- Use `theme-factory` for:
+- Use `synapse-design` for:
   - palette design
   - semantic color tokens
   - theme variants
   - reusable visual-system definition
-- Use `frontend-design` for:
+- Use `synapse-design` for:
   - production-grade web rendering
   - HTML/CSS/React implementations of figures or article systems
   - responsive layout polish
@@ -69,28 +69,29 @@ Call other skills when the task crosses into their specialty:
 - Use DESIGN.md-style profile references for:
   - choosing a higher-level product aesthetic for a blog page, article shell, or figure system
   - mapping a technical article to a familiar design posture such as `vercel`, `together.ai`, `stripe`, `notion`, or `claude`
-  - generating a DESIGN.md-style brief before handing execution to `frontend-design`
-- Use `imagegen` for:
+  - generating a DESIGN.md-style brief before handing execution to `synapse-design`
+- Use `synapse-figure` for:
   - final bitmap illustration generation
   - visual variants based on the figure spec
   - polished diagram-like hero graphics when the output should be a rendered image instead of code
   - Imagen-based image generation workflows
-- Use `remotion-best-practices` for:
-  - code-driven technical animations
+- Use `synapse-gif` for:
+  - code-driven technical animations (Remotion)
+  - animated GIFs and emoji (PIL/imageio)
   - SVG path drawing animations
   - explainer videos for architecture, flow, and sequencing
-  - Remotion-based implementation details and rendering workflow
-- Use `canvas-design` only when the task is a static visual composition rather than a systems figure or programmatic animation
+  - converting a figure spec into animated output (GIF or Remotion)
+- Use `synapse-figure` only when the task is a static visual composition rather than a systems figure or programmatic animation
 
 Keep responsibilities clean:
 
 - `synapse-figure` decides what the figure must communicate
-- `pretext` decides how dense text should be laid out cleanly
-- `theme-factory` decides how colors become a coherent token set
+- `synapse-pretext` decides how dense text should be laid out cleanly
+- `synapse-design` decides how colors become a coherent token set
 - `design-md-bridge.md` contributes product-level aesthetic references and DESIGN.md-style language
-- `frontend-design` decides how the final web artifact is executed
-- `imagegen` turns the figure spec into final generated image assets, preferably using Imagen when image generation is requested
-- `remotion-best-practices` turns the figure spec into code-driven animation when motion is requested
+- `synapse-design` decides how the final web artifact is executed
+- `synapse-figure` turns the figure spec into final generated image assets, preferably using Imagen when image generation is requested
+- `synapse-gif` turns the figure spec into animated output (GIF or Remotion) when motion is requested
 - Tailwind Catalyst is a useful reference for spacing, hierarchy, and reusable component structure, but not the default visual aesthetic
 
 ## Workflow
@@ -200,7 +201,7 @@ Avoid:
 - glowing highlights
 - decorative shadows
 
-When the palette needs to become reusable across many figures, convert it into a tokenized system with `theme-factory` or a `DESIGN.md`-style spec.
+When the palette needs to become reusable across many figures, convert it into a tokenized system with `synapse-design` or a `DESIGN.md`-style spec.
 
 ### Shapes and lines
 
@@ -216,7 +217,7 @@ When the palette needs to become reusable across many figures, convert it into a
 - Prefer 2-6 words per block.
 - Keep labels technical and operational.
 - Keep display text compact and body annotations subordinate.
-- Use `pretext` when label density, multiline wrapping, or title routing affects the figure quality.
+- Use `synapse-pretext` when label density, multiline wrapping, or title routing affects the figure quality.
 
 Good labels:
 
@@ -449,13 +450,13 @@ When summarizing a source, use this order:
 
 ### Skill Handoffs
 
-- when to use `pretext`
-- when to use `theme-factory`
-- when to use `frontend-design`
-- when to use `imagegen`
-- when to use `remotion-best-practices`
+- when to use `synapse-pretext`
+- when to use `synapse-design`
+- when to use `synapse-design`
+- when to use `synapse-figure`
+- when to use `synapse-gif`
 
-When using `frontend-design`, prefer:
+When using `synapse-design`, prefer:
 
 - reusable primitives
 - spacing discipline
@@ -484,7 +485,7 @@ When the user asks to generate the actual illustration, do not stop at style ana
 Do this:
 
 1. Use this skill to define the figure intent, figure type, layout, labels, color posture, and anti-patterns.
-2. Hand off the final image prompt to `imagegen`.
+2. Hand off the final image prompt to `synapse-figure`.
 3. Prefer Imagen-based generation for the final raster illustration when available.
 
 Before handing off, convert the figure spec into an image prompt that includes:
@@ -517,7 +518,7 @@ Do this:
    - static figure
    - generated image
    - code-driven animation
-3. If animation is requested, hand off implementation to `remotion-best-practices`.
+3. If animation is requested, hand off implementation to `synapse-gif`.
 
 Use Remotion by default for code-driven animation when:
 
@@ -544,20 +545,20 @@ Do not add motion until the static figure logic is already coherent.
 
 Escalate to other skills when the request asks for more than figure taxonomy:
 
-- If the user wants better font systems, line routing, text compaction, or editorial title layout, use `pretext`.
-- If the user wants better color systems, richer palettes, or reusable tokens across many figures, use `theme-factory`.
-- If the user wants an implemented article system or web artifact, use `frontend-design`.
-- If the user wants the final illustration asset itself, use `imagegen` and prefer Imagen-based generation.
-- If the user wants code-driven animated diagrams or explainer videos, use `remotion-best-practices`.
+- If the user wants better font systems, line routing, text compaction, or editorial title layout, use `synapse-pretext`.
+- If the user wants better color systems, richer palettes, or reusable tokens across many figures, use `synapse-design`.
+- If the user wants an implemented article system or web artifact, use `synapse-design`.
+- If the user wants the final illustration asset itself, use `synapse-figure` and prefer Imagen-based generation.
+- If the user wants animated output (GIF, Remotion, or code-driven animation), use `synapse-gif`.
 
 When these skills are used together, keep this order:
 
 1. `synapse-figure`: define figure purpose and information structure
-2. `pretext`: refine typography and line layout
-3. `theme-factory`: define palette and semantic color tokens
-4. `frontend-design`: implement the visual system in code if needed
-5. `imagegen`: generate the final illustration asset with Imagen when image output is requested
-6. `remotion-best-practices`: implement motion when animated output is requested
+2. `synapse-pretext`: refine typography and line layout
+3. `synapse-design`: define palette and semantic color tokens
+4. `synapse-design`: implement the visual system in code if needed
+5. `synapse-figure`: generate the final illustration asset with Imagen when image output is requested
+6. `synapse-gif`: implement motion when animated output is requested (GIF or Remotion)
 
 ## Maintain
 

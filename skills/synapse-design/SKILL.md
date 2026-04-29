@@ -46,7 +46,7 @@ The Markdown artifact must:
 - be thesis-first and mechanism-driven
 - be publishable as a technical blog post
 - include a dedicated section for static illustration prompts
-- include prompts suitable for `imagegen` workflows such as Imagen or nano-banana
+- include prompts suitable for image generation workflows such as Imagen or nano-banana
 - define what each image should teach, not just how it should look
 
 ### HTML artifact requirements

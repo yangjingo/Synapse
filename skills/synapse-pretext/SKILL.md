@@ -103,7 +103,7 @@ When `pretext` is required in HTML output:
 - apply at minimum to animated text fields
 - extend to title, lead, and caption layout when those are part of the reading experience
 
-### In slide decks (synapse-forge)
+### In slide decks (Synapse root)
 
 - use `prepare()` + `layout()` to predict text height for slide layout
 - use `measureLineStats()` to calculate tight container widths

@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>On-Policy Distillation - Why.J Engineering Theater</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&family=JetBrains+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --grid-line: #fafafa;
+        --main-color: #1e1e1e;
+        --accent-claude: #d97757;
+        --item-bg: rgba(217, 119, 87, 0.05);
+        --strong-bg: rgba(217, 119, 87, 0.12);
+        --font-hand: "Gochi Hand", cursive;
+        --font-mono: "JetBrains Mono", monospace;
+        --shadow: 12px 12px 0px #1e1e1e;
+      }
+      body {
+        background-color: var(--bg-color);
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .reveal {
+        font-family: var(--font-hand);
+        color: var(--main-color);
+      }
+      .reveal .slides {
+        text-align: left;
+      }
+      .header-layer {
+        border-bottom: 8px solid var(--main-color);
+        margin-bottom: 30px;
+        padding-bottom: 16px;
+        position: relative;
+      }
+      .header-layer h2 {
+        font-family: var(--font-hand) !important;
+        font-weight: 800;
+        font-size: clamp(1.8rem, 4vw, 3.2rem) !important;
+        margin: 0 !important;
+        color: var(--main-color) !important;
+        text-transform: none !important;
+      }
+      .ui-label {
+        position: absolute;
+        top: -30px;
+        right: 0;
+        font-size: 1rem;
+        opacity: 0.3;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .canvas-layer {
+        display: grid;
+        grid-template-columns: 65% 35%;
+        gap: 40px;
+        align-items: start;
+        min-height: 500px;
+      }
+      .canvas-layer.push-left {
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        width: 100%;
+        min-height: 400px;
+        padding-left: 5%;
+      }
+      .canvas-text {
+        font-size: clamp(0.95rem, 1.8vw, 1.7rem);
+        line-height: 1.35;
+      }
+      .canvas-text ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .canvas-text li {
+        margin-bottom: 16px;
+        position: relative;
+        padding: 8px 10px 8px 40px;
+        border-radius: 6px;
+      }
+      .canvas-text li::before {
+        content: "→";
+        position: absolute;
+        left: 10px;
+        font-weight: 800;
+        color: var(--accent-claude);
+      }
+      .no-bullet .canvas-text li {
+        padding-left: 20px;
+      }
+      .no-bullet .canvas-text li::before {
+        content: "";
+      }
+      strong {
+        background: var(--strong-bg);
+        padding: 0 6px;
+        border-radius: 4px;
+        display: inline-block;
+        transform: rotate(-0.5deg);
+        font-weight: 800;
+      }
+      .visual-box {
+        border: 5px solid var(--main-color);
+        background: #fff;
+        min-height: 340px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        transform: scale(var(--visual-scale, 1)) translateY(var(--visual-y, 0));
+        transform-origin: center;
+      }
+      .pulse-layer {
+        position: absolute;
+        bottom: 20px;
+        left: 55px;
+        background: #fff;
+        border: 6px solid var(--main-color);
+        padding: 18px 36px;
+        transform: rotate(var(--pulse-rotate, -1.5deg))
+          translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1));
+        box-shadow: var(--shadow);
+        font-weight: 800;
+        font-size: clamp(1rem, 1.8vw, 1.9rem);
+        z-index: 10;
+        transform-origin: center;
+      }
+      .katex-display {
+        font-size: 0.85em !important;
+        margin: 0.5em 0 !important;
+      }
+      .ref-list li {
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+      }
+      .reference-tag {
+        font-size: 0.75rem;
+        opacity: 0.5;
+        margin-top: 6px;
+        display: block;
+        color: var(--accent-claude) !important;
+        text-decoration: none;
+      }
+      .reference-tag:hover {
+        opacity: 1;
+        text-decoration: underline;
+      }
+      .footer-watermark {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        font-family: var(--font-hand);
+        font-size: 0.8rem;
+        opacity: 0.1;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- 00 Cover -->
+        <section data-transition="none">
+          <div
+            class="header-layer"
+            style="border-bottom: none; padding-left: 5%; margin-top: 12%"
+          >
+            <div class="ui-label">00 / Cover</div>
+            <h1
+              style="
+                font-size: 4.2rem;
+                font-weight: 800;
+                margin: 0;
+                line-height: 1;
+              "
+            >
+              On-Policy Distillation
+            </h1>
+            <h2
+              style="
+                margin-top: 24px;
+                color: var(--accent-claude) !important;
+                font-size: 1.8rem !important;
+              "
+            >
+              不是"廉价 RL"，而是一套完全不同的训练几何
+            </h2>
+            <div
+              style="
+                margin-top: 50px;
+                font-family: var(--font-hand);
+                font-size: 1.1rem;
+                line-height: 2;
+                opacity: 0.8;
+              "
+            >
+              Date: <strong>2026/04/29</strong> &nbsp;&nbsp; Author:
+              <strong>Why.J</strong> &nbsp;&nbsp; Source:
+              <strong>4 Papers + 4 Blogs</strong>
+            </div>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <div class="pulse-layer">
+                「 把 OPD 当"便宜 RL"用，是你训崩的开始。 」
+              </div>
+            </div>
+            <div class="visual-box" style="--visual-scale: 0.85">
+              <div
+                style="
+                  font-weight: 800;
+                  font-size: 1.2rem;
+                  color: var(--accent-claude);
+                  text-align: center;
+                  line-height: 1.8;
+                "
+              >
+                SFT → RL → OPD<br />三种后训练范式<br />三种 KL 投影几何
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 01 Context -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">01 / Context</div>
+            <h2>后训练的三体问题</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  SFT 统治 2023，RL 在 2024 崛起，<strong
+                    >OPD 在 2025-26 成为第三极</strong
+                  >
+                </li>
+                <li>Qwen3、GLM-5、MiMo-V2-Flash 均将 OPD 列为核心管线</li>
+                <li>
+                  工业界天天用，但 <strong>没人彻底搞懂它的边界条件</strong>
+                </li>
+              </ul>
+              <div class="pulse-layer" style="--pulse-scale: 1">
+                「 OPD 不是 SFT 和 RL 的折中——它是第三种几何。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 1rem;
+                  line-height: 2.2;
+                  color: var(--main-color);
+                "
+              >
+                SFT &nbsp;&nbsp;→ Forward KL<br />
+                RL &nbsp;&nbsp;&nbsp;→ Reverse KL<br />
+                OPD → Reverse KL + Dense
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 02 Agenda -->
+        <section data-transition="none" class="no-bullet">
+          <div class="header-layer">
+            <div class="ui-label">02 / Agenda</div>
+            <h2>四个问题</h2>
+          </div>
+          <div class="canvas-layer push-left">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>Q1</strong>: 三种范式到底在优化什么？— SFT / RL / OPD
+                  的目标函数差异
+                </li>
+                <li>
+                  <strong>Q2</strong>: KL 方向为什么决定一切？— Forward KL vs
+                  Reverse KL 的投影几何
+                </li>
+                <li>
+                  <strong>Q3</strong>: OPD 什么时候有效？— 9-30x 的效率从哪来
+                </li>
+                <li>
+                  <strong>Q4</strong>: OPD 什么时候崩？— 强老师悖论与 thinking
+                  pattern 对齐
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="pulse-layer">
+            「 搞懂 KL 几何，就搞懂了 OPD 的全部。 」
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 03 Mechanism I: Three Paradigms -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">03 / Mechanism</div>
+            <h2>三种后训练，三种学习问题</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>SFT</strong>: 外部给定轨迹 → Forward KL →
+                  监督最稠密，但 train/inference 分布不一致
+                </li>
+                <li>
+                  <strong>RL</strong>: 自身策略轨迹 → Reverse KL →
+                  反馈最稀疏，但优化的是解集合
+                </li>
+                <li>
+                  <strong>OPD</strong>: 学生生成轨迹 + 教师 token 级对齐 →
+                  <strong>On-policy + Dense signal</strong>
+                </li>
+              </ul>
+              <div class="pulse-layer">
+                「 SFT 记忆轨迹，RL 搜索策略，OPD 对齐分布。 」
+              </div>
+            </div>
+            <div class="visual-box" style="font-size: 0.8em">
+              <div class="katex-display" id="math-opd"></div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 04 Mechanism II: KL Geometry -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">04 / Mechanism</div>
+            <h2>Forward KL vs Reverse KL：投影几何决定泛化</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>Forward KL</strong> (SFT): D_KL(q ‖ π_θ) →
+                  Mass-covering → 不遗漏教师概率 → 窄监督下退化为拟合单条轨迹
+                </li>
+                <li>
+                  <strong>Reverse KL</strong> (RL/OPD): D_KL(π_θ ‖ p_T) →
+                  Mode-seeking → 允许忽略尾部 →
+                  <strong>多最优解时偏向 KL-minimal</strong>
+                </li>
+                <li>
+                  KL-regularized RL 最优解 =
+                  <strong>reward-tilted policy</strong
+                  >，不是脱离初始策略的全新分布
+                </li>
+              </ul>
+              <div class="pulse-layer">
+                「 Forward KL 覆盖，Reverse KL 收缩。方向选错，泛化就崩。 」
+              </div>
+            </div>
+            <div class="visual-box" style="font-size: 0.8em">
+              <div class="katex-display" id="math-kl"></div>
+              <a href="https://arxiv.org/pdf/2603.25562" class="reference-tag"
+                >Chan et al. - Rethinking KL Divergence</a
+              >
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 05 Mechanism III: Why OPD Works -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">05 / Mechanism</div>
+            <h2>OPD 为什么有效：Dense Signal + On-Policy</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>SFT-2M 外推 70% AIME'24 ≈ 3.4×10²¹ FLOPs</li>
+                <li>RL 达到 67.6% ≈ <strong>17,920 GPU hours</strong></li>
+                <li>
+                  OPD 达到 <strong>74.4% 仅需 1,800 GPU hours</strong>（RL 的
+                  1/10）
+                </li>
+                <li>
+                  Self-distillation: OPD 用
+                  <strong>7-10x 更少梯度步数</strong>复制 RL 策略 → 累计 50-100x
+                </li>
+              </ul>
+              <div class="pulse-layer" style="--pulse-scale: 1">
+                「 OPD 不是压缩 RL 的结果，而是抄捷径学会 RL 搜索到的策略。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <table
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 0.75rem;
+                  border-collapse: collapse;
+                  width: 100%;
+                "
+              >
+                <tr style="border-bottom: 2px solid var(--main-color)">
+                  <th style="text-align: left; padding: 6px">Method</th>
+                  <th style="padding: 6px">AIME'24</th>
+                  <th style="padding: 6px">GPU Hrs</th>
+                </tr>
+                <tr>
+                  <td style="padding: 6px">SFT-2M</td>
+                  <td style="padding: 6px; text-align: center">~70%</td>
+                  <td style="padding: 6px; text-align: center">—</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px">RL</td>
+                  <td style="padding: 6px; text-align: center">67.6%</td>
+                  <td style="padding: 6px; text-align: center">17,920</td>
+                </tr>
+                <tr style="background: var(--strong-bg)">
+                  <td style="padding: 6px; font-weight: 800">OPD</td>
+                  <td
+                    style="padding: 6px; text-align: center; font-weight: 800"
+                  >
+                    74.4%
+                  </td>
+                  <td
+                    style="padding: 6px; text-align: center; font-weight: 800"
+                  >
+                    1,800
+                  </td>
+                </tr>
+              </table>
+              <a
+                href="https://thinkingmachines.ai/blog/on-policy-distillation/"
+                class="reference-tag"
+                >Thinking Machines Lab / Qwen3 Tech Report</a
+              >
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 06 Mechanism IV: Why OPD Fails -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">06 / Mechanism</div>
+            <h2>OPD 为什么会崩：强老师悖论</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>反直觉</strong>: 更大更强的老师 →
+                  蒸馏效果反而更差，甚至回退到 pre-RL 水平
+                </li>
+                <li>
+                  <strong>Thinking pattern 必须对齐</strong>:
+                  教师推理风格与学生差距过大 → 覆盖学生有效结构
+                </li>
+                <li>
+                  <strong>局部信息量决定成败</strong>: 两个教师能力差距大，但在
+                  student-visited states 上局部分布相似 → 蒸馏效果几乎一样
+                </li>
+                <li>
+                  <strong>高熵 mode collapse</strong>: 纯 Reverse KL
+                  在教师高熵位置压缩多样性 → Entropy-Aware OPD 需引入 Forward KL
+                </li>
+              </ul>
+              <div class="pulse-layer" style="--pulse-scale: 1">
+                「
+                决定蒸馏效果的，不是教师有多强，而是在学生真正到达的地方有多准。
+                」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 0.85rem;
+                  line-height: 2;
+                  text-align: center;
+                "
+              >
+                Teacher Score: <strong>95%</strong><br />
+                Student Match: <strong>12%</strong><br />
+                <span style="color: var(--accent-claude)"
+                  >→ Distillation FAIL</span
+                ><br /><br />
+                Teacher Score: <strong>72%</strong><br />
+                Student Match: <strong>89%</strong><br />
+                <span style="color: #2d8f2d">→ Distillation OK</span>
+              </div>
+              <a href="https://arxiv.org/pdf/2604.06628" class="reference-tag"
+                >Rethinking OPD - Tsinghua 2026</a
+              >
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 07 Mechanism V: Engineering Role -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">07 / Mechanism</div>
+            <h2>OPD 的工程定位：胶水层</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li><strong>SFT</strong> 打地基: 注入领域知识，建立基础行为</li>
+                <li><strong>RL</strong> 精调策略: 在解空间中搜索语义策略</li>
+                <li>
+                  <strong>OPD</strong> 做桥接:
+                  稠密信号将教师能力迁移给学生，成本仅为 RL 的 1/10
+                </li>
+                <li>
+                  <strong>Continual Learning</strong>: SFT
+                  在自身样本上仍退化；OPD 教师固定 →
+                  <strong>自蒸馏不退化</strong>
+                </li>
+              </ul>
+              <div class="pulse-layer">
+                「 OPD 是后训练管线的胶水——连接知识注入与行为塑形。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 0.85rem;
+                  line-height: 2.2;
+                  text-align: center;
+                "
+              >
+                SFT → OPD → RL<br />
+                <span style="color: var(--accent-claude)">↑ 又来一轮 ↑</span
+                ><br />
+                Mid-train → OPD → Deploy<br />
+                <span style="color: var(--accent-claude)">↑ 持续迭代 ↑</span>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 08 DeepSeek V4: Multi-Expert OPD -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">08 / Practice</div>
+            <h2>DeepSeek V4：多专家 OPD 替代 Mixed RL</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>V3.2</strong>: 专家生成数据 → Student SFT → Mixed GRPO
+                  RL 补偿（off-policy）
+                </li>
+                <li>
+                  <strong>V4</strong>: 10+ 领域专家各自 SFT+GRPO → Student
+                  rollout →
+                  <strong>多教师在学生轨迹上逐 token 反馈</strong>（on-policy）
+                </li>
+                <li>
+                  Reverse KL 保护学生已有能力：student 不采样到的 mode 不付代价
+                  → <strong>领域特化不互相稀释</strong>
+                </li>
+                <li>
+                  Rethinking OPD 实测：共享 base 的 teacher（overlap
+                  高）效果远胜 benchmark 更高但 pattern 不匹配的 teacher
+                </li>
+              </ul>
+              <div class="pulse-layer" style="--pulse-scale: 1">
+                「 V4 把 OPD 从"蒸馏工具"升级为"专家融合管线"——RL
+                退居上游专家训练，OPD 接管整合。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 0.75rem;
+                  line-height: 1.8;
+                  text-align: left;
+                  width: 100%;
+                "
+              >
+                <span style="font-weight: 800">V3.2</span><br />
+                Experts → Data → SFT → GRPO RL<br />
+                <span style="color: var(--accent-claude)"
+                  >off-policy, forward KL + RL 补</span
+                ><br /><br />
+                <span style="font-weight: 800">V4</span><br />
+                Experts → Student Rollout → Multi-Teacher OPD<br />
+                <span style="color: #2d8f2d"
+                  >on-policy, reverse KL, 无需 RL 补偿</span
+                >
+              </div>
+              <a
+                href="https://zhuanlan.zhihu.com/p/2031622077107659474"
+                class="reference-tag"
+                >九老师 - DeepSeek V4 多专家 OPD</a
+              >
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 09 Human Learning Analogy -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">09 / Insight</div>
+            <h2>反观人类学习：学校就是多专家 OPD</h2>
+          </div>
+          <div class="canvas-layer">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>学英语的比喻</strong>: 跟带方言口音的老师学语法 —
+                  Forward KL 让你连口音一起学，Reverse KL 只在你开口后纠正语法
+                </li>
+                <li>
+                  <strong>学霸模式 = Pre-train + OPD</strong>:
+                  先听课拉齐分布，再自己做题，带着卡点问老师 —
+                  在自己生成的轨迹上拿反馈
+                </li>
+                <li>
+                  <strong>OPD 的前提</strong>: Forward KL 冷启动（认真预习）→ 把
+                  student 拉到能听懂 teacher 反馈的位置 → 然后才能 on-policy
+                </li>
+                <li>
+                  <strong>LLM 没有改写学习本质</strong>: 它只是把 reverse KL
+                  所需的"高质量专家反馈"从稀缺资源变成了随手可得
+                </li>
+              </ul>
+              <div class="pulse-layer" style="--pulse-rotate: -2deg">
+                「 先用 Forward KL 把自己拉到能听懂反馈的地方，再用 Reverse KL
+                在自己的轨迹上精修。 」
+              </div>
+            </div>
+            <div class="visual-box">
+              <div
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 0.75rem;
+                  line-height: 2;
+                  text-align: center;
+                "
+              >
+                <span style="font-weight: 800">学习模式映射</span><br /><br />
+                Pre-train = 泛读建立基础<br />
+                SFT = 听课拉齐分布<br />
+                RL = 硬刚题目（高耗低效）<br />
+                OPD = 带着卡点问老师<br />
+                <span style="color: var(--accent-claude); font-weight: 800"
+                  >← 最优解</span
+                >
+              </div>
+              <a
+                href="https://zhuanlan.zhihu.com/p/2031622077107659474"
+                class="reference-tag"
+                >九老师 - 从 OPD 反观人类学习</a
+              >
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 10 Takeaways -->
+        <section data-transition="none" class="no-bullet">
+          <div class="header-layer">
+            <div class="ui-label">10 / Takeaways</div>
+            <h2>三条铁律</h2>
+          </div>
+          <div class="canvas-layer push-left">
+            <div class="canvas-text">
+              <ul>
+                <li>
+                  <strong>KL 方向是 OPD 的命门</strong> — Reverse KL 的
+                  mode-seeking 在低熵位置是优势，在高熵位置是毒药
+                </li>
+                <li>
+                  <strong>教师强度 ≠ 蒸馏质量</strong> — 成败取决于教师在
+                  student-visited states 上的局部信息量，而非全局 benchmark 分数
+                </li>
+                <li>
+                  <strong>OPD 是 dense-constrained RL 的特例</strong> —
+                  不是"廉价 RL"，而是有独立理论结构和独立失效模式的方法
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="pulse-layer" style="--pulse-rotate: -2deg">
+            「 把 OPD 当"便宜 RL"用，是你训崩的开始。 」
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+
+        <!-- 09 Reference -->
+        <section data-transition="none">
+          <div class="header-layer">
+            <div class="ui-label">11 / Reference</div>
+            <h2>Reference</h2>
+          </div>
+          <div class="canvas-text">
+            <ul class="ref-list">
+              <li>
+                <strong>LLM post-training 中的 SFT、RL 与 OPD</strong> - Jane
+                Doe - https://zhuanlan.zhihu.com/p/2030067243107742531
+              </li>
+              <li>
+                <strong>On-Policy Distillation</strong> - Thinking Machines Lab
+                - https://thinkingmachines.ai/blog/on-policy-distillation/
+              </li>
+              <li>
+                <strong>强老师救不了OPD？</strong> - 李rumor -
+                https://zhuanlan.zhihu.com/p/2029672748490715936
+              </li>
+              <li>
+                <strong>从主流开源模型看 OPD 在后训练中的角色</strong> - 品斯基
+                - https://zhuanlan.zhihu.com/p/2031037132974900721
+              </li>
+              <li>
+                <strong>MiniLLM</strong> - Gu et al. -
+                https://arxiv.org/pdf/2306.08543
+              </li>
+              <li>
+                <strong>Rethinking OPD</strong> -
+                https://arxiv.org/pdf/2604.06628
+              </li>
+              <li>
+                <strong>Entropy-Aware OPD (G-OPD)</strong> -
+                https://arxiv.org/pdf/2602.12125v1
+              </li>
+              <li>
+                <strong>RL's Razor</strong> - Shenfeld et al. -
+                https://arxiv.org/pdf/2603.07079
+              </li>
+              <li>
+                <strong>从 DeepSeek V4 的多专家 OPD 反观人类学习模式</strong> -
+                九老师 - https://zhuanlan.zhihu.com/p/2031622077107659474
+              </li>
+              <li>
+                <strong>DeepSeek-V4 Technical Report</strong> -
+                https://arxiv.org/pdf/2505.09388
+              </li>
+              <li>
+                <strong
+                  >Rethinking OPD (Phenomenology, Mechanism, Recipe)</strong
+                >
+                - https://arxiv.org/html/2604.13016v2
+              </li>
+            </ul>
+          </div>
+          <div class="footer-watermark">whyj + OPD + 2026/04/29</div>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+        center: true,
+        transition: "none",
+        width: 1400,
+        height: 900,
+        margin: 0.05,
+      });
+      // Render KaTeX formulas
+      katex.render(
+        String.raw`\mathcal{L}_{\text{OPD}}(\theta) = \mathbb{E}_{x \sim D,\; y \sim \pi_\theta} \left[ \sum_{t=1}^{T} \mathcal{D}\big( p_T(\cdot|x,y_{<t}),\; \pi_\theta(\cdot|x,y_{<t}) \big) \right]`,
+        document.getElementById("math-opd"),
+        { displayMode: true },
+      );
+      katex.render(
+        String.raw`\pi^*(y|x) = \frac{1}{Z(x)}\, \pi_{\text{ref}}(y|x) \exp\!\Big(\frac{r(x,y)}{\beta}\Big)`,
+        document.getElementById("math-kl"),
+        { displayMode: true },
+      );
+    </script>
+  </body>
+</html>
