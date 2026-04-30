@@ -1,0 +1,2963 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>On-Policy Distillation — Pretext 排版 Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF7;
+      --ink: #1A1A1A;
+      --muted: #8A7F70;
+      --accent: #C45A20;
+      --accent-light: #FDF0E6;
+      --border: #E8E2D8;
+      --serif: 'Noto Serif SC', Georgia, serif;
+      --sans: 'Inter', 'Helvetica Neue', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); color: var(--ink); }
+    body { min-height: 100vh; padding-bottom: 48px; }
+
+    .page { max-width: 700px; margin: 0 auto; padding: 72px 24px 0; }
+
+    .title-line {
+      font-family: var(--serif);
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }
+    .lead-block {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 26px;
+      color: var(--muted);
+      margin: 16px 0 0;
+    }
+    .hr { height: 1px; background: var(--border); margin: 40px 0; }
+
+    .section { margin-top: 40px; }
+    .section-h {
+      font: 700 15px/1.3 var(--sans);
+      color: var(--accent);
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .section-body {
+      font: 400 17px/30px var(--serif);
+      color: var(--ink);
+    }
+    .section-body a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(196,90,32,0.3);
+      text-underline-offset: 2px;
+      transition: text-decoration-color 0.2s;
+    }
+    .section-body a:hover {
+      text-decoration-color: var(--accent);
+    }
+    .callout {
+      position: relative;
+      margin: 20px 0;
+      padding: 16px 20px 16px 24px;
+      background: var(--accent-light);
+      border-radius: 4px;
+      font: 500 15px/25px var(--sans);
+      color: #6B3A12;
+    }
+    .figure-block {
+      margin: 32px auto;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #F5F3EE;
+      max-width: 100%;
+    }
+    .figure-block img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+      object-position: center;
+      background: #fff;
+      cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .figure-block.zoomed {
+      position: fixed;
+      inset: 0;
+      max-width: none;
+      margin: 0;
+      border-radius: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .figure-block.zoomed img {
+      max-height: none;
+      width: auto;
+      max-width: 95vw;
+      max-height: 95vh;
+      cursor: zoom-out;
+    }
+    .figure-block.zoomed .figure-caption {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: #eee;
+      border-radius: 4px;
+      padding: 6px 14px;
+    }
+    .figure-caption {
+      padding: 10px 16px 12px;
+      font: 500 13px/20px var(--sans);
+      color: var(--muted);
+    }
+    .figure-placeholder {
+      padding: 32px 20px;
+      text-align: center;
+      background: #EDEBE6;
+    }
+    .figure-placeholder-icon {
+      font: 700 28px/1 var(--sans);
+      color: var(--border);
+      margin-bottom: 8px;
+    }
+    .figure-placeholder-label {
+      font: 600 13px/1 var(--sans);
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .figure-placeholder-prompt {
+      font: 400 12px/18px var(--sans);
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+      white-space: pre-wrap;
+    }
+    .figure-prompt {
+      display: none;
+    }
+    .callout::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      border-radius: 4px 0 0 4px;
+    }
+    .pulse {
+      margin-top: 48px;
+      font: 600 17px/28px var(--sans);
+      color: var(--accent);
+    }
+
+    .meta-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font: 700 11px/1 var(--sans);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .meta-date {
+      font: 500 13px/1 var(--sans);
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .stats {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(250,250,247,0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex; gap: 20px; flex-wrap: wrap;
+      font: 500 11px/1 var(--sans);
+      color: var(--muted);
+      z-index: 100;
+    }
+    .stats .v { color: var(--accent); font-weight: 700; }
+
+    #stick-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 50;
+    }
+    #smoke-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+    .smoke-wrap { position: relative; overflow: visible; }
+    .smoke-wrap .page { position: relative; z-index: 1; }
+    #title-wrap { min-height: 80px; }
+  </style>
+</head>
+<body>
+<canvas id="stick-canvas"></canvas>
+<div class="smoke-wrap">
+  <canvas id="smoke-canvas"></canvas>
+<div class="page">
+  <div class="meta-tag">LLM Post-Train</div>
+  <div class="meta-date">2026/04/29 &middot; yangjing</div>
+
+  <div id="title-wrap"></div>
+  <div id="lead-wrap"></div>
+
+  <div class="hr"></div>
+
+  <div id="sections-wrap"></div>
+
+  <div id="pulse-wrap" class="pulse"></div>
+</div>
+</div>
+
+<div class="stats">
+  <span>Title: <span class="v" id="sTitle">&mdash;</span></span>
+  <span>Lead: <span class="v" id="sLead">&mdash;</span></span>
+  <span>Body lines: <span class="v" id="sBody">&mdash;</span></span>
+  <span>Layout: <span class="v" id="sMs">&mdash;</span></span>
+  <span>DOM reads: <span class="v" id="sDom">0</span></span>
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════
+// ① pretext.js 完整内联
+// ═══════════════════════════════════════
+// src/bidi.ts
+var baseTypes = [
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "S",
+  "B",
+  "S",
+  "WS",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "B",
+  "B",
+  "S",
+  "WS",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "CS",
+  "ON",
+  "CS",
+  "ON",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "CS",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "EN",
+  "EN",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "EN",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L"
+];
+var arabicTypes = [
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "CS",
+  "AL",
+  "ON",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "ET",
+  "AN",
+  "AN",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL"
+];
+function classifyChar(charCode) {
+  if (charCode <= 255)
+    return baseTypes[charCode];
+  if (1424 <= charCode && charCode <= 1524)
+    return "R";
+  if (1536 <= charCode && charCode <= 1791)
+    return arabicTypes[charCode & 255];
+  if (1792 <= charCode && charCode <= 2220)
+    return "AL";
+  return "L";
+}
+function computeBidiLevels(str) {
+  const len = str.length;
+  if (len === 0)
+    return null;
+  const types = new Array(len);
+  let numBidi = 0;
+  for (let i = 0;i < len; i++) {
+    const t = classifyChar(str.charCodeAt(i));
+    if (t === "R" || t === "AL" || t === "AN")
+      numBidi++;
+    types[i] = t;
+  }
+  if (numBidi === 0)
+    return null;
+  const startLevel = len / numBidi < 0.3 ? 0 : 1;
+  const levels = new Int8Array(len);
+  for (let i = 0;i < len; i++)
+    levels[i] = startLevel;
+  const e = startLevel & 1 ? "R" : "L";
+  const sor = e;
+  let lastType = sor;
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "NSM")
+      types[i] = lastType;
+    else
+      lastType = types[i];
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "AL" ? "AN" : "EN";
+    else if (t === "R" || t === "L" || t === "AL")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "AL")
+      types[i] = "R";
+  }
+  for (let i = 1;i < len - 1; i++) {
+    if (types[i] === "ES" && types[i - 1] === "EN" && types[i + 1] === "EN") {
+      types[i] = "EN";
+    }
+    if (types[i] === "CS" && (types[i - 1] === "EN" || types[i - 1] === "AN") && types[i + 1] === types[i - 1]) {
+      types[i] = types[i - 1];
+    }
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "EN")
+      continue;
+    let j;
+    for (j = i - 1;j >= 0 && types[j] === "ET"; j--)
+      types[j] = "EN";
+    for (j = i + 1;j < len && types[j] === "ET"; j++)
+      types[j] = "EN";
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "WS" || t === "ES" || t === "ET" || t === "CS")
+      types[i] = "ON";
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "L" ? "L" : "EN";
+    else if (t === "R" || t === "L")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "ON")
+      continue;
+    let end = i + 1;
+    while (end < len && types[end] === "ON")
+      end++;
+    const before = i > 0 ? types[i - 1] : sor;
+    const after = end < len ? types[end] : sor;
+    const bDir = before !== "L" ? "R" : "L";
+    const aDir = after !== "L" ? "R" : "L";
+    if (bDir === aDir) {
+      for (let j = i;j < end; j++)
+        types[j] = bDir;
+    }
+    i = end - 1;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "ON")
+      types[i] = e;
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if ((levels[i] & 1) === 0) {
+      if (t === "R")
+        levels[i]++;
+      else if (t === "AN" || t === "EN")
+        levels[i] += 2;
+    } else if (t === "L" || t === "AN" || t === "EN") {
+      levels[i]++;
+    }
+  }
+  return levels;
+}
+function computeSegmentLevels(normalized, segStarts) {
+  const bidiLevels = computeBidiLevels(normalized);
+  if (bidiLevels === null)
+    return null;
+  const segLevels = new Int8Array(segStarts.length);
+  for (let i = 0;i < segStarts.length; i++) {
+    segLevels[i] = bidiLevels[segStarts[i]];
+  }
+  return segLevels;
+}
+
+// src/analysis.ts
+var collapsibleWhitespaceRunRe = /[ \t\n\r\f]+/g;
+var needsWhitespaceNormalizationRe = /[\t\n\r\f]| {2,}|^ | $/;
+function normalizeWhitespaceNormal(text) {
+  if (!needsWhitespaceNormalizationRe.test(text))
+    return text;
+  let normalized = text.replace(collapsibleWhitespaceRunRe, " ");
+  if (normalized.charCodeAt(0) === 32) {
+    normalized = normalized.slice(1);
+  }
+  if (normalized.length > 0 && normalized.charCodeAt(normalized.length - 1) === 32) {
+    normalized = normalized.slice(0, -1);
+  }
+  return normalized;
+}
+var sharedWordSegmenter = null;
+var segmenterLocale;
+function getSharedWordSegmenter() {
+  if (sharedWordSegmenter === null) {
+    sharedWordSegmenter = new Intl.Segmenter(segmenterLocale, { granularity: "word" });
+  }
+  return sharedWordSegmenter;
+}
+function clearAnalysisCaches() {
+  sharedWordSegmenter = null;
+}
+function setAnalysisLocale(locale) {
+  const nextLocale = locale && locale.length > 0 ? locale : undefined;
+  if (segmenterLocale === nextLocale)
+    return;
+  segmenterLocale = nextLocale;
+  sharedWordSegmenter = null;
+}
+var arabicScriptRe = /\p{Script=Arabic}/u;
+var combiningMarkRe = /\p{M}/u;
+var decimalDigitRe = /\p{Nd}/u;
+function containsArabicScript(text) {
+  return arabicScriptRe.test(text);
+}
+function isCJK(s) {
+  for (const ch of s) {
+    const c = ch.codePointAt(0);
+    if (c >= 19968 && c <= 40959 || c >= 13312 && c <= 19903 || c >= 131072 && c <= 173791 || c >= 173824 && c <= 177983 || c >= 177984 && c <= 178207 || c >= 178208 && c <= 183983 || c >= 183984 && c <= 191471 || c >= 196608 && c <= 201551 || c >= 63744 && c <= 64255 || c >= 194560 && c <= 195103 || c >= 12288 && c <= 12351 || c >= 12352 && c <= 12447 || c >= 12448 && c <= 12543 || c >= 44032 && c <= 55215 || c >= 65280 && c <= 65519) {
+      return true;
+    }
+  }
+  return false;
+}
+var kinsokuStart = new Set([
+  "，",
+  "．",
+  "！",
+  "：",
+  "；",
+  "？",
+  "、",
+  "。",
+  "・",
+  "）",
+  "〕",
+  "〉",
+  "》",
+  "」",
+  "』",
+  "】",
+  "〗",
+  "〙",
+  "〛",
+  "ー",
+  "々",
+  "〻",
+  "ゝ",
+  "ゞ",
+  "ヽ",
+  "ヾ"
+]);
+var kinsokuEnd = new Set([
+  '"',
+  "(",
+  "[",
+  "{",
+  "“",
+  "‘",
+  "«",
+  "‹",
+  "（",
+  "〔",
+  "〈",
+  "《",
+  "「",
+  "『",
+  "【",
+  "〖",
+  "〘",
+  "〚"
+]);
+var forwardStickyGlue = new Set([
+  "'",
+  "’"
+]);
+var leftStickyPunctuation = new Set([
+  ".",
+  ",",
+  "!",
+  "?",
+  ":",
+  ";",
+  "،",
+  "؛",
+  "؟",
+  "।",
+  "॥",
+  "၊",
+  "။",
+  "၌",
+  "၍",
+  "၏",
+  ")",
+  "]",
+  "}",
+  "%",
+  '"',
+  "”",
+  "’",
+  "»",
+  "›",
+  "…"
+]);
+var arabicNoSpaceTrailingPunctuation = new Set([
+  ":",
+  ".",
+  "،",
+  "؛"
+]);
+var myanmarMedialGlue = new Set([
+  "၏"
+]);
+var closingQuoteChars = new Set([
+  "”",
+  "’",
+  "»",
+  "›",
+  "」",
+  "』",
+  "】",
+  "》",
+  "〉",
+  "〕",
+  "）"
+]);
+function isLeftStickyPunctuationSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  let sawPunctuation = false;
+  for (const ch of segment) {
+    if (leftStickyPunctuation.has(ch)) {
+      sawPunctuation = true;
+      continue;
+    }
+    if (sawPunctuation && combiningMarkRe.test(ch))
+      continue;
+    return false;
+  }
+  return sawPunctuation;
+}
+function isCJKLineStartProhibitedSegment(segment) {
+  for (const ch of segment) {
+    if (!kinsokuStart.has(ch) && !leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isForwardStickyClusterSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  for (const ch of segment) {
+    if (!kinsokuEnd.has(ch) && !forwardStickyGlue.has(ch) && !combiningMarkRe.test(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isEscapedQuoteClusterSegment(segment) {
+  let sawQuote = false;
+  for (const ch of segment) {
+    if (ch === "\\" || combiningMarkRe.test(ch))
+      continue;
+    if (kinsokuEnd.has(ch) || leftStickyPunctuation.has(ch) || forwardStickyGlue.has(ch)) {
+      sawQuote = true;
+      continue;
+    }
+    return false;
+  }
+  return sawQuote;
+}
+function splitTrailingForwardStickyCluster(text) {
+  const chars = Array.from(text);
+  let splitIndex = chars.length;
+  while (splitIndex > 0) {
+    const ch = chars[splitIndex - 1];
+    if (combiningMarkRe.test(ch)) {
+      splitIndex--;
+      continue;
+    }
+    if (kinsokuEnd.has(ch) || forwardStickyGlue.has(ch)) {
+      splitIndex--;
+      continue;
+    }
+    break;
+  }
+  if (splitIndex <= 0 || splitIndex === chars.length)
+    return null;
+  return {
+    head: chars.slice(0, splitIndex).join(""),
+    tail: chars.slice(splitIndex).join("")
+  };
+}
+function isRepeatedSingleCharRun(segment, ch) {
+  if (segment.length === 0)
+    return false;
+  for (const part of segment) {
+    if (part !== ch)
+      return false;
+  }
+  return true;
+}
+function endsWithArabicNoSpacePunctuation(segment) {
+  if (!containsArabicScript(segment) || segment.length === 0)
+    return false;
+  return arabicNoSpaceTrailingPunctuation.has(segment[segment.length - 1]);
+}
+function endsWithMyanmarMedialGlue(segment) {
+  if (segment.length === 0)
+    return false;
+  return myanmarMedialGlue.has(segment[segment.length - 1]);
+}
+function splitLeadingSpaceAndMarks(segment) {
+  if (segment.length < 2 || segment[0] !== " ")
+    return null;
+  const marks = segment.slice(1);
+  if (/^\p{M}+$/u.test(marks)) {
+    return { space: " ", marks };
+  }
+  return null;
+}
+function endsWithClosingQuote(text) {
+  for (let i = text.length - 1;i >= 0; i--) {
+    const ch = text[i];
+    if (closingQuoteChars.has(ch))
+      return true;
+    if (!leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return false;
+}
+function classifySegmentBreakChar(ch) {
+  if (ch === " ")
+    return "space";
+  if (ch === " " || ch === " " || ch === "⁠" || ch === "\uFEFF") {
+    return "glue";
+  }
+  if (ch === "​")
+    return "zero-width-break";
+  if (ch === "­")
+    return "soft-hyphen";
+  return "text";
+}
+function splitSegmentByBreakKind(segment, isWordLike, start) {
+  const pieces = [];
+  let currentKind = null;
+  let currentText = "";
+  let currentStart = start;
+  let currentWordLike = false;
+  let offset = 0;
+  for (const ch of segment) {
+    const kind = classifySegmentBreakChar(ch);
+    const wordLike = kind === "text" && isWordLike;
+    if (currentKind !== null && kind === currentKind && wordLike === currentWordLike) {
+      currentText += ch;
+      offset += ch.length;
+      continue;
+    }
+    if (currentKind !== null) {
+      pieces.push({
+        text: currentText,
+        isWordLike: currentWordLike,
+        kind: currentKind,
+        start: currentStart
+      });
+    }
+    currentKind = kind;
+    currentText = ch;
+    currentStart = start + offset;
+    currentWordLike = wordLike;
+    offset += ch.length;
+  }
+  if (currentKind !== null) {
+    pieces.push({
+      text: currentText,
+      isWordLike: currentWordLike,
+      kind: currentKind,
+      start: currentStart
+    });
+  }
+  return pieces;
+}
+var urlSchemeSegmentRe = /^[A-Za-z][A-Za-z0-9+.-]*:$/;
+function isUrlLikeRunStart(segmentation, index) {
+  const text = segmentation.texts[index];
+  if (text.startsWith("www."))
+    return true;
+  return urlSchemeSegmentRe.test(text) && index + 1 < segmentation.len && segmentation.kinds[index + 1] === "text" && segmentation.texts[index + 1] === "//";
+}
+function isUrlQueryBoundarySegment(text) {
+  return text.includes("?") && (text.includes("://") || text.startsWith("www."));
+}
+function mergeUrlLikeRuns(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < segmentation.len; i++) {
+    if (kinds[i] !== "text" || !isUrlLikeRunStart(segmentation, i))
+      continue;
+    let j = i + 1;
+    while (j < segmentation.len && kinds[j] !== "space" && kinds[j] !== "zero-width-break") {
+      texts[i] += texts[j];
+      isWordLike[i] = true;
+      const endsQueryPrefix = texts[j].includes("?");
+      kinds[j] = "text";
+      texts[j] = "";
+      j++;
+      if (endsQueryPrefix)
+        break;
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < texts.length; read++) {
+    const text = texts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      texts[compactLen] = text;
+      isWordLike[compactLen] = isWordLike[read];
+      kinds[compactLen] = kinds[read];
+      starts[compactLen] = starts[read];
+    }
+    compactLen++;
+  }
+  texts.length = compactLen;
+  isWordLike.length = compactLen;
+  kinds.length = compactLen;
+  starts.length = compactLen;
+  return {
+    len: compactLen,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeUrlQueryRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+    if (!isUrlQueryBoundarySegment(text))
+      continue;
+    const nextIndex = i + 1;
+    if (nextIndex >= segmentation.len || segmentation.kinds[nextIndex] === "space" || segmentation.kinds[nextIndex] === "zero-width-break") {
+      continue;
+    }
+    let queryText = "";
+    const queryStart = segmentation.starts[nextIndex];
+    let j = nextIndex;
+    while (j < segmentation.len && segmentation.kinds[j] !== "space" && segmentation.kinds[j] !== "zero-width-break") {
+      queryText += segmentation.texts[j];
+      j++;
+    }
+    if (queryText.length > 0) {
+      texts.push(queryText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(queryStart);
+      i = j - 1;
+    }
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+var numericJoinerChars = new Set([
+  ":",
+  "-",
+  "/",
+  "×",
+  ",",
+  ".",
+  "+",
+  "–",
+  "—"
+]);
+function segmentContainsDecimalDigit(text) {
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch))
+      return true;
+  }
+  return false;
+}
+function isNumericRunSegment(text) {
+  if (text.length === 0)
+    return false;
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch) || numericJoinerChars.has(ch))
+      continue;
+    return false;
+  }
+  return true;
+}
+function mergeNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    const kind = segmentation.kinds[i];
+    if (kind === "text" && isNumericRunSegment(text) && segmentContainsDecimalDigit(text)) {
+      let mergedText = text;
+      let j = i + 1;
+      while (j < segmentation.len && segmentation.kinds[j] === "text" && isNumericRunSegment(segmentation.texts[j])) {
+        mergedText += segmentation.texts[j];
+        j++;
+      }
+      texts.push(mergedText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(segmentation.starts[i]);
+      i = j - 1;
+      continue;
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(kind);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function splitHyphenatedNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    if (segmentation.kinds[i] === "text" && text.includes("-")) {
+      const parts = text.split("-");
+      let shouldSplit = parts.length > 1;
+      for (let j = 0;j < parts.length; j++) {
+        const part = parts[j];
+        if (!shouldSplit)
+          break;
+        if (part.length === 0 || !segmentContainsDecimalDigit(part) || !isNumericRunSegment(part)) {
+          shouldSplit = false;
+        }
+      }
+      if (shouldSplit) {
+        let offset = 0;
+        for (let j = 0;j < parts.length; j++) {
+          const part = parts[j];
+          const splitText = j < parts.length - 1 ? `${part}-` : part;
+          texts.push(splitText);
+          isWordLike.push(true);
+          kinds.push("text");
+          starts.push(segmentation.starts[i] + offset);
+          offset += splitText.length;
+        }
+        continue;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeGlueConnectedTextRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  let read = 0;
+  while (read < segmentation.len) {
+    let text = segmentation.texts[read];
+    let wordLike = segmentation.isWordLike[read];
+    let kind = segmentation.kinds[read];
+    let start = segmentation.starts[read];
+    if (kind === "glue") {
+      let glueText = text;
+      const glueStart = start;
+      read++;
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        glueText += segmentation.texts[read];
+        read++;
+      }
+      if (read < segmentation.len && segmentation.kinds[read] === "text") {
+        text = glueText + segmentation.texts[read];
+        wordLike = segmentation.isWordLike[read];
+        kind = "text";
+        start = glueStart;
+        read++;
+      } else {
+        texts.push(glueText);
+        isWordLike.push(false);
+        kinds.push("glue");
+        starts.push(glueStart);
+        continue;
+      }
+    } else {
+      read++;
+    }
+    if (kind === "text") {
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        let glueText = "";
+        while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+          glueText += segmentation.texts[read];
+          read++;
+        }
+        if (read < segmentation.len && segmentation.kinds[read] === "text") {
+          text += glueText + segmentation.texts[read];
+          wordLike = wordLike || segmentation.isWordLike[read];
+          read++;
+          continue;
+        }
+        text += glueText;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(wordLike);
+    kinds.push(kind);
+    starts.push(start);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function carryTrailingForwardStickyAcrossCJKBoundary(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < texts.length - 1; i++) {
+    if (kinds[i] !== "text" || kinds[i + 1] !== "text")
+      continue;
+    if (!isCJK(texts[i]) || !isCJK(texts[i + 1]))
+      continue;
+    const split = splitTrailingForwardStickyCluster(texts[i]);
+    if (split === null)
+      continue;
+    texts[i] = split.head;
+    texts[i + 1] = split.tail + texts[i + 1];
+    starts[i + 1] = starts[i] + split.head.length;
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function buildMergedSegmentation(normalized, profile) {
+  const wordSegmenter = getSharedWordSegmenter();
+  let mergedLen = 0;
+  const mergedTexts = [];
+  const mergedWordLike = [];
+  const mergedKinds = [];
+  const mergedStarts = [];
+  for (const s of wordSegmenter.segment(normalized)) {
+    for (const piece of splitSegmentByBreakKind(s.segment, s.isWordLike ?? false, s.index)) {
+      const isText = piece.kind === "text";
+      if (profile.carryCJKAfterClosingQuote && isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJK(piece.text) && isCJK(mergedTexts[mergedLen - 1]) && endsWithClosingQuote(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJKLineStartProhibitedSegment(piece.text) && isCJK(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && endsWithMyanmarMedialGlue(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.isWordLike && containsArabicScript(piece.text) && endsWithArabicNoSpacePunctuation(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = true;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.text.length === 1 && piece.text !== "-" && piece.text !== "—" && isRepeatedSingleCharRun(mergedTexts[mergedLen - 1], piece.text)) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && (isLeftStickyPunctuationSegment(piece.text) || piece.text === "-" && mergedWordLike[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else {
+        mergedTexts[mergedLen] = piece.text;
+        mergedWordLike[mergedLen] = piece.isWordLike;
+        mergedKinds[mergedLen] = piece.kind;
+        mergedStarts[mergedLen] = piece.start;
+        mergedLen++;
+      }
+    }
+  }
+  for (let i = 1;i < mergedLen; i++) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isEscapedQuoteClusterSegment(mergedTexts[i]) && mergedKinds[i - 1] === "text") {
+      mergedTexts[i - 1] += mergedTexts[i];
+      mergedWordLike[i - 1] = mergedWordLike[i - 1] || mergedWordLike[i];
+      mergedTexts[i] = "";
+    }
+  }
+  for (let i = mergedLen - 2;i >= 0; i--) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isForwardStickyClusterSegment(mergedTexts[i])) {
+      let j = i + 1;
+      while (j < mergedLen && mergedTexts[j] === "")
+        j++;
+      if (j < mergedLen && mergedKinds[j] === "text") {
+        mergedTexts[j] = mergedTexts[i] + mergedTexts[j];
+        mergedStarts[j] = mergedStarts[i];
+        mergedTexts[i] = "";
+      }
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < mergedLen; read++) {
+    const text = mergedTexts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      mergedTexts[compactLen] = text;
+      mergedWordLike[compactLen] = mergedWordLike[read];
+      mergedKinds[compactLen] = mergedKinds[read];
+      mergedStarts[compactLen] = mergedStarts[read];
+    }
+    compactLen++;
+  }
+  mergedTexts.length = compactLen;
+  mergedWordLike.length = compactLen;
+  mergedKinds.length = compactLen;
+  mergedStarts.length = compactLen;
+  const compacted = mergeGlueConnectedTextRuns({
+    len: compactLen,
+    texts: mergedTexts,
+    isWordLike: mergedWordLike,
+    kinds: mergedKinds,
+    starts: mergedStarts
+  });
+  const withMergedUrls = carryTrailingForwardStickyAcrossCJKBoundary(splitHyphenatedNumericRuns(mergeNumericRuns(mergeUrlQueryRuns(mergeUrlLikeRuns(compacted)))));
+  for (let i = 0;i < withMergedUrls.len - 1; i++) {
+    const split = splitLeadingSpaceAndMarks(withMergedUrls.texts[i]);
+    if (split === null)
+      continue;
+    if (withMergedUrls.kinds[i] !== "space" || withMergedUrls.kinds[i + 1] !== "text" || !containsArabicScript(withMergedUrls.texts[i + 1])) {
+      continue;
+    }
+    withMergedUrls.texts[i] = split.space;
+    withMergedUrls.isWordLike[i] = false;
+    withMergedUrls.kinds[i] = "space";
+    withMergedUrls.texts[i + 1] = split.marks + withMergedUrls.texts[i + 1];
+    withMergedUrls.starts[i + 1] = withMergedUrls.starts[i] + split.space.length;
+  }
+  return withMergedUrls;
+}
+function analyzeText(text, profile) {
+  const normalized = normalizeWhitespaceNormal(text);
+  if (normalized.length === 0) {
+    return {
+      normalized,
+      len: 0,
+      texts: [],
+      isWordLike: [],
+      kinds: [],
+      starts: []
+    };
+  }
+  return { normalized, ...buildMergedSegmentation(normalized, profile) };
+}
+
+// src/measurement.ts
+var measureContext = null;
+var segmentMetricCaches = new Map;
+var cachedEngineProfile = null;
+var emojiPresentationRe = /\p{Emoji_Presentation}/u;
+var maybeEmojiRe = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u20E3]/u;
+var sharedGraphemeSegmenter = null;
+var emojiCorrectionCache = new Map;
+function getMeasureContext() {
+  if (measureContext !== null)
+    return measureContext;
+  if (typeof OffscreenCanvas !== "undefined") {
+    measureContext = new OffscreenCanvas(1, 1).getContext("2d");
+    return measureContext;
+  }
+  if (typeof document !== "undefined") {
+    measureContext = document.createElement("canvas").getContext("2d");
+    return measureContext;
+  }
+  throw new Error("Text measurement requires OffscreenCanvas or a DOM canvas context.");
+}
+function getSegmentMetricCache(font) {
+  let cache = segmentMetricCaches.get(font);
+  if (!cache) {
+    cache = new Map;
+    segmentMetricCaches.set(font, cache);
+  }
+  return cache;
+}
+function getSegmentMetrics(seg, cache) {
+  let metrics = cache.get(seg);
+  if (metrics === undefined) {
+    const ctx = getMeasureContext();
+    metrics = {
+      width: ctx.measureText(seg).width,
+      containsCJK: isCJK(seg)
+    };
+    cache.set(seg, metrics);
+  }
+  return metrics;
+}
+function getEngineProfile() {
+  if (cachedEngineProfile !== null)
+    return cachedEngineProfile;
+  if (typeof navigator === "undefined") {
+    cachedEngineProfile = {
+      lineFitEpsilon: 0.005,
+      carryCJKAfterClosingQuote: false
+    };
+    return cachedEngineProfile;
+  }
+  const ua = navigator.userAgent;
+  const vendor = navigator.vendor;
+  const isSafari = vendor === "Apple Computer, Inc." && ua.includes("Safari/") && !ua.includes("Chrome/") && !ua.includes("Chromium/") && !ua.includes("CriOS/") && !ua.includes("FxiOS/") && !ua.includes("EdgiOS/");
+  const isChromium = ua.includes("Chrome/") || ua.includes("Chromium/") || ua.includes("CriOS/") || ua.includes("Edg/");
+  cachedEngineProfile = {
+    lineFitEpsilon: isSafari ? 1 / 64 : 0.005,
+    carryCJKAfterClosingQuote: isChromium
+  };
+  return cachedEngineProfile;
+}
+function parseFontSize(font) {
+  const m = font.match(/(\d+(?:\.\d+)?)\s*px/);
+  return m ? parseFloat(m[1]) : 16;
+}
+function getSharedGraphemeSegmenter() {
+  if (sharedGraphemeSegmenter === null) {
+    sharedGraphemeSegmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter;
+}
+function isEmojiGrapheme(g) {
+  return emojiPresentationRe.test(g) || g.includes("️");
+}
+function textMayContainEmoji(text) {
+  return maybeEmojiRe.test(text);
+}
+function getEmojiCorrection(font, fontSize) {
+  let correction = emojiCorrectionCache.get(font);
+  if (correction !== undefined)
+    return correction;
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const canvasW = ctx.measureText("\uD83D\uDE00").width;
+  correction = 0;
+  if (canvasW > fontSize + 0.5 && typeof document !== "undefined" && document.body !== null) {
+    const span = document.createElement("span");
+    span.style.font = font;
+    span.style.display = "inline-block";
+    span.style.visibility = "hidden";
+    span.style.position = "absolute";
+    span.textContent = "\uD83D\uDE00";
+    document.body.appendChild(span);
+    const domW = span.getBoundingClientRect().width;
+    document.body.removeChild(span);
+    if (canvasW - domW > 0.5) {
+      correction = canvasW - domW;
+    }
+  }
+  emojiCorrectionCache.set(font, correction);
+  return correction;
+}
+function countEmojiGraphemes(text) {
+  let count = 0;
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const g of graphemeSegmenter.segment(text)) {
+    if (isEmojiGrapheme(g.segment))
+      count++;
+  }
+  return count;
+}
+function getEmojiCount(seg, metrics) {
+  if (metrics.emojiCount === undefined) {
+    metrics.emojiCount = countEmojiGraphemes(seg);
+  }
+  return metrics.emojiCount;
+}
+function getCorrectedSegmentWidth(seg, metrics, emojiCorrection) {
+  if (emojiCorrection === 0)
+    return metrics.width;
+  return metrics.width - getEmojiCount(seg, metrics) * emojiCorrection;
+}
+function getSegmentGraphemeWidths(seg, metrics, cache, emojiCorrection) {
+  if (metrics.graphemeWidths !== undefined)
+    return metrics.graphemeWidths;
+  const widths = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const gs of graphemeSegmenter.segment(seg)) {
+    const graphemeMetrics = getSegmentMetrics(gs.segment, cache);
+    widths.push(getCorrectedSegmentWidth(gs.segment, graphemeMetrics, emojiCorrection));
+  }
+  metrics.graphemeWidths = widths.length > 1 ? widths : null;
+  return metrics.graphemeWidths;
+}
+function getFontMeasurementState(font, needsEmojiCorrection) {
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const cache = getSegmentMetricCache(font);
+  const fontSize = parseFontSize(font);
+  const emojiCorrection = needsEmojiCorrection ? getEmojiCorrection(font, fontSize) : 0;
+  return { cache, fontSize, emojiCorrection };
+}
+function clearMeasurementCaches() {
+  segmentMetricCaches.clear();
+  emojiCorrectionCache.clear();
+  sharedGraphemeSegmenter = null;
+}
+
+// src/line-break.ts
+function isCollapsibleSpaceKind(kind) {
+  return kind === "space";
+}
+function fitSoftHyphenBreak(graphemeWidths, initialWidth, maxWidth, lineFitEpsilon, discretionaryHyphenWidth) {
+  let fitCount = 0;
+  let fittedWidth = initialWidth;
+  while (fitCount < graphemeWidths.length) {
+    const nextWidth = fittedWidth + graphemeWidths[fitCount];
+    const nextLineWidth = fitCount + 1 < graphemeWidths.length ? nextWidth + discretionaryHyphenWidth : nextWidth;
+    if (nextLineWidth > maxWidth + lineFitEpsilon)
+      break;
+    fittedWidth = nextWidth;
+    fitCount++;
+  }
+  return { fitCount, fittedWidth };
+}
+function normalizeLineStart(prepared, start) {
+  let segmentIndex = start.segmentIndex;
+  const graphemeIndex = start.graphemeIndex;
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  if (graphemeIndex > 0)
+    return start;
+  while (segmentIndex < prepared.widths.length) {
+    const kind = prepared.kinds[segmentIndex];
+    if (kind !== "space" && kind !== "zero-width-break" && kind !== "soft-hyphen") {
+      break;
+    }
+    segmentIndex++;
+  }
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  return { segmentIndex, graphemeIndex: 0 };
+}
+function countPreparedLines(prepared, maxWidth) {
+  const { widths, kinds, breakableWidths } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  if (kinds.includes("soft-hyphen")) {
+    return walkPreparedLines(prepared, maxWidth);
+  }
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  function placeOnFreshLine(segmentIndex) {
+    const w = widths[segmentIndex];
+    if (w > maxWidth && breakableWidths[segmentIndex] !== null) {
+      const gWidths = breakableWidths[segmentIndex];
+      lineW = 0;
+      for (let g = 0;g < gWidths.length; g++) {
+        const gw = gWidths[g];
+        if (lineW > 0 && lineW + gw > maxWidth + lineFitEpsilon) {
+          lineCount++;
+          lineW = gw;
+        } else {
+          if (lineW === 0)
+            lineCount++;
+          lineW += gw;
+        }
+      }
+    } else {
+      lineW = w;
+      lineCount++;
+    }
+    hasContent = true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (!hasContent) {
+      placeOnFreshLine(i);
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        continue;
+      }
+      lineW = 0;
+      hasContent = false;
+      placeOnFreshLine(i);
+    } else {
+      lineW = newW;
+    }
+  }
+  if (!hasContent) {
+    lineCount++;
+  }
+  return lineCount;
+}
+function walkPreparedLines(prepared, maxWidth, onLine) {
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  let lineStartSegmentIndex = 0;
+  let lineStartGraphemeIndex = 0;
+  let lineEndSegmentIndex = 0;
+  let lineEndGraphemeIndex = 0;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function emitCurrentLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    lineCount++;
+    onLine?.({
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    });
+    lineW = 0;
+    hasContent = false;
+    clearPendingSoftBreak();
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = 0;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = graphemeIndex;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegment(segmentIndex) {
+    appendBreakableSegmentFrom(segmentIndex, 0);
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        emitCurrentLine();
+        startLineAtGrapheme(segmentIndex, g, gw);
+      } else {
+        lineW += gw;
+        lineEndSegmentIndex = segmentIndex;
+        lineEndGraphemeIndex = g + 1;
+      }
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+  }
+  function continueSoftHyphenBreakableSegment(segmentIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    if (gWidths === null)
+      return false;
+    const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+    if (fitCount === 0)
+      return false;
+    lineW = fittedWidth;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = fitCount;
+    clearPendingSoftBreak();
+    if (fitCount === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+      return true;
+    }
+    emitCurrentLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+    appendBreakableSegmentFrom(segmentIndex, fitCount);
+    return true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (kind === "soft-hyphen") {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        appendBreakableSegment(i);
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && continueSoftHyphenBreakableSegment(i)) {
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+        emitCurrentLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+        if (w > maxWidth && breakableWidths[i] !== null) {
+          appendBreakableSegment(i);
+        } else {
+          startLineAtSegment(i, w);
+        }
+        if (kind === "space" || kind === "zero-width-break") {
+          clearPendingSoftBreak();
+        }
+        continue;
+      }
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        emitCurrentLine();
+        appendBreakableSegment(i);
+      } else {
+        emitCurrentLine();
+        startLineAtSegment(i, w);
+      }
+    } else {
+      appendWholeSegment(i, w);
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+    }
+  }
+  if (hasContent) {
+    emitCurrentLine();
+  }
+  return lineCount;
+}
+function layoutNextLineRange(prepared, start, maxWidth) {
+  const normalizedStart = normalizeLineStart(prepared, start);
+  if (normalizedStart === null)
+    return null;
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineW = 0;
+  let hasContent = false;
+  const lineStartSegmentIndex = normalizedStart.segmentIndex;
+  const lineStartGraphemeIndex = normalizedStart.graphemeIndex;
+  let lineEndSegmentIndex = lineStartSegmentIndex;
+  let lineEndGraphemeIndex = lineStartGraphemeIndex;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function finishLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    if (!hasContent)
+      return null;
+    return {
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    };
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        return finishLine();
+      }
+      lineW += gw;
+      lineEndSegmentIndex = segmentIndex;
+      lineEndGraphemeIndex = g + 1;
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+    return null;
+  }
+  function maybeFinishAtSoftHyphen(segmentIndex) {
+    if (pendingSoftBreakSegmentIndex < 0)
+      return null;
+    const gWidths = breakableWidths[segmentIndex] ?? null;
+    if (gWidths !== null) {
+      const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+      if (fitCount === gWidths.length) {
+        lineW = fittedWidth;
+        lineEndSegmentIndex = segmentIndex + 1;
+        lineEndGraphemeIndex = 0;
+        clearPendingSoftBreak();
+        return null;
+      }
+      if (fitCount > 0) {
+        return finishLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+      }
+    }
+    if (pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+      return finishLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+    }
+    return null;
+  }
+  for (let i = normalizedStart.segmentIndex;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    const startGraphemeIndex = i === normalizedStart.segmentIndex ? normalizedStart.graphemeIndex : 0;
+    if (kind === "soft-hyphen" && startGraphemeIndex === 0) {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (startGraphemeIndex > 0) {
+        const line = appendBreakableSegmentFrom(i, startGraphemeIndex);
+        if (line !== null)
+          return line;
+      } else if (w > maxWidth && breakableWidths[i] !== null) {
+        const line = appendBreakableSegmentFrom(i, 0);
+        if (line !== null)
+          return line;
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      const softBreakLine = maybeFinishAtSoftHyphen(i);
+      if (softBreakLine !== null)
+        return softBreakLine;
+      return finishLine();
+    }
+    appendWholeSegment(i, w);
+    if (kind === "space" || kind === "zero-width-break") {
+      clearPendingSoftBreak();
+    }
+  }
+  return finishLine();
+}
+
+// src/layout.ts
+var sharedGraphemeSegmenter2 = null;
+var sharedLineTextCaches = new WeakMap;
+function getSharedGraphemeSegmenter2() {
+  if (sharedGraphemeSegmenter2 === null) {
+    sharedGraphemeSegmenter2 = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter2;
+}
+function createEmptyPrepared(includeSegments) {
+  if (includeSegments) {
+    return {
+      widths: [],
+      kinds: [],
+      segLevels: null,
+      breakableWidths: [],
+      discretionaryHyphenWidth: 0,
+      segments: []
+    };
+  }
+  return {
+    widths: [],
+    kinds: [],
+    segLevels: null,
+    breakableWidths: [],
+    discretionaryHyphenWidth: 0
+  };
+}
+function measureAnalysis(analysis, font, includeSegments) {
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  const engineProfile = getEngineProfile();
+  const { cache, emojiCorrection } = getFontMeasurementState(font, textMayContainEmoji(analysis.normalized));
+  const discretionaryHyphenWidth = getCorrectedSegmentWidth("-", getSegmentMetrics("-", cache), emojiCorrection);
+  if (analysis.len === 0)
+    return createEmptyPrepared(includeSegments);
+  const widths = [];
+  const kinds = [];
+  const segStarts = includeSegments ? [] : null;
+  const breakableWidths = [];
+  const segments = includeSegments ? [] : null;
+  function pushMeasuredSegment(text, width, kind, start, breakable) {
+    widths.push(width);
+    kinds.push(kind);
+    segStarts?.push(start);
+    breakableWidths.push(breakable);
+    if (segments !== null)
+      segments.push(text);
+  }
+  for (let mi = 0;mi < analysis.len; mi++) {
+    const segText = analysis.texts[mi];
+    const segWordLike = analysis.isWordLike[mi];
+    const segKind = analysis.kinds[mi];
+    const segStart = analysis.starts[mi];
+    if (segKind === "soft-hyphen") {
+      pushMeasuredSegment(segText, 0, segKind, segStart, null);
+      continue;
+    }
+    const segMetrics = getSegmentMetrics(segText, cache);
+    if (segKind === "text" && segMetrics.containsCJK) {
+      let unitText = "";
+      let unitStart = 0;
+      for (const gs of graphemeSegmenter.segment(segText)) {
+        const grapheme = gs.segment;
+        if (unitText.length === 0) {
+          unitText = grapheme;
+          unitStart = gs.index;
+          continue;
+        }
+        if (kinsokuEnd.has(unitText) || kinsokuStart.has(grapheme) || leftStickyPunctuation.has(grapheme) || engineProfile.carryCJKAfterClosingQuote && isCJK(grapheme) && endsWithClosingQuote(unitText)) {
+          unitText += grapheme;
+          continue;
+        }
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+        unitText = grapheme;
+        unitStart = gs.index;
+      }
+      if (unitText.length > 0) {
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+      }
+      continue;
+    }
+    const w = getCorrectedSegmentWidth(segText, segMetrics, emojiCorrection);
+    if (segWordLike && segText.length > 1) {
+      const graphemeWidths = getSegmentGraphemeWidths(segText, segMetrics, cache, emojiCorrection);
+      pushMeasuredSegment(segText, w, segKind, segStart, graphemeWidths);
+    } else {
+      pushMeasuredSegment(segText, w, segKind, segStart, null);
+    }
+  }
+  const segLevels = segStarts === null ? null : computeSegmentLevels(analysis.normalized, segStarts);
+  if (segments !== null) {
+    return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth, segments };
+  }
+  return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth };
+}
+function prepareInternal(text, font, includeSegments) {
+  const analysis = analyzeText(text, getEngineProfile());
+  return measureAnalysis(analysis, font, includeSegments);
+}
+function profilePrepare(text, font) {
+  const t0 = performance.now();
+  const analysis = analyzeText(text, getEngineProfile());
+  const t1 = performance.now();
+  const prepared = measureAnalysis(analysis, font, false);
+  const t2 = performance.now();
+  let breakableSegments = 0;
+  for (const widths of prepared.breakableWidths) {
+    if (widths !== null)
+      breakableSegments++;
+  }
+  return {
+    analysisMs: t1 - t0,
+    measureMs: t2 - t1,
+    totalMs: t2 - t0,
+    analysisSegments: analysis.len,
+    preparedSegments: prepared.widths.length,
+    breakableSegments
+  };
+}
+function prepare(text, font) {
+  return prepareInternal(text, font, false);
+}
+function prepareWithSegments(text, font) {
+  return prepareInternal(text, font, true);
+}
+function getInternalPrepared(prepared) {
+  return prepared;
+}
+function layout(prepared, maxWidth, lineHeight) {
+  const lineCount = countPreparedLines(getInternalPrepared(prepared), maxWidth);
+  return { lineCount, height: lineCount * lineHeight };
+}
+function getSegmentGraphemes(segmentIndex, segments, cache) {
+  let graphemes = cache.get(segmentIndex);
+  if (graphemes !== undefined)
+    return graphemes;
+  graphemes = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  for (const gs of graphemeSegmenter.segment(segments[segmentIndex])) {
+    graphemes.push(gs.segment);
+  }
+  cache.set(segmentIndex, graphemes);
+  return graphemes;
+}
+function getLineTextCache(prepared) {
+  let cache = sharedLineTextCaches.get(prepared);
+  if (cache !== undefined)
+    return cache;
+  cache = new Map;
+  sharedLineTextCaches.set(prepared, cache);
+  return cache;
+}
+function lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex) {
+  return endSegmentIndex > 0 && kinds[endSegmentIndex - 1] === "soft-hyphen" && !(startSegmentIndex === endSegmentIndex && startGraphemeIndex > 0);
+}
+function buildLineTextFromRange(segments, kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  let text = "";
+  const endsWithDiscretionaryHyphen = lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex);
+  for (let i = startSegmentIndex;i < endSegmentIndex; i++) {
+    if (kinds[i] === "soft-hyphen")
+      continue;
+    if (i === startSegmentIndex && startGraphemeIndex > 0) {
+      text += getSegmentGraphemes(i, segments, cache).slice(startGraphemeIndex).join("");
+    } else {
+      text += segments[i];
+    }
+  }
+  if (endGraphemeIndex > 0) {
+    if (endsWithDiscretionaryHyphen)
+      text += "-";
+    text += getSegmentGraphemes(endSegmentIndex, segments, cache).slice(startSegmentIndex === endSegmentIndex ? startGraphemeIndex : 0, endGraphemeIndex).join("");
+  } else if (endsWithDiscretionaryHyphen) {
+    text += "-";
+  }
+  return text;
+}
+function createLayoutLine(prepared, cache, width, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  return {
+    text: buildLineTextFromRange(prepared.segments, prepared.kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex),
+    width,
+    start: {
+      segmentIndex: startSegmentIndex,
+      graphemeIndex: startGraphemeIndex
+    },
+    end: {
+      segmentIndex: endSegmentIndex,
+      graphemeIndex: endGraphemeIndex
+    }
+  };
+}
+function materializeLayoutLine(prepared, cache, line) {
+  return createLayoutLine(prepared, cache, line.width, line.startSegmentIndex, line.startGraphemeIndex, line.endSegmentIndex, line.endGraphemeIndex);
+}
+function toLayoutLineRange(line) {
+  return {
+    width: line.width,
+    start: {
+      segmentIndex: line.startSegmentIndex,
+      graphemeIndex: line.startGraphemeIndex
+    },
+    end: {
+      segmentIndex: line.endSegmentIndex,
+      graphemeIndex: line.endGraphemeIndex
+    }
+  };
+}
+function stepLineRange(prepared, start, maxWidth) {
+  const line = layoutNextLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return toLayoutLineRange(line);
+}
+function materializeLine(prepared, line) {
+  return createLayoutLine(prepared, getLineTextCache(prepared), line.width, line.start.segmentIndex, line.start.graphemeIndex, line.end.segmentIndex, line.end.graphemeIndex);
+}
+function walkLineRanges(prepared, maxWidth, onLine) {
+  if (prepared.widths.length === 0)
+    return 0;
+  return walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    onLine(toLayoutLineRange(line));
+  });
+}
+function layoutNextLine(prepared, start, maxWidth) {
+  const line = stepLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return materializeLine(prepared, line);
+}
+function layoutWithLines(prepared, maxWidth, lineHeight) {
+  const lines = [];
+  if (prepared.widths.length === 0)
+    return { lineCount: 0, height: 0, lines };
+  const graphemeCache = getLineTextCache(prepared);
+  const lineCount = walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    lines.push(materializeLayoutLine(prepared, graphemeCache, line));
+  });
+  return { lineCount, height: lineCount * lineHeight, lines };
+}
+function clearCache() {
+  clearAnalysisCaches();
+  sharedGraphemeSegmenter2 = null;
+  sharedLineTextCaches = new WeakMap;
+  clearMeasurementCaches();
+}
+function setLocale(locale) {
+  setAnalysisLocale(locale);
+  clearCache();
+}
+
+// ═══════════════════════════════════════
+// ② 内容
+// ═══════════════════════════════════════
+var TITLE = "多专家融合的 On-Policy Distillation，以及它为什么能解释人类学习";
+var LEAD = "DeepSeek V4 把 Post-Train 讲得更细致了：先按领域分别训练 10 几个专家模型，再通过 On-Policy Distillation 将它们合成为一个统一模型。这个过程不仅解释了 LLM 的多专家整合，竟然也能解释人类在学校里的学习模式。";
+var SECTIONS = [
+  {
+    heading: "领域专家 \u2192 统一模型：Post-Train 的真正难题",
+    body: "2026 年了，一个 LLM 的训练流程并不陌生\u2014\u2014pre-train，SFT，RLHF/RLVR。但实际这是一个领域 LLM 的训练方案，比如 Coder/Math/文本专家，怎么整合成一个混合通用模型呢？最近的 DeepSeek V4 技术报告把 Post-Train 流程讲得更细致了，它先是 pre-train 得到一个 Base-Model，然后先按领域（数学、代码、agent、指令跟随等）分别训练 10 几个专家模型，每个专家都走过 SFT + GRPO 的完整 RL 流程，在自己领域里练到极致。然后关键的一步来了：把这些专家\u201c合成\u201d一个统一模型时，不是让 student 去抄 teacher 的输出分布，而是让 student 自己先 rollout 生成回答，再让多个 teacher 在 student 自己写出来的轨迹上逐 token 给反馈。这实际就是多专家的 OPD（On-Policy Distillation）。"
+  },
+  {
+    image: "figures/opd.png",
+    caption: "Figure 1: OPD 多专家整合流程——Pre-train Base Model 经领域专家训练后，通过 Reverse KL 合成统一模型",
+    prompt: "Flow diagram showing multi-expert LLM post-training pipeline. Left: Pre-train Base Model box. Center: three Expert Models (Math, Code, Agent) trained with SFT + GRPO. Right: OPD integration block with Reverse KL divergence, showing Student rollout → Teacher feedback → Token-by-token evaluation loop. Final output: Unified Model DeepSeek V4. Style: clean flowchart on dark background, teal/cyan accent lines, rounded boxes with arrows, feedback loop arrows."
+  },
+  {
+    heading: "V3.2 的专家蒸馏 vs V4 的 On-Policy Distillation",
+    body: "前代 V3.2 已经有\u201c专家蒸馏\u201d的雏形，他们训练了 5 个专家模型（Math、Coding、Reasoning、Agentic Coding、Agentic Search），用大量 RL 把每个练到强，然后把这些专家的知识蒸馏进最终的 V3.2 模型。但是 V3.2 的蒸馏更像是\u201c专家生成数据 + student 当 SFT 数据训\u201d那种 off-policy 路线，整合阶段还是用一个混合 GRPO 的 RL stage 在跑。",
+    callout: "V4 的不同在于把 OPD 推到极致\u2014\u2014直接用它替代了原本 V3.2 那个 mixed RL 的整合阶段，作为多专家融合的主线。Qwen3 团队明确说\u201cdistillation from advanced teacher models significantly outperforms reinforcement learning\u201d，约 1/10 的 GPU 算力做到 RL 同等效果。GLM-5、MiMo 也都在 post-training pipeline 里采用了 OPD。"
+  },
+  {
+    image: "figures/hybird-attn.png",
+    caption: "Figure 2: DeepSeek-V4 注意力架构——SWA / CSA / HCA 三种注意力机制对比",
+    prompt: "Architecture diagram showing three attention mechanism variants (SWA, CSA, HCA) for a transformer-based LLM. Left side: main data flow from input_ids through Embedding, RMSNorm, CxA module, MoE, to lm_head. Right side: three parallel columns comparing Simple Window Attention, Compressed Sparse Attention, and Hybrid Compressed Attention. Style: clean technical diagram on white background, dark lines, blue/teal accent colors."
+  },
+  {
+    heading: "为什么是 OPD？Forward KL vs Reverse KL",
+    body: "OPD 和 RL 一样，本质都是 reverse KL，相比下 pre-train&SFT&传统蒸馏都是 forward KL。前者是学习者（student）采样出轨迹，由环境反馈（RLVR），Reward Model 反馈（RLHF），或多个领域强专家反馈（多 Expert OPD）。后者都是来自静态数据或 Teacher 的采样数据，一般监督学习的正向 KL 拉齐过程。之前有讲过，reverse KL 是 On-Policy 的，它更不容易灾难性遗忘。这也是为什么它适合做多专家融合\u2014\u2014Pre-train 之后获得 BaseModel，从它出发训练一个领域专家，它对其他领域的灾难性遗忘没有关系，它可以先毫无顾忌地进行领域特化。最后的 On-Policy Distillation 整合时极大地减少遗忘，减少各个领域专家之间的分布稀释知识抹除。"
+  },
+  {
+    heading: "比喻：学英语语法",
+    body: "做个比喻。你已经会一口标准发音的英语，现在跟一位带方言口音的英语老师学语法。老师讲课时，\u201c语法知识\u201d和\u201c方言口音\u201d两个 mode 是混在一起的。SFT 这种 forward KL 让你的分布去匹配老师的分布\u2014\u2014老师在哪里有概率，你就得在哪里有概率。结果你不仅学到了语法，连口音也学了过来；更关键的是，你原本标准发音的那部分概率被挤掉了。这就是 mode-covering 的代价：为了覆盖老师所有 mode，你放弃了自己原本占据的 mode。",
+    callout: "Reverse KL 反过来：你自己先开口（student rollout），老师只在你说出的话上反馈。你用标准发音说，老师就在标准发音的语境里纠正语法；他不会主动把你往方言那个 mode 拉，因为只要你不采样到那里，loss 就不要求你在那里分配概率。结果你只学到语法知识，原本的发音完整保留\u2014\u2014这就是 mode-seeking，被丢掉的是老师的方言 mode，不是你自己的能力。"
+  },
+  {
+    heading: "学校里的 RLVR、SFT 和学霸模式",
+    body: "仔细思考下 LLM Post-Train 的多专家整合过程，特化的 ExpertModel 非常像学校教育里你面对的学科老师和领域教授，在学校里的学习不就是在做一个多 Expert 整合到你这个通用 Student 模型里吗？我中学的同桌问我，为什么每道数学题都会？我确实每道都能做出来\u2014\u2014但难题要花一个小时，简单题反而做得比他慢。他正好相反：简单题秒解，难题完全不会。我学数学是 RLVR 的过程：不太听课，直接硬刚题目。一开始挺痛苦，像 RL 初期 reward 在 0 附近转悠很久，开窍那一下来得很慢。但有信号之后，我自己做题（rollout）、答案对错就是 verified reward，会快速收敛到更高水平。我同桌则是纯 forward KL 的蒸馏\u2014\u2014基本上只听别人讲，结果只会他见过的题型，稍微改改就懵了。",
+    callout: "学霸不一样\u2014\u2014他们认真预习和听课（pre-train + SFT）拉齐基础概率分布，每一道难题先做足够的尝试（rollout），即使做不出来也是带着自己的预测和卡点去问老师。所以学霸听讲解时拿到的是 reverse KL 反馈\u2014\u2014在他们自己生成的轨迹上做 per-token 的纠正。从这个故事总结：RL 上限更高但消耗巨大，纯粹的 SFT 上限低不泛化，更高效的学霸模式是 Pre-Train&SFT 对齐基本分布，借助专家的 On-Policy 蒸馏整合获取更致密的反馈信号。"
+  },
+  {
+    heading: "OPD 不是万能的：Overlap Ratio 是前提",
+    body: "\u201cRethinking On-Policy Distillation of Large Language Models\u201d 指出，即使 teacher 更强，如果 student 和 teacher 的 top-k token 分布重叠率（overlap ratio）低，OPD 就失败。论文实测：用 Qwen3-4B-GRPO（一个 base+RL 的 teacher）蒸 Qwen3-1.7B-Base 比用 Qwen3-4B-Non-thinking 效果显著好，尽管两个 teacher benchmark 分数差不多\u2014\u2014区别只在于前者和 student 共享 base 的\u201c思考模式\u201d，初始 overlap 高。为了让 OPD 跑起来，文章讲了两个方法：Off-policy cold start（先用 teacher 生成的 rollout 做 SFT）和 Teacher-aligned prompts（用 teacher 训练时见过的 prompt 来做 OPD）。",
+    callout: "类比人类学习的故事，就是你开始自己做题前，还是要先认真读书预习，认真听老师讲，拉齐你们的基本概率分布！"
+  },
+  {
+    heading: "LLM 加速学习，但不改写本质",
+    body: "有些自媒体鼓吹 LLM 时代的学习方法，比如 Gabriel Petersson。他高中辍学通过自学进入 OpenAI，他的\u201c递归式学习法\u201d也因此备受关注\u2014\u2014高强度提问和深度思考。我只能说这是天才的学习方法，是人牛逼，不是方法牛逼。正常人都问不出一两个高质量问题。LLM 的出现并没有改变最优的学习模式，它是能加速这套模式。人的 pre-train 过程，原来靠书本阅读和老师讲解，现在你可以用 LLM 做信息整合，就好比给自己做合成数据的 Pre-train。做深度思考的时候，原本你需要找到一个领域专家做反馈，现在这个领域专家就在 LLM 聊天框里。但是如果你不是把大模型的提问过程当成一套先思考再和 LLM 确认反馈的 OPD 模式，而是让它快速地告诉你答案\u2014\u2014那么只是在错误的学习模式上，加速得更猛了。"
+  },
+  {
+    heading: "Reference",
+    body: "[1] DeepSeek-V4 Technical Report\n[2] DeepSeek-V3.2 Technical Report\n[3] Qwen3 Technical Report\n[4] Rethinking On-Policy Distillation of Large Language Models\n[5] GLM-5 Technical Report\n[6] MiMo Technical Report\n[7] blog.recsys-frontier.com",
+    bodyHTML: '<div><a href="https://arxiv.org/abs/2504.18356" target="_blank">[1] DeepSeek-V4 Technical Report</a></div><div><a href="https://arxiv.org/abs/2504.17739" target="_blank">[2] DeepSeek-V3.2 Technical Report</a></div><div><a href="https://arxiv.org/abs/2505.09388" target="_blank">[3] Qwen3 Technical Report</a></div><div><a href="https://arxiv.org/abs/2504.12440" target="_blank">[4] Rethinking On-Policy Distillation of Large Language Models</a></div><div><a href="https://arxiv.org/abs/2504.11739" target="_blank">[5] GLM-5 Technical Report</a></div><div><a href="https://arxiv.org/abs/2505.03695" target="_blank">[6] MiMo Technical Report</a></div><div><a href="https://blog.recsys-frontier.com" target="_blank">[7] blog.recsys-frontier.com</a></div>'
+  }
+];
+var PULSE = "LLM 没有改写学习的本质。它只是把 reverse KL 阶段需要的\u201c高质量反馈\u201d从稀缺资源变成了随手可得的资源。但前提是\u2014\u2014你得先用 forward KL 把自己拉到能听懂反馈的地方。";
+
+// ═══════════════════════════════════════
+// ③ 排版
+// ═══════════════════════════════════════
+var SERIF = "'Noto Serif SC', Georgia, serif";
+var SANS = "'Inter', 'Helvetica Neue', sans-serif";
+
+function fitTitle(text, maxWidth, maxLines) {
+  var lo = 24, hi = 56, best = lo, bestLines = [];
+  while (lo <= hi) {
+    var size = Math.floor((lo + hi) / 2);
+    var font = '700 ' + size + 'px ' + SERIF;
+    var lh = Math.round(size * 1.15);
+    var p = prepareWithSegments(text, font);
+    var result = layoutWithLines(p, maxWidth, lh);
+    if (result.lineCount <= maxLines) {
+      best = size;
+      bestLines = result.lines;
+      lo = size + 1;
+    } else {
+      hi = size - 1;
+    }
+  }
+  return { size: best, lineHeight: Math.round(best * 1.15), lines: bestLines };
+}
+
+// ═══════════════════════════════════════
+// ④ 渲染
+// ═══════════════════════════════════════
+var titleWrap = document.getElementById('title-wrap');
+var leadWrap = document.getElementById('lead-wrap');
+var sectionsWrap = document.getElementById('sections-wrap');
+var pulseWrap = document.getElementById('pulse-wrap');
+
+function render() {
+  var t0 = performance.now();
+  var pageW = titleWrap.parentElement.clientWidth - 48;
+
+  // Title: pretext 自适应字号 + DOM 渲染
+  titleWrap.innerHTML = '';
+  var title = fitTitle(TITLE, pageW, 3);
+  for (var i = 0; i < title.lines.length; i++) {
+    var el = document.createElement('div');
+    el.className = 'title-line';
+    el.textContent = title.lines[i].text;
+    el.style.fontSize = title.size + 'px';
+    el.style.lineHeight = title.lineHeight + 'px';
+    titleWrap.appendChild(el);
+  }
+
+  var leadFont = '500 15.5px ' + SANS;
+  var leadLH = 26;
+  var leadP = prepareWithSegments(LEAD, leadFont);
+  var leadResult = layoutWithLines(leadP, pageW, leadLH);
+
+  leadWrap.innerHTML = '';
+  leadWrap.className = 'lead-block';
+  for (var i = 0; i < leadResult.lines.length; i++) {
+    var span = document.createElement('span');
+    span.textContent = leadResult.lines[i].text;
+    leadWrap.appendChild(span);
+    if (i < leadResult.lines.length - 1) {
+      leadWrap.appendChild(document.createTextNode(' '));
+    }
+  }
+  leadWrap.style.height = leadResult.lineCount * leadLH + 'px';
+
+  sectionsWrap.innerHTML = '';
+  var totalBodyLines = 0;
+
+  for (var si = 0; si < SECTIONS.length; si++) {
+    var s = SECTIONS[si];
+
+    // Figure section (image + caption, no text)
+    if (s.image) {
+      var figSec = document.createElement('div');
+      figSec.className = 'section';
+      var figBlock = document.createElement('div');
+      figBlock.className = 'figure-block';
+      var img = document.createElement('img');
+      img.src = s.image;
+      img.alt = s.caption || '';
+      (function(block, imgEl, promptText, captionText) {
+        imgEl.onerror = function() {
+          imgEl.style.display = 'none';
+          var ph = document.createElement('div');
+          ph.className = 'figure-placeholder';
+          ph.innerHTML = '<div class="figure-placeholder-icon">&#9634;</div>' +
+            '<div class="figure-placeholder-label">待生成插图</div>' +
+            (promptText ? '<div class="figure-placeholder-prompt">' + promptText.replace(/</g,'&lt;') + '</div>' : '');
+          block.insertBefore(ph, block.firstChild);
+        };
+      })(figBlock, img, s.prompt, s.caption);
+      figBlock.appendChild(img);
+      if (s.caption) {
+        var cap = document.createElement('div');
+        cap.className = 'figure-caption';
+        cap.textContent = s.caption;
+        figBlock.appendChild(cap);
+      }
+      if (s.prompt) {
+        figBlock.setAttribute('data-prompt', s.prompt);
+        figBlock.classList.add('figure-prompt-visible');
+      }
+      figSec.appendChild(figBlock);
+      sectionsWrap.appendChild(figSec);
+      (function(block) {
+        block.addEventListener('click', function() {
+          if (block.classList.contains('zoomed')) {
+            block.classList.remove('zoomed');
+          } else {
+            document.querySelectorAll('.figure-block.zoomed').forEach(function(b) { b.classList.remove('zoomed'); });
+            block.classList.add('zoomed');
+          }
+        });
+      })(figBlock);
+      continue;
+    }
+
+    var sec = document.createElement('div');
+    sec.className = 'section';
+
+    var hFont = '700 15px ' + SANS;
+    var hP = prepareWithSegments(s.heading, hFont);
+    var hResult = layoutWithLines(hP, pageW, 22);
+    totalBodyLines += hResult.lineCount;
+
+    var hEl = document.createElement('div');
+    hEl.className = 'section-h';
+    hEl.textContent = s.heading;
+    sec.appendChild(hEl);
+
+    if (s.callout) {
+      var cFont = '500 15px ' + SANS;
+      var cP = prepareWithSegments(s.callout, cFont);
+      var cResult = layoutWithLines(cP, pageW - 56, 25);
+      totalBodyLines += cResult.lineCount;
+
+      var cEl = document.createElement('div');
+      cEl.className = 'callout';
+      cEl.textContent = s.callout;
+      sec.appendChild(cEl);
+    }
+
+    var bFont = '400 17px ' + SERIF;
+    var bP = prepareWithSegments(s.body, bFont);
+    var bResult = layoutWithLines(bP, pageW, 30);
+    totalBodyLines += bResult.lineCount;
+
+    var bEl = document.createElement('div');
+    bEl.className = 'section-body';
+    if (s.bodyHTML) {
+      bEl.innerHTML = s.bodyHTML;
+    } else {
+      bEl.textContent = s.body;
+      bEl.style.height = bResult.lineCount * 30 + 'px';
+    }
+    sec.appendChild(bEl);
+
+    sectionsWrap.appendChild(sec);
+  }
+
+  var pFont = '600 17px ' + SANS;
+  var pP = prepareWithSegments(PULSE, pFont);
+  var pResult = layoutWithLines(pP, pageW, 28);
+  totalBodyLines += pResult.lineCount;
+  pulseWrap.textContent = PULSE;
+  pulseWrap.style.height = pResult.lineCount * 28 + 'px';
+
+  var ms = performance.now() - t0;
+  document.getElementById('sTitle').textContent = title.lines.length + ' lines, ' + title.size + 'px';
+  document.getElementById('sLead').textContent = leadResult.lineCount + ' lines';
+  document.getElementById('sBody').textContent = totalBodyLines;
+  document.getElementById('sMs').textContent = ms.toFixed(2) + 'ms';
+  document.getElementById('sDom').textContent = '0';
+}
+
+// ═══════════════════════════════════════
+// ⑤ 启动
+// ═══════════════════════════════════════
+await document.fonts.ready;
+render();
+
+var resizeTimer = 0;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 100);
+});
+
+
+// ═══════════════════════════════════════════════════
+// ⑥ 火柴人 — 点击位置出现，挥手提示
+// ═══════════════════════════════════════════════════
+var stickCanvas = document.getElementById('stick-canvas');
+var sctx = stickCanvas.getContext('2d');
+var ACCENT = '#C45A20';
+var ACCENT_LIGHT = '#FDF0E6';
+
+var stick = {
+  active: false,
+  opacity: 0,
+  cx: 0, cy: 0,       // 点击位置（锚点）
+  jumpY: 0,
+  jumpVY: 0,
+  bouncePhase: 0,
+  age: 0,              // 出现后经过的秒数
+  blinkTimer: 2,
+  blinking: false,
+  exiting: false
+};
+
+function resizeStick() {
+  stickCanvas.width = window.innerWidth;
+  stickCanvas.height = window.innerHeight;
+}
+resizeStick();
+window.addEventListener('resize', resizeStick);
+
+// 点击任意位置 → 生成火柴人
+document.addEventListener('click', function(e) {
+  if (e.target === stickCanvas) return;
+
+  // 如果已经显示 → 淡出消失（取消）
+  if (stick.active && !stick.exiting) {
+    stick.exiting = true;
+    return;
+  }
+
+  // 否则在新位置生成
+  stick.active = true;
+  stick.exiting = false;
+  stick.cx = e.clientX;
+  stick.cy = e.clientY;
+  stick.opacity = 0;
+  stick.jumpY = -20;
+  stick.jumpVY = 0;
+  stick.bouncePhase = 0;
+  stick.blinkTimer = 2;
+  stick.blinking = false;
+});
+
+function drawStick(t) {
+  if (!stick.active) return;
+
+  var dt = 1 / 60;
+  stick.age += dt;
+
+  // 淡入
+  if (stick.exiting) {
+    stick.opacity -= 0.07;
+    if (stick.opacity <= 0) {
+      stick.active = false;
+      stick.exiting = false;
+      sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
+      return;
+    }
+  } else {
+    stick.opacity = Math.min(1, stick.opacity + 0.1);
+  }
+
+  // 弹跳物理
+  stick.jumpVY += 0.55;
+  stick.jumpY += stick.jumpVY;
+  if (stick.jumpY >= 0) {
+    stick.jumpY = 0;
+    if (stick.bouncePhase < 3 && Math.abs(stick.jumpVY) > 0.5) {
+      stick.jumpVY = -stick.jumpVY * 0.45;
+      stick.bouncePhase++;
+    } else {
+      stick.jumpVY = 0;
+    }
+  }
+
+  // 站稳后微微呼吸
+  var bob = stick.jumpY === 0 ? Math.sin(t * 3.5) * 1.5 : 0;
+
+  // 眨眼
+  stick.blinkTimer -= dt;
+  if (stick.blinkTimer <= 0) {
+    if (stick.blinking) {
+      stick.blinking = false;
+      stick.blinkTimer = 1.5 + Math.random() * 3;
+    } else {
+      stick.blinking = true;
+      stick.blinkTimer = 0.1;
+    }
+  }
+
+  sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
+  sctx.save();
+  sctx.globalAlpha = stick.opacity;
+
+  var x = stick.cx;
+  var y = stick.cy + stick.jumpY + bob;
+  var sc = 0.65;
+
+  sctx.translate(x, y);
+  sctx.scale(sc, sc);
+
+  // 柔和发光
+  var glow = sctx.createRadialGradient(0, -24, 4, 0, -24, 55);
+  glow.addColorStop(0, 'rgba(196,90,32,0.1)');
+  glow.addColorStop(1, 'rgba(196,90,32,0)');
+  sctx.fillStyle = glow;
+  sctx.fillRect(-55, -80, 110, 110);
+
+  var headR = 10;
+  var bodyTop = -headR * 2 - 22;
+  var bodyBot = -headR * 2;
+  var legLen = 18;
+  var armLen = 16;
+
+  sctx.lineCap = 'round';
+  sctx.lineJoin = 'round';
+
+  // 腿
+  sctx.strokeStyle = ACCENT;
+  sctx.lineWidth = 2;
+  sctx.beginPath(); sctx.moveTo(-4, bodyBot); sctx.lineTo(-6, bodyBot + legLen); sctx.stroke();
+  sctx.beginPath(); sctx.moveTo(4, bodyBot);  sctx.lineTo(6, bodyBot + legLen); sctx.stroke();
+
+  // 身体
+  sctx.lineWidth = 2.2;
+  sctx.beginPath(); sctx.moveTo(0, bodyTop); sctx.lineTo(0, bodyBot); sctx.stroke();
+
+  var armBase = bodyTop + 6;
+
+  // 右手臂 — 挥手（举起 + 左右摇摆）
+  var waveAngle = Math.sin(t * 7) * 0.45;              // 手掌左右摆
+  var raiseAngle = -Math.PI / 2 + waveAngle;            // 基础朝上 + 摆动
+  var rwx = Math.cos(raiseAngle) * armLen;
+  var rwy = Math.sin(raiseAngle) * armLen;
+  sctx.lineWidth = 2;
+  sctx.strokeStyle = ACCENT;
+  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(rwx, armBase + rwy); sctx.stroke();
+
+  // 挥手手掌（小圆）
+  var handR = 3 + Math.sin(t * 7) * 0.5;
+  sctx.beginPath();
+  sctx.arc(rwx, armBase + rwy, handR, 0, Math.PI * 2);
+  sctx.fillStyle = ACCENT;
+  sctx.fill();
+
+  // 左手臂 — 自然下垂
+  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(-12, armBase + 10); sctx.stroke();
+
+  // 头
+  var headY = bodyTop - headR;
+  sctx.beginPath();
+  sctx.arc(0, headY, headR, 0, Math.PI * 2);
+  sctx.fillStyle = ACCENT;
+  sctx.fill();
+
+  // 眼睛
+  var eyeOff = 3.5;
+  var eyeY = headY - 1;
+  if (stick.blinking) {
+    sctx.strokeStyle = ACCENT_LIGHT;
+    sctx.lineWidth = 1;
+    sctx.beginPath(); sctx.moveTo(-eyeOff - 1.5, eyeY); sctx.lineTo(-eyeOff + 1.5, eyeY); sctx.stroke();
+    sctx.beginPath(); sctx.moveTo(eyeOff - 1.5, eyeY); sctx.lineTo(eyeOff + 1.5, eyeY); sctx.stroke();
+  } else {
+    sctx.fillStyle = ACCENT_LIGHT;
+    sctx.beginPath(); sctx.arc(-eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
+    sctx.beginPath(); sctx.arc(eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
+    // 高光
+    sctx.fillStyle = '#fff';
+    sctx.beginPath(); sctx.arc(-eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
+    sctx.beginPath(); sctx.arc(eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
+  }
+
+  // 嘴巴 — 微笑
+  sctx.strokeStyle = ACCENT_LIGHT;
+  sctx.lineWidth = 1;
+  sctx.beginPath();
+  sctx.arc(0, headY + 3.5, 3, 0.2, Math.PI - 0.2);
+  sctx.stroke();
+
+  sctx.restore();
+}
+
+// 动画循环
+function animateStick(now) {
+  requestAnimationFrame(animateStick);
+  var t = now / 1000;
+  if (!stick.active) return;
+  drawStick(t);
+}
+requestAnimationFrame(animateStick);
+
+// ═══════════════════════════════════════════════════
+// ⑦ 烟雾 + 流体标题动画
+// ═══════════════════════════════════════════════════
+var smokeCanvas = document.getElementById('smoke-canvas');
+var smCtx = smokeCanvas.getContext('2d');
+var ACCENT_SMOKE = { r: 196, g: 90, b: 32 };
+
+// Mouse tracking
+var smokeMouse = { x: window.innerWidth / 2, y: window.innerHeight / 3 };
+var smokeMouseSmooth = { x: smokeMouse.x, y: smokeMouse.y };
+
+document.addEventListener('mousemove', function(e) {
+  smokeMouse.x = e.clientX;
+  smokeMouse.y = e.clientY;
+});
+document.addEventListener('touchmove', function(e) {
+  smokeMouse.x = e.touches[0].clientX;
+  smokeMouse.y = e.touches[0].clientY;
+}, { passive: true });
+
+function resizeSmoke() {
+  smokeCanvas.width = window.innerWidth;
+  smokeCanvas.height = window.innerHeight;
+}
+resizeSmoke();
+window.addEventListener('resize', resizeSmoke);
+
+var smokeParticles = [];
+var MAX_SMOKE = 200;
+var trailPoints = [];
+
+function emitSmoke() {
+  // Emit from mouse position
+  smokeMouseSmooth.x += (smokeMouse.x - smokeMouseSmooth.x) * 0.08;
+  smokeMouseSmooth.y += (smokeMouse.y - smokeMouseSmooth.y) * 0.08;
+
+  // Trail
+  trailPoints.push({ x: smokeMouseSmooth.x, y: smokeMouseSmooth.y, life: 1 });
+  if (trailPoints.length > 30) trailPoints.shift();
+
+  var emitCount = 3;
+  for (var n = 0; n < emitCount; n++) {
+    if (smokeParticles.length >= MAX_SMOKE) break;
+    var angle = Math.random() * Math.PI * 2;
+    var speed = 0.2 + Math.random() * 0.6;
+    smokeParticles.push({
+      x: smokeMouseSmooth.x + (Math.random() - 0.5) * 10,
+      y: smokeMouseSmooth.y + (Math.random() - 0.5) * 10,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 0.3,
+      r: 15 + Math.random() * 40,
+      life: 1,
+      decay: 0.005 + Math.random() * 0.008,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+
+  // Also emit ambient particles from edges
+  if (Math.random() < 0.15 && smokeParticles.length < MAX_SMOKE) {
+    smokeParticles.push({
+      x: Math.random() * smokeCanvas.width,
+      y: smokeCanvas.height + 20,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -(0.5 + Math.random() * 0.8),
+      r: 40 + Math.random() * 80,
+      life: 1,
+      decay: 0.002 + Math.random() * 0.003,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function updateSmoke() {
+  emitSmoke();
+  for (var i = smokeParticles.length - 1; i >= 0; i--) {
+    var p = smokeParticles[i];
+    p.x += p.vx + Math.sin(p.phase + (1 - p.life) * 4) * 0.4;
+    p.y += p.vy;
+    p.r += 0.4;
+    p.life -= p.decay;
+    if (p.life <= 0) smokeParticles.splice(i, 1);
+  }
+  // Fade trail
+  for (var j = trailPoints.length - 1; j >= 0; j--) {
+    trailPoints[j].life -= 0.04;
+    if (trailPoints[j].life <= 0) trailPoints.splice(j, 1);
+  }
+}
+
+function drawSmoke(t) {
+  smCtx.clearRect(0, 0, smokeCanvas.width, smokeCanvas.height);
+
+  // Draw mouse trail glow
+  if (trailPoints.length > 1) {
+    for (var j = 0; j < trailPoints.length; j++) {
+      var tp = trailPoints[j];
+      var ta = tp.life * 0.08;
+      var tr = 30 + (1 - tp.life) * 20;
+      var tGrad = smCtx.createRadialGradient(tp.x, tp.y, 0, tp.x, tp.y, tr);
+      tGrad.addColorStop(0, 'rgba(' + ACCENT_SMOKE.r + ',' + ACCENT_SMOKE.g + ',' + ACCENT_SMOKE.b + ',' + ta + ')');
+      tGrad.addColorStop(1, 'rgba(' + ACCENT_SMOKE.r + ',' + ACCENT_SMOKE.g + ',' + ACCENT_SMOKE.b + ',0)');
+      smCtx.fillStyle = tGrad;
+      smCtx.beginPath();
+      smCtx.arc(tp.x, tp.y, tr, 0, Math.PI * 2);
+      smCtx.fill();
+    }
+  }
+
+  // Draw smoke particles
+  for (var i = 0; i < smokeParticles.length; i++) {
+    var p = smokeParticles[i];
+    var alpha = p.life * 0.07;
+    var grad = smCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+    grad.addColorStop(0, 'rgba(' + ACCENT_SMOKE.r + ',' + ACCENT_SMOKE.g + ',' + ACCENT_SMOKE.b + ',' + alpha + ')');
+    grad.addColorStop(1, 'rgba(' + ACCENT_SMOKE.r + ',' + ACCENT_SMOKE.g + ',' + ACCENT_SMOKE.b + ',0)');
+    smCtx.fillStyle = grad;
+    smCtx.beginPath();
+    smCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    smCtx.fill();
+  }
+}
+
+function animateSmoke(now) {
+  requestAnimationFrame(animateSmoke);
+  var t = now / 1000;
+  updateSmoke();
+  drawSmoke(t);
+}
+requestAnimationFrame(animateSmoke);
+
+</script>
+</body>
+</html>

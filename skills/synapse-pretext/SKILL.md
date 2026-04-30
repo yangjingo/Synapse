@@ -1,126 +1,244 @@
 ---
 name: synapse-pretext
-description: Integrate @chenglou/pretext for zero-DOM text measurement and manual line layout in Synapse HTML outputs. Use when animated text fields, geometry-sensitive titles, obstacle-aware editorial layout, or virtualized text rendering are needed. Covers prepare/layout for height prediction and prepareWithSegments/layoutWithLines for manual rendering to Canvas, SVG, or DOM.
+description: Zero-DOM text measurement and manual line layout for Synapse outputs. Other skills delegate here when they need text geometry — height prediction, obstacle-aware reflow, shrinkwrap width, justified layout, or proportional character sizing. Use when animated text fields, geometry-sensitive titles, editorial flow, or ASCII-art rendering require precise layout without touching the DOM.
 ---
 
 # Synapse Pretext
 
-Use this skill to integrate Pretext.js text measurement and layout into Synapse outputs.
+The text geometry engine for Synapse. Other skills delegate here when they need to know where text will land — without triggering a reflow.
 
-Pretext measures and positions multiline text through pure arithmetic — no `getBoundingClientRect`, no reflow, no DOM thrashing.
+Pretext measures and positions multiline text through pure arithmetic. No `getBoundingClientRect`. No layout thrashing. No DOM dependency.
 
 ## When to Use
 
-- Animated text fields that need precise height prediction before render
-- Title routing with obstacle awareness (images, callouts, pull quotes)
-- Virtualized or occluded text lists where height must be known upfront
+- Animated text that must know its height before the first paint
+- Title routing around obstacles (images, callouts, pull quotes)
+- Multi-column editorial flow with cursor handoff between columns
+- Shrinkwrap: the tightest width that preserves line count
+- Justified layout with Knuth-Plass optimization and river detection
+- Proportional-font ASCII art where character width varies per weight/style
 - Canvas/SVG text rendering where DOM measurement is impossible
-- Shrinkwrap width calculation for tight multiline containers
-- Rich-text inline flow (code spans, mentions, chips) with proper wrapping
+- Virtualized lists that need exact item heights upfront
+- Click-spawn emphasis characters (stick figures) on pretext-powered pages
 
-## Installation
+## When NOT to Use
 
-```
-npm install @chenglou/pretext
-```
+- Static single-line text — CSS handles this fine
+- Layout that doesn't depend on text geometry
+- Any page where DOM measurement is acceptable and text never moves
+
+## Read
+
+### Core References
+
+1. `reference/the-editorial-engine.html` — the definitive reference. Multi-column flow, obstacle-aware reflow, drop caps, pull quotes, adaptive headline sizing, 60fps animated text.
+2. `reference/shrinkwrap-showdown.html` — binary search for tightest width.
+3. `reference/justification-comparison.html` — Knuth-Plass optimal line breaking with hyphenation and river detection.
+4. `reference/fluid-smoke.html` — full-screen fluid ASCII animation with per-character width measurement.
+5. `reference/variable-typographic-ascii.html` — particle system mapped to characters by brightness and width.
+6. `reference/index.html` — landing page linking to all demos.
+
+### Blog Integration References
+
+These three blogs demonstrate the complete pretext integration pattern with all sub-features (meta, figures, references, stick figure, smoke).
+
+1. `examples/dsv4-blog-layout.html` — **warm editorial style**. DeepSeek-V4 article. Cream background, orange accent, serif body, stick figure emphasis. Single figure (hybird-attn.png).
+2. `examples/opd-blog.html` — **warm editorial + smoke effect**. OPD / On-Policy Distillation article. Same warm palette as dsv4 but with mouse-following smoke particle overlay. Two figures (opd.png + hybird-attn.png).
+3. `examples/agent-eval-blog.html` — **warm editorial + smoke + SVG figure**. AI Agent evaluation guide. Three figures (eval-structure.svg + two placeholders with prompts for synapse-excalidraw generation).
+
+All files are self-contained single HTML. Open directly in browser, no web server needed.
+
+## Feature → Reference Map
+
+| Feature | Reference | Key APIs |
+|---------|-----------|----------|
+| Obstacle-aware reflow around moving shapes | `the-editorial-engine.html` | `prepareWithSegments` `layoutNextLine` cursor loop |
+| Multi-column flow with cursor handoff | `the-editorial-engine.html` | `layoutNextLine` cursor passing between columns |
+| Adaptive headline sizing (binary search font size) | `the-editorial-engine.html` | `prepareWithSegments` + `walkLineRanges` in size loop |
+| Drop caps and pull quotes | `the-editorial-engine.html` | `prepareWithSegments` `layoutWithLines` rect obstacles |
+| Shrinkwrap (tightest width, same line count) | `shrinkwrap-showdown.html` | `prepareWithSegments` `walkLineRanges` binary search |
+| Knuth-Plass optimal justification | `justification-comparison.html` | `prepareWithSegments` `walkLineRanges` DP optimization |
+| Full-screen fluid ASCII animation | `fluid-smoke.html` | `prepareWithSegments` per-character width |
+| Particle system with brightness/width selection | `variable-typographic-ascii.html` | `prepareWithSegments` proportional measurement |
+
+### Blog Integration Features
+
+| Feature | All Blogs | Details |
+|---------|-----------|---------|
+| Adaptive title fitting | `dsv4` `opd` `agent-eval` | `fitTitle()` binary search, `prepareWithSegments` + `layoutWithLines` |
+| Author info + tag badge | `dsv4` `opd` `agent-eval` | `.meta-tag` accent badge + `.meta-date` author line |
+| Reference section with hyperlinks | `dsv4` `opd` `agent-eval` | `bodyHTML` with `<div><a>` per reference |
+| Click-spawn stick figure | `dsv4` `opd` `agent-eval` | Canvas overlay `requestAnimationFrame` bounce + wave |
+| Figure integration + click-to-zoom | `opd` `agent-eval` | `.figure-block` + `max-height: 70vh` + zoom overlay |
+| Missing image placeholder | `dsv4` `opd` `agent-eval` | `img.onerror` → "待生成插图" + prompt text |
+| Smoke particle overlay | `opd` `agent-eval` | Mouse-following radial gradient particles on fixed canvas |
+| SVG figure (Excalidraw) | `agent-eval` | `eval-structure.svg` generated via `synapse-excalidraw` |
 
 ## Core API
 
-### Use Case 1: Measure paragraph height without DOM
+### Height prediction — `prepare` + `layout`
 
 ```js
-import { prepare, layout } from '@chenglou/pretext'
-
 const prepared = prepare('AGI 春天到了. بدأت الرحلة 🚀', '16px Inter')
-const { height, lineCount } = layout(prepared, 320, 20) // pure arithmetic
+const { height, lineCount } = layout(prepared, 320, 20)
 ```
 
-- `prepare()` does one-time work: normalize, segment, measure with canvas. Returns opaque handle.
-- `layout()` is the cheap hot path: pure arithmetic over cached widths.
-- On resize, only rerun `layout()`, not `prepare()`.
+`prepare()` normalizes, segments, and measures with canvas. Returns an opaque handle.
+`layout()` is the hot path — pure arithmetic over cached widths. On resize, only rerun `layout()`.
 
-Options: `{ whiteSpace: 'pre-wrap' }`, `{ wordBreak: 'keep-all' }`, `{ letterSpacing: n }`.
-
-### Use Case 2: Manual line layout
+### Manual line layout — `prepareWithSegments` + `layoutWithLines`
 
 ```js
-import { prepareWithSegments, layoutWithLines } from '@chenglou/pretext'
-
-const prepared = prepareWithSegments('AGI 春天到了', '18px "Helvetica Neue"')
+const prepared = prepareWithSegments(text, '18px "Helvetica Neue"')
 const { lines } = layoutWithLines(prepared, 320, 26)
-for (let i = 0; i < lines.length; i++) ctx.fillText(lines[i].text, 0, i * 26)
+for (const line of lines) ctx.fillText(line.text, line.x, line.y)
 ```
 
-### Variable-width layout (obstacle-aware)
+### Obstacle-aware flow — `layoutNextLine` cursor loop
 
 ```js
-import { layoutNextLineRange, materializeLineRange, prepareWithSegments } from '@chenglou/pretext'
-
-const prepared = prepareWithSegments(article, BODY_FONT)
 let cursor = { segmentIndex: 0, graphemeIndex: 0 }
-let y = 0
-
 while (true) {
-  const width = y < image.bottom ? columnWidth - image.width : columnWidth
-  const range = layoutNextLineRange(prepared, cursor, width)
-  if (range === null) break
-  const line = materializeLineRange(prepared, range)
-  ctx.fillText(line.text, 0, y)
-  cursor = range.end
-  y += 26
+  const width = getWidthForY(cursor.y, obstacles)
+  const line = layoutNextLine(prepared, cursor, width)
+  if (line === null) break
+  placeLine(line)
+  cursor = line.end
 }
 ```
 
-### Shrinkwrap width
+### Shrinkwrap — `walkLineRanges` binary search
 
 ```js
-import { measureLineStats, walkLineRanges } from '@chenglou/pretext'
-
-const { lineCount, maxLineWidth } = measureLineStats(prepared, 320)
+let targetLines = 0
+walkLineRanges(prepared, maxWidth, () => targetLines++)
+let lo = 1, hi = widestLine
+while (lo < hi) {
+  const mid = (lo + hi) >>> 1
+  let count = 0
+  walkLineRanges(prepared, mid, () => count++)
+  if (count <= targetLines) hi = mid; else lo = mid + 1
+}
+// lo is the tightest width
 ```
 
-### Rich-text inline flow
+### Character measurement — `prepareWithSegments` for single chars
 
 ```js
-import { prepareRichInline, walkRichInlineLineRanges } from '@chenglou/pretext/rich-inline'
-
-const prepared = prepareRichInline([
-  { text: 'Ship ', font: '500 17px Inter' },
-  { text: '@maya', font: '700 12px Inter', break: 'never', extraWidth: 22 },
-  { text: "'s rich-note", font: '500 17px Inter' },
-])
+const p = prepareWithSegments(ch, font)
+const width = p.widths.length > 0 ? p.widths[0] : 0
 ```
 
-## Synapse Integration
+## Blog Integration Patterns
 
-### In blog HTML (synapse-design)
+Every pretext-powered blog shares these patterns. Read any of the three blog references for a complete working implementation.
 
-When `pretext` is required in HTML output:
+### 1. Page structure
 
-- load via module import in a `<script type="module">` block
-- use `prepareWithSegments(...)` then `layoutWithLines(...)`
-- drive text layout from the resulting `lines` array
-- apply at minimum to animated text fields
-- extend to title, lead, and caption layout when those are part of the reading experience
+```html
+<canvas id="stick-canvas"></canvas>     <!-- stick figure overlay -->
+<div class="smoke-wrap">                <!-- smoke particles wrapper (optional) -->
+  <canvas id="smoke-canvas"></canvas>
+  <div class="page">
+    <div class="meta-tag">TAG</div>
+    <div class="meta-date">YYYY/MM/DD · author</div>
+    <div id="title-wrap"></div>          <!-- pretext fitTitle() fills this -->
+    <div id="lead-wrap"></div>           <!-- pretext measures, CSS renders -->
+    <div class="hr"></div>
+    <div id="sections-wrap"></div>       <!-- pretext measures, CSS renders -->
+    <div id="pulse-wrap" class="pulse"></div>
+  </div>
+</div>
+```
 
-### In slide decks (Synapse root)
+### 2. SECTIONS array
 
-- use `prepare()` + `layout()` to predict text height for slide layout
-- use `measureLineStats()` to calculate tight container widths
-- avoid DOM reads during animation frames
+```js
+var SECTIONS = [
+  { heading: "...", body: "..." },                                    // text section
+  { heading: "...", body: "...", callout: "..." },                    // text + callout
+  { image: "figures/file.svg", caption: "Fig N: ...", prompt: "..." }, // figure
+  { heading: "Reference", body: "[1] ...", bodyHTML: '<div>...</div>' } // refs
+];
+```
 
-### In illustrations (synapse-figure)
+### 3. Render loop
 
-- use manual line layout for Canvas/SVG text in technical diagrams
-- use rich-text inline flow for label layouts with chips and code spans
+```js
+for (var si = 0; si < SECTIONS.length; si++) {
+  var s = SECTIONS[si];
+  if (s.image) { /* create figure block + img onerror placeholder + zoom click */ continue; }
+  // heading + callout + body (with bodyHTML support for Reference section)
+}
+```
+
+### 4. Stick figure
+
+Canvas overlay, click-spawn at `e.clientX, e.clientY`, bounce physics, waving arm, blinking eyes, no auto-dismiss. All colors from `--accent`. Scale `0.65`.
+
+**Full implementation:** search for `⑥ 火柴人` in any blog reference.
+
+### 5. Smoke particles (optional)
+
+Mouse-following radial gradient particles on a fixed canvas. Emits from cursor + ambient from bottom edge. Accent color with low alpha for subtle atmosphere.
+
+**Full implementation:** search for `⑦ 烟雾` in `opd-blog.html` or `agent-eval-blog.html`.
+
+### 6. Figure → skill delegation
+
+When `s.image` points to a non-existent file, `img.onerror` shows a "待生成插图" placeholder with the prompt. To resolve:
+
+1. **Check `s.prompt`** — describes what the image should contain
+2. **Delegate:**
+   - `synapse-excalidraw` — flow diagrams, architecture diagrams, concept maps (SVG, editable)
+   - `synapse-figure` — technical illustrations, data charts
+   - `synapse-gif` — animated sequences
+3. **Generate → upload → user confirms → export SVG** — see `synapse-excalidraw` SKILL.md for the confirmation workflow
+4. **Save** to `figures/` directory, placeholder auto-resolves on reload
+
+## Workflow
+
+1. **Decide if pretext is needed** — does the text move, resize, flow around obstacles, or need exact geometry before render?
+2. **Prepare once, layout many times** — `prepareWithSegments` once, `layout`/`layoutNextLine` on every resize
+3. **Match font strings exactly** — pretext font string must be identical to CSS
+4. **Inline the library** — all output must be self-contained
+
+## Skill Composition
+
+### With synapse-design (blog)
+
+`synapse-design` delegates to `synapse-pretext` when the HTML blog needs animated or geometry-sensitive text. Apply `prepareWithSegments` at minimum to animated text fields; extend to title, lead, and caption as needed.
+
+### With synapse-figure (illustrations)
+
+`synapse-figure` delegates for label measurement (`prepareWithSegments`) and text routing around diagram elements (`layoutNextLine`).
+
+### With synapse-excalidraw (diagrams)
+
+When a figure entry has no image file, delegate to `synapse-excalidraw` with the `s.prompt` and surrounding section context. Follow the upload → confirm → export workflow defined in that skill's SKILL.md.
+
+### With synapse-gif (animation)
+
+When a Remotion composition includes text that must reflow during animation, use pretext for per-frame text measurement instead of DOM reads.
+
+### Ordering with other skills
+
+1. `synapse-figure` defines what to communicate
+2. `synapse-pretext` refines typography and line layout
+3. `synapse-design` defines palette and visual tokens
+4. `synapse-design` implements the final web artifact
+5. `synapse-gif` adds motion when needed
 
 ## Rules
 
-- Font string must match CSS exactly (e.g. `'16px Inter'` matches `font: 16px Inter`).
+- Font string must match CSS exactly.
 - `lineHeight` in `layout()` must match CSS `line-height`.
 - Avoid `system-ui` font on macOS — use a named font.
 - Runtime requires `Intl.Segmenter` and Canvas 2D text measurement.
 - Do not claim pretext usage unless the page is actually using pretext APIs.
+- All output using pretext must be self-contained — inline the library, do not reference external files.
+- Prepare once per text+font combination. Layout is the hot path.
+- Never trigger DOM reflow for text measurement. That is the entire point of this skill.
 
 ## Reference
 
