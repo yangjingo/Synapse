@@ -192,7 +192,7 @@ When `s.image` points to a non-existent file, `img.onerror` shows a "待生成�
 2. **Delegate:**
    - `synapse-excalidraw` — flow diagrams, architecture diagrams, concept maps (SVG, editable)
    - `synapse-figure` — technical illustrations, data charts
-   - `synapse-gif` — animated sequences
+   - `synapse-animation` — animated sequences
 3. **Generate → upload → user confirms → export SVG** — see `synapse-excalidraw` SKILL.md for the confirmation workflow
 4. **Save** to `figures/` directory, placeholder auto-resolves on reload
 
@@ -217,7 +217,7 @@ When `s.image` points to a non-existent file, `img.onerror` shows a "待生成�
 
 When a figure entry has no image file, delegate to `synapse-excalidraw` with the `s.prompt` and surrounding section context. Follow the upload → confirm → export workflow defined in that skill's SKILL.md.
 
-### With synapse-gif (animation)
+### With synapse-animation (animation)
 
 When a Remotion composition includes text that must reflow during animation, use pretext for per-frame text measurement instead of DOM reads.
 
@@ -227,7 +227,44 @@ When a Remotion composition includes text that must reflow during animation, use
 2. `synapse-pretext` refines typography and line layout
 3. `synapse-design` defines palette and visual tokens
 4. `synapse-design` implements the final web artifact
-5. `synapse-gif` adds motion when needed
+5. `synapse-animation` adds motion when needed
+
+## HTML Build Protocol
+
+The blog HTML template (`examples/dsv4-blog-layout.html`) is the reference implementation of pretext-powered blog rendering. `synapse-forge` uses this template for the Content→Blog mapping.
+
+### Template contents
+
+The reference template contains:
+- Complete inlined pretext library (~2000 lines: bidi, segment, measure, layout)
+- `fitTitle()` binary search for adaptive headline sizing
+- Stick figure canvas overlay with click-spawn animation
+- Figure zoom overlay with `img.onerror` placeholder
+- SECTIONS array renderer with callout, body, and bodyHTML support
+- Stats bar showing layout metrics
+
+### Content variable contract
+
+The template exposes these variables for downstream skills to fill:
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `TITLE` | string | Article headline, fitted via `fitTitle()` |
+| `LEAD` | string | Opening paragraph |
+| `SECTIONS` | array | `{ heading, body, callout, image, caption, prompt, bodyHTML }` entries |
+| `PULSE` | string | Final takeaway paragraph |
+| `.meta-tag` | HTML | Category badge |
+| `.meta-date` | HTML | Author + date line |
+| `<title>` | HTML | Page title |
+
+### Rendering rules
+
+- Use backtick template literals for all content strings — Chinese curly quotes `""` inside JS `"..."` break parsing
+- `bodyHTML` fields (Reference section) use single quotes since they contain HTML tags
+- Image paths: use relative paths from output directory
+- DO NOT run prettier — it breaks the inlined ~2000-line pretext library
+
+The full rendering orchestration (copy template → fill variables) is defined in `synapse-forge` SKILL.md.
 
 ## Rules
 
@@ -239,6 +276,8 @@ When a Remotion composition includes text that must reflow during animation, use
 - All output using pretext must be self-contained — inline the library, do not reference external files.
 - Prepare once per text+font combination. Layout is the hot path.
 - Never trigger DOM reflow for text measurement. That is the entire point of this skill.
+- **Blog content strings MUST use backtick template literals** — Chinese curly quotes `""` inside JS `"..."` strings break parsing and cause white-screen rendering.
+- **DO NOT run prettier** on pretext-powered HTML — it expands the inlined library's compact arrays and can introduce quote escaping issues.
 
 ## Reference
 

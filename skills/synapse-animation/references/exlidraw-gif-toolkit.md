@@ -1,0 +1,106 @@
+# excalidraw-animate
+
+<table><tr><td>
+<img alt="excalidraw-animate" src="https://user-images.githubusercontent.com/490574/83698750-332ca080-a63d-11ea-9845-d2442e9b4305.gif" width="50%" />
+</td></tr></table>
+
+## What is this
+
+This is an external tool to convert an
+[Excalidraw](https://excalidraw.com) drawing
+into animation.
+
+## How to use it
+
+Visit: <https://dai-shi.github.io/excalidraw-animate>
+
+There are three ways to load content:
+
+### Load File
+
+Load a single Excalidraw drawing (`.excalidraw` or `.json` file).
+
+1. Save your drawing as a file in Excalidraw
+2. Click **Load File** and select the file
+
+### Load Library
+
+Load an Excalidraw library file (`.excalidrawlib`) containing multiple items. Each library item will be animated separately.
+
+1. Export a library from Excalidraw
+2. Click **Load Library** and select the `.excalidrawlib` file
+
+### Enter link + Animate!
+
+Paste a URL into the text field and click **Animate!**
+
+Supported formats:
+
+- Excalidraw shareable link: `https://excalidraw.com/#json=xxxxx,yyyyy`
+- Direct link to a library file: `https://example.com/file.excalidrawlib`
+
+## Tips
+
+### Elements without Animation Order
+
+Elements without an explicit animation order are treated as Order=0 and animate in their creation order.
+
+### Grouped elements
+
+When you group elements with different Order/Duration values, the input field shows empty with a "Mixed" placeholder. If you leave it empty, the original values are preserved. If you enter a new value, it applies to all selected elements.
+
+- Individual elements: 500ms default duration each
+- Grouped elements: 5 seconds total, divided among group members
+- You can override this by setting a custom Duration
+
+### Edit mode and Animate mode maintain separate data
+
+To keep the ability to edit later, export from **Edit** mode with **"Embed scene"** enabled, then load the file in **Edit** mode.
+
+Note: Files loaded in **Animate** mode are only available in **Animate**. Switching to **Edit** mode shows your previous Edit data, not the imported file. Also, SVG files exported from **Animate** mode can be loaded back into **Animate**, but cannot be edited in **Edit** mode (the exported SVG does not contain the original scene data).
+
+## Known issues
+
+- Exporting WebM feature is not perfect. Please use screen capture if that doesn't work as expected.
+
+## Package
+
+It's also provided as a package:
+<https://www.npmjs.com/package/excalidraw-animate>
+
+## Tweets
+
+- [The first one with arrows](https://twitter.com/dai_shi/status/1261683775924105218)
+- [Public URL for trial](https://twitter.com/dai_shi/status/1263103554631249923)
+- [Real example with lines](https://twitter.com/dai_shi/status/1263230421715714049)
+- [Free draw example](https://twitter.com/dai_shi/status/1263237733067091968)
+- [Text example](https://twitter.com/dai_shi/status/1263451555858010115)
+- [All shapes example](https://twitter.com/dai_shi/status/1263873223726231552)
+- [Real example with better timing](https://twitter.com/dai_shi/status/1264056453880377345)
+- [Pause and resume](https://twitter.com/dai_shi/status/1264105261800669184)
+- [Export svg and webm](https://twitter.com/dai_shi/status/1264194079165779970)
+- [Adding text field](https://twitter.com/dai_shi/status/1264695085871947776)
+- [Grouping support](https://twitter.com/dai_shi/status/1265441085641256960)
+- [Embedding example](https://twitter.com/dai_shi/status/1269787031892160512)
+- [Load local file](https://twitter.com/dai_shi/status/1271802345106489345)
+- [Keyboard shortcut](https://twitter.com/dai_shi/status/1280118714470330368)
+- [Support for libraries](https://twitter.com/dai_shi/status/1334851951339528202)
+- [Support round rectangles](https://twitter.com/dai_shi/status/1338830468817461249)
+- [Support background color](https://twitter.com/dai_shi/status/1343324961650343937)
+- [Improved WebM export](https://twitter.com/dai_shi/status/1344935241668988930)
+- [Grid layout for libraries](https://twitter.com/dai_shi/status/1352229139500044296)
+- [Support arrowheads](https://twitter.com/dai_shi/status/1364184618371411971)
+- [Step through animations](https://twitter.com/dai_shi/status/1376930624804560900)
+- [Support freedraw](https://twitter.com/dai_shi/status/1391770531582537734)
+- [NPM package](https://twitter.com/dai_shi/status/1398600356322451456)
+- [Support images](https://twitter.com/dai_shi/status/1453012946129338368)
+- [Support filled arrow cap](https://twitter.com/dai_shi/status/1453732212478644231)
+- [Excalidraw v0.11.0](https://twitter.com/dai_shi/status/1494672036459081730)
+- [Excalidraw v0.12.0](https://twitter.com/dai_shi/status/1561928834198704128)
+- [Excalidraw v0.15.2](https://twitter.com/dai_shi/status/1654112716037185536)
+
+## Other projects with Excalidraw
+
+- [Excalidraw Gallery](https://github.com/dai-shi/excalidraw-gallery)
+- [Excalidraw Claymate](https://github.com/dai-shi/excalidraw-claymate)
+- [Excalidraw Layers](https://github.com/dai-shi/excalidraw-layers)

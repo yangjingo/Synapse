@@ -14,11 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Produces structured `forge-output.md` with Key Excerpts, Data Points, Figure Inventory.
   - Downloads and references key images/screenshots from URL sources.
   - Feeds directly into all downstream skills (slides, blog, figure, gif).
-- **synapse-gif skill**: Merged Remotion animation and Slack GIF toolkit into a unified dual-mode skill.
+- **synapse-animation skill**: Merged Remotion animation and Slack GIF toolkit into a unified dual-mode skill.
   - GIF Mode: composable animation primitives (shake, bounce, pulse, kaleidoscope, etc.) with Slack/Discord validators.
   - Remotion Mode: code-driven technical animations with staged reveals, path tracing, sequencing.
   - Figure-to-GIF pipeline: mapping table from figure types to animation patterns, color/SVG handoff.
-- **MiniMax plugin integration**: Added alternative toolchain references in `synapse-gif` for `gif-sticker-maker`, `vision-analysis`, `minimax-multimodal-toolkit`, and `shader-dev`.
+- **MiniMax plugin integration**: Added alternative toolchain references in `synapse-animation` for `gif-sticker-maker`, `vision-analysis`, `minimax-multimodal-toolkit`, and `shader-dev`.
 
 ### Changed
 - **Root skill naming**: Root `SKILL.md` renamed from `synapse-forge` to `synapse`. The `synapse-forge` name now refers to the new material ingestion skill.
@@ -30,11 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `imagegen` → `synapse-figure`
   - `canvas-design` → `synapse-figure`
   - `pretext` (as skill name) → `synapse-pretext`
-  - `synapse-remotion` → `synapse-gif`
+  - `synapse-remotion` → `synapse-animation`
   - `synapse-blog`/`synapse-fig` → `synapse-design`/`synapse-figure`
   - `synapse-forge` (in sub-skill context) → Synapse root
 - **Documentation refresh**: Updated `README.md`, `CHANGELOG.md`, and `docs/PROJECT-INTRO-CN.md` to reflect current skill inventory and cross-skill relationships.
-- **Figure↔GIF integration**: Bidirectional pipeline between `synapse-figure` and `synapse-gif` with concrete handoff patterns (color tokens, SVG scaffolds, figure-type-to-animation mapping).
+- **Figure↔GIF integration**: Bidirectional pipeline between `synapse-figure` and `synapse-animation` with concrete handoff patterns (color tokens, SVG scaffolds, figure-type-to-animation mapping).
 
 ### Removed
 - `tech-blog/` directory (32 files, fully consolidated into `skills/`).

@@ -21,7 +21,7 @@
 | `synapse-figure` | `skills/synapse-figure/` | Technical illustration orchestration |
 | `synapse-viz` | `skills/synapse-viz/` | PyTorch model structure visualization |
 | `synapse-pretext` | `skills/synapse-pretext/` | Pretext text layout integration |
-| `synapse-gif` | `skills/synapse-gif/` | Animated GIFs + Remotion technical animations |
+| `synapse-animation` | `skills/synapse-animation/` | Animated technical diagrams (Excalidraw SVG/GIF + Remotion) |
 
 ## Quick Integration
 
@@ -46,7 +46,7 @@ skills/               ← Sub-skill directories (each with SKILL.md + source mat
   synapse-figure/     ← Illustration orchestration (references, assets, scripts)
   synapse-viz/        ← PyTorch visualization (references, assets, scripts)
   synapse-pretext/    ← Pretext text layout (references, scripts)
-  synapse-gif/        ← Animated GIFs + Remotion animations (references)
+  synapse-animation/ ← Animated SVG/GIF + Remotion (scripts, references)
 references/           ← Master slide protocols (DSL, slides template, slides style)
 examples/             ← Slide decks and blog examples
 scripts/              ← Validators and utilities

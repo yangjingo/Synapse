@@ -22,8 +22,8 @@ Three-mode pipeline for animated hand-drawn diagrams:
 ## When NOT to Use
 
 - Static diagrams where animation adds no explanatory value → use `synapse-figure` instead
-- Code-driven video with complex sequencing → use `synapse-gif` (Remotion Mode)
-- Photo-to-animated-GIF → use `synapse-gif` (GIF Mode) or `gif-sticker-maker`
+- Code-driven video with complex sequencing → use `synapse-animation` (Remotion Mode)
+- Photo-to-animated-GIF → use `synapse-animation` (GIF Mode) or `gif-sticker-maker`
 
 ---
 
@@ -317,13 +317,74 @@ Elements without explicit animation order animate in creation order. To control 
 
 1. `references/excalidraw-cli-reference.md` — Element format, commands, dark mode defaults, label shorthand, arrow bindings (always read)
 2. `references/excalidraw-animate-api.md` — Animation API, order control, export options (read when animating)
+3. `references/data-viz.excalidrawlib` — 32 chart templates (bar, column, pie, donut, scatter, heatmap, radar, etc.)
+4. `references/stick-figures.excalidrawlib` — 9 stick figure poses (pointing, waving, holding objects)
+
+### Library Templates
+
+Pre-made `.excalidrawlib` files with chart and figure templates. Load with `loadLib()` and recolor with Morandi palette — no need to build from scratch.
+
+**data-viz.excalidrawlib** (32 items):
+
+| Index | Type | Description |
+|-------|------|-------------|
+| 0 | Bar | Horizontal bar chart |
+| 1 | Stacked Bar | Stacked horizontal bars |
+| 2 | 100% Stacked Bar | Percentage stacked horizontal |
+| 3 | Grouped Bar | Grouped horizontal bars |
+| 4 | Column | Vertical column chart |
+| 5 | Stacked Column | Stacked vertical columns |
+| 6 | 100% Stacked Column | Percentage stacked vertical |
+| 7 | Grouped Column | Grouped vertical columns |
+| 8-9 | Line / Line+Dots | Line chart variants |
+| 10-13 | Area | Area, stacked, 100%, theme river |
+| 14 | Scatter | Scatter plot |
+| 15 | Bubble | Bubble chart |
+| 16-17 | Heatmap | Cartesian / Calendar heatmap |
+| 18 | Tree Map | Treemap |
+| 19 | Waterfall | Waterfall chart |
+| 20-22 | Dot Strip | Dot strip plots |
+| 23 | Histogram | Column histogram |
+| 24 | Population Pyramid | Demographic pyramid |
+| 25 | Density | Density plot |
+| 26 | Box & Whisker | Box plot |
+| 27 | Violin | Violin plot |
+| 28 | Pie | Pie chart |
+| 29 | Donut | Donut chart |
+| 30 | Polar / Coxcomb | Nightingale chart |
+| 31 | Radar / Spider | Radar chart |
+
+**stick-figures.excalidrawlib** (9 items):
+Standing, pointing, waving, holding sign boards, presenting.
+
+**Usage:**
+
+```javascript
+const L = require('./layout');
+const T = L.morandi();
+
+// Load bar chart from library
+L.loadLib('references/data-viz.excalidrawlib', 0, 100, 80, {
+  stroke: T._inkMuted, fill: T.attention.fill,
+});
+
+// Load donut chart
+L.loadLib('references/data-viz.excalidrawlib', 29, 300, 60, {
+  stroke: T._inkMuted, fill: T.masked.fill, ink: T._ink,
+});
+
+// Load stick figure
+L.loadLib('references/stick-figures.excalidrawlib', 0, 50, 200, {
+  stroke: T._ink, fill: T.cross.fill,
+});
+```
 
 ---
 
 ## Workflow
 
-1. **Identify input mode** — Mermaid syntax, screenshot, or `.excalidraw` file
-2. **Convert to Excalidraw JSON** — use the appropriate conversion path
+1. **Identify input mode** — Mermaid syntax, screenshot, `.excalidraw` file, or library template
+2. **Build diagram** — use `loadLib()` for charts/figures, `place()`/`arrowBetween()` for architecture, or CLI label shorthand for tables
 3. **Apply styling** — pick Morandi palette (random or specific), hand-drawn defaults, camera framing
 4. **Validate structure** — check arrow bindings, label placement, camera aspect ratio (4:3)
 5. **Upload & Collaborate** — upload `.excalidraw` to excalidraw.com, share link with user for review:
@@ -345,7 +406,7 @@ Elements without explicit animation order animate in creation order. To control 
 - Camera must be 4:3 ratio — use presets: 400×300 (S), 600×450 (M), 800×600 (L), 1200×900 (XL)
 - All shapes get `roughness: 2` (hand-drawn) and `roundness: { "type": 3 }` by default
 - Font family must be `1` (Virgil/Excalifont handwritten)
-- **All connections must use `arrow` type — never `line`**: every logical relationship must be expressed with `type: "arrow"`. Use `arrowBetween()` for shape-bound connections, `arrow()` for position-only decorative segments.
+- **All connections must use `arrow` type — never `line`**: every logical relationship must be expressed with `type: "arrow"`. Use `arrowBetween()` for shape-bound connections, `arrow()` for position-only decorative segments. Exception: `loadLib()` preserves original `line` types from library templates — do not convert.
 - Arrows must use `startBinding`/`endBinding` with `fixedPoint` — never position-only for logical connections
 - **Arrow endpoints must be shapes**: every arrow's start and end must connect to a shape, never float in empty space
 - **Annotation text is a single block**: each annotation uses **one** rectangle with **one** bound text element containing the full paragraph (`\n` for line breaks)
@@ -387,9 +448,9 @@ Every technical diagram **must** include annotation blocks.
 
 `synapse-figure` defines what to communicate; `synapse-excalidraw` provides hand-drawn animated rendering.
 
-### With synapse-gif
+### With synapse-animation
 
-`synapse-excalidraw` produces the animated SVG; `synapse-gif` can convert to Slack-optimized GIF.
+`synapse-excalidraw` produces the animated SVG; `synapse-animation` can convert to Slack-optimized GIF.
 
 ### With synapse-design (blog)
 
