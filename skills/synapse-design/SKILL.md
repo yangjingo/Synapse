@@ -1,6 +1,6 @@
 ---
 name: synapse-design
-description: Turn source material such as notes, raw information, or a paper PDF into exactly two final blog artifacts in the WhyJ Engineering voice: one technical Markdown blog with static-image generation prompts, and one polished HTML blog using DESIGN.md-style rules and pretext-style text layout constraints. Use this whenever the user wants a publishable technical post rather than a neutral summary.
+description: "Turn source material into WhyJ-style engineering blog: one Markdown blog with static-image prompts, one polished HTML blog using DESIGN.md-style rules and pretext text layout. Use when the user wants a publishable technical post, not a neutral summary."
 ---
 
 # Synapse Design

@@ -324,7 +324,7 @@ Elements without explicit animation order animate in creation order. To control 
    - `gen-prefill-decode.js` — Vertical flow animation (prefill → decode pipeline)
    - `opd-figures/` — 5 OPD diagram outputs (excalidraw + SVG) — also mirrored in main `examples/opd/figures/`
 6. `scripts/exc-to-svg.js` — Pure Node.js .excalidraw → SVG converter (no dependencies)
-7. `evals/` — Animation eval outputs (prefill-decode, swa-attention SVGs and source excalidraw files)
+7. `evals/` — Source .excalidraw + SVG samples (prefill-decode, swa-attention)
 
 ### Library Templates
 
