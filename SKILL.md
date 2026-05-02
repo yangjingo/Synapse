@@ -1,6 +1,6 @@
 ---
 name: synapse
-description: Master skill for Why.J Engineering. Orchestrates the full pipeline: forge ingests URLs/files → produces DSL, then renders to slides or blog HTML via copy-not-create. Delegates to synapse-forge (ingestion + DSL synthesis), synapse-pretext (blog rendering), and other sub-skills for figures, diagrams, and animation.
+description: "Master skill for Why.J Engineering. Orchestrates forge → DSL → slides/blog HTML pipeline. Delegates to synapse-forge (ingestion), synapse-pretext (blog rendering), synapse-excalidraw (diagrams), and synapse-animation."
 repository: https://github.com/yangjingo/Synapse
 homepage: https://github.com/yangjingo/Synapse
 version: 1.0.0
