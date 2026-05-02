@@ -1,5 +1,6 @@
 ---
 name: synapse-excalidraw
+version: 1.0.0
 description: Convert Mermaid flowcharts or Excalidraw screenshots into animated hand-drawn diagrams. Three input modes — Mermaid syntax, screenshot image, or existing .excalidraw file — all produce Excalidraw JSON then animate via excalidraw-animate. Use when users request Mermaid-to-Excalidraw, diagram animation, hand-drawn flowchart animation, or excalidraw-cli workflows.
 ---
 

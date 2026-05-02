@@ -1,5 +1,6 @@
 ---
 name: synapse-animation
+version: 1.0.0
 description: Create animated technical diagrams and code-driven animations. Three modes — Excalidraw animation, direct GIF primitives (PIL/imageio), Remotion rendering. Use when users request diagram animation, GIF creation, Slack/Discord emoji, technical explainer videos, or Remotion rendering.
 ---
 

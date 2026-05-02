@@ -3,7 +3,7 @@ name: synapse-forge
 description: Raw material → DSL pipeline (熔炉). Give it URLs, files, or raw text, and it produces a WhyJ-style DSL file (slides.dsl.md or blog.dsl.md). Handles ingestion, extraction, and DSL synthesis in the WhyJ engineering voice. Use for "熔炼这些素材", "帮我整理", "做成 slides", or any task that starts with source material and should produce structured DSL output.
 repository: https://github.com/yangjingo/Synapse
 homepage: https://github.com/yangjingo/Synapse
-version: 6.0
+version: 1.0.0
 ---
 
 # Synapse Forge (熔炉)

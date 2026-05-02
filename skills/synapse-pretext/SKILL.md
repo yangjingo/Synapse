@@ -1,5 +1,6 @@
 ---
 name: synapse-pretext
+version: 1.0.0
 description: Zero-DOM text measurement and manual line layout for Synapse outputs. Other skills delegate here when they need text geometry — height prediction, obstacle-aware reflow, shrinkwrap width, justified layout, or proportional character sizing. Use when animated text fields, geometry-sensitive titles, editorial flow, or ASCII-art rendering require precise layout without touching the DOM.
 ---
 
