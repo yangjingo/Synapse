@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-02
+
+### Added
+- **4 complete examples** with full forge→render pipeline output (DSL + HTML + figures):
+  - `examples/cli-revolution/` — CLI 革命 (slides + blog + 2 Excalidraw SVGs)
+  - `examples/deepseek-v4/` — DeepSeek-V4 分析 (slides + blog + 2 Excalidraw SVGs)
+  - `examples/nano-cc/` — Nano Claude Code (slides + blog + 2 Excalidraw SVGs)
+  - `examples/opd/` — On-Policy Distillation (slides + blog + 5 Excalidraw SVGs)
+- **synapse-excalidraw diagram pipeline**: Morandi palette system with 4 preset sets (classic/warm/cool/forest), `layout.js` programmatic API (`place`/`below`/`rightOf`/`arrowBetween`/`annotate`), `exc-to-svg.js` pure Node.js converter, collision detection via `validate()`, and library template support (`data-viz.excalidrawlib`, `stick-figures.excalidrawlib`).
+- **Blog-Slides Figure Sync rule**: Excalidraw SVG figures must be synced across blog DSL/HTML and slides DSL/HTML simultaneously. Enforced in `synapse-excalidraw/SKILL.md` Phase 3.
+- **Excalidraw Phase 0 mandatory design discussion**: ASCII preview mockups via `AskUserQuestion` before any code generation. Prevents wasted effort on rejected diagrams.
+- **FORGE.DSL.md**: Unified DSL syntax specification for slides and blog.
+- **dsv4-blog-layout.html template**: Self-contained blog HTML with inlined Pretext text layout engine (~2000 lines), `fitTitle()` binary search, figure zoom overlay.
+
+### Changed
+- **Skill count reduced from 7 to 5**: Removed `synapse-figure` and `synapse-viz`. Their responsibilities absorbed by `synapse-excalidraw` and `synapse-design`.
+- **Reference migration**: Root `references/` (WHYJ-SLIDES.html, SLIDES-STYLE.md, WHYJ-SLIDES-DSL.md) migrated to corresponding sub-skill directories. Root `evals/` migrated to `skills/synapse-excalidraw/evals/`.
+- **SKILL.md updates**: All 5 sub-skill SKILL.md files updated with new reference paths, backtick template literal rules for blog HTML, and Blog-Slides Figure Sync protocol.
+- **Documentation rewrite**: `README.md`, `docs/PROJECT-INTRO-CN.md`, root `SKILL.md` updated to reflect current skill inventory, directory structure, and pipeline.
+- **Slides DSL figure sync**: CLI/DSV4/Nano-CC slides DSL updated from `::visual` text prompts to `::image` SVG references. Slides HTML updated with `<img>` tags.
+
+### Removed
+- `skills/synapse-figure/` — absorbed by `synapse-excalidraw`
+- `skills/synapse-viz/` — no longer needed
+- `references/` (root) — migrated to `skills/synapse-design/references/`
+- `evals/` (root) — migrated to `skills/synapse-excalidraw/evals/`
+- `examples/cli-demo-slides/`, `examples/deepseek-v4-blog/`, `examples/nano-cc-slides/` — replaced by new example directories
+- `examples/opd-slides.html`, `examples/opd-slides.md`, `examples/demo.html` — consolidated into `examples/opd/`
+- `tmp/opd-materials/` — migrated to `examples/opd/`
+- Duplicate files in `skills/synapse-forge/examples/`, `skills/synapse-design/examples/`, `skills/synapse-pretext/examples/`
+- Old excalidraw library files with typo directory name (`exclidrawlib/`)
+
 ## [0.3.0] - 2026-04-29
 
 ### Added

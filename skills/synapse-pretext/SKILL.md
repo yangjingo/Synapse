@@ -40,11 +40,15 @@ Pretext measures and positions multiline text through pure arithmetic. No `getBo
 
 ### Blog Integration References
 
-These three blogs demonstrate the complete pretext integration pattern with all sub-features (meta, figures, references, stick figure, smoke).
+The blog template demonstrates the complete pretext integration pattern with all sub-features (meta, figures, references, stick figure).
 
-1. `examples/dsv4-blog-layout.html` — **warm editorial style**. DeepSeek-V4 article. Cream background, orange accent, serif body, stick figure emphasis. Single figure (hybird-attn.png).
-2. `examples/opd-blog.html` — **warm editorial + smoke effect**. OPD / On-Policy Distillation article. Same warm palette as dsv4 but with mouse-following smoke particle overlay. Two figures (opd.png + hybird-attn.png).
-3. `examples/agent-eval-blog.html` — **warm editorial + smoke + SVG figure**. AI Agent evaluation guide. Three figures (eval-structure.svg + two placeholders with prompts for synapse-excalidraw generation).
+1. `examples/dsv4-blog-layout.html` — **blog rendering template**. Self-contained HTML with inlined pretext engine, adaptive title fitting, stick figure overlay, figure zoom, SECTIONS renderer. Cream background, orange accent, serif body.
+
+Main `examples/` directory contains 4 fully rendered blog outputs built from this template:
+- `cli-revolution/cli-revolution-blog.html` — CLI Revolution (7 sections, 2 callouts)
+- `deepseek-v4/deepseek-v4-blog.html` — DeepSeek-V4 (12 sections, 2 figures, 3 callouts)
+- `nano-cc/nano-cc-blog.html` — Nano Claude Code (8 sections, 3 callouts)
+- `opd/opd-blog.html` — OPD On-Policy Distillation (12 sections, 4 SVG figures, 3 callouts)
 
 All files are self-contained single HTML. Open directly in browser, no web server needed.
 
@@ -63,16 +67,15 @@ All files are self-contained single HTML. Open directly in browser, no web serve
 
 ### Blog Integration Features
 
-| Feature | All Blogs | Details |
-|---------|-----------|---------|
-| Adaptive title fitting | `dsv4` `opd` `agent-eval` | `fitTitle()` binary search, `prepareWithSegments` + `layoutWithLines` |
-| Author info + tag badge | `dsv4` `opd` `agent-eval` | `.meta-tag` accent badge + `.meta-date` author line |
-| Reference section with hyperlinks | `dsv4` `opd` `agent-eval` | `bodyHTML` with `<div><a>` per reference |
-| Click-spawn stick figure | `dsv4` `opd` `agent-eval` | Canvas overlay `requestAnimationFrame` bounce + wave |
-| Figure integration + click-to-zoom | `opd` `agent-eval` | `.figure-block` + `max-height: 70vh` + zoom overlay |
-| Missing image placeholder | `dsv4` `opd` `agent-eval` | `img.onerror` → "待生成插图" + prompt text |
-| Smoke particle overlay | `opd` `agent-eval` | Mouse-following radial gradient particles on fixed canvas |
-| SVG figure (Excalidraw) | `agent-eval` | `eval-structure.svg` generated via `synapse-excalidraw` |
+| Feature | Template | Details |
+|---------|----------|---------|
+| Adaptive title fitting | `dsv4-blog-layout` | `fitTitle()` binary search, `prepareWithSegments` + `layoutWithLines` |
+| Author info + tag badge | `dsv4-blog-layout` | `.meta-tag` accent badge + `.meta-date` author line |
+| Reference section with hyperlinks | `dsv4-blog-layout` | `bodyHTML` with `<div><a>` per reference |
+| Click-spawn stick figure | `dsv4-blog-layout` | Canvas overlay `requestAnimationFrame` bounce + wave |
+| Figure integration + click-to-zoom | `dsv4-blog-layout` | `.figure-block` + `max-height: 70vh` + zoom overlay |
+| Missing image placeholder | `dsv4-blog-layout` | `img.onerror` → "待生成插图" + prompt text |
+| SVG figure (Excalidraw) | `opd-blog` | 4 SVG figures via `synapse-excalidraw` |
 
 ## Core API
 
@@ -182,7 +185,7 @@ Canvas overlay, click-spawn at `e.clientX, e.clientY`, bounce physics, waving ar
 
 Mouse-following radial gradient particles on a fixed canvas. Emits from cursor + ambient from bottom edge. Accent color with low alpha for subtle atmosphere.
 
-**Full implementation:** search for `⑦ 烟雾` in `opd-blog.html` or `agent-eval-blog.html`.
+**Implementation pattern:** Fixed canvas overlay, `requestAnimationFrame` loop, emit particles at mouse position + bottom edge.
 
 ### 6. Figure → skill delegation
 
@@ -259,7 +262,7 @@ The template exposes these variables for downstream skills to fill:
 
 ### Rendering rules
 
-- Use backtick template literals for all content strings — Chinese curly quotes `""` inside JS `"..."` break parsing
+- **All content strings MUST use backtick template literals** — never `"..."` or `"..."`. JavaScript only recognizes `"` (U+0022), `'` (U+0027), and `` ` `` (U+0060) as string delimiters. Chinese curly quotes `""` (U+201C/U+201D) are NOT valid JS delimiters and cause `SyntaxError: Invalid or unexpected token`. This means every `TITLE`, `LEAD`, `PULSE`, and every `heading`, `body`, `callout`, `image`, `caption`, `prompt` value inside `SECTIONS` must be wrapped in backticks.
 - `bodyHTML` fields (Reference section) use single quotes since they contain HTML tags
 - Image paths: use relative paths from output directory
 - DO NOT run prettier — it breaks the inlined ~2000-line pretext library
@@ -276,7 +279,7 @@ The full rendering orchestration (copy template → fill variables) is defined i
 - All output using pretext must be self-contained — inline the library, do not reference external files.
 - Prepare once per text+font combination. Layout is the hot path.
 - Never trigger DOM reflow for text measurement. That is the entire point of this skill.
-- **Blog content strings MUST use backtick template literals** — Chinese curly quotes `""` inside JS `"..."` strings break parsing and cause white-screen rendering.
+- **All blog content strings MUST use backtick template literals** — `""` (U+201C/U+201D) are not valid JS string delimiters and cause SyntaxError. Every TITLE, LEAD, PULSE, heading, body, callout, image, caption, prompt must use backticks.
 - **DO NOT run prettier** on pretext-powered HTML — it expands the inlined library's compact arrays and can introduce quote escaping issues.
 
 ## Reference

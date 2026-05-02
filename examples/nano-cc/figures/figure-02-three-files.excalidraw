@@ -1,0 +1,330 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "synapse-excalidraw-layout",
+  "elements": [
+    {
+      "type": "rectangle",
+      "id": "ly_0",
+      "x": 60,
+      "y": 70,
+      "width": 210,
+      "height": 160,
+      "strokeColor": "#9A9474",
+      "backgroundColor": "#C4C0AC",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 127835363,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_1",
+          "type": "text"
+        },
+        {
+          "id": "ly_8",
+          "type": "arrow"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_1",
+      "x": 68,
+      "y": 74,
+      "width": 194,
+      "height": 152,
+      "text": "50 万行 TypeScript\n\n95% 边界处理、错误恢复\nUI 渲染、多平台适配\n\n→ 认知过载的噪音",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#3E4438",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1417265624,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_0",
+      "originalText": "50 万行 TypeScript\n\n95% 边界处理、错误恢复\nUI 渲染、多平台适配\n\n→ 认知过载的噪音"
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_2",
+      "x": 370,
+      "y": 70,
+      "width": 180,
+      "height": 45,
+      "strokeColor": "#709870",
+      "backgroundColor": "#A8C0A8",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 645177578,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_3",
+          "type": "text"
+        },
+        {
+          "id": "ly_8",
+          "type": "arrow"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_3",
+      "x": 378,
+      "y": 80.5,
+      "width": 164,
+      "height": 24,
+      "text": "system_prompt.py (~200行)",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#3E4438",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 943052692,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_2",
+      "originalText": "system_prompt.py (~200行)"
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_4",
+      "x": 370,
+      "y": 125,
+      "width": 180,
+      "height": 45,
+      "strokeColor": "#708498",
+      "backgroundColor": "#A8B4C0",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1012591939,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_5",
+          "type": "text"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_5",
+      "x": 378,
+      "y": 135.5,
+      "width": 164,
+      "height": 24,
+      "text": "tools.py (~150行)",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#3E4438",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1673733582,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_4",
+      "originalText": "tools.py (~150行)"
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_6",
+      "x": 370,
+      "y": 180,
+      "width": 180,
+      "height": 45,
+      "strokeColor": "#9A7878",
+      "backgroundColor": "#C0A8A8",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1484168207,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_7",
+          "type": "text"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_7",
+      "x": 378,
+      "y": 190.5,
+      "width": 164,
+      "height": 24,
+      "text": "agent.py (~150行)",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#3E4438",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1339192040,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_6",
+      "originalText": "agent.py (~150行)"
+    },
+    {
+      "type": "arrow",
+      "id": "ly_8",
+      "x": 270,
+      "y": 150,
+      "width": 100,
+      "height": 57.5,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          100,
+          -57.5
+        ]
+      ],
+      "strokeColor": "#8A9480",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 580063082,
+      "groupIds": [],
+      "boundElements": [],
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "startBinding": {
+        "elementId": "ly_0",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "ly_2",
+        "focus": 0,
+        "gap": 4
+      }
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_9",
+      "x": 570,
+      "y": 44.5,
+      "width": 240,
+      "height": 96,
+      "strokeColor": "#d97706",
+      "backgroundColor": "#fffbeb",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 246283463,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_a",
+          "type": "text"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_a",
+      "x": 578,
+      "y": 50.5,
+      "width": 224,
+      "height": 84,
+      "text": "减法原则\n删到不能跑为止\n→ 剩下的就是核心\n500 行 Python 复刻",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "strokeColor": "#3E4438",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1171721171,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_9",
+      "originalText": "减法原则\n删到不能跑为止\n→ 剩下的就是核心\n500 行 Python 复刻",
+      "lineHeight": 1.3
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {}
+}

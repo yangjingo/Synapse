@@ -1,0 +1,423 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "synapse-excalidraw-layout",
+  "elements": [
+    {
+      "type": "text",
+      "id": "ly_0",
+      "x": 108.4,
+      "y": 20,
+      "width": 343.2,
+      "height": 26,
+      "text": "Token Distribution Overlap",
+      "fontSize": 22,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#4A4540",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1247423352,
+      "groupIds": [],
+      "boundElements": []
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_1",
+      "x": 50,
+      "y": 80,
+      "width": 300,
+      "height": 50,
+      "strokeColor": "#7A9188",
+      "backgroundColor": "#B8C4C0",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 51209043,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_2",
+          "type": "text"
+        },
+        {
+          "id": "ly_7",
+          "type": "arrow"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_2",
+      "x": 58,
+      "y": 93,
+      "width": 284,
+      "height": 24,
+      "text": "Teacher P (full distribution)",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#4A4540",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 420545952,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_1",
+      "originalText": "Teacher P (full distribution)"
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_3",
+      "x": 200,
+      "y": 160,
+      "width": 300,
+      "height": 50,
+      "strokeColor": "#848A9E",
+      "backgroundColor": "#B4B8C8",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 2048484287,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_4",
+          "type": "text"
+        },
+        {
+          "id": "ly_8",
+          "type": "arrow"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_4",
+      "x": 208,
+      "y": 173,
+      "width": 284,
+      "height": 24,
+      "text": "Student Q (shifted distribution)",
+      "fontSize": 14,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#4A4540",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1786823698,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_3",
+      "originalText": "Student Q (shifted distribution)"
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_5",
+      "x": 200,
+      "y": 218,
+      "width": 150,
+      "height": 130,
+      "strokeColor": "#9A7E7E",
+      "backgroundColor": "#C4B0B0",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1476128142,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_6",
+          "type": "text"
+        },
+        {
+          "id": "ly_7",
+          "type": "arrow"
+        },
+        {
+          "id": "ly_8",
+          "type": "arrow"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_6",
+      "x": 208,
+      "y": 271,
+      "width": 134,
+      "height": 24,
+      "text": "",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#4A4540",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 941512202,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_5",
+      "originalText": ""
+    },
+    {
+      "type": "arrow",
+      "id": "ly_7",
+      "x": 350,
+      "y": 243,
+      "width": 150,
+      "height": 40,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -150,
+          40
+        ]
+      ],
+      "strokeColor": "#908A84",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 817503166,
+      "groupIds": [],
+      "boundElements": [],
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "startBinding": {
+        "elementId": "ly_1",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "ly_5",
+        "focus": 0,
+        "gap": 4
+      }
+    },
+    {
+      "type": "arrow",
+      "id": "ly_8",
+      "x": 200,
+      "y": 323,
+      "width": 150,
+      "height": 40,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          150,
+          -40
+        ]
+      ],
+      "strokeColor": "#908A84",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1963378426,
+      "groupIds": [],
+      "boundElements": [],
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "startBinding": {
+        "elementId": "ly_3",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "ly_5",
+        "focus": 0,
+        "gap": 4
+      }
+    },
+    {
+      "type": "text",
+      "id": "ly_9",
+      "x": 228.2,
+      "y": 58,
+      "width": 93.6,
+      "height": 17,
+      "text": "overlap zone",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#9A7E7E",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1514659391,
+      "groupIds": [],
+      "boundElements": []
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_a",
+      "x": 50,
+      "y": 356,
+      "width": 480,
+      "height": 70,
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1967834803,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_b",
+          "type": "text"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_b",
+      "x": 58,
+      "y": 360,
+      "width": 464,
+      "height": 62,
+      "text": "overlap 72% → 91%\noverlap tokens carry 97-99% probability mass\nFail AUROC 0.73 vs Success AUROC 0.75 — signal quality identical",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#4A4540",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 1963686835,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_a",
+      "originalText": "overlap 72% → 91%\noverlap tokens carry 97-99% probability mass\nFail AUROC 0.73 vs Success AUROC 0.75 — signal quality identical"
+    },
+    {
+      "type": "rectangle",
+      "id": "ly_c",
+      "x": 550,
+      "y": 247,
+      "width": 240,
+      "height": 96,
+      "strokeColor": "#d97706",
+      "backgroundColor": "#fffbeb",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "opacity": 100,
+      "angle": 0,
+      "seed": 610328647,
+      "groupIds": [],
+      "boundElements": [
+        {
+          "id": "ly_d",
+          "type": "text"
+        }
+      ],
+      "isDeleted": false,
+      "link": null,
+      "locked": false
+    },
+    {
+      "type": "text",
+      "id": "ly_d",
+      "x": 558,
+      "y": 253,
+      "width": 224,
+      "height": 84,
+      "text": "★ Root Cause\nNot signal quality.\nAnisotropic advantage →\ngradient directions conflict.",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "strokeColor": "#4A4540",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "opacity": 100,
+      "angle": 0,
+      "seed": 212850363,
+      "groupIds": [],
+      "boundElements": [],
+      "containerId": "ly_c",
+      "originalText": "★ Root Cause\nNot signal quality.\nAnisotropic advantage →\ngradient directions conflict.",
+      "lineHeight": 1.3
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#FAF8F4"
+  },
+  "files": {}
+}

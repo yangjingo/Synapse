@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 13 740 307" width="740" height="307">
+<rect x="60" y="13" width="740" height="307" fill="#ffffff" />
+<rect x="80" y="60" width="180" height="30" fill="#BCC4AC" stroke="#8A9A70" stroke-width="2" rx="4" />
+<rect x="80" y="94" width="180" height="60" fill="#C0BCA8" stroke="#948E74" stroke-width="2" rx="4" />
+<rect x="80" y="158" width="180" height="140" fill="#C4B8A8" stroke="#9A8870" stroke-width="2" rx="4" />
+<rect x="340" y="60" width="180" height="140" fill="#C8B4A4" stroke="#A08068" stroke-width="2" rx="4" />
+<rect x="340" y="204" width="180" height="60" fill="#C0BCA8" stroke="#948E74" stroke-width="2" rx="4" />
+<rect x="340" y="268" width="180" height="30" fill="#BCC4AC" stroke="#8A9A70" stroke-width="2" rx="4" />
+<rect x="540" y="82" width="240" height="96" fill="#fffbeb" stroke="#d97706" stroke-width="2" rx="4" />
+<path d="M 260 228 L 340 130" fill="none" stroke="#9A7E78" stroke-width="2" marker-end="url(#arrowhead)" />
+<text x="170" y="76" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">GUI — 展示/审批层</text>
+<text x="170" y="125" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">Logic — 业务逻辑</text>
+<text x="170" y="176" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4338" text-anchor="middle">CLI/API</text>
+<text x="170" y="194.2" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4338" text-anchor="middle">Agent 交互层 (核心)</text>
+<text x="170" y="54" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">Agent-first</text>
+<text x="430" y="78" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4338" text-anchor="middle">GUI</text>
+<text x="430" y="96.2" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4338" text-anchor="middle">界面/交互/操作层</text>
+<text x="430" y="235" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">Logic — 业务逻辑</text>
+<text x="430" y="284" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">CLI/API</text>
+<text x="430" y="54" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">传统 SaaS</text>
+<text x="548" y="101" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="start">厚薄反转</text>
+<text x="548" y="117.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="start">Agent 时代 CLI/API 是核心</text>
+<text x="548" y="134.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="start">传统 SaaS GUI 是核心</text>
+<text x="548" y="151.7" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="start">顺序反了就是给别人铺路</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>
+</svg>

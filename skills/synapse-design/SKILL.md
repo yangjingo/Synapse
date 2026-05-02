@@ -76,11 +76,14 @@ If created during reasoning, collapse them into the final two outputs instead of
 
 Read only what is needed:
 
-1. `references/voice.md`
-2. `references/structure.md`
-3. `references/tool-fusion.md` when the task includes page style, figure planning, motion planning, or image generation
-4. `assets/examples/deepseek-v4-validation-note.md` when you need a concrete example of the target voice
-5. `assets/examples/deepseek-v4-long-validation-note.md` when you need the longer WhyJ-style article shape
+1. `references/WHYJ-SLIDES.html` — slides rendering template (Reveal.js + KaTeX + pretext)
+2. `references/SLIDES-STYLE.md` — slides visual style guide
+3. `references/e2e-v6.0-*.html` — E2E evaluation outputs (4 files, reference for slides/blog rendering quality)
+4. Main `examples/` directory — full forge→render pipeline outputs:
+   - `cli-revolution/` — CLI Revolution (slides DSL + blog DSL + slides HTML + blog HTML)
+   - `deepseek-v4/` — DeepSeek-V4 (slides DSL + blog DSL + slides HTML + blog HTML)
+   - `nano-cc/` — Nano Claude Code (slides DSL + blog DSL + slides HTML + blog HTML)
+   - `opd/` — OPD On-Policy Distillation (slides DSL + blog DSL + slides HTML + blog HTML + 5 SVG figures)
 
 ## Trigger
 
@@ -300,3 +303,4 @@ The design tokens must serve the technical argument, not override it.
 - Do not let page style become more important than the technical argument.
 - Do not return more than the two final artifacts unless the user explicitly asks for extras.
 - Do not claim `pretext` usage unless the page is actually using `pretext` APIs.
+- **All JS content strings in HTML output MUST use backtick template literals** — never `"..."` or `"..."` (Chinese curly quotes). JS only recognizes `"` (U+0022), `'` (U+0027), and `` ` `` (U+0060) as string delimiters. Curly quotes `""` cause `SyntaxError: Invalid or unexpected token` and white-screen rendering failure.

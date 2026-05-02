@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>DeepSeek-V4 | Synapse v6.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&family=JetBrains+Mono&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --bg-color: #ffffff; --grid-line: #fafafa; --main-color: #1e1e1e;
+        --accent-claude: #d97757; --accent-blue: #6a9bcc; --accent-green: #788c5d;
+        --item-bg: rgba(217, 119, 87, 0.05); --strong-bg: rgba(217, 119, 87, 0.12);
+        --font-hand: "Gochi Hand", cursive; --font-mono: "JetBrains Mono", monospace;
+        --font-head: "Poppins", sans-serif; --shadow: 12px 12px 0px #1e1e1e;
+      }
+      body { background-color: var(--bg-color); background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px); background-size: 40px 40px; }
+      .reveal { font-family: var(--font-hand); color: var(--main-color); }
+      .reveal .slides { text-align: left; }
+
+      .pretext-stage { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+      .pretext-stage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--bg-color), transparent 14%, transparent 86%, var(--bg-color)), linear-gradient(90deg, var(--bg-color), transparent 8%, transparent 92%, var(--bg-color)); opacity: 0.88; }
+      .pretext-bg { position: absolute; inset: 0; }
+      .pretext-bg .pt-line { position: absolute; left: 24px; right: 24px; white-space: nowrap; font-family: var(--font-head); font-size: clamp(14px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.03em; color: rgba(30, 30, 30, 0.06); transform-origin: left center; will-change: transform, opacity; user-select: none; }
+      .pretext-bg .pt-line.pt-orange { color: rgba(217, 119, 87, 0.10); }
+      .pretext-bg .pt-line.pt-blue { color: rgba(106, 155, 204, 0.09); }
+      .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.08); }
+      .slide-content { position: relative; z-index: 1; }
+
+      .header-layer { border-bottom: 8px solid var(--main-color); margin-bottom: 40px; padding-bottom: 20px; position: relative; }
+      .header-layer h2 { font-family: var(--font-hand) !important; font-weight: 800; font-size: clamp(2.2rem, 5vw, 4rem) !important; margin: 0 !important; color: var(--main-color) !important; text-transform: none !important; }
+      .ui-label { position: absolute; top: -30px; right: 0; font-size: 1rem; opacity: 0.3; letter-spacing: 2px; text-transform: uppercase; }
+      .canvas-layer { display: grid; grid-template-columns: 65% 35%; gap: 40px; align-items: start; min-height: 500px; }
+      .canvas-layer.push-left { display: flex !important; justify-content: flex-start !important; align-items: center !important; width: 100%; min-height: 500px; padding-left: 5%; }
+      .canvas-footer { display: flex !important; justify-content: flex-start !important; align-items: flex-start !important; width: 100%; min-height: 500px; padding-left: 5%; padding-top: 10px; }
+      .canvas-footer .canvas-text { width: 100%; }
+      .canvas-text { font-size: clamp(1.1rem, 2.2vw, 2rem); line-height: 1.3; }
+      .canvas-text ul { list-style: none; padding: 0; margin: 0; }
+      .canvas-text li { margin-bottom: 20px; position: relative; padding: 10px 10px 10px 45px; border-radius: 6px; }
+      .canvas-text li::before { content: "→"; position: absolute; left: 10px; font-weight: 800; color: var(--accent-claude); }
+      .no-bullet .canvas-text li { padding-left: 20px; }
+      .no-bullet .canvas-text li::before { content: ""; }
+      strong, mark { background: var(--strong-bg); padding: 0 6px; border-radius: 4px; display: inline-block; transform: rotate(-0.5deg); font-weight: 800; color: inherit; }
+      .visual-box { border: 5px solid var(--main-color); background: #fff; min-height: 380px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-shadow: var(--shadow); position: relative; overflow: hidden; transform: scale(var(--visual-scale, 1)) translateY(var(--visual-y, 0)); transform-origin: center; }
+      .visual-box img { width: 100%; height: 100%; object-fit: contain; }
+      .code-container { background: #1e1e1e; padding: 15px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem; color: #d4d4d4; overflow: hidden; width: 100%; }
+      .pulse-layer { position: absolute; bottom: 20px; left: 55px; background: #fff; border: 6px solid var(--main-color); padding: 20px 40px; transform: rotate(var(--pulse-rotate, -1.5deg)) translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1)); box-shadow: var(--shadow); font-weight: 800; font-size: clamp(1.2rem, 2vw, 2.2rem); z-index: 10; transform-origin: center; }
+      .pulse-animated { transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease; }
+      .pulse-animated:hover { transform: rotate(0deg) scale(1.06); box-shadow: 14px 14px 0px #1e1e1e; }
+      .ref-list li { margin-bottom: 12px; font-size: 1.1rem; }
+      .ref-list a { color: inherit; text-decoration: none; }
+      .ref-list a:hover { text-decoration: underline; color: var(--accent-claude); }
+      .reference-tag { font-size: 0.8rem; opacity: 0.5; margin-top: 10px; display: block; color: var(--accent-claude) !important; text-decoration: none; }
+      .reference-tag:hover { opacity: 1; text-decoration: underline; }
+      .reveal .slides section .fragment { opacity: 0; transform: translateY(20px); transition: opacity 400ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1); }
+      .reveal .slides section .fragment.visible { opacity: 1; transform: translateY(0); }
+      .footer-watermark { position: absolute; bottom: 30px; right: 30px; font-family: var(--font-hand); font-size: 0.8rem; opacity: 0.1; color: #999; z-index: 1; }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- 00 / Cover -->
+        <section data-transition="none">
+          <div class="header-layer" style="border-bottom: none; padding-left: 5%; margin-top: 15%">
+            <div class="ui-label">00 / Cover</div>
+            <h1 style="font-size: 4.5rem; font-weight: 800; margin: 0; line-height: 1;">DeepSeek-V4</h1>
+            <h2 style="margin-top: 30px; color: var(--accent-claude) !important;">重写百万级上下文的成本曲线，而非继续做大模型</h2>
+            <div style="margin-top: 60px; font-family: var(--font-hand); font-size: 1.2rem; line-height: 2; opacity: 0.8">
+              Version: <strong>Synapse v6.0</strong> &nbsp;&nbsp; Author: <strong>Why.J</strong> &nbsp;&nbsp; Date: <strong>2026/04/24</strong>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 01 / Context -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">01 / Context</div>
+              <h2>现状分析：五条事实指向同一个结论</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>事实 1</strong>: V4-Pro 在 1M context 下，单 token 推理 FLOPs 只需 V3.2 的 <mark>27%</mark>，KV cache 仅 10%。</li>
+                  <li><strong>事实 2</strong>: V4-Flash 更激进 —— FLOPs 仅 <mark>10%</mark>，KV cache 仅 7%。</li>
+                  <li><strong>事实 3</strong>: 混合 CSA/HCA 不是"又加了两个注意力变体"，而是承认不同距离的上下文不应共享同一种表示。</li>
+                  <li><strong>事实 4</strong>: mHC 把残差稳定性从"训练技巧"提升为<mark>架构基础设施</mark>。</li>
+                  <li><strong>事实 5</strong>: Muon 优化器不再需要 QK-Clip，因为 attention 数值设计已经在结构层解决了 logits 爆炸。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 不是更大的 MoE，是重写了 long-context 的 cost curve。 」</div>
+              </div>
+              <div class="visual-box" style="--visual-scale: 0.9">
+                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
+                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
+                  Minimalist Excalidraw-style: left side a tall bar "V3.2 cost", right side a short bar "V4 cost". Arrow between labeled "rewrite". Hand-drawn, black ink, white background.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 02 / Agenda -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">02 / Agenda</div>
+              <h2>从事实到问题</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment"><strong>Q1</strong>: 事实 3 的架构逻辑 —— 为什么 V4 要把 <mark>attention 拆成多条职责不同的路径</mark>？</li>
+                  <li class="fragment"><strong>Q2</strong>: 事实 4 的残差约束 —— mHC 如何让混合路径在训练时<mark>稳定放大</mark>？</li>
+                  <li class="fragment"><strong>Q3</strong>: 事实 5 的联动设计 —— Muon 为什么不需要 QK-Clip，<mark>结构层做了什么</mark>？</li>
+                  <li class="fragment"><strong>Q4</strong>: 事实 1+2 的终极推演 —— 这套设计能不能从论文<mark>走到工程系统</mark>？</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 03 / Mechanism I -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">03 / Mechanism I</div>
+              <h2>CSA：压缩 + 稀疏选择 + 局部窗口的平衡</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>压缩</strong>: 把一段 token 的 KV 压成更粗的表示，降低远场访问成本。</li>
+                  <li><strong>选择</strong>: 只对压缩后的表示做选择性 attention，不做全量扫描。</li>
+                  <li><strong>窗口</strong>: 保留 <mark>128-token sliding-window</mark>，确保近场仍有高分辨率路径。</li>
+                  <li><strong>不对称 Q/KV</strong>: Q 对应当前序列，KV 是"压缩远场 + 近场窗口"的拼接，用 MQA 稳定落地。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.1">「 不是"又加了一个模块"，是"距离不同，表示不同"。 」</div>
+              </div>
+              <div class="visual-box">
+                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
+                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
+                  Minimalist Excalidraw-style: three horizontal lanes — top "near field" dense dots, middle "CSA" compressed blocks + sparse arrows, bottom "window" 128 dots. Hand-drawn, black ink, white background.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 04 / Mechanism II -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">04 / Mechanism II</div>
+              <h2>HCA：把极长路径的代价真正砍下去</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>角色</strong>: HCA 不做复杂选择，直接用"表示更少"换"代价更低"。</li>
+                  <li><strong>分工</strong>: CSA 管"精度和效率的平衡"，HCA 管"<mark>把极长路径砍到底</mark>"。</li>
+                  <li><strong>数学直觉</strong>: 放弃"所有距离共享同一种表示"的假设，把"距离"变成结构变量。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.98">「 距离越远，压缩越狠 —— 这是结构分工，不是简单取舍。 」</div>
+              </div>
+              <div class="visual-box">
+                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
+                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
+                  Minimalist Excalidraw-style: two boxes side by side — left "CSA" balanced scale, right "HCA" compressed arrow. Label "trade precision for cost". Hand-drawn, black ink, white background.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 05 / Mechanism III -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">05 / Mechanism III</div>
+              <h2>mHC：让混合路径仍然保有残差行为</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>问题</strong>: Attention 路径越混合，残差统计越容易漂。MoE + 低精度 + 长路径叠加时，先出问题的不是容量，而是<mark>信号一致性</mark>。</li>
+                  <li><strong>方案</strong>: mHC 对传统残差连接做结构性增强，不是加复杂度，是把稳定性显式写进架构。</li>
+                  <li><strong>配套</strong>: Hybrid attention 改写成本结构，mHC 保证新路径仍可<mark>训练、可放大</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.02">「 没有这个前提，long-context 收益只能停留在图上。 」</div>
+              </div>
+              <div class="visual-box">
+                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
+                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
+                  Minimalist Excalidraw-style: two hands holding a wobbly line labeled "residual". Left hand "mHC" stabilizing. Hand-drawn, black ink, white background.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 06 / Mechanism IV -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">06 / Mechanism IV</div>
+              <h2>Muon：不是优化器技巧，是训练稳定性的系统设计</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>三个问题</strong>: 混合路径放大梯度不均 + 长上下文放大极端更新 + 混合精度让偶发不稳定积累。</li>
+                  <li><strong>联动</strong>: Attention 通过 <mark>RMSNorm 压住 logits 爆炸</mark> → Muon 不再需要 QK-Clip 补丁。</li>
+                  <li><strong>框架配合</strong>: 张量级 checkpointing + 混合 ZeRO + mHC 重计算 + 两阶段上下文并行，绑定成整体。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.95">「 优化器不孤立项，结构铺路，框架配合。 」</div>
+              </div>
+              <div class="visual-box">
+                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
+                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
+                  Minimalist Excalidraw-style: three nodes in triangle — "Attention" RMSNorm, "Muon" no QK-Clip, "Framework" ZeRO. Hand-drawn, black ink, white background.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 07 / Mechanism V -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">07 / Mechanism V</div>
+              <h2>异构 KV Cache：分层存储，不是分几块显存</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>分层存储</strong>: 原始窗口 + 高压缩表示 + 远场索引 + prefix reuse，组成<mark>异构 KV cache</mark>。</li>
+                  <li><strong>磁盘策略</strong>: 推理框架引入磁盘存储支持高效的 shared-prefix reuse。</li>
+                  <li><strong>训推一致</strong>: Batch-invariant + deterministic 算子库，把一致性从论文承诺变成<mark>工程约束</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated">「 KV cache 是存储系统，不是 tensor 的脚注。 」</div>
+              </div>
+              <div class="visual-box">
+                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
+                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
+                  Minimalist Excalidraw-style: four stacked layers — top "raw" dense dots, "compressed" sparse, "far index" few marks, bottom "disk" circle. Arrow down "tiered". Hand-drawn, black ink, white background.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 08 / Take Aways (Q→A mapping) -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">08 / Take Aways</div>
+              <h2>Take A Ways</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment"><strong>Q1 → A1</strong>: V4 把 attention 拆成多路径，因为不同距离的上下文需要不同的<mark>表示和访问语义</mark>，一条路径做不到。</li>
+                  <li class="fragment"><strong>Q2 → A2</strong>: mHC 把残差稳定性写进架构，让混合路径在 MoE + 低精度叠加时<mark>信号不漂</mark>。</li>
+                  <li class="fragment"><strong>Q3 → A3</strong>: Attention 的 RMSNorm 在结构层解决 logits 爆炸，Muon 因此不再需要 QK-Clip 补丁，两者是<mark>联动设计</mark>。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer fragment">
+              「 除了对 Infra 不太友好，这仍然是一个非常不错的工作。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+        <!-- 09 / Reference -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">09 / Reference</div>
+              <h2>Reference</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text" style="font-size: 1.1rem;">
+                <ul class="ref-list">
+                  <li><strong><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf" target="_blank">DeepSeek-V4</a></strong>: Towards Highly Efficient Million-Token Context Intelligence - https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf</li>
+                  <li><strong><a href="https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw" target="_blank">DeepSeek-V4详细分析(1)</a></strong>: 算法和模型结构 - https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw</li>
+                  <li><strong><a href="https://api-docs.deepseek.com/zh-cn/news/news260424" target="_blank">DeepSeek-V4 预览版</a></strong>: 迈入百万上下文普惠时代 - https://api-docs.deepseek.com/zh-cn/news/news260424</li>
+                  <li><strong><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/tree/main/inference" target="_blank">deepseek-ai/DeepSeek-V4-Pro / inference</a></strong> - https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/tree/main/inference</li>
+                  <li><strong><a href="https://www.zhihu.com/question/2030963929510310856/answer/2031734018199270833" target="_blank">DeepSeek V4 预览版本上线并同步开源</a></strong> - kaiyuan - https://www.zhihu.com/question/2030963929510310856/answer/2031734018199270833</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DEEPSEEK-V4 + 2026/04/24</div>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script type="module">
+      import { prepareWithSegments, layoutWithLines } from 'https://esm.sh/@chenglou/pretext';
+
+      document.querySelectorAll(".visual-box[data-scale]").forEach((box) => {
+        box.style.setProperty("--visual-scale", box.getAttribute("data-scale"));
+      });
+
+      Reveal.initialize({ hash: true, center: true, transition: "none", width: 1400, height: 900, margin: 0.05 });
+
+      const coverSource = [
+        'DeepSeek-V4 rewrites the long-context cost curve, not just a bigger MoE.',
+        'CSA and HCA acknowledge that different distances need different representations.',
+        'mHC makes residual stability an architectural primitive, not a training trick.',
+        'Muon optimizer does not need QK-Clip because the structure already handles logits explosion.',
+        'Heterogeneous KV cache is a storage system, not a tensor footnote.',
+      ].join(' ');
+
+      const slideSource = [
+        'DeepSeek-V4', 'CSA', 'HCA', 'mHC', 'Muon', 'KV Cache',
+        'Long-Context', 'Cost Curve', 'Million-Token', 'Architecture',
+      ].join('  /  ');
+
+      function getLines(text, font, maxWidth, lineHeight) {
+        const prepared = prepareWithSegments(text, font);
+        const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+        return lines.map(l => l.text);
+      }
+
+      function buildStage(stage) {
+        const isCover = stage.classList.contains('cover-stage');
+        const src = isCover ? Array.from({ length: 5 }, () => coverSource).join(' ') : Array.from({ length: 12 }, () => slideSource).join(' ');
+        const bg = stage.querySelector('.pretext-bg');
+        if (!bg) return [];
+        const w = stage.clientWidth || 1400, h = stage.clientHeight || 900;
+        const padding = isCover ? 28 : 24;
+        const fontSize = isCover ? Math.max(18, Math.min(28, w * 0.02)) : Math.max(14, Math.min(20, w * 0.014));
+        const lineHeight = Math.round(fontSize * (isCover ? 1.25 : 1.8));
+        const font = `600 ${fontSize}px Poppins, Arial, sans-serif`;
+        const wrapped = getLines(src, font, (w - padding * 2) * 0.92, lineHeight);
+        const top = Math.max(20, (h - wrapped.length * lineHeight) / 2);
+        bg.innerHTML = '';
+        return wrapped.map((text, i) => {
+          const el = document.createElement('div');
+          el.className = 'pt-line';
+          if (i % 9 === 2) el.classList.add('pt-orange');
+          if (i % 11 === 5) el.classList.add('pt-blue');
+          if (i % 13 === 7) el.classList.add('pt-green');
+          el.textContent = text;
+          el.style.top = `${top + i * lineHeight}px`;
+          el.style.left = `${padding}px`;
+          el.style.fontSize = `${fontSize}px`;
+          bg.appendChild(el);
+          return { el, index: i, baseTop: top + i * lineHeight };
+        });
+      }
+
+      const stages = Array.from(document.querySelectorAll('.pretext-stage'));
+      const stageMap = new Map();
+      function rebuildAll() { stageMap.clear(); stages.forEach(s => { stageMap.set(s, buildStage(s)); }); }
+      rebuildAll();
+      const pointers = new Map();
+      stages.forEach(s => pointers.set(s, { x: 0.65, y: 0.4 }));
+
+      function animate(time) {
+        stageMap.forEach((rows, stage) => {
+          const w = stage.clientWidth || 1400, h = stage.clientHeight || 900;
+          const p = pointers.get(stage) || { x: 0.65, y: 0.4 };
+          const isCover = stage.classList.contains('cover-stage');
+          const amp = isCover ? 16 : 8, driftAmp = isCover ? 8 : 4, rotAmp = isCover ? 0.35 : 0.15;
+          rows.forEach(({ el, index, baseTop }) => {
+            const dx = p.x * w - w * 0.5, dy = p.y * h - baseTop;
+            const wave = Math.sin(time * 0.0009 + index * 0.5) * amp;
+            const drift = Math.cos(time * 0.0005 + index * 0.3) * driftAmp;
+            const pull = dx * 0.014 * Math.exp(-Math.abs(dy) / 180);
+            const vert = Math.sin(time * 0.0007 + index * 0.4) * 2;
+            const rot = Math.sin(time * 0.0004 + index * 0.16) * rotAmp;
+            const baseOpacity = isCover ? 0.65 : 0.38;
+            const fade = Math.min(Math.abs(dy) / h, isCover ? 0.4 : 0.22);
+            el.style.opacity = String(Math.max(isCover ? 0.10 : 0.04, baseOpacity - fade));
+            el.style.transform = `translate3d(${wave + drift + pull}px, ${vert}px, 0) rotate(${rot}deg)`;
+          });
+        });
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      document.addEventListener('pointermove', (e) => {
+        stages.forEach(stage => {
+          const rect = stage.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            pointers.set(stage, { x: Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)), y: Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)) });
+          }
+        });
+      });
+
+      Reveal.on('slidechanged', () => { setTimeout(rebuildAll, 120); });
+      window.addEventListener('resize', rebuildAll);
+    </script>
+  </body>
+</html>

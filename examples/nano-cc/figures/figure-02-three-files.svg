@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 24.5 790 226.5" width="790" height="226.5">
+<rect x="40" y="24.5" width="790" height="226.5" fill="#ffffff" />
+<rect x="60" y="70" width="210" height="160" fill="#C4C0AC" stroke="#9A9474" stroke-width="2" rx="4" />
+<rect x="370" y="70" width="180" height="45" fill="#A8C0A8" stroke="#709870" stroke-width="2" rx="4" />
+<rect x="370" y="125" width="180" height="45" fill="#A8B4C0" stroke="#708498" stroke-width="2" rx="4" />
+<rect x="370" y="180" width="180" height="45" fill="#C0A8A8" stroke="#9A7878" stroke-width="2" rx="4" />
+<rect x="570" y="44.5" width="240" height="96" fill="#fffbeb" stroke="#d97706" stroke-width="2" rx="4" />
+<path d="M 270 150 L 370 92.5" fill="none" stroke="#8A9480" stroke-width="2" marker-end="url(#arrowhead)" />
+<text x="165" y="87" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle">50 万行 TypeScript</text>
+<text x="165" y="103.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle"></text>
+<text x="165" y="120.80000000000001" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle">95% 边界处理、错误恢复</text>
+<text x="165" y="137.7" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle">UI 渲染、多平台适配</text>
+<text x="165" y="154.60000000000002" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle"></text>
+<text x="165" y="171.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle">→ 认知过载的噪音</text>
+<text x="460" y="93.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle">system_prompt.py (~200行)</text>
+<text x="460" y="148.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle">tools.py (~150行)</text>
+<text x="460" y="203.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="middle">agent.py (~150行)</text>
+<text x="578" y="63.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="start">减法原则</text>
+<text x="578" y="80.4" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="start">删到不能跑为止</text>
+<text x="578" y="97.30000000000001" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="start">→ 剩下的就是核心</text>
+<text x="578" y="114.2" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3E4438" text-anchor="start">500 行 Python 复刻</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>
+</svg>

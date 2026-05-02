@@ -422,6 +422,62 @@ function _registerBound(shapeId, elementId, type) {
   }
 }
 
+// ── Load library item ──
+// Loads an item from a .excalidrawlib file, normalizes position, applies offset and colors
+function loadLib(libPath, itemIndex, ox = 0, oy = 0, colors = null) {
+  const lib = JSON.parse(fs.readFileSync(libPath, 'utf-8'));
+  const items = lib.libraryItems || lib.library;
+  const raw = Array.isArray(items[itemIndex]) ? items[itemIndex] : items[itemIndex].elements || items[itemIndex];
+
+  // Normalize: find bounding box origin
+  let minX = Infinity, minY = Infinity;
+  for (const el of raw) {
+    if (typeof el.x === 'number' && el.x < minX) minX = el.x;
+    if (typeof el.y === 'number' && el.y < minY) minY = el.y;
+  }
+
+  const loaded = [];
+  const idMap = {};
+
+  for (const el of raw) {
+    const newEl = { ...el };
+    idMap[el.id] = eid();
+    newEl.id = idMap[el.id];
+    newEl.x = (el.x || 0) - minX + ox;
+    newEl.y = (el.y || 0) - minY + oy;
+    newEl.seed = seed();
+
+    if (colors) {
+      if (colors.stroke) newEl.strokeColor = colors.stroke;
+      if (colors.fill) newEl.backgroundColor = colors.fill;
+      if (colors.ink && el.type === 'text') newEl.strokeColor = colors.ink;
+    }
+
+    if (newEl.groupIds) {
+      newEl.groupIds = newEl.groupIds.map(gid => gid + '_' + newEl.id);
+    }
+    if (newEl.boundElements) {
+      newEl.boundElements = newEl.boundElements.map(b => ({
+        ...b, id: idMap[b.id] || b.id,
+      }));
+    }
+    if (newEl.containerId) {
+      newEl.containerId = idMap[newEl.containerId] || newEl.containerId;
+    }
+    if (newEl.startBinding) {
+      newEl.startBinding = { ...newEl.startBinding, elementId: idMap[newEl.startBinding.elementId] || newEl.startBinding.elementId };
+    }
+    if (newEl.endBinding) {
+      newEl.endBinding = { ...newEl.endBinding, elementId: idMap[newEl.endBinding.elementId] || newEl.endBinding.elementId };
+    }
+
+    elements.push(newEl);
+    loaded.push(newEl);
+  }
+
+  return loaded;
+}
+
 function reset() {
   idCounter = 0;
   elements.length = 0;
@@ -431,7 +487,7 @@ function reset() {
 }
 
 module.exports = {
-  configure, reset, morandi,
+  configure, reset, morandi, loadLib,
   place, placeInside, below, above, rightOf, leftOf, belowCentered, aboveCentered,
   arrow, arrowBetween, text, annotate, bracket, frame,
   validate, autoFix, write,

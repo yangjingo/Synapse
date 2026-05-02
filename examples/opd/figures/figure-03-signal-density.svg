@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 -5 698 454" width="698" height="454">
+<rect x="40" y="-5" width="698" height="454" fill="#FAF8F4" />
+<rect x="80" y="110" width="48" height="32" fill="#C8BFB0" stroke="#9A8E7E" stroke-width="2" rx="4" />
+<rect x="142" y="110" width="48" height="32" fill="#C8BFB0" stroke="#9A8E7E" stroke-width="2" rx="4" />
+<rect x="204" y="110" width="48" height="32" fill="#C8BFB0" stroke="#9A8E7E" stroke-width="2" rx="4" />
+<rect x="266" y="110" width="48" height="32" fill="#C8BFB0" stroke="#9A8E7E" stroke-width="2" rx="4" />
+<rect x="328" y="110" width="48" height="32" fill="#C8BFB0" stroke="#9A8E7E" stroke-width="2" rx="4" />
+<polygon points="388,180 428,202.5 388,225 348,202.5" fill="#C4B0B0" stroke="#9A7E7E" stroke-width="2" />
+<rect x="448" y="175" width="100" height="30" fill="none" stroke="#1e1e2e" stroke-width="2" rx="4" />
+<rect x="60" y="250" width="440" height="3" fill="#908A84" stroke="#908A84" stroke-width="2" rx="4" />
+<rect x="80" y="310" width="48" height="32" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="80" y="365" width="48" height="24" fill="#B4C4B6" stroke="#7E9A84" stroke-width="2" rx="4" />
+<rect x="142" y="310" width="48" height="32" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="142" y="365" width="48" height="24" fill="#B4C4B6" stroke="#7E9A84" stroke-width="2" rx="4" />
+<rect x="204" y="310" width="48" height="32" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="204" y="365" width="48" height="24" fill="#B4C4B6" stroke="#7E9A84" stroke-width="2" rx="4" />
+<rect x="266" y="310" width="48" height="32" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="266" y="365" width="48" height="24" fill="#B4C4B6" stroke="#7E9A84" stroke-width="2" rx="4" />
+<rect x="328" y="310" width="48" height="32" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="328" y="365" width="48" height="24" fill="#B4C4B6" stroke="#7E9A84" stroke-width="2" rx="4" />
+<rect x="348" y="397" width="110" height="30" fill="none" stroke="#1e1e2e" stroke-width="2" rx="4" />
+<rect x="478" y="302" width="240" height="96" fill="#fffbeb" stroke="#d97706" stroke-width="2" rx="4" />
+<path d="M 128 126 L 142 126" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 190 126 L 204 126" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 252 126 L 266 126" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 314 126 L 328 126" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 352 142 L 388 180" fill="none" stroke="#9A7E7E" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 104 342 L 104 365" fill="none" stroke="#7A9188" stroke-width="1" marker-end="url(#arrowhead)" />
+<path d="M 128 326 L 142 326" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 166 342 L 166 365" fill="none" stroke="#7A9188" stroke-width="1" marker-end="url(#arrowhead)" />
+<path d="M 190 326 L 204 326" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 228 342 L 228 365" fill="none" stroke="#7A9188" stroke-width="1" marker-end="url(#arrowhead)" />
+<path d="M 252 326 L 266 326" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 290 342 L 290 365" fill="none" stroke="#7A9188" stroke-width="1" marker-end="url(#arrowhead)" />
+<path d="M 314 326 L 328 326" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 352 342 L 352 365" fill="none" stroke="#7A9188" stroke-width="1" marker-end="url(#arrowhead)" />
+<text x="280" y="42" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="22" fill="#4A4540" text-anchor="middle">Signal Density: RL vs OPD</text>
+<text x="240" y="76" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#9A7E7E" text-anchor="middle">RL (sparse reward)</text>
+<text x="104" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t1</text>
+<text x="166" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t2</text>
+<text x="228" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t3</text>
+<text x="290" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t4</text>
+<text x="352" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t5</text>
+<text x="388" y="208.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="18" fill="#4A4540" text-anchor="middle">?</text>
+<text x="498" y="192" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">O(1) bit</text>
+<text x="280" y="249.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle"></text>
+<text x="240" y="281" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#7A9188" text-anchor="middle">OPD (dense signal)</text>
+<text x="104" y="327" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t1</text>
+<text x="104" y="377" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">0.92</text>
+<text x="166" y="327" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t2</text>
+<text x="166" y="377" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">0.71</text>
+<text x="228" y="327" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t3</text>
+<text x="228" y="377" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">0.33</text>
+<text x="290" y="327" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t4</text>
+<text x="290" y="377" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">0.85</text>
+<text x="352" y="327" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">t5</text>
+<text x="352" y="377" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">0.95</text>
+<text x="403" y="414" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">O(N) bits</text>
+<text x="486" y="321" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="start">★ Dense Signal</text>
+<text x="486" y="337.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="start">Teacher scores every token</text>
+<text x="486" y="354.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="start">with log-prob feedback.</text>
+<text x="486" y="371.7" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="start">10x information density.</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>
+</svg>

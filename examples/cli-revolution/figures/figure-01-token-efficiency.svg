@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="7 30 713 291" width="713" height="291">
+<rect x="7" y="30" width="713" height="291" fill="#ffffff" />
+<rect x="460" y="112" width="240" height="96" fill="#fffbeb" stroke="#d97706" stroke-width="2" rx="4" />
+<path d="M 80 260 L 440 260" fill="none" stroke="#788898" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 80 260 L 80 50" fill="none" stroke="#788898" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 90 220 L 420 220" fill="none" stroke="#748A9E" stroke-width="3" />
+<path d="M 90 220 L 420 80" fill="none" stroke="#8888A0" stroke-width="3" />
+<text x="50" y="162" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#788898" text-anchor="middle">Token</text>
+<text x="50" y="176" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#788898" text-anchor="middle">消耗</text>
+<text x="260" y="292" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#788898" text-anchor="middle">交互步骤</text>
+<text x="430" y="212" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#748A9E" text-anchor="middle">CLI O(1)</text>
+<text x="430" y="72" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#8888A0" text-anchor="middle">GUI O(n)</text>
+<text x="468" y="131" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#384048" text-anchor="start">Token 效率</text>
+<text x="468" y="147.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#384048" text-anchor="start">CLI 协议属性 O(1)</text>
+<text x="468" y="164.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#384048" text-anchor="start">GUI 交互范式 O(n)</text>
+<text x="468" y="181.7" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#384048" text-anchor="start">数学，不是偏好</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>
+</svg>

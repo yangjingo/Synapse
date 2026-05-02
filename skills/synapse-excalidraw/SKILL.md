@@ -319,6 +319,12 @@ Elements without explicit animation order animate in creation order. To control 
 2. `references/excalidraw-animate-api.md` — Animation API, order control, export options (read when animating)
 3. `references/data-viz.excalidrawlib` — 32 chart templates (bar, column, pie, donut, scatter, heatmap, radar, etc.)
 4. `references/stick-figures.excalidrawlib` — 9 stick figure poses (pointing, waving, holding objects)
+5. `examples/` — Proven layout.js scripts + output samples:
+   - `gen-swa-attention.js` — Grid comparison (N×N matrix with banded mask)
+   - `gen-prefill-decode.js` — Vertical flow animation (prefill → decode pipeline)
+   - `opd-figures/` — 5 OPD diagram outputs (excalidraw + SVG) — also mirrored in main `examples/opd/figures/`
+6. `scripts/exc-to-svg.js` — Pure Node.js .excalidraw → SVG converter (no dependencies)
+7. `evals/` — Animation eval outputs (prefill-decode, swa-attention SVGs and source excalidraw files)
 
 ### Library Templates
 
@@ -383,18 +389,52 @@ L.loadLib('references/stick-figures.excalidrawlib', 0, 50, 200, {
 
 ## Workflow
 
+### Phase 0: Discuss & Confirm Design (MANDATORY)
+
+Before writing any code, discuss with the user what each diagram should show:
+
+1. **List needed diagrams** — identify all diagrams needed for the target output (slides, blog, etc.)
+2. **For each diagram, ask the user to choose** via `AskUserQuestion` with ASCII preview mockups:
+   - Layout options (vertical flow / side-by-side / grid / custom)
+   - Key data points and annotations to include
+   - Color palette preference (Morandi set)
+   - What to omit (keep it focused)
+3. **Never auto-generate without confirmation** — rejected diagrams waste time and tokens
+
+ASCII preview format for options (renders in monospace box):
+```
+┌─────────────────────────┐
+│  Title                  │
+│  ┌───┐  ┌───┐  ┌───┐  │
+│  │ A │→│ B │→│ C │  │
+│  └───┘  └───┘  └───┘  │
+│  annotation text        │
+└─────────────────────────┘
+```
+
+Only proceed to Phase 1 after all diagrams are confirmed.
+
+### Phase 1: Build
+
 1. **Identify input mode** — Mermaid syntax, screenshot, `.excalidraw` file, or library template
-2. **Build diagram** — use `loadLib()` for charts/figures, `place()`/`arrowBetween()` for architecture, or CLI label shorthand for tables
-3. **Apply styling** — pick Morandi palette (random or specific), hand-drawn defaults, camera framing
+2. **Write layout.js script** — use `loadLib()` for charts/figures, `place()`/`arrowBetween()` for architecture, or CLI label shorthand for tables
+3. **Apply styling** — pick Morandi palette (from user choice), hand-drawn defaults, camera framing
 4. **Validate structure** — check arrow bindings, label placement, camera aspect ratio (4:3)
+
+### Phase 2: Upload & Confirm
+
 5. **Upload & Collaborate** — upload `.excalidraw` to excalidraw.com, share link with user for review:
    ```bash
    npx excalidraw-cli export <diagram>.excalidraw
    # → https://excalidraw.com/#json=<id>,<key>
    ```
    **CRITICAL: Must get user confirmation before proceeding to export.** Send the shareable link to the user, wait for their approval or revision requests, iterate on the diagram until satisfied.
+
+### Phase 3: Export & Integrate
+
 6. **Export** — Only after user confirmation: SVG for web (default), WebM/video for presentations, GIF for Slack
-7. **Integrate** — Update the target HTML/asset with the confirmed export
+7. **Integrate** — Update **both blog AND slides** downstream files with the confirmed export (see Blog-Slides Sync rule below)
+8. **Clean up** — Remove temporary generation scripts from `scripts/`
 
 ---
 
@@ -414,6 +454,22 @@ L.loadLib('references/stick-figures.excalidrawlib', 0, 50, 200, {
 - **Container text stays visible**: use `placeInside()` so parent label auto-moves to top, never occluded by children.
 - For screenshot mode: verify AI-extracted structure matches original before animating
 - Export SVG first; only use WebM if video is required
+- **Blog-Slides Figure Sync (MANDATORY)**: When integrating figures, update ALL four downstream files simultaneously:
+  1. **Blog DSL**: add `Type: figure` + `Image:` section
+  2. **Blog HTML**: add `image:` / `caption:` entry in SECTIONS array
+  3. **Slides DSL**: replace matching `::visual` text prompt with `::image [path] [scale=80] ::`
+  4. **Slides HTML**: replace `<div class="visual-box">` text prompt with `<img src="..." style="width:80%" />`
+  Never update only blog or only slides — they must stay consistent.
+
+### layout.js Generation Quality Gates
+
+When using `layout.js` to generate `.excalidraw` files programmatically:
+
+1. **All logical connections via `arrowBetween()`** — never use bare `arrow()` for relationships between shapes. `arrow()` is only for decorative/bracket paths with no semantic meaning.
+2. **`validate()` must pass** — zero overlaps, zero text occlusion. If `autoFix()` is needed, re-run `validate()` to confirm clean.
+3. **Annotations must have complete content** — every `annotate()` call must have a real title and body with substantive text, not placeholder or empty strings.
+4. **Follow proven patterns** — reference `examples/gen-swa-attention.js` and `examples/gen-prefill-decode.js` as the canonical examples of working layout.js scripts.
+5. **Avoid raw `L.elements.push()`** unless building grid cells (like swa-attention's matrix). Use the `place()`/`below()`/`rightOf()` API for proper layout tracking and collision detection.
 
 ### Annotation Protocol
 

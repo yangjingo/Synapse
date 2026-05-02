@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 -5 780 452" width="780" height="452">
+<rect x="30" y="-5" width="780" height="452" fill="#FAF8F4" />
+<rect x="50" y="80" width="300" height="50" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="200" y="160" width="300" height="50" fill="#B4B8C8" stroke="#848A9E" stroke-width="2" rx="4" />
+<rect x="200" y="218" width="150" height="130" fill="#C4B0B0" stroke="#9A7E7E" stroke-width="2" rx="4" />
+<rect x="50" y="356" width="480" height="70" fill="none" stroke="#1e1e2e" stroke-width="2" rx="4" />
+<rect x="550" y="247" width="240" height="96" fill="#fffbeb" stroke="#d97706" stroke-width="2" rx="4" />
+<path d="M 350 243 L 200 283" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 200 323 L 350 283" fill="none" stroke="#908A84" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<text x="280" y="42" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="22" fill="#4A4540" text-anchor="middle">Token Distribution Overlap</text>
+<text x="200" y="107" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">Teacher P (full distribution)</text>
+<text x="350" y="187" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">Student Q (shifted distribution)</text>
+<text x="275" y="283" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle"></text>
+<text x="275" y="71" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#9A7E7E" text-anchor="middle">overlap zone</text>
+<text x="290" y="373" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">overlap 72% → 91%</text>
+<text x="290" y="389.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">overlap tokens carry 97-99% probability mass</text>
+<text x="290" y="406.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">Fail AUROC 0.73 vs Success AUROC 0.75 — signal quality identical</text>
+<text x="558" y="266" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="start">★ Root Cause</text>
+<text x="558" y="282.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="start">Not signal quality.</text>
+<text x="558" y="299.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="start">Anisotropic advantage →</text>
+<text x="558" y="316.7" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="start">gradient directions conflict.</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>
+</svg>

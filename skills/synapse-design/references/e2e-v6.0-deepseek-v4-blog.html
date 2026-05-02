@@ -1,0 +1,2841 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeepSeek-V4 的核心不是更大的 MoE，而是重写 long-context 的 cost curve</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF7;
+      --ink: #1A1A1A;
+      --muted: #8A7F70;
+      --accent: #C45A20;
+      --accent-light: #FDF0E6;
+      --border: #E8E2D8;
+      --serif: 'Noto Serif SC', Georgia, serif;
+      --sans: 'Inter', 'Helvetica Neue', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); color: var(--ink); }
+    body { min-height: 100vh; padding-bottom: 48px; }
+
+    .page { max-width: 700px; margin: 0 auto; padding: 72px 24px 0; }
+
+    .title-line {
+      font-family: var(--serif);
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }
+    .lead-block {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 26px;
+      color: var(--muted);
+      margin: 16px 0 0;
+    }
+    .hr { height: 1px; background: var(--border); margin: 40px 0; }
+
+    .section { margin-top: 40px; }
+    .section-h {
+      font: 700 15px/1.3 var(--sans);
+      color: var(--accent);
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .section-body {
+      font: 400 17px/30px var(--serif);
+      color: var(--ink);
+    }
+    .section-body a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(196,90,32,0.3);
+      text-underline-offset: 2px;
+      transition: text-decoration-color 0.2s;
+    }
+    .section-body a:hover {
+      text-decoration-color: var(--accent);
+    }
+    .callout {
+      position: relative;
+      margin: 20px 0;
+      padding: 16px 20px 16px 24px;
+      background: var(--accent-light);
+      border-radius: 4px;
+      font: 500 15px/25px var(--sans);
+      color: #6B3A12;
+    }
+    .callout::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      border-radius: 4px 0 0 4px;
+    }
+    .figure-block {
+      margin: 32px auto;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #F5F3EE;
+      max-width: 100%;
+    }
+    .figure-block img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+      object-position: center;
+      background: #fff;
+      cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .figure-block.zoomed {
+      position: fixed;
+      inset: 0;
+      max-width: none;
+      margin: 0;
+      border-radius: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .figure-block.zoomed img {
+      max-height: none;
+      width: auto;
+      max-width: 95vw;
+      max-height: 95vh;
+      cursor: zoom-out;
+    }
+    .figure-block.zoomed .figure-caption {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: #eee;
+      border-radius: 4px;
+      padding: 6px 14px;
+    }
+    .figure-caption {
+      padding: 10px 16px 12px;
+      font: 500 13px/20px var(--sans);
+      color: var(--muted);
+    }
+    .figure-placeholder {
+      padding: 32px 20px;
+      text-align: center;
+      background: #EDEBE6;
+    }
+    .figure-placeholder-icon {
+      font: 700 28px/1 var(--sans);
+      color: var(--border);
+      margin-bottom: 8px;
+    }
+    .figure-placeholder-label {
+      font: 600 13px/1 var(--sans);
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .figure-placeholder-prompt {
+      font: 400 12px/18px var(--sans);
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+      white-space: pre-wrap;
+    }
+    .pulse {
+      margin-top: 48px;
+      font: 600 17px/28px var(--sans);
+      color: var(--accent);
+    }
+
+    .meta-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font: 700 11px/1 var(--sans);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .meta-date {
+      font: 500 13px/1 var(--sans);
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .stats {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(250,250,247,0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex; gap: 20px; flex-wrap: wrap;
+      font: 500 11px/1 var(--sans);
+      color: var(--muted);
+      z-index: 100;
+    }
+    .stats .v { color: var(--accent); font-weight: 700; }
+
+    /* stick figure overlay */
+    #stick-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 50;
+    }
+  </style>
+</head>
+<body>
+<canvas id="stick-canvas"></canvas>
+<div class="page">
+  <div class="meta-tag">DeepSeek-V4</div>
+  <div class="meta-date">2026/04/24 &middot; yangjing</div>
+
+  <!-- ① pretext 自适应标题 -->
+  <div id="title-wrap"></div>
+
+  <!-- ② pretext 测量 lead，CSS 正常渲染 -->
+  <div id="lead-wrap"></div>
+
+  <div class="hr"></div>
+
+  <!-- ③ 正文（pretext 测量高度，CSS 正常渲染） -->
+  <div id="sections-wrap"></div>
+
+  <!-- ④ Aggressive Pulse -->
+  <div id="pulse-wrap" class="pulse"></div>
+</div>
+
+<div class="stats">
+  <span>Title: <span class="v" id="sTitle">—</span></span>
+  <span>Lead: <span class="v" id="sLead">—</span></span>
+  <span>Body lines: <span class="v" id="sBody">—</span></span>
+  <span>Layout: <span class="v" id="sMs">—</span></span>
+  <span>DOM reads: <span class="v" id="sDom">0</span></span>
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════
+// ① pretext.js 完整内联
+// ═══════════════════════════════════════
+// src/bidi.ts
+var baseTypes = [
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "S",
+  "B",
+  "S",
+  "WS",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "B",
+  "B",
+  "S",
+  "WS",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "CS",
+  "ON",
+  "CS",
+  "ON",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "CS",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "EN",
+  "EN",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "EN",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L"
+];
+var arabicTypes = [
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "CS",
+  "AL",
+  "ON",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "ET",
+  "AN",
+  "AN",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL"
+];
+function classifyChar(charCode) {
+  if (charCode <= 255)
+    return baseTypes[charCode];
+  if (1424 <= charCode && charCode <= 1524)
+    return "R";
+  if (1536 <= charCode && charCode <= 1791)
+    return arabicTypes[charCode & 255];
+  if (1792 <= charCode && charCode <= 2220)
+    return "AL";
+  return "L";
+}
+function computeBidiLevels(str) {
+  const len = str.length;
+  if (len === 0)
+    return null;
+  const types = new Array(len);
+  let numBidi = 0;
+  for (let i = 0;i < len; i++) {
+    const t = classifyChar(str.charCodeAt(i));
+    if (t === "R" || t === "AL" || t === "AN")
+      numBidi++;
+    types[i] = t;
+  }
+  if (numBidi === 0)
+    return null;
+  const startLevel = len / numBidi < 0.3 ? 0 : 1;
+  const levels = new Int8Array(len);
+  for (let i = 0;i < len; i++)
+    levels[i] = startLevel;
+  const e = startLevel & 1 ? "R" : "L";
+  const sor = e;
+  let lastType = sor;
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "NSM")
+      types[i] = lastType;
+    else
+      lastType = types[i];
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "AL" ? "AN" : "EN";
+    else if (t === "R" || t === "L" || t === "AL")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "AL")
+      types[i] = "R";
+  }
+  for (let i = 1;i < len - 1; i++) {
+    if (types[i] === "ES" && types[i - 1] === "EN" && types[i + 1] === "EN") {
+      types[i] = "EN";
+    }
+    if (types[i] === "CS" && (types[i - 1] === "EN" || types[i - 1] === "AN") && types[i + 1] === types[i - 1]) {
+      types[i] = types[i - 1];
+    }
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "EN")
+      continue;
+    let j;
+    for (j = i - 1;j >= 0 && types[j] === "ET"; j--)
+      types[j] = "EN";
+    for (j = i + 1;j < len && types[j] === "ET"; j++)
+      types[j] = "EN";
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "WS" || t === "ES" || t === "ET" || t === "CS")
+      types[i] = "ON";
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "L" ? "L" : "EN";
+    else if (t === "R" || t === "L")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "ON")
+      continue;
+    let end = i + 1;
+    while (end < len && types[end] === "ON")
+      end++;
+    const before = i > 0 ? types[i - 1] : sor;
+    const after = end < len ? types[end] : sor;
+    const bDir = before !== "L" ? "R" : "L";
+    const aDir = after !== "L" ? "R" : "L";
+    if (bDir === aDir) {
+      for (let j = i;j < end; j++)
+        types[j] = bDir;
+    }
+    i = end - 1;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "ON")
+      types[i] = e;
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if ((levels[i] & 1) === 0) {
+      if (t === "R")
+        levels[i]++;
+      else if (t === "AN" || t === "EN")
+        levels[i] += 2;
+    } else if (t === "L" || t === "AN" || t === "EN") {
+      levels[i]++;
+    }
+  }
+  return levels;
+}
+function computeSegmentLevels(normalized, segStarts) {
+  const bidiLevels = computeBidiLevels(normalized);
+  if (bidiLevels === null)
+    return null;
+  const segLevels = new Int8Array(segStarts.length);
+  for (let i = 0;i < segStarts.length; i++) {
+    segLevels[i] = bidiLevels[segStarts[i]];
+  }
+  return segLevels;
+}
+
+// src/analysis.ts
+var collapsibleWhitespaceRunRe = /[ \t\n\r\f]+/g;
+var needsWhitespaceNormalizationRe = /[\t\n\r\f]| {2,}|^ | $/;
+function normalizeWhitespaceNormal(text) {
+  if (!needsWhitespaceNormalizationRe.test(text))
+    return text;
+  let normalized = text.replace(collapsibleWhitespaceRunRe, " ");
+  if (normalized.charCodeAt(0) === 32) {
+    normalized = normalized.slice(1);
+  }
+  if (normalized.length > 0 && normalized.charCodeAt(normalized.length - 1) === 32) {
+    normalized = normalized.slice(0, -1);
+  }
+  return normalized;
+}
+var sharedWordSegmenter = null;
+var segmenterLocale;
+function getSharedWordSegmenter() {
+  if (sharedWordSegmenter === null) {
+    sharedWordSegmenter = new Intl.Segmenter(segmenterLocale, { granularity: "word" });
+  }
+  return sharedWordSegmenter;
+}
+function clearAnalysisCaches() {
+  sharedWordSegmenter = null;
+}
+function setAnalysisLocale(locale) {
+  const nextLocale = locale && locale.length > 0 ? locale : undefined;
+  if (segmenterLocale === nextLocale)
+    return;
+  segmenterLocale = nextLocale;
+  sharedWordSegmenter = null;
+}
+var arabicScriptRe = /\p{Script=Arabic}/u;
+var combiningMarkRe = /\p{M}/u;
+var decimalDigitRe = /\p{Nd}/u;
+function containsArabicScript(text) {
+  return arabicScriptRe.test(text);
+}
+function isCJK(s) {
+  for (const ch of s) {
+    const c = ch.codePointAt(0);
+    if (c >= 19968 && c <= 40959 || c >= 13312 && c <= 19903 || c >= 131072 && c <= 173791 || c >= 173824 && c <= 177983 || c >= 177984 && c <= 178207 || c >= 178208 && c <= 183983 || c >= 183984 && c <= 191471 || c >= 196608 && c <= 201551 || c >= 63744 && c <= 64255 || c >= 194560 && c <= 195103 || c >= 12288 && c <= 12351 || c >= 12352 && c <= 12447 || c >= 12448 && c <= 12543 || c >= 44032 && c <= 55215 || c >= 65280 && c <= 65519) {
+      return true;
+    }
+  }
+  return false;
+}
+var kinsokuStart = new Set([
+  "，",
+  "．",
+  "！",
+  "：",
+  "；",
+  "？",
+  "、",
+  "。",
+  "・",
+  "）",
+  "〕",
+  "〉",
+  "》",
+  "」",
+  "』",
+  "】",
+  "〗",
+  "〙",
+  "〛",
+  "ー",
+  "々",
+  "〻",
+  "ゝ",
+  "ゞ",
+  "ヽ",
+  "ヾ"
+]);
+var kinsokuEnd = new Set([
+  '"',
+  "(",
+  "[",
+  "{",
+  "“",
+  "‘",
+  "«",
+  "‹",
+  "（",
+  "〔",
+  "〈",
+  "《",
+  "「",
+  "『",
+  "【",
+  "〖",
+  "〘",
+  "〚"
+]);
+var forwardStickyGlue = new Set([
+  "'",
+  "’"
+]);
+var leftStickyPunctuation = new Set([
+  ".",
+  ",",
+  "!",
+  "?",
+  ":",
+  ";",
+  "،",
+  "؛",
+  "؟",
+  "।",
+  "॥",
+  "၊",
+  "။",
+  "၌",
+  "၍",
+  "၏",
+  ")",
+  "]",
+  "}",
+  "%",
+  '"',
+  "”",
+  "’",
+  "»",
+  "›",
+  "…"
+]);
+var arabicNoSpaceTrailingPunctuation = new Set([
+  ":",
+  ".",
+  "،",
+  "؛"
+]);
+var myanmarMedialGlue = new Set([
+  "၏"
+]);
+var closingQuoteChars = new Set([
+  "”",
+  "’",
+  "»",
+  "›",
+  "」",
+  "』",
+  "】",
+  "》",
+  "〉",
+  "〕",
+  "）"
+]);
+function isLeftStickyPunctuationSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  let sawPunctuation = false;
+  for (const ch of segment) {
+    if (leftStickyPunctuation.has(ch)) {
+      sawPunctuation = true;
+      continue;
+    }
+    if (sawPunctuation && combiningMarkRe.test(ch))
+      continue;
+    return false;
+  }
+  return sawPunctuation;
+}
+function isCJKLineStartProhibitedSegment(segment) {
+  for (const ch of segment) {
+    if (!kinsokuStart.has(ch) && !leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isForwardStickyClusterSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  for (const ch of segment) {
+    if (!kinsokuEnd.has(ch) && !forwardStickyGlue.has(ch) && !combiningMarkRe.test(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isEscapedQuoteClusterSegment(segment) {
+  let sawQuote = false;
+  for (const ch of segment) {
+    if (ch === "\\" || combiningMarkRe.test(ch))
+      continue;
+    if (kinsokuEnd.has(ch) || leftStickyPunctuation.has(ch) || forwardStickyGlue.has(ch)) {
+      sawQuote = true;
+      continue;
+    }
+    return false;
+  }
+  return sawQuote;
+}
+function splitTrailingForwardStickyCluster(text) {
+  const chars = Array.from(text);
+  let splitIndex = chars.length;
+  while (splitIndex > 0) {
+    const ch = chars[splitIndex - 1];
+    if (combiningMarkRe.test(ch)) {
+      splitIndex--;
+      continue;
+    }
+    if (kinsokuEnd.has(ch) || forwardStickyGlue.has(ch)) {
+      splitIndex--;
+      continue;
+    }
+    break;
+  }
+  if (splitIndex <= 0 || splitIndex === chars.length)
+    return null;
+  return {
+    head: chars.slice(0, splitIndex).join(""),
+    tail: chars.slice(splitIndex).join("")
+  };
+}
+function isRepeatedSingleCharRun(segment, ch) {
+  if (segment.length === 0)
+    return false;
+  for (const part of segment) {
+    if (part !== ch)
+      return false;
+  }
+  return true;
+}
+function endsWithArabicNoSpacePunctuation(segment) {
+  if (!containsArabicScript(segment) || segment.length === 0)
+    return false;
+  return arabicNoSpaceTrailingPunctuation.has(segment[segment.length - 1]);
+}
+function endsWithMyanmarMedialGlue(segment) {
+  if (segment.length === 0)
+    return false;
+  return myanmarMedialGlue.has(segment[segment.length - 1]);
+}
+function splitLeadingSpaceAndMarks(segment) {
+  if (segment.length < 2 || segment[0] !== " ")
+    return null;
+  const marks = segment.slice(1);
+  if (/^\p{M}+$/u.test(marks)) {
+    return { space: " ", marks };
+  }
+  return null;
+}
+function endsWithClosingQuote(text) {
+  for (let i = text.length - 1;i >= 0; i--) {
+    const ch = text[i];
+    if (closingQuoteChars.has(ch))
+      return true;
+    if (!leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return false;
+}
+function classifySegmentBreakChar(ch) {
+  if (ch === " ")
+    return "space";
+  if (ch === " " || ch === " " || ch === "⁠" || ch === "\uFEFF") {
+    return "glue";
+  }
+  if (ch === "​")
+    return "zero-width-break";
+  if (ch === "­")
+    return "soft-hyphen";
+  return "text";
+}
+function splitSegmentByBreakKind(segment, isWordLike, start) {
+  const pieces = [];
+  let currentKind = null;
+  let currentText = "";
+  let currentStart = start;
+  let currentWordLike = false;
+  let offset = 0;
+  for (const ch of segment) {
+    const kind = classifySegmentBreakChar(ch);
+    const wordLike = kind === "text" && isWordLike;
+    if (currentKind !== null && kind === currentKind && wordLike === currentWordLike) {
+      currentText += ch;
+      offset += ch.length;
+      continue;
+    }
+    if (currentKind !== null) {
+      pieces.push({
+        text: currentText,
+        isWordLike: currentWordLike,
+        kind: currentKind,
+        start: currentStart
+      });
+    }
+    currentKind = kind;
+    currentText = ch;
+    currentStart = start + offset;
+    currentWordLike = wordLike;
+    offset += ch.length;
+  }
+  if (currentKind !== null) {
+    pieces.push({
+      text: currentText,
+      isWordLike: currentWordLike,
+      kind: currentKind,
+      start: currentStart
+    });
+  }
+  return pieces;
+}
+var urlSchemeSegmentRe = /^[A-Za-z][A-Za-z0-9+.-]*:$/;
+function isUrlLikeRunStart(segmentation, index) {
+  const text = segmentation.texts[index];
+  if (text.startsWith("www."))
+    return true;
+  return urlSchemeSegmentRe.test(text) && index + 1 < segmentation.len && segmentation.kinds[index + 1] === "text" && segmentation.texts[index + 1] === "//";
+}
+function isUrlQueryBoundarySegment(text) {
+  return text.includes("?") && (text.includes("://") || text.startsWith("www."));
+}
+function mergeUrlLikeRuns(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < segmentation.len; i++) {
+    if (kinds[i] !== "text" || !isUrlLikeRunStart(segmentation, i))
+      continue;
+    let j = i + 1;
+    while (j < segmentation.len && kinds[j] !== "space" && kinds[j] !== "zero-width-break") {
+      texts[i] += texts[j];
+      isWordLike[i] = true;
+      const endsQueryPrefix = texts[j].includes("?");
+      kinds[j] = "text";
+      texts[j] = "";
+      j++;
+      if (endsQueryPrefix)
+        break;
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < texts.length; read++) {
+    const text = texts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      texts[compactLen] = text;
+      isWordLike[compactLen] = isWordLike[read];
+      kinds[compactLen] = kinds[read];
+      starts[compactLen] = starts[read];
+    }
+    compactLen++;
+  }
+  texts.length = compactLen;
+  isWordLike.length = compactLen;
+  kinds.length = compactLen;
+  starts.length = compactLen;
+  return {
+    len: compactLen,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeUrlQueryRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+    if (!isUrlQueryBoundarySegment(text))
+      continue;
+    const nextIndex = i + 1;
+    if (nextIndex >= segmentation.len || segmentation.kinds[nextIndex] === "space" || segmentation.kinds[nextIndex] === "zero-width-break") {
+      continue;
+    }
+    let queryText = "";
+    const queryStart = segmentation.starts[nextIndex];
+    let j = nextIndex;
+    while (j < segmentation.len && segmentation.kinds[j] !== "space" && segmentation.kinds[j] !== "zero-width-break") {
+      queryText += segmentation.texts[j];
+      j++;
+    }
+    if (queryText.length > 0) {
+      texts.push(queryText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(queryStart);
+      i = j - 1;
+    }
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+var numericJoinerChars = new Set([
+  ":",
+  "-",
+  "/",
+  "×",
+  ",",
+  ".",
+  "+",
+  "–",
+  "—"
+]);
+function segmentContainsDecimalDigit(text) {
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch))
+      return true;
+  }
+  return false;
+}
+function isNumericRunSegment(text) {
+  if (text.length === 0)
+    return false;
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch) || numericJoinerChars.has(ch))
+      continue;
+    return false;
+  }
+  return true;
+}
+function mergeNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    const kind = segmentation.kinds[i];
+    if (kind === "text" && isNumericRunSegment(text) && segmentContainsDecimalDigit(text)) {
+      let mergedText = text;
+      let j = i + 1;
+      while (j < segmentation.len && segmentation.kinds[j] === "text" && isNumericRunSegment(segmentation.texts[j])) {
+        mergedText += segmentation.texts[j];
+        j++;
+      }
+      texts.push(mergedText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(segmentation.starts[i]);
+      i = j - 1;
+      continue;
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(kind);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function splitHyphenatedNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    if (segmentation.kinds[i] === "text" && text.includes("-")) {
+      const parts = text.split("-");
+      let shouldSplit = parts.length > 1;
+      for (let j = 0;j < parts.length; j++) {
+        const part = parts[j];
+        if (!shouldSplit)
+          break;
+        if (part.length === 0 || !segmentContainsDecimalDigit(part) || !isNumericRunSegment(part)) {
+          shouldSplit = false;
+        }
+      }
+      if (shouldSplit) {
+        let offset = 0;
+        for (let j = 0;j < parts.length; j++) {
+          const part = parts[j];
+          const splitText = j < parts.length - 1 ? `${part}-` : part;
+          texts.push(splitText);
+          isWordLike.push(true);
+          kinds.push("text");
+          starts.push(segmentation.starts[i] + offset);
+          offset += splitText.length;
+        }
+        continue;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeGlueConnectedTextRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  let read = 0;
+  while (read < segmentation.len) {
+    let text = segmentation.texts[read];
+    let wordLike = segmentation.isWordLike[read];
+    let kind = segmentation.kinds[read];
+    let start = segmentation.starts[read];
+    if (kind === "glue") {
+      let glueText = text;
+      const glueStart = start;
+      read++;
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        glueText += segmentation.texts[read];
+        read++;
+      }
+      if (read < segmentation.len && segmentation.kinds[read] === "text") {
+        text = glueText + segmentation.texts[read];
+        wordLike = segmentation.isWordLike[read];
+        kind = "text";
+        start = glueStart;
+        read++;
+      } else {
+        texts.push(glueText);
+        isWordLike.push(false);
+        kinds.push("glue");
+        starts.push(glueStart);
+        continue;
+      }
+    } else {
+      read++;
+    }
+    if (kind === "text") {
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        let glueText = "";
+        while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+          glueText += segmentation.texts[read];
+          read++;
+        }
+        if (read < segmentation.len && segmentation.kinds[read] === "text") {
+          text += glueText + segmentation.texts[read];
+          wordLike = wordLike || segmentation.isWordLike[read];
+          read++;
+          continue;
+        }
+        text += glueText;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(wordLike);
+    kinds.push(kind);
+    starts.push(start);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function carryTrailingForwardStickyAcrossCJKBoundary(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < texts.length - 1; i++) {
+    if (kinds[i] !== "text" || kinds[i + 1] !== "text")
+      continue;
+    if (!isCJK(texts[i]) || !isCJK(texts[i + 1]))
+      continue;
+    const split = splitTrailingForwardStickyCluster(texts[i]);
+    if (split === null)
+      continue;
+    texts[i] = split.head;
+    texts[i + 1] = split.tail + texts[i + 1];
+    starts[i + 1] = starts[i] + split.head.length;
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function buildMergedSegmentation(normalized, profile) {
+  const wordSegmenter = getSharedWordSegmenter();
+  let mergedLen = 0;
+  const mergedTexts = [];
+  const mergedWordLike = [];
+  const mergedKinds = [];
+  const mergedStarts = [];
+  for (const s of wordSegmenter.segment(normalized)) {
+    for (const piece of splitSegmentByBreakKind(s.segment, s.isWordLike ?? false, s.index)) {
+      const isText = piece.kind === "text";
+      if (profile.carryCJKAfterClosingQuote && isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJK(piece.text) && isCJK(mergedTexts[mergedLen - 1]) && endsWithClosingQuote(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJKLineStartProhibitedSegment(piece.text) && isCJK(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && endsWithMyanmarMedialGlue(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.isWordLike && containsArabicScript(piece.text) && endsWithArabicNoSpacePunctuation(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = true;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.text.length === 1 && piece.text !== "-" && piece.text !== "—" && isRepeatedSingleCharRun(mergedTexts[mergedLen - 1], piece.text)) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && (isLeftStickyPunctuationSegment(piece.text) || piece.text === "-" && mergedWordLike[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else {
+        mergedTexts[mergedLen] = piece.text;
+        mergedWordLike[mergedLen] = piece.isWordLike;
+        mergedKinds[mergedLen] = piece.kind;
+        mergedStarts[mergedLen] = piece.start;
+        mergedLen++;
+      }
+    }
+  }
+  for (let i = 1;i < mergedLen; i++) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isEscapedQuoteClusterSegment(mergedTexts[i]) && mergedKinds[i - 1] === "text") {
+      mergedTexts[i - 1] += mergedTexts[i];
+      mergedWordLike[i - 1] = mergedWordLike[i - 1] || mergedWordLike[i];
+      mergedTexts[i] = "";
+    }
+  }
+  for (let i = mergedLen - 2;i >= 0; i--) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isForwardStickyClusterSegment(mergedTexts[i])) {
+      let j = i + 1;
+      while (j < mergedLen && mergedTexts[j] === "")
+        j++;
+      if (j < mergedLen && mergedKinds[j] === "text") {
+        mergedTexts[j] = mergedTexts[i] + mergedTexts[j];
+        mergedStarts[j] = mergedStarts[i];
+        mergedTexts[i] = "";
+      }
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < mergedLen; read++) {
+    const text = mergedTexts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      mergedTexts[compactLen] = text;
+      mergedWordLike[compactLen] = mergedWordLike[read];
+      mergedKinds[compactLen] = mergedKinds[read];
+      mergedStarts[compactLen] = mergedStarts[read];
+    }
+    compactLen++;
+  }
+  mergedTexts.length = compactLen;
+  mergedWordLike.length = compactLen;
+  mergedKinds.length = compactLen;
+  mergedStarts.length = compactLen;
+  const compacted = mergeGlueConnectedTextRuns({
+    len: compactLen,
+    texts: mergedTexts,
+    isWordLike: mergedWordLike,
+    kinds: mergedKinds,
+    starts: mergedStarts
+  });
+  const withMergedUrls = carryTrailingForwardStickyAcrossCJKBoundary(splitHyphenatedNumericRuns(mergeNumericRuns(mergeUrlQueryRuns(mergeUrlLikeRuns(compacted)))));
+  for (let i = 0;i < withMergedUrls.len - 1; i++) {
+    const split = splitLeadingSpaceAndMarks(withMergedUrls.texts[i]);
+    if (split === null)
+      continue;
+    if (withMergedUrls.kinds[i] !== "space" || withMergedUrls.kinds[i + 1] !== "text" || !containsArabicScript(withMergedUrls.texts[i + 1])) {
+      continue;
+    }
+    withMergedUrls.texts[i] = split.space;
+    withMergedUrls.isWordLike[i] = false;
+    withMergedUrls.kinds[i] = "space";
+    withMergedUrls.texts[i + 1] = split.marks + withMergedUrls.texts[i + 1];
+    withMergedUrls.starts[i + 1] = withMergedUrls.starts[i] + split.space.length;
+  }
+  return withMergedUrls;
+}
+function analyzeText(text, profile) {
+  const normalized = normalizeWhitespaceNormal(text);
+  if (normalized.length === 0) {
+    return {
+      normalized,
+      len: 0,
+      texts: [],
+      isWordLike: [],
+      kinds: [],
+      starts: []
+    };
+  }
+  return { normalized, ...buildMergedSegmentation(normalized, profile) };
+}
+
+// src/measurement.ts
+var measureContext = null;
+var segmentMetricCaches = new Map;
+var cachedEngineProfile = null;
+var emojiPresentationRe = /\p{Emoji_Presentation}/u;
+var maybeEmojiRe = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u20E3]/u;
+var sharedGraphemeSegmenter = null;
+var emojiCorrectionCache = new Map;
+function getMeasureContext() {
+  if (measureContext !== null)
+    return measureContext;
+  if (typeof OffscreenCanvas !== "undefined") {
+    measureContext = new OffscreenCanvas(1, 1).getContext("2d");
+    return measureContext;
+  }
+  if (typeof document !== "undefined") {
+    measureContext = document.createElement("canvas").getContext("2d");
+    return measureContext;
+  }
+  throw new Error("Text measurement requires OffscreenCanvas or a DOM canvas context.");
+}
+function getSegmentMetricCache(font) {
+  let cache = segmentMetricCaches.get(font);
+  if (!cache) {
+    cache = new Map;
+    segmentMetricCaches.set(font, cache);
+  }
+  return cache;
+}
+function getSegmentMetrics(seg, cache) {
+  let metrics = cache.get(seg);
+  if (metrics === undefined) {
+    const ctx = getMeasureContext();
+    metrics = {
+      width: ctx.measureText(seg).width,
+      containsCJK: isCJK(seg)
+    };
+    cache.set(seg, metrics);
+  }
+  return metrics;
+}
+function getEngineProfile() {
+  if (cachedEngineProfile !== null)
+    return cachedEngineProfile;
+  if (typeof navigator === "undefined") {
+    cachedEngineProfile = {
+      lineFitEpsilon: 0.005,
+      carryCJKAfterClosingQuote: false
+    };
+    return cachedEngineProfile;
+  }
+  const ua = navigator.userAgent;
+  const vendor = navigator.vendor;
+  const isSafari = vendor === "Apple Computer, Inc." && ua.includes("Safari/") && !ua.includes("Chrome/") && !ua.includes("Chromium/") && !ua.includes("CriOS/") && !ua.includes("FxiOS/") && !ua.includes("EdgiOS/");
+  const isChromium = ua.includes("Chrome/") || ua.includes("Chromium/") || ua.includes("CriOS/") || ua.includes("Edg/");
+  cachedEngineProfile = {
+    lineFitEpsilon: isSafari ? 1 / 64 : 0.005,
+    carryCJKAfterClosingQuote: isChromium
+  };
+  return cachedEngineProfile;
+}
+function parseFontSize(font) {
+  const m = font.match(/(\d+(?:\.\d+)?)\s*px/);
+  return m ? parseFloat(m[1]) : 16;
+}
+function getSharedGraphemeSegmenter() {
+  if (sharedGraphemeSegmenter === null) {
+    sharedGraphemeSegmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter;
+}
+function isEmojiGrapheme(g) {
+  return emojiPresentationRe.test(g) || g.includes("️");
+}
+function textMayContainEmoji(text) {
+  return maybeEmojiRe.test(text);
+}
+function getEmojiCorrection(font, fontSize) {
+  let correction = emojiCorrectionCache.get(font);
+  if (correction !== undefined)
+    return correction;
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const canvasW = ctx.measureText("\uD83D\uDE00").width;
+  correction = 0;
+  if (canvasW > fontSize + 0.5 && typeof document !== "undefined" && document.body !== null) {
+    const span = document.createElement("span");
+    span.style.font = font;
+    span.style.display = "inline-block";
+    span.style.visibility = "hidden";
+    span.style.position = "absolute";
+    span.textContent = "\uD83D\uDE00";
+    document.body.appendChild(span);
+    const domW = span.getBoundingClientRect().width;
+    document.body.removeChild(span);
+    if (canvasW - domW > 0.5) {
+      correction = canvasW - domW;
+    }
+  }
+  emojiCorrectionCache.set(font, correction);
+  return correction;
+}
+function countEmojiGraphemes(text) {
+  let count = 0;
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const g of graphemeSegmenter.segment(text)) {
+    if (isEmojiGrapheme(g.segment))
+      count++;
+  }
+  return count;
+}
+function getEmojiCount(seg, metrics) {
+  if (metrics.emojiCount === undefined) {
+    metrics.emojiCount = countEmojiGraphemes(seg);
+  }
+  return metrics.emojiCount;
+}
+function getCorrectedSegmentWidth(seg, metrics, emojiCorrection) {
+  if (emojiCorrection === 0)
+    return metrics.width;
+  return metrics.width - getEmojiCount(seg, metrics) * emojiCorrection;
+}
+function getSegmentGraphemeWidths(seg, metrics, cache, emojiCorrection) {
+  if (metrics.graphemeWidths !== undefined)
+    return metrics.graphemeWidths;
+  const widths = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const gs of graphemeSegmenter.segment(seg)) {
+    const graphemeMetrics = getSegmentMetrics(gs.segment, cache);
+    widths.push(getCorrectedSegmentWidth(gs.segment, graphemeMetrics, emojiCorrection));
+  }
+  metrics.graphemeWidths = widths.length > 1 ? widths : null;
+  return metrics.graphemeWidths;
+}
+function getFontMeasurementState(font, needsEmojiCorrection) {
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const cache = getSegmentMetricCache(font);
+  const fontSize = parseFontSize(font);
+  const emojiCorrection = needsEmojiCorrection ? getEmojiCorrection(font, fontSize) : 0;
+  return { cache, fontSize, emojiCorrection };
+}
+function clearMeasurementCaches() {
+  segmentMetricCaches.clear();
+  emojiCorrectionCache.clear();
+  sharedGraphemeSegmenter = null;
+}
+
+// src/line-break.ts
+function isCollapsibleSpaceKind(kind) {
+  return kind === "space";
+}
+function fitSoftHyphenBreak(graphemeWidths, initialWidth, maxWidth, lineFitEpsilon, discretionaryHyphenWidth) {
+  let fitCount = 0;
+  let fittedWidth = initialWidth;
+  while (fitCount < graphemeWidths.length) {
+    const nextWidth = fittedWidth + graphemeWidths[fitCount];
+    const nextLineWidth = fitCount + 1 < graphemeWidths.length ? nextWidth + discretionaryHyphenWidth : nextWidth;
+    if (nextLineWidth > maxWidth + lineFitEpsilon)
+      break;
+    fittedWidth = nextWidth;
+    fitCount++;
+  }
+  return { fitCount, fittedWidth };
+}
+function normalizeLineStart(prepared, start) {
+  let segmentIndex = start.segmentIndex;
+  const graphemeIndex = start.graphemeIndex;
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  if (graphemeIndex > 0)
+    return start;
+  while (segmentIndex < prepared.widths.length) {
+    const kind = prepared.kinds[segmentIndex];
+    if (kind !== "space" && kind !== "zero-width-break" && kind !== "soft-hyphen") {
+      break;
+    }
+    segmentIndex++;
+  }
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  return { segmentIndex, graphemeIndex: 0 };
+}
+function countPreparedLines(prepared, maxWidth) {
+  const { widths, kinds, breakableWidths } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  if (kinds.includes("soft-hyphen")) {
+    return walkPreparedLines(prepared, maxWidth);
+  }
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  function placeOnFreshLine(segmentIndex) {
+    const w = widths[segmentIndex];
+    if (w > maxWidth && breakableWidths[segmentIndex] !== null) {
+      const gWidths = breakableWidths[segmentIndex];
+      lineW = 0;
+      for (let g = 0;g < gWidths.length; g++) {
+        const gw = gWidths[g];
+        if (lineW > 0 && lineW + gw > maxWidth + lineFitEpsilon) {
+          lineCount++;
+          lineW = gw;
+        } else {
+          if (lineW === 0)
+            lineCount++;
+          lineW += gw;
+        }
+      }
+    } else {
+      lineW = w;
+      lineCount++;
+    }
+    hasContent = true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (!hasContent) {
+      placeOnFreshLine(i);
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        continue;
+      }
+      lineW = 0;
+      hasContent = false;
+      placeOnFreshLine(i);
+    } else {
+      lineW = newW;
+    }
+  }
+  if (!hasContent) {
+    lineCount++;
+  }
+  return lineCount;
+}
+function walkPreparedLines(prepared, maxWidth, onLine) {
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  let lineStartSegmentIndex = 0;
+  let lineStartGraphemeIndex = 0;
+  let lineEndSegmentIndex = 0;
+  let lineEndGraphemeIndex = 0;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function emitCurrentLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    lineCount++;
+    onLine?.({
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    });
+    lineW = 0;
+    hasContent = false;
+    clearPendingSoftBreak();
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = 0;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = graphemeIndex;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegment(segmentIndex) {
+    appendBreakableSegmentFrom(segmentIndex, 0);
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        emitCurrentLine();
+        startLineAtGrapheme(segmentIndex, g, gw);
+      } else {
+        lineW += gw;
+        lineEndSegmentIndex = segmentIndex;
+        lineEndGraphemeIndex = g + 1;
+      }
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+  }
+  function continueSoftHyphenBreakableSegment(segmentIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    if (gWidths === null)
+      return false;
+    const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+    if (fitCount === 0)
+      return false;
+    lineW = fittedWidth;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = fitCount;
+    clearPendingSoftBreak();
+    if (fitCount === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+      return true;
+    }
+    emitCurrentLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+    appendBreakableSegmentFrom(segmentIndex, fitCount);
+    return true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (kind === "soft-hyphen") {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        appendBreakableSegment(i);
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && continueSoftHyphenBreakableSegment(i)) {
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+        emitCurrentLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+        if (w > maxWidth && breakableWidths[i] !== null) {
+          appendBreakableSegment(i);
+        } else {
+          startLineAtSegment(i, w);
+        }
+        if (kind === "space" || kind === "zero-width-break") {
+          clearPendingSoftBreak();
+        }
+        continue;
+      }
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        emitCurrentLine();
+        appendBreakableSegment(i);
+      } else {
+        emitCurrentLine();
+        startLineAtSegment(i, w);
+      }
+    } else {
+      appendWholeSegment(i, w);
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+    }
+  }
+  if (hasContent) {
+    emitCurrentLine();
+  }
+  return lineCount;
+}
+function layoutNextLineRange(prepared, start, maxWidth) {
+  const normalizedStart = normalizeLineStart(prepared, start);
+  if (normalizedStart === null)
+    return null;
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineW = 0;
+  let hasContent = false;
+  const lineStartSegmentIndex = normalizedStart.segmentIndex;
+  const lineStartGraphemeIndex = normalizedStart.graphemeIndex;
+  let lineEndSegmentIndex = lineStartSegmentIndex;
+  let lineEndGraphemeIndex = lineStartGraphemeIndex;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function finishLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    if (!hasContent)
+      return null;
+    return {
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    };
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        return finishLine();
+      }
+      lineW += gw;
+      lineEndSegmentIndex = segmentIndex;
+      lineEndGraphemeIndex = g + 1;
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+    return null;
+  }
+  function maybeFinishAtSoftHyphen(segmentIndex) {
+    if (pendingSoftBreakSegmentIndex < 0)
+      return null;
+    const gWidths = breakableWidths[segmentIndex] ?? null;
+    if (gWidths !== null) {
+      const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+      if (fitCount === gWidths.length) {
+        lineW = fittedWidth;
+        lineEndSegmentIndex = segmentIndex + 1;
+        lineEndGraphemeIndex = 0;
+        clearPendingSoftBreak();
+        return null;
+      }
+      if (fitCount > 0) {
+        return finishLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+      }
+    }
+    if (pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+      return finishLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+    }
+    return null;
+  }
+  for (let i = normalizedStart.segmentIndex;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    const startGraphemeIndex = i === normalizedStart.segmentIndex ? normalizedStart.graphemeIndex : 0;
+    if (kind === "soft-hyphen" && startGraphemeIndex === 0) {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (startGraphemeIndex > 0) {
+        const line = appendBreakableSegmentFrom(i, startGraphemeIndex);
+        if (line !== null)
+          return line;
+      } else if (w > maxWidth && breakableWidths[i] !== null) {
+        const line = appendBreakableSegmentFrom(i, 0);
+        if (line !== null)
+          return line;
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      const softBreakLine = maybeFinishAtSoftHyphen(i);
+      if (softBreakLine !== null)
+        return softBreakLine;
+      return finishLine();
+    }
+    appendWholeSegment(i, w);
+    if (kind === "space" || kind === "zero-width-break") {
+      clearPendingSoftBreak();
+    }
+  }
+  return finishLine();
+}
+
+// src/layout.ts
+var sharedGraphemeSegmenter2 = null;
+var sharedLineTextCaches = new WeakMap;
+function getSharedGraphemeSegmenter2() {
+  if (sharedGraphemeSegmenter2 === null) {
+    sharedGraphemeSegmenter2 = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter2;
+}
+function createEmptyPrepared(includeSegments) {
+  if (includeSegments) {
+    return {
+      widths: [],
+      kinds: [],
+      segLevels: null,
+      breakableWidths: [],
+      discretionaryHyphenWidth: 0,
+      segments: []
+    };
+  }
+  return {
+    widths: [],
+    kinds: [],
+    segLevels: null,
+    breakableWidths: [],
+    discretionaryHyphenWidth: 0
+  };
+}
+function measureAnalysis(analysis, font, includeSegments) {
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  const engineProfile = getEngineProfile();
+  const { cache, emojiCorrection } = getFontMeasurementState(font, textMayContainEmoji(analysis.normalized));
+  const discretionaryHyphenWidth = getCorrectedSegmentWidth("-", getSegmentMetrics("-", cache), emojiCorrection);
+  if (analysis.len === 0)
+    return createEmptyPrepared(includeSegments);
+  const widths = [];
+  const kinds = [];
+  const segStarts = includeSegments ? [] : null;
+  const breakableWidths = [];
+  const segments = includeSegments ? [] : null;
+  function pushMeasuredSegment(text, width, kind, start, breakable) {
+    widths.push(width);
+    kinds.push(kind);
+    segStarts?.push(start);
+    breakableWidths.push(breakable);
+    if (segments !== null)
+      segments.push(text);
+  }
+  for (let mi = 0;mi < analysis.len; mi++) {
+    const segText = analysis.texts[mi];
+    const segWordLike = analysis.isWordLike[mi];
+    const segKind = analysis.kinds[mi];
+    const segStart = analysis.starts[mi];
+    if (segKind === "soft-hyphen") {
+      pushMeasuredSegment(segText, 0, segKind, segStart, null);
+      continue;
+    }
+    const segMetrics = getSegmentMetrics(segText, cache);
+    if (segKind === "text" && segMetrics.containsCJK) {
+      let unitText = "";
+      let unitStart = 0;
+      for (const gs of graphemeSegmenter.segment(segText)) {
+        const grapheme = gs.segment;
+        if (unitText.length === 0) {
+          unitText = grapheme;
+          unitStart = gs.index;
+          continue;
+        }
+        if (kinsokuEnd.has(unitText) || kinsokuStart.has(grapheme) || leftStickyPunctuation.has(grapheme) || engineProfile.carryCJKAfterClosingQuote && isCJK(grapheme) && endsWithClosingQuote(unitText)) {
+          unitText += grapheme;
+          continue;
+        }
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+        unitText = grapheme;
+        unitStart = gs.index;
+      }
+      if (unitText.length > 0) {
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+      }
+      continue;
+    }
+    const w = getCorrectedSegmentWidth(segText, segMetrics, emojiCorrection);
+    if (segWordLike && segText.length > 1) {
+      const graphemeWidths = getSegmentGraphemeWidths(segText, segMetrics, cache, emojiCorrection);
+      pushMeasuredSegment(segText, w, segKind, segStart, graphemeWidths);
+    } else {
+      pushMeasuredSegment(segText, w, segKind, segStart, null);
+    }
+  }
+  const segLevels = segStarts === null ? null : computeSegmentLevels(analysis.normalized, segStarts);
+  if (segments !== null) {
+    return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth, segments };
+  }
+  return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth };
+}
+function prepareInternal(text, font, includeSegments) {
+  const analysis = analyzeText(text, getEngineProfile());
+  return measureAnalysis(analysis, font, includeSegments);
+}
+function profilePrepare(text, font) {
+  const t0 = performance.now();
+  const analysis = analyzeText(text, getEngineProfile());
+  const t1 = performance.now();
+  const prepared = measureAnalysis(analysis, font, false);
+  const t2 = performance.now();
+  let breakableSegments = 0;
+  for (const widths of prepared.breakableWidths) {
+    if (widths !== null)
+      breakableSegments++;
+  }
+  return {
+    analysisMs: t1 - t0,
+    measureMs: t2 - t1,
+    totalMs: t2 - t0,
+    analysisSegments: analysis.len,
+    preparedSegments: prepared.widths.length,
+    breakableSegments
+  };
+}
+function prepare(text, font) {
+  return prepareInternal(text, font, false);
+}
+function prepareWithSegments(text, font) {
+  return prepareInternal(text, font, true);
+}
+function getInternalPrepared(prepared) {
+  return prepared;
+}
+function layout(prepared, maxWidth, lineHeight) {
+  const lineCount = countPreparedLines(getInternalPrepared(prepared), maxWidth);
+  return { lineCount, height: lineCount * lineHeight };
+}
+function getSegmentGraphemes(segmentIndex, segments, cache) {
+  let graphemes = cache.get(segmentIndex);
+  if (graphemes !== undefined)
+    return graphemes;
+  graphemes = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  for (const gs of graphemeSegmenter.segment(segments[segmentIndex])) {
+    graphemes.push(gs.segment);
+  }
+  cache.set(segmentIndex, graphemes);
+  return graphemes;
+}
+function getLineTextCache(prepared) {
+  let cache = sharedLineTextCaches.get(prepared);
+  if (cache !== undefined)
+    return cache;
+  cache = new Map;
+  sharedLineTextCaches.set(prepared, cache);
+  return cache;
+}
+function lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex) {
+  return endSegmentIndex > 0 && kinds[endSegmentIndex - 1] === "soft-hyphen" && !(startSegmentIndex === endSegmentIndex && startGraphemeIndex > 0);
+}
+function buildLineTextFromRange(segments, kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  let text = "";
+  const endsWithDiscretionaryHyphen = lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex);
+  for (let i = startSegmentIndex;i < endSegmentIndex; i++) {
+    if (kinds[i] === "soft-hyphen")
+      continue;
+    if (i === startSegmentIndex && startGraphemeIndex > 0) {
+      text += getSegmentGraphemes(i, segments, cache).slice(startGraphemeIndex).join("");
+    } else {
+      text += segments[i];
+    }
+  }
+  if (endGraphemeIndex > 0) {
+    if (endsWithDiscretionaryHyphen)
+      text += "-";
+    text += getSegmentGraphemes(endSegmentIndex, segments, cache).slice(startSegmentIndex === endSegmentIndex ? startGraphemeIndex : 0, endGraphemeIndex).join("");
+  } else if (endsWithDiscretionaryHyphen) {
+    text += "-";
+  }
+  return text;
+}
+function createLayoutLine(prepared, cache, width, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  return {
+    text: buildLineTextFromRange(prepared.segments, prepared.kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex),
+    width,
+    start: {
+      segmentIndex: startSegmentIndex,
+      graphemeIndex: startGraphemeIndex
+    },
+    end: {
+      segmentIndex: endSegmentIndex,
+      graphemeIndex: endGraphemeIndex
+    }
+  };
+}
+function materializeLayoutLine(prepared, cache, line) {
+  return createLayoutLine(prepared, cache, line.width, line.startSegmentIndex, line.startGraphemeIndex, line.endSegmentIndex, line.endGraphemeIndex);
+}
+function toLayoutLineRange(line) {
+  return {
+    width: line.width,
+    start: {
+      segmentIndex: line.startSegmentIndex,
+      graphemeIndex: line.startGraphemeIndex
+    },
+    end: {
+      segmentIndex: line.endSegmentIndex,
+      graphemeIndex: line.endGraphemeIndex
+    }
+  };
+}
+function stepLineRange(prepared, start, maxWidth) {
+  const line = layoutNextLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return toLayoutLineRange(line);
+}
+function materializeLine(prepared, line) {
+  return createLayoutLine(prepared, getLineTextCache(prepared), line.width, line.start.segmentIndex, line.start.graphemeIndex, line.end.segmentIndex, line.end.graphemeIndex);
+}
+function walkLineRanges(prepared, maxWidth, onLine) {
+  if (prepared.widths.length === 0)
+    return 0;
+  return walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    onLine(toLayoutLineRange(line));
+  });
+}
+function layoutNextLine(prepared, start, maxWidth) {
+  const line = stepLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return materializeLine(prepared, line);
+}
+function layoutWithLines(prepared, maxWidth, lineHeight) {
+  const lines = [];
+  if (prepared.widths.length === 0)
+    return { lineCount: 0, height: 0, lines };
+  const graphemeCache = getLineTextCache(prepared);
+  const lineCount = walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    lines.push(materializeLayoutLine(prepared, graphemeCache, line));
+  });
+  return { lineCount, height: lineCount * lineHeight, lines };
+}
+function clearCache() {
+  clearAnalysisCaches();
+  sharedGraphemeSegmenter2 = null;
+  sharedLineTextCaches = new WeakMap;
+  clearMeasurementCaches();
+}
+function setLocale(locale) {
+  setAnalysisLocale(locale);
+  clearCache();
+}
+
+
+// ═══════════════════════════════════════
+// ② 内容
+// ═══════════════════════════════════════
+var TITLE = `DeepSeek-V4 的核心不是更大的 MoE，而是重写 long-context 的 cost curve`;
+var LEAD = `论文的正式标题是 DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence。这个标题本身已经把讨论边界说得很清楚了：重点不是更大的参数规模，而是 million-token context 在效率上的可实现性。它试图突破现有大模型在处理超长上下文时的效率瓶颈，并且把这个目标同时落实到模型结构、训练稳定性和运行时实现里。`;
+var SECTIONS = [
+  {
+    heading: `现状：核心问题不是参数规模，而是服务成本曲线`,
+    body: `DeepSeek-V4 的关键不在于参数继续做大，也不在于引入一个孤立的新注意力模块。它真正改变的是 long-context 的问题定义：问题不再只是模型能不能看到更长的上下文，而是模型结构、残差路径、KV cache、专家并行和运行时能不能一起把成本压到可部署区间。`
+  },
+  {
+    heading: `mHC：把残差稳定性从训练技巧提升为架构基础设施`,
+    body: `长上下文压缩、MoE、混合精度和定制 kernel 一旦叠加，残差路径本身就会变成训练稳定性的关键变量。mHC 的作用不是单纯增加结构复杂度，而是把残差稳定性显式写进架构。如果没有这个约束，attention 路径越混合，残差统计就越容易漂。`,
+    callout: `mHC 的意义不是结构更花，而是它把残差稳定性提升成了基础设施。没有这个前提，前面的 long-context 收益很可能只能停留在图上。`
+  },
+  {
+    image: `../examples/deepseek-v4-blog/figures/mhc_arch.jpg`,
+    caption: `Figure 1: mHC 结构——残差稳定性作为基础设施`,
+    prompt: `mHC manifold constrained hyper-connection architecture diagram`
+  },
+  {
+    heading: `混合注意力：不同距离的上下文不应共享同一种表示`,
+    body: `DeepSeek-V4 没有把 attention 当成单一路径，而是拆成了职责不同的多条路径：近场路径保精度，中远场路径做压缩和选择，极远场路径进一步做高倍率摘要。这个设计的关键不是又加了两个新模块，而是承认不同距离的上下文不应该共享同一种表示和访问语义。`,
+    callout: `CSA 负责精度和效率的平衡，HCA 负责把极长路径的代价真正砍下去。两条路径，两个旋钮，而不是一个。`
+  },
+  {
+    image: `../examples/deepseek-v4-blog/figures/model_architecture.jpg`,
+    caption: `Figure 2: DeepSeek-V4 模型架构——按哪些路径被一起重写来读`,
+    prompt: `DeepSeek-V4 full model architecture showing hybrid attention, MoE, mHC`
+  },
+  {
+    heading: `CSA 压缩稀疏注意力：压缩 + 选择 + 窗口的平衡`,
+    body: `CSA 先把一段 token 的 KV 压缩成更粗的表示，然后只对压缩后的表示做选择性注意力，同时保留 sliding-window 分支确保近场仍有高分辨率路径。压缩后的 KV 上还额外拼接了一个 128-token 的滑动窗口 KV，用 MQA 稳定落地不对称的 Q/KV 访问路径。`
+  },
+  {
+    heading: `HCA 重度压缩注意力：用表示更少换取代价更低`,
+    body: `如果说 CSA 还是一种兼顾质量的压缩，那么 HCA 的角色就更直接。它进一步提高压缩倍率，把更长的 token 段合并成更少的状态，不再把重点放在复杂选择上，而是直接用表示更少换取代价更低。`
+  },
+  {
+    heading: `效率数据：FLOPs 和 KV cache 的大幅降低`,
+    body: `按照论文表述，相比 DeepSeek-V3.2：DeepSeek-V4-Pro 在 1M context 下，single-token inference FLOPs 只需 27%，KV cache 只需 10%。DeepSeek-V4-Flash 更激进——FLOPs 仅 10%，KV cache 仅 7%。`,
+    callout: `V4-Pro 在 1M context: FLOPs 27%, KV cache 10%。V4-Flash: FLOPs 10%, KV cache 7%。混合 CSA/HCA 负责压远场成本，精度优化进一步压推理 FLOPs。`
+  },
+  {
+    heading: `Muon 不是孤立的优化器技巧，是训练稳定性的系统设计`,
+    body: `Muon、iterative clip、张量级 checkpointing、混合 ZeRO、低成本 mHC 重计算、以及两阶段上下文并行，这些东西一起决定了前面的结构能不能在训练时稳定放大。前面的 attention 结构已经通过 RMSNorm 压住了最容易失控的 logits 路径，因此 Muon 不再需要 QK-Clip 补丁。`
+  },
+  {
+    heading: `异构 KV Cache：分层存储系统，不是分几块显存`,
+    body: `一旦上下文来到百万级，KV cache 不再是分几块显存的问题。V4 把它当成分层存储系统来处理：原始窗口、高压缩表示、远场索引和 prefix reuse 共同组成异构 KV cache。推理框架进一步引入磁盘存储策略来支持高效的 shared-prefix reuse。`
+  },
+  {
+    heading: `后训练与训推一致性`,
+    body: `V4 通过 batch-invariant 和 deterministic 算子库尽量保证训推一致。推理侧把异构 KV cache、shared-prefix reuse 和磁盘存储策略直接写进了系统设计。对 infra 团队来说，这一套并不轻松，但它明确在朝低成本长上下文推理这个方向收敛。`
+  },
+  {
+    heading: `Reference`,
+    body: `[1] DeepSeek-V4 Technical Report\n[2] DeepSeek-V4详细分析(1)\n[3] DeepSeek-V4 预览版\n[4] DeepSeek-V4-Pro inference\n[5] DeepSeek V4 预览版本上线 - kaiyuan`,
+    bodyHTML: '<div><a href=”https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf” target=”_blank”>[1] DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence</a></div><div><a href=”https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw” target=”_blank”>[2] DeepSeek-V4详细分析(1): 算法和模型结构</a></div><div><a href=”https://api-docs.deepseek.com/zh-cn/news/news260424” target=”_blank”>[3] DeepSeek-V4 预览版：迈入百万上下文普惠时代</a></div><div><a href=”https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/tree/main/inference” target=”_blank”>[4] deepseek-ai/DeepSeek-V4-Pro / inference</a></div><div><a href=”https://www.zhihu.com/question/2030963929510310856/answer/2031734018199270833” target=”_blank”>[5] DeepSeek V4 预览版本上线并同步开源 - kaiyuan</a></div>'
+  }
+];
+var PULSE = `除了对 Infra 团队不太友好以外，这仍然是一个非常不错的工作——它在算力和 KV cache 开销上都做了大幅降低，不仅让长上下文推理更接近可运营区间，也会利好在国产卡平台上构建更低成本的推理系统。`;
+
+// ═══════════════════════════════════════
+// ③ 排版
+// ═══════════════════════════════════════
+var SERIF = "'Noto Serif SC', Georgia, serif";
+var SANS = "'Inter', 'Helvetica Neue', sans-serif";
+
+// 标题自适应：二分搜索最大字号，限制在 maxLines 行内
+function fitTitle(text, maxWidth, maxLines) {
+  var lo = 24, hi = 56, best = lo, bestLines = [];
+  while (lo <= hi) {
+    var size = Math.floor((lo + hi) / 2);
+    var font = '700 ' + size + 'px ' + SERIF;
+    var lh = Math.round(size * 1.15);
+    var p = prepareWithSegments(text, font);
+    var result = layoutWithLines(p, maxWidth, lh);
+    if (result.lineCount <= maxLines) {
+      best = size;
+      bestLines = result.lines;
+      lo = size + 1;
+    } else {
+      hi = size - 1;
+    }
+  }
+  return { size: best, lineHeight: Math.round(best * 1.15), lines: bestLines };
+}
+
+// ═══════════════════════════════════════
+// ④ 渲染
+// ═══════════════════════════════════════
+var titleWrap = document.getElementById('title-wrap');
+var leadWrap = document.getElementById('lead-wrap');
+var sectionsWrap = document.getElementById('sections-wrap');
+var pulseWrap = document.getElementById('pulse-wrap');
+
+function render() {
+  var t0 = performance.now();
+  var pageW = titleWrap.parentElement.clientWidth - 48; // padding
+
+  // ---- Title: pretext 自适应字号 ----
+  var title = fitTitle(TITLE, pageW, 3);
+  titleWrap.innerHTML = '';
+  for (var i = 0; i < title.lines.length; i++) {
+    var el = document.createElement('div');
+    el.className = 'title-line';
+    el.textContent = title.lines[i].text;
+    el.style.fontSize = title.size + 'px';
+    el.style.lineHeight = title.lineHeight + 'px';
+    titleWrap.appendChild(el);
+  }
+
+  // ---- Lead: pretext 测量行数，CSS 正常渲染 ----
+  var leadFont = '500 15.5px ' + SANS;
+  var leadLH = 26;
+  var leadP = prepareWithSegments(LEAD, leadFont);
+  var leadResult = layoutWithLines(leadP, pageW, leadLH);
+
+  leadWrap.innerHTML = '';
+  leadWrap.className = 'lead-block';
+  for (var i = 0; i < leadResult.lines.length; i++) {
+    var span = document.createElement('span');
+    span.textContent = leadResult.lines[i].text;
+    leadWrap.appendChild(span);
+    if (i < leadResult.lines.length - 1) {
+      leadWrap.appendChild(document.createTextNode(' '));
+    }
+  }
+  // 用 pretext 测量的行数设置精确高度，避免 CLS
+  leadWrap.style.height = leadResult.lineCount * leadLH + 'px';
+
+  // ---- Sections: pretext 测量，CSS 渲染 ----
+  sectionsWrap.innerHTML = '';
+  var totalBodyLines = 0;
+
+  for (var si = 0; si < SECTIONS.length; si++) {
+    var s = SECTIONS[si];
+
+    // figure section
+    if (s.image) {
+      var figSec = document.createElement('div');
+      figSec.className = 'section';
+      var figBlock = document.createElement('div');
+      figBlock.className = 'figure-block';
+      var img = document.createElement('img');
+      img.src = s.image;
+      img.alt = s.caption || '';
+      (function(block, imgEl, promptText, captionText) {
+        imgEl.onerror = function() {
+          imgEl.style.display = 'none';
+          var ph = document.createElement('div');
+          ph.className = 'figure-placeholder';
+          ph.innerHTML = '<div class="figure-placeholder-icon">&#9634;</div>' +
+            '<div class="figure-placeholder-label">待生成插图</div>' +
+            (promptText ? '<div class="figure-placeholder-prompt">' + promptText.replace(/</g,'&lt;') + '</div>' : '');
+          block.insertBefore(ph, block.firstChild);
+        };
+      })(figBlock, img, s.prompt, s.caption);
+      figBlock.appendChild(img);
+      if (s.caption) {
+        var cap = document.createElement('div');
+        cap.className = 'figure-caption';
+        cap.textContent = s.caption;
+        figBlock.appendChild(cap);
+      }
+      if (s.prompt) {
+        figBlock.setAttribute('data-prompt', s.prompt);
+      }
+      figSec.appendChild(figBlock);
+      sectionsWrap.appendChild(figSec);
+      (function(block) {
+        block.addEventListener('click', function() {
+          if (block.classList.contains('zoomed')) {
+            block.classList.remove('zoomed');
+          } else {
+            document.querySelectorAll('.figure-block.zoomed').forEach(function(b) { b.classList.remove('zoomed'); });
+            block.classList.add('zoomed');
+          }
+        });
+      })(figBlock);
+      continue;
+    }
+
+    var sec = document.createElement('div');
+    sec.className = 'section';
+
+    // heading
+    var hFont = '700 15px ' + SANS;
+    var hP = prepareWithSegments(s.heading, hFont);
+    var hResult = layoutWithLines(hP, pageW, 22);
+    totalBodyLines += hResult.lineCount;
+
+    var hEl = document.createElement('div');
+    hEl.className = 'section-h';
+    hEl.textContent = s.heading;
+    sec.appendChild(hEl);
+
+    // callout (if any)
+    if (s.callout) {
+      var cFont = '500 15px ' + SANS;
+      var cP = prepareWithSegments(s.callout, cFont);
+      var cResult = layoutWithLines(cP, pageW - 56, 25);
+      totalBodyLines += cResult.lineCount;
+
+      var cEl = document.createElement('div');
+      cEl.className = 'callout';
+      cEl.textContent = s.callout;
+      sec.appendChild(cEl);
+    }
+
+    // body
+    var bFont = '400 17px ' + SERIF;
+    var bP = prepareWithSegments(s.body, bFont);
+    var bResult = layoutWithLines(bP, pageW, 30);
+    totalBodyLines += bResult.lineCount;
+
+    var bEl = document.createElement('div');
+    bEl.className = 'section-body';
+    if (s.bodyHTML) {
+      bEl.innerHTML = s.bodyHTML;
+    } else {
+      bEl.textContent = s.body;
+      bEl.style.height = bResult.lineCount * 30 + 'px';
+    }
+    sec.appendChild(bEl);
+
+    sectionsWrap.appendChild(sec);
+  }
+
+  // ---- Pulse ----
+  var pFont = '600 17px ' + SANS;
+  var pP = prepareWithSegments(PULSE, pFont);
+  var pResult = layoutWithLines(pP, pageW, 28);
+  totalBodyLines += pResult.lineCount;
+  pulseWrap.textContent = PULSE;
+  pulseWrap.style.height = pResult.lineCount * 28 + 'px';
+
+  var ms = performance.now() - t0;
+
+  // Stats
+  document.getElementById('sTitle').textContent = title.lines.length + ' lines, ' + title.size + 'px';
+  document.getElementById('sLead').textContent = leadResult.lineCount + ' lines';
+  document.getElementById('sBody').textContent = totalBodyLines;
+  document.getElementById('sMs').textContent = ms.toFixed(2) + 'ms';
+  document.getElementById('sDom').textContent = '0';
+}
+
+// ═══════════════════════════════════════
+// ⑤ 启动
+// ═══════════════════════════════════════
+await document.fonts.ready;
+render();
+
+var resizeTimer = 0;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 100);
+});
+
+// ═══════════════════════════════════════════════════
+// ⑥ 火柴人 — 点击位置出现，挥手提示
+// ═══════════════════════════════════════════════════
+var stickCanvas = document.getElementById('stick-canvas');
+var sctx = stickCanvas.getContext('2d');
+var ACCENT = '#C45A20';
+var ACCENT_LIGHT = '#FDF0E6';
+
+var stick = {
+  active: false,
+  opacity: 0,
+  cx: 0, cy: 0,       // 点击位置（锚点）
+  jumpY: 0,
+  jumpVY: 0,
+  bouncePhase: 0,
+  age: 0,              // 出现后经过的秒数
+  blinkTimer: 2,
+  blinking: false,
+  exiting: false
+};
+
+function resizeStick() {
+  stickCanvas.width = window.innerWidth;
+  stickCanvas.height = window.innerHeight;
+}
+resizeStick();
+window.addEventListener('resize', resizeStick);
+
+// 点击任意位置 → 生成火柴人
+document.addEventListener('click', function(e) {
+  if (e.target === stickCanvas) return;
+
+  // 如果已经显示 → 淡出消失（取消）
+  if (stick.active && !stick.exiting) {
+    stick.exiting = true;
+    return;
+  }
+
+  // 否则在新位置生成
+  stick.active = true;
+  stick.exiting = false;
+  stick.cx = e.clientX;
+  stick.cy = e.clientY;
+  stick.opacity = 0;
+  stick.jumpY = -20;
+  stick.jumpVY = 0;
+  stick.bouncePhase = 0;
+  stick.blinkTimer = 2;
+  stick.blinking = false;
+});
+
+function drawStick(t) {
+  if (!stick.active) return;
+
+  var dt = 1 / 60;
+  stick.age += dt;
+
+  // 淡入
+  if (stick.exiting) {
+    stick.opacity -= 0.07;
+    if (stick.opacity <= 0) {
+      stick.active = false;
+      stick.exiting = false;
+      sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
+      return;
+    }
+  } else {
+    stick.opacity = Math.min(1, stick.opacity + 0.1);
+  }
+
+  // 弹跳物理
+  stick.jumpVY += 0.55;
+  stick.jumpY += stick.jumpVY;
+  if (stick.jumpY >= 0) {
+    stick.jumpY = 0;
+    if (stick.bouncePhase < 3 && Math.abs(stick.jumpVY) > 0.5) {
+      stick.jumpVY = -stick.jumpVY * 0.45;
+      stick.bouncePhase++;
+    } else {
+      stick.jumpVY = 0;
+    }
+  }
+
+  // 站稳后微微呼吸
+  var bob = stick.jumpY === 0 ? Math.sin(t * 3.5) * 1.5 : 0;
+
+  // 眨眼
+  stick.blinkTimer -= dt;
+  if (stick.blinkTimer <= 0) {
+    if (stick.blinking) {
+      stick.blinking = false;
+      stick.blinkTimer = 1.5 + Math.random() * 3;
+    } else {
+      stick.blinking = true;
+      stick.blinkTimer = 0.1;
+    }
+  }
+
+  sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
+  sctx.save();
+  sctx.globalAlpha = stick.opacity;
+
+  var x = stick.cx;
+  var y = stick.cy + stick.jumpY + bob;
+  var sc = 0.65;
+
+  sctx.translate(x, y);
+  sctx.scale(sc, sc);
+
+  // 柔和发光
+  var glow = sctx.createRadialGradient(0, -24, 4, 0, -24, 55);
+  glow.addColorStop(0, 'rgba(196,90,32,0.1)');
+  glow.addColorStop(1, 'rgba(196,90,32,0)');
+  sctx.fillStyle = glow;
+  sctx.fillRect(-55, -80, 110, 110);
+
+  var headR = 10;
+  var bodyTop = -headR * 2 - 22;
+  var bodyBot = -headR * 2;
+  var legLen = 18;
+  var armLen = 16;
+
+  sctx.lineCap = 'round';
+  sctx.lineJoin = 'round';
+
+  // 腿
+  sctx.strokeStyle = ACCENT;
+  sctx.lineWidth = 2;
+  sctx.beginPath(); sctx.moveTo(-4, bodyBot); sctx.lineTo(-6, bodyBot + legLen); sctx.stroke();
+  sctx.beginPath(); sctx.moveTo(4, bodyBot);  sctx.lineTo(6, bodyBot + legLen); sctx.stroke();
+
+  // 身体
+  sctx.lineWidth = 2.2;
+  sctx.beginPath(); sctx.moveTo(0, bodyTop); sctx.lineTo(0, bodyBot); sctx.stroke();
+
+  var armBase = bodyTop + 6;
+
+  // 右手臂 — 挥手（举起 + 左右摇摆）
+  var waveAngle = Math.sin(t * 7) * 0.45;              // 手掌左右摆
+  var raiseAngle = -Math.PI / 2 + waveAngle;            // 基础朝上 + 摆动
+  var rwx = Math.cos(raiseAngle) * armLen;
+  var rwy = Math.sin(raiseAngle) * armLen;
+  sctx.lineWidth = 2;
+  sctx.strokeStyle = ACCENT;
+  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(rwx, armBase + rwy); sctx.stroke();
+
+  // 挥手手掌（小圆）
+  var handR = 3 + Math.sin(t * 7) * 0.5;
+  sctx.beginPath();
+  sctx.arc(rwx, armBase + rwy, handR, 0, Math.PI * 2);
+  sctx.fillStyle = ACCENT;
+  sctx.fill();
+
+  // 左手臂 — 自然下垂
+  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(-12, armBase + 10); sctx.stroke();
+
+  // 头
+  var headY = bodyTop - headR;
+  sctx.beginPath();
+  sctx.arc(0, headY, headR, 0, Math.PI * 2);
+  sctx.fillStyle = ACCENT;
+  sctx.fill();
+
+  // 眼睛
+  var eyeOff = 3.5;
+  var eyeY = headY - 1;
+  if (stick.blinking) {
+    sctx.strokeStyle = ACCENT_LIGHT;
+    sctx.lineWidth = 1;
+    sctx.beginPath(); sctx.moveTo(-eyeOff - 1.5, eyeY); sctx.lineTo(-eyeOff + 1.5, eyeY); sctx.stroke();
+    sctx.beginPath(); sctx.moveTo(eyeOff - 1.5, eyeY); sctx.lineTo(eyeOff + 1.5, eyeY); sctx.stroke();
+  } else {
+    sctx.fillStyle = ACCENT_LIGHT;
+    sctx.beginPath(); sctx.arc(-eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
+    sctx.beginPath(); sctx.arc(eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
+    // 高光
+    sctx.fillStyle = '#fff';
+    sctx.beginPath(); sctx.arc(-eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
+    sctx.beginPath(); sctx.arc(eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
+  }
+
+  // 嘴巴 — 微笑
+  sctx.strokeStyle = ACCENT_LIGHT;
+  sctx.lineWidth = 1;
+  sctx.beginPath();
+  sctx.arc(0, headY + 3.5, 3, 0.2, Math.PI - 0.2);
+  sctx.stroke();
+
+  sctx.restore();
+}
+
+// 动画循环
+function animateStick(now) {
+  requestAnimationFrame(animateStick);
+  var t = now / 1000;
+  if (!stick.active) return;
+  drawStick(t);
+}
+requestAnimationFrame(animateStick);
+</script>
+</body>
+</html>

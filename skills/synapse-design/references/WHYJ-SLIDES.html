@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{Project Name} | Synapse v{version}</title>
+    <!-- Reveal.js & KaTeX Assets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&family=JetBrains+Mono&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --grid-line: #fafafa;
+        --main-color: #1e1e1e;
+        --accent-claude: #d97757;
+        --accent-blue: #6a9bcc;
+        --accent-green: #788c5d;
+        --item-bg: rgba(217, 119, 87, 0.05);
+        --strong-bg: rgba(217, 119, 87, 0.12);
+        --font-hand: "Gochi Hand", cursive;
+        --font-mono: "JetBrains Mono", monospace;
+        --font-head: "Poppins", sans-serif;
+        --shadow: 12px 12px 0px #1e1e1e;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      .reveal { font-family: var(--font-hand); color: var(--main-color); }
+      .reveal .slides { text-align: left; }
+
+      /* ── pretext animated background ── */
+      .pretext-stage {
+        position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none;
+      }
+      .pretext-stage::after {
+        content: ""; position: absolute; inset: 0;
+        background:
+          linear-gradient(180deg, var(--bg-color), transparent 14%, transparent 86%, var(--bg-color)),
+          linear-gradient(90deg, var(--bg-color), transparent 8%, transparent 92%, var(--bg-color));
+        opacity: 0.88;
+      }
+      .pretext-bg { position: absolute; inset: 0; }
+      .pretext-bg .pt-line {
+        position: absolute; left: 24px; right: 24px; white-space: nowrap;
+        font-family: var(--font-head); font-size: clamp(14px, 1.6vw, 20px);
+        font-weight: 600; letter-spacing: -0.03em;
+        color: rgba(30, 30, 30, 0.06); transform-origin: left center;
+        will-change: transform, opacity; user-select: none;
+      }
+      .pretext-bg .pt-line.pt-orange { color: rgba(217, 119, 87, 0.10); }
+      .pretext-bg .pt-line.pt-blue { color: rgba(106, 155, 204, 0.09); }
+      .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.08); }
+      .slide-content { position: relative; z-index: 1; }
+
+      /* ── slide structure ── */
+      .header-layer {
+        border-bottom: 8px solid var(--main-color); margin-bottom: 40px;
+        padding-bottom: 20px; position: relative;
+      }
+      .header-layer h2 {
+        font-family: var(--font-hand) !important; font-weight: 800;
+        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+        margin: 0 !important; color: var(--main-color) !important;
+        text-transform: none !important;
+      }
+      .ui-label {
+        position: absolute; top: -30px; right: 0; font-size: 1rem;
+        opacity: 0.3; letter-spacing: 2px; text-transform: uppercase;
+      }
+      .canvas-layer {
+        display: grid; grid-template-columns: 65% 35%; gap: 40px;
+        align-items: start; min-height: 500px;
+      }
+      .canvas-layer.push-left {
+        display: flex !important; justify-content: flex-start !important;
+        align-items: center !important; width: 100%; min-height: 500px; padding-left: 5%;
+      }
+      .canvas-footer {
+        display: flex !important; justify-content: flex-start !important;
+        align-items: flex-start !important; width: 100%; min-height: 500px;
+        padding-left: 5%; padding-top: 10px;
+      }
+      .canvas-footer .canvas-text { width: 100%; }
+      .canvas-text { font-size: clamp(1.1rem, 2.2vw, 2rem); line-height: 1.3; }
+      .canvas-text ul { list-style: none; padding: 0; margin: 0; }
+      .canvas-text li {
+        margin-bottom: 20px; position: relative;
+        padding: 10px 10px 10px 45px; border-radius: 6px;
+      }
+      .canvas-text li::before {
+        content: "→"; position: absolute; left: 10px;
+        font-weight: 800; color: var(--accent-claude);
+      }
+      .no-bullet .canvas-text li { padding-left: 20px; }
+      .no-bullet .canvas-text li::before { content: ""; }
+      strong, mark {
+        background: var(--strong-bg); padding: 0 6px; border-radius: 4px;
+        display: inline-block; transform: rotate(-0.5deg); font-weight: 800;
+        color: inherit;
+      }
+      .visual-box {
+        border: 5px solid var(--main-color); background: #fff; min-height: 380px;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        padding: 25px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+        transform: scale(var(--visual-scale, 1)) translateY(var(--visual-y, 0));
+        transform-origin: center;
+      }
+      .visual-box img { width: 100%; height: 100%; object-fit: contain; }
+      .code-container {
+        background: #1e1e1e; padding: 15px; border-radius: 4px;
+        font-family: var(--font-mono); font-size: 0.8rem; color: #d4d4d4;
+        overflow: hidden; width: 100%;
+      }
+      .pulse-layer {
+        position: absolute; bottom: 20px; left: 55px; background: #fff;
+        border: 6px solid var(--main-color); padding: 20px 40px;
+        transform: rotate(var(--pulse-rotate, -1.5deg)) translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1));
+        box-shadow: var(--shadow); font-weight: 800;
+        font-size: clamp(1.2rem, 2vw, 2.2rem); z-index: 10; transform-origin: center;
+      }
+      .pulse-animated {
+        transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease;
+      }
+      .pulse-animated:hover {
+        transform: rotate(0deg) scale(1.06); box-shadow: 14px 14px 0px #1e1e1e;
+      }
+      .ref-list li { margin-bottom: 12px; font-size: 1.1rem; }
+      .ref-list a { color: inherit; text-decoration: none; }
+      .ref-list a:hover { text-decoration: underline; color: var(--accent-claude); }
+      .reference-tag {
+        font-size: 0.8rem; opacity: 0.5; margin-top: 10px; display: block;
+        color: var(--accent-claude) !important; text-decoration: none;
+      }
+      .reference-tag:hover { opacity: 1; text-decoration: underline; }
+      .reveal .slides section .fragment {
+        opacity: 0; transform: translateY(20px);
+        transition: opacity 400ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .reveal .slides section .fragment.visible {
+        opacity: 1; transform: translateY(0);
+      }
+      .footer-watermark {
+        position: absolute; bottom: 30px; right: 30px;
+        font-family: var(--font-hand); font-size: 0.8rem; opacity: 0.1; color: #999; z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- 00 / Cover (NO image, NO pulse, NO pretext) -->
+        <section data-transition="none">
+          <div class="header-layer" style="border-bottom: none; padding-left: 5%; margin-top: 15%">
+            <div class="ui-label">00 / Cover</div>
+            <h1 style="font-size: 5rem; font-weight: 800; margin: 0; line-height: 1;">Project Name</h1>
+            <h2 style="margin-top: 30px; color: var(--accent-claude) !important;">{Chinese subtitle — topic thesis, NOT "Synapse vX.X"}</h2>
+            <div style="margin-top: 60px; font-family: var(--font-hand); font-size: 1.2rem; line-height: 2; opacity: 0.8">
+              Version: <strong>Synapse v{version}</strong> &nbsp;&nbsp; Author: <strong>Why.J</strong> &nbsp;&nbsp; Date: <strong>YYYY/MM/DD</strong>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+        </section>
+
+        <!-- 01 / Context (grid + pulse + visual-box + pretext) -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">01 / Context</div>
+              <h2>现状分析：{summary of factual direction}</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>事实 1</strong>: First factual observation.</li>
+                  <li><strong>事实 2</strong>: Second factual observation.</li>
+                  <li><strong>事实 3</strong>: Third factual observation.</li>
+                  <li><strong>事实 4</strong>: Fourth factual observation.</li>
+                  <li><strong>事实 5</strong>: Fifth factual observation.</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 Pulse: high-level abstraction of all facts. 」</div>
+              </div>
+              <div class="visual-box" style="--visual-scale: 0.9">
+                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
+                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
+                  [Excalidraw hand-drawn style: black ink, white background, stick figures, sparse 3-5 word labels, no color, no shadows]
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+        </section>
+
+        <!-- 02 / Agenda (push-left + fragment, NO image, NO pulse) -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">02 / Agenda</div>
+              <h2>Agenda</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment"><strong>Q1</strong>: 事实 N→M 的推演 —— First question?</li>
+                  <li class="fragment"><strong>Q2</strong>: 事实 K 的深入 —— Second question?</li>
+                  <li class="fragment"><strong>Q3</strong>: 事实 J 的博弈 —— Third question?</li>
+                  <li class="fragment"><strong>Q4</strong>: 事实 A+B 的终极推演 —— Fourth question?</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+        </section>
+
+        <!-- 03-N / Mechanism (grid + pulse + visual-box + pretext) -->
+        <!-- Copy this section for each mechanism page -->
+
+        <!-- 10 / Take Aways (push-left + fragment, NO visual-box, Q→A mapping) -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">10 / Take Aways</div>
+              <h2>Take A Ways</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment"><strong>Q1 → A1</strong>: Strict answer to Agenda Q1.</li>
+                  <li class="fragment"><strong>Q2 → A2</strong>: Strict answer to Agenda Q2.</li>
+                  <li class="fragment"><strong>Q3 → A3</strong>: Strict answer to Agenda Q3.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated fragment">「 Closing summary from Q4. 」</div>
+          </div>
+          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+        </section>
+
+        <!-- 11 / Reference (canvas-footer, NO image, NO pulse) -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">11 / Reference</div>
+              <h2>Reference</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text" style="font-size: 1.1rem;">
+                <ul class="ref-list">
+                  <li><strong><a href="https://example.com" target="_blank">Source Title</a></strong> - Author - https://example.com</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script type="module">
+      import { prepareWithSegments, layoutWithLines } from 'https://esm.sh/@chenglou/pretext';
+
+      // ── KaTeX rendering (::math directive) ──
+      document.querySelectorAll('[data-katex]').forEach(el => {
+        if (window.katex) katex.render(el.getAttribute('data-katex'), el, { displayMode: true });
+      });
+
+      // ── visual-box data-scale ──
+      document.querySelectorAll(".visual-box[data-scale]").forEach((box) => {
+        box.style.setProperty("--visual-scale", box.getAttribute("data-scale"));
+      });
+
+      // ── Reveal.js ──
+      Reveal.initialize({
+        hash: true, center: true, transition: "none",
+        width: 1400, height: 900, margin: 0.05,
+      });
+
+      // ── pretext sources ──
+      const coverSource = [
+        'Cover source text here — repeated for density.',
+      ].join(' ');
+
+      const slideSource = [
+        'Keyword1', 'Keyword2', 'Keyword3', 'Keyword4',
+      ].join('  /  ');
+
+      // ── pretext layout ──
+      function getLines(text, font, maxWidth, lineHeight) {
+        const prepared = prepareWithSegments(text, font);
+        const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+        return lines.map(l => l.text);
+      }
+
+      function buildStage(stage) {
+        const isCover = stage.classList.contains('cover-stage');
+        const src = isCover
+          ? Array.from({ length: 5 }, () => coverSource).join(' ')
+          : Array.from({ length: 12 }, () => slideSource).join(' ');
+        const bg = stage.querySelector('.pretext-bg');
+        if (!bg) return [];
+        const w = stage.clientWidth || 1400;
+        const h = stage.clientHeight || 900;
+        const padding = isCover ? 28 : 24;
+        const usable = Math.max(200, w - padding * 2);
+        const fontSize = isCover ? Math.max(18, Math.min(28, w * 0.02)) : Math.max(14, Math.min(20, w * 0.014));
+        const lineHeight = Math.round(fontSize * (isCover ? 1.25 : 1.8));
+        const font = `600 ${fontSize}px Poppins, Arial, sans-serif`;
+        const wrapped = getLines(src, font, usable * 0.92, lineHeight);
+        const top = Math.max(20, (h - wrapped.length * lineHeight) / 2);
+        bg.innerHTML = '';
+        return wrapped.map((text, i) => {
+          const el = document.createElement('div');
+          el.className = 'pt-line';
+          if (i % 9 === 2) el.classList.add('pt-orange');
+          if (i % 11 === 5) el.classList.add('pt-blue');
+          if (i % 13 === 7) el.classList.add('pt-green');
+          el.textContent = text;
+          el.style.top = `${top + i * lineHeight}px`;
+          el.style.left = `${padding}px`;
+          el.style.fontSize = `${fontSize}px`;
+          bg.appendChild(el);
+          return { el, index: i, baseTop: top + i * lineHeight };
+        });
+      }
+
+      const stages = Array.from(document.querySelectorAll('.pretext-stage'));
+      const stageMap = new Map();
+      function rebuildAll() { stageMap.clear(); stages.forEach(s => { stageMap.set(s, buildStage(s)); }); }
+      rebuildAll();
+
+      const pointers = new Map();
+      stages.forEach(s => pointers.set(s, { x: 0.65, y: 0.4 }));
+
+      function animate(time) {
+        stageMap.forEach((rows, stage) => {
+          const w = stage.clientWidth || 1400;
+          const h = stage.clientHeight || 900;
+          const p = pointers.get(stage) || { x: 0.65, y: 0.4 };
+          const isCover = stage.classList.contains('cover-stage');
+          const amp = isCover ? 16 : 8;
+          const driftAmp = isCover ? 8 : 4;
+          const rotAmp = isCover ? 0.35 : 0.15;
+          rows.forEach(({ el, index, baseTop }) => {
+            const dx = p.x * w - w * 0.5;
+            const dy = p.y * h - baseTop;
+            const wave = Math.sin(time * 0.0009 + index * 0.5) * amp;
+            const drift = Math.cos(time * 0.0005 + index * 0.3) * driftAmp;
+            const pull = dx * 0.014 * Math.exp(-Math.abs(dy) / 180);
+            const vert = Math.sin(time * 0.0007 + index * 0.4) * 2;
+            const rot = Math.sin(time * 0.0004 + index * 0.16) * rotAmp;
+            const baseOpacity = isCover ? 0.65 : 0.38;
+            const fade = Math.min(Math.abs(dy) / h, isCover ? 0.4 : 0.22);
+            const opacity = Math.max(isCover ? 0.10 : 0.04, baseOpacity - fade);
+            el.style.opacity = String(opacity);
+            el.style.transform = `translate3d(${wave + drift + pull}px, ${vert}px, 0) rotate(${rot}deg)`;
+          });
+        });
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      document.addEventListener('pointermove', (e) => {
+        stages.forEach(stage => {
+          const rect = stage.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            pointers.set(stage, {
+              x: Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)),
+              y: Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)),
+            });
+          }
+        });
+      });
+
+      Reveal.on('slidechanged', () => { setTimeout(rebuildAll, 120); });
+      window.addEventListener('resize', rebuildAll);
+    </script>
+  </body>
+</html>

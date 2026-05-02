@@ -31,55 +31,78 @@
 - **祛魅原则**: 遇到"Agentic Workflow"自动转译为"带状态机的循环逻辑"。
 - **禁止营销**: 严格禁止任何社交媒体风格的 Hook、Emoji 或虚假繁荣的修辞。
 
-### III. Nano Banano：极客视觉美学
-相比于精美的图库照片，我们更推崇 **Geek Stick Figures (极客火柴人)**。
-- 这是一种"认知负荷最小化"的视觉方案。
-- 所有的图表必须带有 `whyj + nano Banano` 的水印，象征着这不仅是生成的，更是经过"人工锻造"校验过的逻辑。
+### III. Morandi + Excalidraw：极客视觉美学
+相比于精美的图库照片，我们更推崇 **Morandi 色系的手绘架构图**。
+- Excalidraw 手绘风格 + Morandi 低饱和度色系 = 认知负荷最小化
+- 4 套 Morandi 色系（classic/warm/cool/forest），语义化颜色映射
+- 通过 `layout.js` API 程序化生成，`validate()` 碰撞检测保证质量
 
-## 3. 技能体系：7 个 Sub-Skill + 主编排器
+## 3. 技能体系：5 个 Sub-Skill + 主编排器
 
 | Skill | 目录 | 用途 | 触发词示例 |
 |-------|------|------|-----------|
 | `synapse` | root `SKILL.md` | 主编排器，编排 slides + blog + 全局协议 | `做PPT`, `技术分享` |
-| `synapse-forge` | `skills/synapse-forge/` | 素材熔炉：URL/文件 → 结构化摘录 + 截图下载 | `熔炼素材`, `提炼资料` |
-| `synapse-design` | `skills/synapse-design/` | 源材料 → blog.md + blog.html | `写成博客笔记`, `按 WhyJ 风格写` |
-| `synapse-figure` | `skills/synapse-figure/` | 技术插图编排（架构图、流水线、benchmark） | `插图规范`, `figure spec` |
-| `synapse-viz` | `skills/synapse-viz/` | PyTorch 模型结构可视化 | `模型结构图`, `torchvista` |
-| `synapse-pretext` | `skills/synapse-pretext/` | Pretext 文本布局集成 | `pretext`, `文本动画` |
-| `synapse-gif` | `skills/synapse-gif/` | 动画 GIF + Remotion 技术动画 | `GIF`, `动画`, `remotion` |
+| `synapse-forge` | `skills/synapse-forge/` | 素材熔炉：URL/文件 → DSL（slides DSL + blog DSL） | `熔炼素材`, `提炼资料` |
+| `synapse-design` | `skills/synapse-design/` | 内容设计：voice、slides 结构、slides HTML 模板 | `按 WhyJ 风格写` |
+| `synapse-pretext` | `skills/synapse-pretext/` | Blog 渲染：DSL → HTML + Pretext 文本排版引擎 | `pretext`, `blog渲染` |
+| `synapse-excalidraw` | `skills/synapse-excalidraw/` | Excalidraw 图表生成（Morandi 色系，layout.js API） | `excalidraw`, `架构图` |
+| `synapse-animation` | `skills/synapse-animation/` | 动画 SVG/GIF + Remotion 技术动画 | `GIF`, `动画`, `remotion` |
 
-每个子技能独立存放在 `skills/` 对应目录下，包含 SKILL.md 定义及所有源材料（references、assets、scripts）。
+每个子技能独立存放在 `skills/` 对应目录下，包含 SKILL.md 定义及所有源材料（references、scripts、examples）。
 
 ### 技能联动
 
-- **synapse-forge → 全部**：熔炉是管线的第一站——URL/文件进来，结构化摘录出去，直接喂给下游任何技能
-- **synapse-figure ↔ synapse-gif**：figure 定义图表结构和信息语义，gif 决定如何动起来（GIF 模式或 Remotion 模式）
-- **synapse-design → synapse-gif**：blog 需要嵌入动画时，design 定义编辑目的，gif 限定动画范围
-- **synapse-design → synapse-figure**：blog 需要技术插图时，design 定义插图意图，figure 产出插图规范
-- **synapse-pretext → synapse-figure**：figure 中的标签密度、多行换行、标题路由委托给 pretext
-- **synapse (root) → 全部**：根编排器协调所有子技能，驱动 Why.J Theater 和 Engineering Blog 两条产线
+```
+URL/文件 → synapse-forge → DSL (.dsl.md)
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+         synapse-design   synapse-pretext   synapse-excalidraw
+         slides HTML      blog HTML         Morandi SVG 图
+              │               │               │
+              └───────────────┼───────────────┘
+                              ▼
+                      synapse-excalidraw
+                      图同步到 blog + slides
+```
 
-### 备选工具链（MiniMax Plugin Skills）
-
-synapse-gif 支持备选外部工具：
-
-| Plugin Skill | 场景 |
-|---|---|
-| `gif-sticker-maker` | 从照片生成 AI 角色贴纸 GIF |
-| `vision-analysis` | 动画前分析源图片（OCR、目标检测） |
-| `minimax-multimodal-toolkit` | TTS 语音、背景音乐、视频生成 |
-| `shader-dev` | GPU 渲染特效（bloom、glitch、粒子系统） |
+- **synapse-forge → 全部**：熔炉是管线的第一站——URL/文件进来，DSL 出去，直接喂给下游
+- **synapse-design → slides**：design 提供 slides 模板和风格规范
+- **synapse-pretext → blog**：pretext 提供 blog 模板和文本排版引擎
+- **synapse-excalidraw → blog + slides**：生成 SVG 图后必须同时更新 blog 和 slides（Blog-Slides Figure Sync）
+- **synapse (root) → 全部**：根编排器协调所有子技能
 
 ## 4. 工程实战：从 Hook 到 Merge
 
 Synapse 的典型工作流展示了什么是真正的 **README-driven development**:
 
-1. **Forge (熔炼)**: 输入杂乱的原始 Log、论文 PDF 或 URL，触发 `synapse-forge` 熔炉提炼结构化素材。
-2. **Distill (提纯)**: 触发 `synapse` 主编排器，自动编排子技能进入"高压模式"。
-3. **Validate (校验)**: 通过内置的 validator 脚本和 `prettier` 自动格式化，确保输出物在工程上是合规的。
-4. **Merge (合并)**: 将提纯后的逻辑直接并入项目的 `references` 或 `examples`。
+1. **Forge (熔炼)**: 输入杂乱的原始 Log、论文 PDF 或 URL，触发 `synapse-forge` 熔炉提炼结构化 DSL。
+2. **Design (设计)**: 通过 `synapse-design` 和 `synapse-pretext` 分别渲染 slides 和 blog HTML。
+3. **Figure (插图)**: 通过 `synapse-excalidraw` 生成 Morandi 色系手绘架构图，同步到 blog 和 slides。
+4. **Validate (校验)**: 内置 validator 脚本校验 DSL 结构，`node --check` 校验 JS 语法。
+5. **Merge (合并)**: 将最终产物归入 `examples/` 对应目录。
 
-## 5. 智性克制：我们不确定未来，但深知当下
+## 5. Examples 产出结构
+
+每个 example 目录包含完整的 forge→render 管线产出：
+
+```
+examples/
+├── cli-revolution/          ← CLI 革命
+│   ├── cli-revolution-slides.dsl.md
+│   ├── cli-revolution-blog.dsl.md
+│   ├── cli-revolution-slides.html
+│   ├── cli-revolution-blog.html
+│   └── figures/             ← 2 张 Excalidraw SVG + .excalidraw 源文件
+├── deepseek-v4/             ← DeepSeek-V4 分析
+│   └── (同结构，2 张 SVG)
+├── nano-cc/                 ← Nano Claude Code
+│   └── (同结构，2 张 SVG)
+└── opd/                     ← On-Policy Distillation
+    └── (同结构，5 张 SVG)
+```
+
+## 6. 智性克制：我们不确定未来，但深知当下
 
 Synapse 承认技术的局限性。我们不承诺 AI 能解决所有架构问题，但我们承诺：**通过 Synapse 产出的每一行文字、每一张幻灯片，都必须是"干货直给"的硬核随笔。**
 

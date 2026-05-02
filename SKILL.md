@@ -15,12 +15,10 @@ Master orchestrator for the Synapse skill system.
 | Skill | Directory | Purpose |
 |-------|-----------|---------|
 | `synapse-forge` | `skills/synapse-forge/` | URLs/files → DSL (熔炉): ingestion + synthesis |
-| `synapse-design` | `skills/synapse-design/` | Content creation guidance (voice, structure) |
+| `synapse-design` | `skills/synapse-design/` | Content creation guidance (voice, structure, slides template) |
 | `synapse-pretext` | `skills/synapse-pretext/` | Blog DSL → HTML rendering + text layout engine |
-| `synapse-figure` | `skills/synapse-figure/` | Technical illustration orchestration |
-| `synapse-viz` | `skills/synapse-viz/` | PyTorch model structure visualization |
-| `synapse-animation` | `skills/synapse-animation/` | Excalidraw animation → SVG/WebM/GIF output |
-| `synapse-excalidraw` | `skills/synapse-excalidraw/` | Excalidraw diagram generation |
+| `synapse-excalidraw` | `skills/synapse-excalidraw/` | Excalidraw diagram generation (Morandi palette, layout.js) |
+| `synapse-animation` | `skills/synapse-animation/` | Animated SVG/GIF + Remotion output |
 
 ## Pipeline Overview
 
@@ -48,7 +46,7 @@ User provides URLs/files
 ### Full Pipeline
 
 1. **Ingest**: `synapse-forge` — URLs/files → Slides DSL
-2. **Render**: copy `references/WHYJ-SLIDES.html` or any `evals/e2e-*-slides.html`, replace content per DSL
+2. **Render**: copy `skills/synapse-design/references/WHYJ-SLIDES.html`, replace content per DSL
 3. **Post-process**: `npx prettier --write [file]`
 
 ### Structural Sequence
@@ -118,10 +116,10 @@ Slides HTML MUST be copied from verified template, never hand-written. Hand-writ
 
 ## Master Protocols (MANDATORY)
 
-- DSL syntax → `skills/synapse-forge/FORGE-DSL.md` (唯一 DSL + 文风参考)
-- Slides template → `references/WHYJ-SLIDES.html`
+- DSL syntax → `skills/synapse-forge/FORGE.DSL.md` (唯一 DSL + 文风参考)
+- Slides template → `skills/synapse-design/references/WHYJ-SLIDES.html`
 - Blog template → `skills/synapse-pretext/examples/dsv4-blog-layout.html`
-- Figure style → `skills/synapse-figure/references/FIGURE-STYLE.md`
+- Excalidraw diagrams → `skills/synapse-excalidraw/SKILL.md` (Phase 0 讨论确认 → Phase 1 生成 → Phase 2 上传确认 → Phase 3 同步 blog+slides)
 
 ## O(1) Quality Gate
 
