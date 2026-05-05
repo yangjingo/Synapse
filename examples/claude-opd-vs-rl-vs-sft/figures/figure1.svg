@@ -1,0 +1,26 @@
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg">
+  <text x="20" y="28" font-family="JetBrains Mono, monospace" font-size="11" fill="#1c1916" font-weight="500" letter-spacing="1.5">PERFORMANCE VS COMPUTE</text>
+  <line x1="80" y1="60" x2="80" y2="290" stroke="#3a342c" stroke-width="1.5"></line>
+  <line x1="80" y1="290" x2="660" y2="290" stroke="#3a342c" stroke-width="1.5"></line>
+  <text x="74" y="65" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#1c1916">perf</text>
+  <text x="660" y="308" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#1c1916">compute</text>
+
+  <line x1="80" y1="120" x2="660" y2="120" stroke="#6b6357" stroke-width="1" stroke-dasharray="3,4"></line>
+  <text x="666" y="123" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6357">teacher perf</text>
+
+  <path d="M 80 280 Q 180 210 320 180 Q 480 168 660 165" fill="none" stroke="#2c4a3e" stroke-width="2.5"></path>
+  <text x="510" y="183" font-family="Fraunces, serif" font-size="14" font-weight="500" fill="#2c4a3e">SFT</text>
+
+  <path d="M 80 280 Q 180 195 320 152 Q 480 145 660 143" fill="none" stroke="#b67430" stroke-width="2" stroke-dasharray="5,3"></path>
+  <text x="510" y="135" font-family="Fraunces, serif" font-size="13" font-weight="500" fill="#b67430">SFT-RS</text>
+
+  <path d="M 80 282 Q 200 278 300 258 Q 380 200 460 140 Q 540 122 660 117" fill="none" stroke="#1c1916" stroke-width="2.5"></path>
+  <text x="555" y="92" font-family="Fraunces, serif" font-size="14" font-weight="500" fill="#1c1916">OPD</text>
+  <text x="555" y="106" font-family="Spectral, serif" font-style="italic" font-size="10" fill="#3a342c">(same-family teacher)</text>
+
+  <path d="M 80 285 Q 200 280 340 245 Q 460 175 580 80 Q 620 55 660 50" fill="none" stroke="#8a3324" stroke-width="2.5"></path>
+  <text x="300" y="78" font-family="Fraunces, serif" font-size="14" font-weight="500" fill="#8a3324">RL</text>
+  <text x="300" y="92" font-family="Spectral, serif" font-style="italic" font-size="11" fill="#8a3324">slow but no teacher ceiling</text>
+
+  <text x="370" y="335" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="12" fill="#3a342c">Off-policy methods cap below teacher; OPD reaches it; only RL is unbounded by it.</text>
+</svg>
