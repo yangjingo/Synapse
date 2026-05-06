@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OPD — 1/10 GPU-hours 追平 RL 的工程事实</title>
+  <title>OPD: 26 年后训练的标准件</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -200,8 +200,8 @@
 <body>
 <canvas id="stick-canvas"></canvas>
 <div class="page">
-  <div class="meta-tag">OPD</div>
-  <div class="meta-date">2026/05/02 &middot; yangjing</div>
+  <div class="meta-tag">后训练</div>
+  <div class="meta-date">2026/05/08 &middot; yangjing</div>
 
   <!-- ① pretext 自适应标题 -->
   <div id="title-wrap"></div>
@@ -479,8 +479,6 @@ var baseTypes = [
   "L",
   "L",
   "L",
-  "L",
-  "L",
   "ON",
   "L",
   "L",
@@ -514,10 +512,6 @@ var arabicTypes = [
   "NSM",
   "NSM",
   "NSM",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
   "AL",
   "AL",
   "AL",
@@ -609,35 +603,6 @@ var arabicTypes = [
   "AL",
   "AL",
   "NSM",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
-  "AL",
   "AL",
   "AL",
   "AL",
@@ -1022,7 +987,7 @@ var leftStickyPunctuation = new Set([
   "။",
   "၌",
   "၍",
-  "၎",
+  "၏",
   ")",
   "]",
   "}",
@@ -1041,7 +1006,7 @@ var arabicNoSpaceTrailingPunctuation = new Set([
   "؛"
 ]);
 var myanmarMedialGlue = new Set([
-  "၎"
+  "၏"
 ]);
 var closingQuoteChars = new Set([
   "”",
@@ -1163,7 +1128,7 @@ function endsWithClosingQuote(text) {
 function classifySegmentBreakChar(ch) {
   if (ch === " ")
     return "space";
-  if (ch === " " || ch === " " || ch === "⁠" || ch === "﻿") {
+  if (ch === " " || ch === " " || ch === "⁠" || ch === "\uFEFF") {
     return "glue";
   }
   if (ch === "​")
@@ -1617,7 +1582,7 @@ var measureContext = null;
 var segmentMetricCaches = new Map;
 var cachedEngineProfile = null;
 var emojiPresentationRe = /\p{Emoji_Presentation}/u;
-var maybeEmojiRe = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Regional_Indicator}️⃣]/u;
+var maybeEmojiRe = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u20E3]/u;
 var sharedGraphemeSegmenter = null;
 var emojiCorrectionCache = new Map;
 function getMeasureContext() {
@@ -1695,7 +1660,7 @@ function getEmojiCorrection(font, fontSize) {
     return correction;
   const ctx = getMeasureContext();
   ctx.font = font;
-  const canvasW = ctx.measureText("😀").width;
+  const canvasW = ctx.measureText("\uD83D\uDE00").width;
   correction = 0;
   if (canvasW > fontSize + 0.5 && typeof document !== "undefined" && document.body !== null) {
     const span = document.createElement("span");
@@ -1703,7 +1668,7 @@ function getEmojiCorrection(font, fontSize) {
     span.style.display = "inline-block";
     span.style.visibility = "hidden";
     span.style.position = "absolute";
-    span.textContent = "😀";
+    span.textContent = "\uD83D\uDE00";
     document.body.appendChild(span);
     const domW = span.getBoundingClientRect().width;
     document.body.removeChild(span);
@@ -2415,63 +2380,42 @@ function setLocale(locale) {
 // ═══════════════════════════════════════
 // ② 内容
 // ═══════════════════════════════════════
-var TITLE = `OPD: 1/10 GPU-hours 追平 RL 的工程事实`;
-var LEAD = `后训练的信息效率差了一个数量级，而 OPD（On-Policy Distillation）是第一个把这个差距显式量化出来的路线。Thinking Machines Lab 的实验数据很直接：OPD 用 1,800 GPU-hours 达到 74.4% AIME'24，RL 需要 17,920 hours 才到 67.6%。算力降 10x，分数高 7pp。这不是某个团队的私有技术——Qwen3、GLM-5、DeepSeek V4 三家技术报告同时选择了它。本文拆解 OPD 为什么能比 RL 高效一个量级，以及它失败时到底是什么在崩。`;
+var TITLE = "DeepSeek-V4 更像一篇系统论文，而不是一篇单纯的模型论文";
+var LEAD = "DeepSeek-V4 最值得看的地方，不是它把参数继续做大，也不是它做出了一个新的注意力名词。真正重要的是，它把长上下文这件事从“模型结构能不能表示”推进成了“模型结构、训练稳定性、KV cache、并行调度和推理成本能不能一起闭环”的问题。";
 var SECTIONS = [
   {
-    heading: `现状：10x 算力差距不是调参的结果`,
-    body: `Thinking Machines Lab 做了一组对照实验，直接把 OPD 和 RL 放在同一个基座上跑。结果很硬：OPD 用 1,800 GPU-hours 拿到 74.4% AIME'24，RL 烧了 17,920 GPU-hours 只到 67.6%。10 倍算力换来的不是微小提升而是 7 个百分点的落后。这不是调 learning rate 或者 batch size 能追回来的差距——是信号机制本身的物理上限。更值得关注的是，Qwen3、GLM-5、MiMo-V2-Flash 三家的技术报告几乎同时把 OPD 列为后训练标配。独立团队、独立 infra、同时收敛到同一条路线，在工程领域这种事情通常意味着一个范式正在替换上一个范式。`
+    heading: "真正的问题不是长上下文本身，而是长上下文的成本曲线",
+    body: "很多长上下文工作都能把窗口做长，但只要推理 FLOPs 和 KV cache 的增长方式没有实质改变，它们就更像演示能力，而不是适合日常部署的系统。DeepSeek-V4 最重要的一点，在于它试图改写这条 cost curve，而不是单纯把上限继续往前推。"
   },
   {
-    heading: `信息效率：dense per-token signal 打 sparse outcome reward`,
-    body: `RL 的信号瓶颈在于，每个 rollout 只产生 1 bit 信息量——对或错。模型生成了一条 8K token 的推理链，最终答案不对，你只知道"错了"，不知道是第 3 步的逻辑跳转出了问题还是第 7 步的计算失误。Credit assignment 全靠 reward model 事后猜测，猜错了整条链的梯度方向就偏了。\n\nOPD 换了一个完全不同的信号机制：teacher 对 student 轨迹上每个 token 都给 log-prob 反馈。每个位置都有"好到什么程度"的连续评分，信号量从 O(1) bits/episode 跳到 O(N) bits/episode。实现成本极低——本质上就是在 RL 代码里换一行，把 KL regularizer 里的 reference model 换成 teacher model。Student rollout 是便宜的小模型生成的，teacher 只需要一次 forward pass 算 logprobs。也不需要额外训练 reward model，teacher 的 log-prob 本身就是 dense reward signal，天然 unhackable——低 KL 一定对应 teacher 认为好的行为。`,
-    callout: `RL 花 90% compute 搜索策略，只有 10% 在学习。OPD 跳过搜索直接学最终策略，所以快 10x。信号量从 O(1) bits/episode 到 O(N) bits/episode，这不是调参能追的。`
+    heading: "CSA + HCA 的价值，在于它拒绝用一条路径同时解决所有问题",
+    body: "如果只看名字，CSA 和 HCA 很容易被误读成两个并列的小创新。但更准确的理解是：DeepSeek-V4 明确承认，长上下文里的“质量保持”和“极端成本压缩”不是同一个优化目标，所以它把这两个责任拆给了两条不同压缩强度的路径。",
+    callout: "CSA 兼顾局部精度和远场选择；HCA 追求极端长上下文成本压缩。两条路径，两个旋钮，而不是一个。"
   },
   {
-    image: `./figures/figure-03-signal-density.svg`,
-    caption: `Figure 1: RL 每个 rollout 只有 1 bit（对/错），OPD 每个 token 都有 log-prob 评分。O(1) vs O(N) bits/episode`,
-    prompt: `Signal density comparison: RL sparse reward vs OPD dense per-token log-prob feedback`
+    image: "figures/hybird-attn.png",
+    caption: "Figure 1: DeepSeek-V4 注意力架构——SWA / CSA / HCA 三种注意力机制对比",
+    prompt: "Architecture diagram showing three attention mechanism variants (SWA, CSA, HCA) for a transformer-based LLM."
   },
   {
-    heading: `Reverse KL：多专家融合时该丢的是 teacher 口音，不是 student 能力`,
-    body: `Forward KL 和 Reverse KL 在蒸馏中的行为差异是理解 OPD 的关键。Forward KL 是 mode-covering：期望在教师分布上计算，学生要覆盖教师所有模式包括噪声。SFT 就是 forward KL——在教师的棋盘状态上学，一旦学生犯错就越跑越偏。\n\n数学上 D_KL(P||Q) = -H(P) + CE(P,Q)，因为 H(P) 是常数，最小化 FKL 等价于最小化交叉熵，最老最稳但也是信息量最少的蒸馏 loss。\n\nReverse KL 是 mode-seeking：期望在学生分布上计算，学生只在自己采样的位置受惩罚。D_KL(Q||P) = -H(Q) + CE(Q,P)，两项都带参数，entropy 和交叉熵同时拉扯。Student 不采到的概率空间根本不参与 loss 计算，原有能力对应的概率质量不会被挤掉。\n\n多专家场景下这个特性尤其关键——10+ 领域专家各带"领域口音"，reverse KL 保证融合时 student 只学知识不学口音。你用标准发音开口，老师只在你已说出的话上纠正语法，不会把你往方言方向拉。`,
-    callout: `Forward KL 学 teacher 全部分布包括噪声，Reverse KL 只改 student 已说的话。多专家融合时该丢的是 teacher 口音，不是 student 能力。`
+    heading: "mHC 看起来像结构细节，但它其实是稳定性基础设施",
+    body: "DeepSeek-V4 同时叠加了长上下文压缩、MoE、混合精度、定制内核与推理侧缓存工程。在这种组合下，残差路径稳定性不再是默认前提，而是系统能否站住的基础设施。mHC 的意义不在于“模型图更复杂”，而在于作者明确把这个问题拎出来了。"
   },
   {
-    image: `./figures/figure-04-fkl-rkl.svg`,
-    caption: `Figure 2: Forward KL mode-covering vs Reverse KL mode-seeking`,
-    prompt: `Probability distribution overlay showing teacher P and student Q behavior under FKL vs RKL`
+    heading: "这篇论文真正值钱的地方，在于它没有把系统栈藏起来",
+    body: "如果只看 headline，这篇文章在讲 hybrid attention 和 benchmark。但真正值得工程团队注意的，是论文明确讨论了：expert parallelism 的细粒度 pipeline、deterministic / batch-invariant kernels、FP4 在训练和推理两边的现实处理方式、以及 on-disk KV cache reuse。这些东西加在一起，才构成了“为什么这套架构不是停留在论文图里的东西”。"
   },
   {
-    heading: `OPD 的失败模式：overlap 不够时蒸馏直接崩`,
-    body: `OPD 不是万能的，它有明确的失败条件。核心问题出在师生分布的 overlap 上。\n\n实验数据显示了一个很反直觉的现象：同一个 student 从两个分数差不多的 teacher 蒸馏，GRPO teacher（base 出身，与学生思维模式兼容）效果碾压 Non-thinking teacher。初始 overlap ratio 差 20pp，训练后期也追不回来。\n\n同家族大一号模型（只是参数更多、拟合更好）蒸馏效果极差，gap recovery 约 0%。只有经过额外 RL 获得新能力的 teacher 才能通过 OPD 传递增量知识，recovery 超过 80%。\n\nToken 级别的机制更清晰：成功的 OPD 表现为 overlap ratio 从 72% 稳步上升到 91%，重叠 token 承载 97-99% 的总概率质量。只对重叠 token 做优化就够了。但全局信号好不等于局部可优化——失败 teacher AUROC 0.73 vs 成功 0.75，信号质量几乎一样。问题出在各向异性 advantage 导致梯度方向不一致、互相抵消。`
+    heading: "未来模型优势会越来越像联合设计优势",
+    body: "DeepSeek-V4 给我的最大启发不是某个模块，而是一个方向：未来模型进步越来越不像单轴参数竞争，而更像 architecture + runtime + storage + scheduling 的协同设计竞争。如果这个判断成立，那么很多团队接下来真正应该补的，不是更长 context 的 headline，而是更像存储系统的 KV cache、更像调度系统的 EP pipeline，以及更早进入设计阶段的推理 economics。"
   },
   {
-    image: `./figures/figure-05-overlap.svg`,
-    caption: `Figure 3: 成功的 OPD 需要 teacher-student token 分布有足够 overlap`,
-    prompt: `Venn diagram or distribution overlap visualization showing teacher and student token distributions`
-  },
-  {
-    heading: `Cold Start + Entropy-Aware：先拉齐分布再做 on-policy`,
-    body: `OPD 的修复路径已经形成了比较成熟的工程模式。\n\n第一步是 off-policy cold start：先用 teacher 生成 200K 条 response 做 SFT，把 student 拉到 teacher 分布附近，然后再上 OPD。这不仅加速收敛，还提高最终天花板。\n\n第二步是 teacher-aligned prompt：用 teacher post-training 时见过的 prompt 做 OPD，但要混合 OOD prompt 防止 student 的 entropy 塌缩。\n\nDeepSeek V4 的工程实践更激进——Base-Model 先走 10+ 领域专家（各走 SFT+GRPO 练到极致），然后用 multi-teacher OPD 做融合。V3.2 的 off-policy 路线被整个替换掉了。\n\nEntropy-Aware OPD 是另一个关键修复：当 teacher token-level 熵超过阈值时额外加入 forward KL。低熵位置用 reverse KL 做精确模式匹配，高熵位置用 forward KL 保留分布支撑和生成多样性。\n\n还有一个容易被忽略的细节——response length 上限。3K-7K tokens 最优，10K+ 开始退化，15K 崩溃。高熵从 response 末尾向前传播，OPD 对长链推理有天生软肋。`,
-    callout: `冷启动的 forward-KL 阶段不是可选的——先拉齐分布再做 on-policy，这个顺序不能反。高熵位置加 FKL 保多样性，response length 3K-7K 是安全区间。`
-  },
-  {
-    image: `./figures/figure-06-pipeline.svg`,
-    caption: `Figure 4: DeepSeek V4 后训练 pipeline——Base-Model → 10+ 领域专家 → multi-teacher OPD 融合`,
-    prompt: `DeepSeek V4 post-training pipeline showing multi-teacher OPD fusion process`
-  },
-  {
-    heading: `工程启示：三家同时选 OPD 是收敛不是巧合`,
-    body: `Qwen3、GLM-5、DeepSeek V4 三家的技术报告几乎同时把 OPD 列为后训练标配。独立团队、独立 infra、不同的模型架构，同时收敛到同一条路线。在工程领域这种事情通常意味着范式转移正在发生。\n\n对 infra 团队来说，OPD 的工程复杂度比 RL 低一个台阶——不需要训练 reward model，不需要维护复杂的 reward shaping pipeline，不需要担心 reward hacking。Teacher model 的 log-prob 就是 reward signal，天然 unhackable。你需要的只是一个足够好的 teacher 和一套能稳定跑 on-policy 采样的 infra。\n\n但 OPD 也有它自己的工程陷阱：师生分布 overlap 不够会直接崩盘，cold start 阶段不能跳过，response length 需要严格控制。这些不是理论问题，是跑实验才会踩到的坑。好消息是这些坑已经有比较成熟的修复方案了。`
-  },
-  {
-    heading: `Reference`,
-    body: `[1] On-Policy Distillation\n[2] Rethinking On-Policy Distillation\n[3] Qwen3 Technical Report\n[4] 强老师蒸馏反而训崩？\n[5] DeepSeek V4 多专家 OPD\n[6] FKL vs RKL`,
-    bodyHTML: '<div><a href="https://thinkingmachines.ai/blog/on-policy-distillation/" target="_blank">[1] On-Policy Distillation - Thinking Machines Lab</a></div><div><a href="https://arxiv.org/abs/2604.13016" target="_blank">[2] Rethinking On-Policy Distillation - Li et al.</a></div><div><a href="https://arxiv.org/pdf/2604.00626" target="_blank">[3] Qwen3 Technical Report</a></div><div><a href="https://zhuanlan.zhihu.com/p/2029672748490715936" target="_blank">[4] 强老师蒸馏反而训崩？ - 李rumor</a></div><div><a href="https://zhuanlan.zhihu.com/p/2031622077107659474" target="_blank">[5] DeepSeek V4 多专家 OPD - 九老师</a></div><div><a href="https://zhuanlan.zhihu.com/p/690748958" target="_blank">[6] FKL vs RKL - Taki</a></div>'
+    heading: "Reference",
+    body: "[1] DeepSeek-V4 Technical Report\n[2] DeepSeek-V3 Technical Report\n[3] CSA: Compressed Sparse Attention\n[4] HCA: Hierarchical Context Attention\n[5] Mixed Hardware Compatibility (mHC)\n[6] Expert Parallelism & On-disk KV Cache Reuse",
+    bodyHTML: '<div><a href="https://arxiv.org/abs/2504.18356" target="_blank">[1] DeepSeek-V4 Technical Report</a></div><div><a href="https://arxiv.org/abs/2412.19437" target="_blank">[2] DeepSeek-V3 Technical Report</a></div><div><a href="#" target="_blank">[3] CSA: Compressed Sparse Attention</a></div><div><a href="#" target="_blank">[4] HCA: Hierarchical Context Attention</a></div><div><a href="#" target="_blank">[5] Mixed Hardware Compatibility (mHC)</a></div><div><a href="#" target="_blank">[6] Expert Parallelism &amp; On-disk KV Cache Reuse</a></div>'
   }
 ];
-var PULSE = `三家独立技术报告同时选择 OPD 不是巧合——后训练的信息效率差了一个数量级，10x 成本下降不是调参的结果，是范式本身的物理优势。RL 的 sparse reward 天花板已经碰到了，dense per-token signal 才是下一个阶段的起点。`;
+var PULSE = "如果长上下文的 cost curve 没被改掉，那它就还是演示能力；DeepSeek-V4 真正值钱的地方，是它试图把这张账单变成系统设计问题。";
 
 // ═══════════════════════════════════════
 // ③ 排版

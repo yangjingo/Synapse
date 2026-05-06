@@ -3,8 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>OPD | Synapse v6.0</title>
-    <!-- Reveal.js & KaTeX Assets -->
+    <title>OPD | Synapse v1.0.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" />
@@ -37,7 +36,6 @@
       .reveal { font-family: var(--font-hand); color: var(--main-color); }
       .reveal .slides { text-align: left; }
 
-      /* ── pretext animated background ── */
       .pretext-stage {
         position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none;
       }
@@ -61,7 +59,6 @@
       .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.08); }
       .slide-content { position: relative; z-index: 1; }
 
-      /* ── slide structure ── */
       .header-layer {
         border-bottom: 8px solid var(--main-color); margin-bottom: 40px;
         padding-bottom: 20px; position: relative;
@@ -90,7 +87,7 @@
         padding-left: 5%; padding-top: 10px;
       }
       .canvas-footer .canvas-text { width: 100%; }
-      .canvas-text { font-size: clamp(1.1rem, 2.2vw, 2rem); line-height: 1.3; }
+      .canvas-text { font-size: clamp(0.9rem, 1.7vw, 1.55rem); line-height: 1.3; }
       .canvas-text ul { list-style: none; padding: 0; margin: 0; }
       .canvas-text li {
         margin-bottom: 20px; position: relative;
@@ -115,6 +112,10 @@
         transform-origin: center;
       }
       .visual-box img { width: 100%; height: 100%; object-fit: contain; }
+      .visual-box .dual-image {
+        display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%;
+      }
+      .visual-box .dual-image img { width: 100%; height: auto; object-fit: contain; }
       .code-container {
         background: #1e1e1e; padding: 15px; border-radius: 4px;
         font-family: var(--font-mono); font-size: 0.8rem; color: #d4d4d4;
@@ -125,7 +126,7 @@
         border: 6px solid var(--main-color); padding: 20px 40px;
         transform: rotate(var(--pulse-rotate, -1.5deg)) translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1));
         box-shadow: var(--shadow); font-weight: 800;
-        font-size: clamp(1.2rem, 2vw, 2.2rem); z-index: 10; transform-origin: center;
+        font-size: clamp(0.95rem, 1.6vw, 1.7rem); z-index: 10; transform-origin: center;
       }
       .pulse-animated {
         transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease;
@@ -136,11 +137,6 @@
       .ref-list li { margin-bottom: 12px; font-size: 1.1rem; }
       .ref-list a { color: inherit; text-decoration: none; }
       .ref-list a:hover { text-decoration: underline; color: var(--accent-claude); }
-      .reference-tag {
-        font-size: 0.8rem; opacity: 0.5; margin-top: 10px; display: block;
-        color: var(--accent-claude) !important; text-decoration: none;
-      }
-      .reference-tag:hover { opacity: 1; text-decoration: underline; }
       .reveal .slides section .fragment {
         opacity: 0; transform: translateY(20px);
         transition: opacity 400ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -152,6 +148,18 @@
         position: absolute; bottom: 30px; right: 30px;
         font-family: var(--font-hand); font-size: 0.8rem; opacity: 0.1; color: #999; z-index: 1;
       }
+      .canvas-text .sub-heading {
+        font-family: var(--font-hand); font-weight: 800;
+        font-size: clamp(1.1rem, 2vw, 1.8rem);
+        margin: 20px 0 10px 0; color: var(--accent-claude);
+      }
+      .pure-image-slide {
+        display: flex; justify-content: center; align-items: center;
+        width: 100%; min-height: 600px; padding: 40px;
+      }
+      .pure-image-slide img {
+        max-width: 90%; max-height: 700px; object-fit: contain;
+      }
     </style>
   </head>
   <body>
@@ -162,16 +170,13 @@
         <section data-transition="none">
           <div class="header-layer" style="border-bottom: none; padding-left: 5%; margin-top: 15%">
             <div class="ui-label">00 / Cover</div>
-            <h1 style="font-size: 5rem; font-weight: 800; margin: 0; line-height: 1;">OPD</h1>
-            <h2 style="margin-top: 30px; color: var(--accent-claude) !important;">1/10 算力追平 RL 的工程事实</h2>
+            <h1 style="font-size: 5rem; font-weight: 800; margin: 0; line-height: 1;">OPD (On-Policy Distillation)</h1>
+            <h2 style="margin-top: 30px; color: var(--accent-claude) !important;">从DeepSeekV4中的后训练方法，学到的心得体会</h2>
             <div style="margin-top: 60px; font-family: var(--font-hand); font-size: 1.2rem; line-height: 2; opacity: 0.8">
-              Reverse KL + on-policy 采样 + dense token reward，把后训练的信息效率拉对了量级
-            </div>
-            <div style="margin-top: 20px; font-family: var(--font-hand); font-size: 1.2rem; line-height: 2; opacity: 0.8">
-              Version: <strong>Synapse v6.0</strong> &nbsp;&nbsp; Author: <strong>Why.J</strong> &nbsp;&nbsp; Date: <strong>2026/04/30</strong>
+              Version: <a href="https://github.com/yangjingo/Synapse" target="_blank" style="color: inherit; text-decoration: none;"><strong>Synapse v1.0.0</strong></a> &nbsp;&nbsp; Author: <strong>YangJing</strong> &nbsp;&nbsp; Date: <strong>2026/05/08</strong>
             </div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
         <!-- 01 / Context -->
@@ -180,25 +185,26 @@
           <div class="slide-content">
             <div class="header-layer">
               <div class="ui-label">01 / Context</div>
-              <h2>现状分析：后训练路线正在从 SFT+RL 收敛到 OPD</h2>
+              <h2>现状分析：后训练路线正在从 SFT+RL 收敛到 SFT-OPD-RL</h2>
             </div>
             <div class="canvas-layer">
               <div class="canvas-text">
                 <ul>
-                  <li><strong>事实 1</strong>: <mark>Thinking Machines Lab</mark> 实验表明 OPD 用 <mark>1,800 GPU-hours</mark> 达到 74.4% AIME'24，RL 需要 17,920 hours 才到 67.6%——算力降 10x，分数高 7pp</li>
-                  <li><strong>事实 2</strong>: <mark>Qwen3</mark>、<mark>GLM-5</mark>、<mark>MiMo-V2-Flash</mark> 三家技术报告同时将 OPD 列为后训练标配，不是某个团队的私有技术</li>
+                  <li><strong>事实 1</strong>: <mark>DeepSeekV4</mark> 的技术报告之中，重点介绍的是arch变化和Infra的细节，对于训练算法没有过多介绍。<mark>关于训练算法和数据，仅重点介绍了OPD的内容</mark>；</li>
+                  <li><strong>事实 2</strong>: 不仅仅是<mark>V4</mark>，在这之前<mark>Qwen3</mark>、<mark>GLM-5</mark>、<mark>MiMo-V2-Flash</mark> 三家技术报告同时将 OPD 列为后训练标配环节，并不是DeepSeek团队的私有技术（不再是当初的R1+GRPO的那种独家震撼）；</li>
+                  <li><strong>事实 3</strong>：如今模型的迭代的速度越来越快 <mark>半年为一个代际的更新，版本以月度来进行发布</mark>，如何借鉴模型的迭代方法和知识更新的速度越来越快；</li>
                 </ul>
-                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 后训练的信息效率差了一个数量级——RL 每局教 O(1) bits，OPD 每步教 O(N) bits，这不是调参能追的。 」</div>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 V4 的 OPD 的地位 vs R1 的 GRPO 的地位，可能会把各家后训练的工序添加一个标准件，衍生出各种变体 」</div>
               </div>
-              <div class="visual-box" style="--visual-scale: 0.9">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
-                  三条柱状图对比 OPD vs RL vs SFT 的 GPU-hours 和 AIME'24 分数。Excalidraw 手绘风格，黑色墨水，白色背景，简笔标签
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="dual-image">
+                  <img src="./figure/figure1.png" alt="context figure 1">
+                  <img src="./figure/figure2.png" alt="context figure 2">
                 </div>
               </div>
             </div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
         <!-- 02 / Agenda -->
@@ -207,20 +213,20 @@
           <div class="slide-content">
             <div class="header-layer">
               <div class="ui-label">02 / Agenda</div>
-              <h2>后训练范式转移的四个问题</h2>
+              <h2>从 DeepSeekV4 学习 OPD 想分享的几个问题</h2>
             </div>
             <div class="canvas-layer push-left">
               <div class="canvas-text">
                 <ul>
-                  <li class="fragment"><strong>Q1</strong>: 事实 1→2 的效率差距——OPD 用 1/10 算力追平 RL，dense signal 到底比 sparse reward 强在哪？</li>
-                  <li class="fragment"><strong>Q2</strong>: KL 方向选择——forward KL 和 reverse KL 在蒸馏中的行为差异是什么？为什么多专家场景必须用 reverse KL？</li>
-                  <li class="fragment"><strong>Q3</strong>: OPD 的失败模式与冷启动——overlap 不够时 OPD 会怎样？cold start 和 entropy-aware 切换如何修复？</li>
-                  <li class="fragment"><strong>Q4</strong>: 更大的图景——OPD 正在从实验技术变成后训练标配，这对 infra 团队意味着什么？</li>
+                  <li class="fragment"><strong>Q1</strong>: 重读 DeepSeek R1/V3 到 V4 的技术报告，从一个模型训练角度来看，从 R1/V3 到 V4的变化是什么？</li>
+                  <li class="fragment"><strong>Q2</strong>: 后训练方向选择——为什么 26 年发布的模型（GLM/Qwen/Mimo/DeepSeek）报告里都提到了 OPD，OPD 的具体的工作流程是什么？</li>
+                  <li class="fragment"><strong>Q3</strong>: OPD 的失败模式与冷启动——OPD的本质是什么，做好 OPD 需要注意哪些方面？</li>
+                  <li class="fragment"><strong>Q4</strong>: 一点题外话——V4 的 OPD 训练范式，这对个人训练/学习有何启发？</li>
                 </ul>
               </div>
             </div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
         <!-- 03 / Mechanism I -->
@@ -229,156 +235,183 @@
           <div class="slide-content">
             <div class="header-layer">
               <div class="ui-label">03 / Mechanism I</div>
-              <h2>信息效率：dense per-token signal 打 sparse outcome reward</h2>
+              <h2>从传统蒸馏到 OPD：Student 自己先推理，Teacher 逐 token 纠正</h2>
             </div>
             <div class="canvas-layer">
               <div class="canvas-text">
                 <ul>
-                  <li><strong>RL 的信号瓶颈</strong>: 每个 rollout 只有 1 bit 信息量——对或错。你不知道推理链上哪一步走偏了，只知道最终答案不对。<mark>credit assignment</mark> 是事后猜的</li>
-                  <li><strong>OPD 的信号密度</strong>: teacher 对 student 轨迹上每个 token 给 log-prob 反馈，每个位置都有"好到什么程度"的评分。信号量从 <mark>O(1) bits/episode</mark> 跳到 <mark>O(N) bits/episode</mark></li>
-                  <li><strong>实现成本极低</strong>: 就是在 RL 代码里换一行——把 KL regularizer 里的 reference model 换成 teacher model。Student rollout 是便宜的小模型生成的，teacher 只需要一次 forward pass 算 logprobs</li>
-                  <li><strong>不需要 reward model</strong>: teacher 的 log-prob 本身就是 dense reward signal，天然 unhackable——低 KL 一定对应 teacher 认为好的行为</li>
+                  <li><strong>V3 的 off-policy 蒸馏</strong>：老师提前写好标准答案，学生死记硬背。Teacher 生成固定 response，Student 照着拟合——本质是 <mark>Forward KL</mark>，期望在教师分布上计算</li>
+                  <li><strong>V4 的 On-Policy 蒸馏</strong>：Student 先自己 rollout 推理一次，Teacher 对轨迹上每个 token 给 log-prob 反馈——本质是 <mark>Reverse KL</mark>，期望在学生分布上计算</li>
                 </ul>
-                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 RL 花 90% compute 搜索策略，只有 10% 在学习。OPD 跳过搜索直接学最终策略，所以快 10x。 」</div>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 传统蒸馏是老师让学生硬背解题思路，OPD 是老师顺着学生的解题思路一步步纠正（token-level dense reward）。 」</div>
               </div>
-              <div class="visual-box" style="--visual-scale: 0.9">
-                <img src="./figures/figure-03-signal-density.svg" style="width:80%" />
+              <div class="visual-box" style="--visual-scale: 1.2">
+                <img src="./figure/figure3.png" alt="mechanism I">
               </div>
             </div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
-        <!-- 04 / Mechanism II -->
+        <!-- 04 / OPD 定位 -->
         <section data-transition="none">
           <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
           <div class="slide-content">
             <div class="header-layer">
-              <div class="ui-label">04 / Mechanism II</div>
-              <h2>Reverse KL：为什么多专家融合必须用 mode-seeking</h2>
+              <div class="ui-label">04 / OPD 的本质</div>
+              <h2>OPD 是 SFT 的拓展，也是 RLVR 的补充——承上启下</h2>
             </div>
             <div class="canvas-layer">
               <div class="canvas-text">
                 <ul>
-                  <li><strong>Forward KL = mode-covering</strong>: 期望在教师分布上计算，学生要覆盖教师所有模式包括噪声。SFT 就是 forward KL——在教师的棋盘状态上学，一旦学生犯错就越跑越偏</li>
-                  <li><strong>Reverse KL = mode-seeking</strong>: 期望在学生分布上计算，学生只在自己采样的位置受惩罚。student 不采到的概率空间根本不参与 loss 计算，原有能力对应的概率质量不会被挤掉</li>
-                  <li><strong>多专家场景的关键</strong>: 10+ 领域专家各带"领域口音"，reverse KL 保证融合时 student 只学知识不学口音——你用标准发音开口，老师只在你已说出的话上纠正语法，不会把你往方言方向拉</li>
-                  <li><strong>FKL 的数学等价</strong>: D_KL(P||Q) = -H(P) + CE(P,Q)，因为 H(P) 是常数，最小化 FKL = 最小化交叉熵——最老最稳但也是信息量最少的蒸馏 loss</li>
-                  <li><strong>RKL 的动态平衡</strong>: D_KL(Q||P) = -H(Q) + CE(Q,P)，两项都带参数，entropy 和交叉熵同时拉扯——优化动态更复杂但信号更有信息量</li>
+                  <li><strong>OPD 对 SFT 的拓展</strong>：充分利用已有模型的能力，借助多个已有专家（DeepSeek-Prover/Math2/Coder/V3）<mark>集百家之长</mark>，分阶段有节奏地训练，而且不是死记硬背，有 mode-seeking 的效果</li>
+                  <li><strong>OPD 对 RLVR 的补充</strong>：提供了 token-level 的 dense reward，但训练过程<mark>不需要更新 policy model 的权重</mark>，模型训练更加稳定，对 infra 也更加友好</li>
+                  <li><strong>各家共识</strong>：GLM-5 / DeepSeekV4 / MiMo / Qwen 现在透露出来的方案都是 <mark>SFT → OPD → RL</mark> 的多阶段方案，OPD 放在两者中间，起到承上启下的作用，后续纯 RL 的过程训练会更加稳定</li>
                 </ul>
-                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 Forward KL 学 teacher 全部分布包括噪声，Reverse KL 只改 student 已说的话。多专家融合时该丢的是 teacher 口音，不是 student 能力。 」</div>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 OPD 的优点会在 26 年产生更多衍生工作，尤其是对中小团队——能获得比 SFT 更强、比 RL 更稳定易用的算法。 」</div>
               </div>
-              <div class="visual-box" style="--visual-scale: 0.9">
-                <img src="./figures/figure-04-fkl-rkl.svg" style="width:80%" />
+              <div class="visual-box" style="--visual-scale: 1.2">
+                <img src="./figure/figure6.png" alt="OPD positioning">
               </div>
             </div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
-        <!-- 05 / Mechanism III -->
+        <!-- 05 / Mechanism II -->
         <section data-transition="none">
           <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
           <div class="slide-content">
             <div class="header-layer">
-              <div class="ui-label">05 / Mechanism III</div>
-              <h2>OPD 的失败模式：overlap 不够 + 新知识缺失</h2>
+              <div class="ui-label">05 / Mechanism II</div>
+              <h2>OPD 是 SFT 的拓展，也是 RLVR 的补充——Cont</h2>
             </div>
-            <div class="canvas-layer">
-              <div class="canvas-text">
-                <ul>
-                  <li><strong>条件一——思维模式一致性</strong>: 同一个学生从两个分数差不多的老师蒸馏，GRPO 老师（base 出身，与学生思维模式兼容）效果碾压 Non-thinking 老师。初始 <mark>overlap ratio</mark> 差 20pp，训练后期也追不回来</li>
-                  <li><strong>条件二——新知识而非规模</strong>: 同家族大一号模型（只是参数更多、拟合更好）蒸馏效果极差，gap recovery ~0%。只有经过额外 RL 获得新能力的老师才能通过 OPD 传递 <mark>增量知识</mark>，recovery &gt;80%</li>
-                  <li><strong>Token 级机制</strong>: 成功的 OPD 表现为 overlap ratio 从 72% 稳步上升到 91%，<mark>重叠 token 承载 97-99%</mark> 的总概率质量。只对重叠 token 做优化就够了</li>
-                  <li><strong>全局信号好 ≠ 局部可优化</strong>: 失败老师 AUROC 0.73 vs 成功 0.75，信号质量几乎一样。问题出在 <mark>各向异性 advantage</mark> 导致梯度方向不一致、互相抵消</li>
-                </ul>
-                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 OPD 蒸馏成败不取决于老师有多强，而取决于师生在 token 分布的重叠区里能不能对得上。 」</div>
-              </div>
-              <div class="visual-box" style="--visual-scale: 0.9">
-                <img src="./figures/figure-05-overlap.svg" style="width:80%" />
-              </div>
+            <div class="pure-image-slide">
+              <img src="./figure/figure5.png" alt="mechanism II" style="transform: scale(1.0);">
             </div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
-        <!-- 06 / Mechanism IV -->
+        <!-- 06 / Mechanism II (cont) -->
         <section data-transition="none">
           <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
           <div class="slide-content">
             <div class="header-layer">
-              <div class="ui-label">06 / Mechanism IV</div>
-              <h2>修复路径：Cold Start + Entropy-Aware 切换</h2>
+              <div class="ui-label">06 / Mechanism II</div>
+              <h2>OPD 是 SFT 的拓展，也是 RLVR 的补充——Cont</h2>
+            </div>
+            <div class="pure-image-slide">
+              <img src="./figure/figure4.png" alt="mechanism II cont" style="transform: scale(1.0);">
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
+        </section>
+
+        <!-- 07 / Mechanism III -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">07 / Mechanism III</div>
+              <h2>失败模式与修复：overlap 不够 → Cold Start + Entropy-Aware</h2>
             </div>
             <div class="canvas-layer">
               <div class="canvas-text">
+                <div class="sub-heading">OPD成功的条件</div>
                 <ul>
-                  <li><strong>Off-policy cold start</strong>: 先用 teacher 生成 200K 条 response 做 SFT，把 student 拉到 teacher 分布附近，然后再上 OPD。不仅加速收敛，还 <mark>提高最终天花板</mark></li>
-                  <li><strong>Teacher-aligned prompt</strong>: 用 teacher post-training 时见过的 prompt 做 OPD，但要混合 OOD prompt 防止 student 的 <mark>entropy 塌缩</mark></li>
-                  <li><strong>DeepSeek V4 的工程实践</strong>: Base-Model → 10+ 领域专家（各走 SFT+GRPO 练到极致）→ multi-teacher OPD 融合。V3.2 的 off-policy 路线被整个替换</li>
-                  <li><strong>Entropy-Aware OPD</strong>: 当 teacher token-level 熵 &gt; 阈值时额外加入 forward KL。低熵位置用 reverse KL 做精确模式匹配，高熵位置用 forward KL <mark>保留分布支撑</mark> 和生成多样性</li>
-                  <li><strong>Response length 上限</strong>: 3K-7K tokens 最优，10K+ 开始退化，15K 崩溃。高熵从 response 末尾向前传播——OPD 对 <mark>长链推理</mark> 有天生软肋</li>
+                  <li><strong>条件一——思维模式一致性</strong>：同一个学生从两个分数差不多的老师蒸馏，GRPO 老师（base 出身，与学生思维模式兼容）效果碾压 Non-thinking 老师。初始 <mark>overlap ratio</mark> 差 20pp，训练后期也追不回来</li>
+                  <li><strong>条件二——新知识而非规模</strong>：同家族大一号模型（只是参数更多、拟合更好）蒸馏效果极差，gap recovery ~0%。只有经过额外 RL 获得新能力的老师才能通过 OPD 传递<mark>增量知识</mark>，recovery >80%</li>
+                </ul>
+                <div class="sub-heading">OPD成功的经验</div>
+                <ul>
+                  <li><strong>Off-policy cold start</strong>：先用 teacher 生成 200K 条 response 做 SFT，把 student 拉到 teacher 分布附近，然后再上 OPD。不仅加速收敛，还<mark>提高最终天花板</mark></li>
+                  <li><strong>Teacher-aligned prompt</strong>：用 teacher post-training 时见过的 prompt 做 OPD，但要混合 OOD prompt 防止 student 的<mark>entropy 塌缩</mark></li>
+                  <li><strong>DeepSeek V4 的工程实践</strong>：Base-Model → 10+ 领域专家（各走 SFT+GRPO 练到极致）→ multi-teacher OPD 融合。V3系列的 off-policy 路线被整个替换</li>
                 </ul>
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 冷启动的 forward-KL 阶段不是可选的——先拉齐分布再做 on-policy，这个顺序不能反。 」</div>
               </div>
-              <div class="visual-box" style="--visual-scale: 0.9">
-                <img src="./figures/figure-06-pipeline.svg" style="width:80%" />
+              <div class="visual-box" style="--visual-scale: 1.2">
+                <img src="./figure/figure7.png" alt="mechanism III">
               </div>
             </div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
-        <!-- 07 / Take A Ways -->
+        <!-- 08 / 心得体会 -->
         <section data-transition="none" class="no-bullet">
           <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
           <div class="slide-content">
             <div class="header-layer">
-              <div class="ui-label">07 / Take A Ways</div>
+              <div class="ui-label">08 / 心得体会</div>
+              <h2>对于个人和团队的启发</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <div class="sub-heading">对于个人的学习的启发</div>
+                <ul>
+                  <li>从 SFT到OPD 到RL ——" <mark>从要我学到我要学</mark>，面对新的问题，我们应该优先自己先进行Rollout推理之后，然后再去找专家的进行指导我的COT哪里有问题，而不仅仅是被动的接受"</li>
+                  <li>分阶段的学习 ——"好的模型从来不是一蹴而就的，从SFT到RL的难度很大，一次训练一个全能的六边形战士（上中下）是很难的。但是借鉴OPD的思路，<mark>通过先思考再分别找不同的专家进行指导，学起来更加稳定和丝滑</mark>"</li>
+                </ul>
+                <div class="sub-heading">对于团队而言的启发</div>
+                <ul>
+                  <li>OPD的一些反直觉的内容，分数越强的老师未必能够教出最好的学习，关键在于有一个好的 thinking pattern consistency（大家有相同的思维模式），如何提高团队的 thinking pattern consistency 就是多分享（论文/技术解读，甚至书籍和电影）和多交流，分享原始的一手的输入信息；</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
+        </section>
+
+        <!-- 09 / Take A Ways -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">09 / Take A Ways</div>
               <h2>Take A Ways</h2>
             </div>
             <div class="canvas-layer push-left">
               <div class="canvas-text">
                 <ul>
-                  <li class="fragment"><strong>Q1 → A1</strong>: OPD 用 <mark>1/10 算力追平 RL</mark> 是因为 dense per-token signal 的信息密度比 sparse outcome reward 高了整整一个数量级——每步 O(N) bits vs 每局 O(1) bits</li>
-                  <li class="fragment"><strong>Q2 → A2</strong>: <mark>Reverse KL</mark> 的 mode-seeking 特性让 student 只在自己访问的状态空间里被 teacher 纠正，多专家融合时不会互相抹杀原有能力</li>
-                  <li class="fragment"><strong>Q3 → A3</strong>: OPD 失败的根因是师生分布 overlap 不够——用 <mark>forward-KL cold start</mark> 拉齐分布，用 entropy-aware 切换保留高熵位置的多样性，这两个修复都有工程实证</li>
+                  <li class="fragment"><strong>Q1 → A1</strong>: 从 V3 到 V4 的变化不在训练算法本身，而在 <mark>arch 变化（Hybrid Attention + mHC）</mark> 和 Infra。训练算法方面仅引入了 OPD，替代 V3 的 off-policy 蒸馏路线</li>
+                  <li class="fragment"><strong>Q2 → A2</strong>: 26 年各家同时选 OPD 不是巧合——OPD 用 <mark>1/10 算力追平 RL</mark>（dense per-token signal vs sparse outcome reward），Reverse KL 的 mode-seeking 让多专家融合不互相抹杀，已成为后训练标配</li>
+                  <li class="fragment"><strong>Q3 → A3</strong>: OPD 失败的根因是师生分布 <mark>overlap 不够</mark>——用 forward-KL cold start 拉齐分布，用 entropy-aware 切换保留高熵位置的多样性，这两个修复都有工程实证</li>
+                  <li class="fragment"><strong>Q4 → A4</strong>: 对个人学习的启发——不要纯 SFT 被动接受，也不要一步到位 RL，可以先<mark>主动 OPD（自己先推理，再找专家指导）</mark>，分领域找不同专家，更加稳定高效</li>
                 </ul>
               </div>
             </div>
-            <div class="pulse-layer pulse-animated fragment">「 三家技术报告同时选 OPD 不是巧合——后训练的信息效率差了一个数量级，收敛已经在发生。 」</div>
+            <div class="pulse-layer pulse-animated fragment">「 26 年 OPD 已经变成后训练的基本标配，我们也要训练LLM/Agent一样来训练自己; 」</div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
-        <!-- 08 / Reference -->
+        <!-- 10 / Reference -->
         <section data-transition="none">
           <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
           <div class="slide-content">
             <div class="header-layer">
-              <div class="ui-label">08 / Reference</div>
+              <div class="ui-label">10 / Reference</div>
               <h2>Reference</h2>
             </div>
             <div class="canvas-footer">
               <div class="canvas-text" style="font-size: 1.1rem;">
                 <ul class="ref-list">
-                  <li><strong><a href="https://thinkingmachines.ai/blog/on-policy-distillation/" target="_blank">On-Policy Distillation</a></strong> - Thinking Machines Lab - https://thinkingmachines.ai/blog/on-policy-distillation/</li>
+                  <li><strong><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf" target="_blank">DeepSeek V4 Technical Report</a></strong> - DeepSeek Team - https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf</li>
                   <li><strong><a href="https://arxiv.org/abs/2604.13016" target="_blank">Rethinking On-Policy Distillation of Large Language Models</a></strong> - Li et al. (THUNLP) - https://arxiv.org/abs/2604.13016</li>
-                  <li><strong><a href="https://arxiv.org/html/2604.13016v1" target="_blank">DeepSeek V4 Technical Report</a></strong> - DeepSeek Team - https://arxiv.org/html/2604.13016v1</li>
                   <li><strong><a href="https://arxiv.org/pdf/2604.00626" target="_blank">Qwen3 Technical Report</a></strong> - Qwen Team - https://arxiv.org/pdf/2604.00626</li>
-                  <li><strong><a href="https://arxiv.org/pdf/2603.07079" target="_blank">Entropy-Aware OPD</a></strong> - Jane Doe - https://arxiv.org/pdf/2603.07079</li>
-                  <li><strong><a href="https://zhuanlan.zhihu.com/p/2030067243107742531" target="_blank">LLM post-training 中的 SFT、RL 与 OPD</a></strong> - Jane Doe - https://zhuanlan.zhihu.com/p/2030067243107742531</li>
-                  <li><strong><a href="https://zhuanlan.zhihu.com/p/2029672748490715936" target="_blank">强老师蒸馏反而训崩？</a></strong> - 李rumor - https://zhuanlan.zhihu.com/p/2029672748490715936</li>
+                  <li><strong><a href="https://arxiv.org/abs/2602.15763" target="_blank">GLM-5: from Vibe Coding to Agentic Engineering</a></strong> - https://arxiv.org/abs/2602.15763</li>
+                  <li><strong><a href="https://arxiv.org/abs/2601.02780" target="_blank">MiMo-V2-Flash Technical Report</a></strong> - https://arxiv.org/abs/2601.02780</li>
+                  <li><strong><a href="https://thinkingmachines.ai/blog/on-policy-distillation/" target="_blank">On-Policy Distillation</a></strong> - Thinking Machines Lab - https://thinkingmachines.ai/blog/on-policy-distillation/</li>
+                  <li><strong><a href="https://newsletter.languagemodels.co/p/the-illustrated-deepseek-r1" target="_blank">The Illustrated DeepSeek-R1</a></strong> - Jay Alammar - https://newsletter.languagemodels.co/p/the-illustrated-deepseek-r1</li>
+                  <li><strong><a href="https://zhuanlan.zhihu.com/p/2004506304065065334" target="_blank">万字长文总结 RL/on policy distillation 的一些进展</a></strong> - YiFan-Zhang - https://zhuanlan.zhihu.com/p/2004506304065065334</li>
                   <li><strong><a href="https://zhuanlan.zhihu.com/p/2031622077107659474" target="_blank">从 DeepSeek V4 的多专家 OPD 反观人类学习模式</a></strong> - 九老师 - https://zhuanlan.zhihu.com/p/2031622077107659474</li>
-                  <li><strong><a href="https://zhuanlan.zhihu.com/p/690748958" target="_blank">FKL vs RKL</a></strong> - Taki - https://zhuanlan.zhihu.com/p/690748958</li>
-                  <li><strong><a href="https://zhuanlan.zhihu.com/p/2027548813129267030" target="_blank">OPD 与反向 KL 的两种形态</a></strong> - Root - https://zhuanlan.zhihu.com/p/2027548813129267030</li>
-                  <li><strong><a href="https://zhuanlan.zhihu.com/p/2004506304065065334" target="_blank">On Policy Learning 总结</a></strong> - YiFan-Zhang - https://zhuanlan.zhihu.com/p/2004506304065065334</li>
-                  <li><strong><a href="https://zhuanlan.zhihu.com/p/2031037132974900721" target="_blank">从主流开源模型看 OPD 在后训练中的角色</a></strong> - 品斯基 - https://zhuanlan.zhihu.com/p/2031037132974900721</li>
                 </ul>
               </div>
             </div>
           </div>
-          <div class="footer-watermark">whyj + opd + 2026/04/30</div>
+          <div class="footer-watermark">whyj + opd + 2026/05/08</div>
         </section>
 
       </div>
@@ -388,32 +421,32 @@
     <script type="module">
       import { prepareWithSegments, layoutWithLines } from 'https://esm.sh/@chenglou/pretext';
 
-      // ── KaTeX rendering (::math directive) ──
       document.querySelectorAll('[data-katex]').forEach(el => {
         if (window.katex) katex.render(el.getAttribute('data-katex'), el, { displayMode: true });
       });
 
-      // ── visual-box data-scale ──
       document.querySelectorAll(".visual-box[data-scale]").forEach((box) => {
         box.style.setProperty("--visual-scale", box.getAttribute("data-scale"));
       });
 
-      // ── Reveal.js ──
       Reveal.initialize({
         hash: true, center: true, transition: "none",
         width: 1400, height: 900, margin: 0.05,
       });
 
-      // ── pretext sources ──
       const coverSource = [
-        'OPD on-policy distillation reverse KL dense token reward GPU-hours AIME',
+        'OPD On-Policy Distillation DeepSeekV4 Reverse KL Forward KL',
+        'token-level dense reward SFT RL post-training distillation',
+        'multi-teacher entropy-aware cold-start overlap ratio',
       ].join(' ');
 
       const slideSource = [
-        'OPD', 'RL', 'SFT', 'KL', 'Reverse', 'Forward', 'distill', 'reward', 'token', 'teacher', 'student',
+        'OPD', 'On-Policy Distillation', 'Reverse KL', 'Forward KL',
+        'DeepSeekV4', 'Qwen3', 'GLM-5', 'MiMo',
+        'token-level', 'dense reward', 'SFT', 'RL',
+        'overlap', 'entropy', 'cold start', 'mode-seeking',
       ].join('  /  ');
 
-      // ── pretext layout ──
       function getLines(text, font, maxWidth, lineHeight) {
         const prepared = prepareWithSegments(text, font);
         const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
