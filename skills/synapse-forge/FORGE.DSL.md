@@ -189,31 +189,74 @@ Each entry is one of three types:
 ```
 {
   heading: `{section title}`,
-  body: `{prose body}`,
+  body: `{prose body — plain text, used for text measurement}`,
+  bodyHTML: '<div>...<a href="url">linked text</a>...</div>',  // optional
   callout: `{highlighted callout (optional)}`
 }
 ```
+
+- `body`: **always plain text** — no HTML, no markdown. Used by the renderer for line measurement and layout calculation.
+- `bodyHTML`: **required when body contains hyperlinks**. Uses `<div>` per paragraph, `<a>` for links. Rendered via `innerHTML`. Single-quoted JS string with straight double quotes for HTML attributes.
+- When bodyHTML is present, the renderer uses it for display but still uses `body` for measurement.
+
+#### Inline References (Blog-specific)
+
+Blog posts embed citations directly in the body text as hyperlinks, not as numbered `[N]` footnotes:
+
+- **DSL**: `[THUNLP 的论文](https://arxiv.org/abs/...)`
+- **HTML body**: `THUNLP 的论文` (plain text, for measurement)
+- **HTML bodyHTML**: `<a href="https://arxiv.org/abs/..." target="_blank">THUNLP 的论文</a>` (for rendering)
+
+Style: weave the source naturally into the sentence. "V4 报告里写了..." not "According to [1]...". The link turns the source name into a clickable reference.
+
+#### Transitions (起承转合)
+
+Each text section should have narrative flow between sections — like a lecture script, not isolated bullet points:
+
+- **Section openers** should connect to the previous section's conclusion or figure
+  - "看完 R1 的路线，核心问题来了：V4 到底改了什么？"
+  - "知道坑在哪了，下一个问题是：怎么避坑？"
+- **Section closers** should lead into the next figure or section
+  - "下面这张图就是 V4 用这个思路整合多专家的流程。"
+  - "下面几张图分别展示了...的做法。"
+- **Mid-article pivots** use explicit turns
+  - "OPD 听起来很好用，但不是拿过来就能跑的。"
+  - "技术聊完了，最后说点题外话。"
+
+Overall arc follows slides logic: 起(Context) → 承(Mechanism) → 转(Failure/Conditions) → 合(Insights/Takeaway).
 
 #### Figure Section
 
 ```
 {
   image: `{relative path to image}`,
-  caption: `{Figure N: description}`,
+  caption: `{Figure N: what this figure teaches, not just what it shows}`,
   prompt: `{generation prompt if image missing}`
 }
 ```
+
+Figure caption principle: **explain WHY, not just WHAT**. A good caption tells the reader what insight the figure encodes — why the curves have these shapes, what the visual difference means, how it connects to the surrounding argument. Not just labels like "XX vs YY comparison."
+
+Examples:
+- Weak: "Figure 3: Forward KL vs Reverse KL 数据流对比"
+- Strong: "Figure 3: Forward KL 的期望算在教师分布上，Student 只能被动拟合；Reverse KL 的期望算在学生分布上，信号密度从 O(1) 跳到 O(N)"
 
 #### Reference Section
 
 ```
 {
   heading: `Reference`,
-  refs:
-    - **{Title}** - {Author} - {URL}
-    - **{Title}** - {URL}
+  body: `[1] {Title}
+[2] {Title}
+...`,
+  bodyHTML: '<div><a href="{url}" target="_blank">[1] {Title} - {Author}</a></div><div><a href="{url}" target="_blank">[2] {Title}</a></div>...'
 }
 ```
+
+- `body`: numbered list with `[N]` prefix, plain text for measurement
+- `bodyHTML`: each reference in its own `<div>`, with `<a>` linking to the source. Single-quoted JS string
+- References in `bodyHTML` include author/source info that may be abbreviated in `body`
+- Inline references in preceding sections link directly to the same URLs; this section serves as a consolidated bibliography
 
 ### SECTIONS Sequence (typical)
 
@@ -232,10 +275,13 @@ Not every article needs all 10. Minimum: thesis → mechanism → takeaway → r
 
 ### Content Rules
 
-- ALL content strings use backtick template literals (`` ` ``)
+- ALL content strings use backtick template literals (`` ` ``), except `bodyHTML` which uses single-quoted strings with straight double quotes for HTML attributes
+- `bodyHTML` strings MUST use `'single quotes'` as JS delimiter — this preserves straight `"` for HTML attributes (`href="..."`, `target="_blank"`)
+- **NO curly quotes** (`""`) as JS string delimiters — causes SyntaxError white-screen
 - Image paths: relative from output directory
 - `callout` renders as highlighted blockquote
 - `prompt` shown as placeholder when image file is missing
+- Inline references: embed source links directly in prose, not as `[N]` footnotes
 - Reference section uses item list format: `- **Title** - URL`
 
 ---
