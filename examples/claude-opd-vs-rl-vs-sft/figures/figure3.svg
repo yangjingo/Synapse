@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30.700000000000017 -15 726.6999999999999 315" width="726.6999999999999" height="315">
+<rect x="30.700000000000017" y="-15" width="726.6999999999999" height="315" fill="#FAF8F4" />
+<path d="M 200 180 L 221.59390149742174 142.5982654728279" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 225.87801806095544 149.1597790066385" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 242.66836103352085 144.1969939938336" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 236.1784089323691 143.8215910676309" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 257.88960061420346 139.46526526598527" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 250.58999500659178 156.40949790240307" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 218.0783518084088 130.33013662544005" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 234.73790884649094 130.38912472249473" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 254.93203735780355 148.2849734443375" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 244.62407035589024 163.75816665865514" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 231.2446781872171 112.99557139841892" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 228.5532840317734 145.97152117477117" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 253.7486261972777 134.89954758157876" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 241.78340573697085 150.74294433089815" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 263.48640028614096 150.39580535787871" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 200 180 L 251.5330415302704 166.19176313844454" fill="none" stroke="#6A8E72" stroke-width="1.5" />
+<path d="M 560 180 L 620 125" fill="none" stroke="#6A8E72" stroke-width="3.5" marker-end="url(#arrowhead)" />
+<text x="200" y="24" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">SFT — DENSE BIASED GRADIENTS</text>
+<text x="200" y="58" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#8A7F70" text-anchor="middle">individual per-token gradient vectors</text>
+<text x="200" y="271" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">N dense vectors, all biased → data</text>
+<text x="380" y="184" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">average →</text>
+<text x="560" y="58" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#8A7F70" text-anchor="middle">batch-averaged update</text>
+<text x="640" y="122" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#6A8E72" text-anchor="middle">large resultant</text>
+<text x="640" y="138" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#6A8E72" text-anchor="middle">toward data manifold</text>
+<text x="640" y="155" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">(dense, biased, but diffuse)</text>
+<text x="560" y="271" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">constructive interference — bias survives</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>
+</svg>

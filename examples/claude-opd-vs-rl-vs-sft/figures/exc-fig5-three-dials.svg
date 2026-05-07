@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 -15 660 535" width="660" height="535">
+<rect x="60" y="-15" width="660" height="535" fill="#FAF8F4" />
+<rect x="80" y="80" width="180" height="200" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="105" y="180" width="50" height="24" fill="#C8D8CC" stroke="#6A8E72" stroke-width="2" rx="4" />
+<rect x="145" y="180" width="50" height="24" fill="#C0B8B4" stroke="#887870" stroke-width="2" rx="4" />
+<rect x="200" y="180" width="50" height="24" fill="#D4B0A8" stroke="#946050" stroke-width="2" rx="4" />
+<rect x="300" y="80" width="180" height="200" fill="#C8D8CC" stroke="#6A8E72" stroke-width="2" rx="4" />
+<rect x="325" y="180" width="55" height="24" fill="#D4B0A8" stroke="#946050" stroke-width="2" rx="4" />
+<rect x="375" y="180" width="45" height="24" fill="#C0B8B4" stroke="#887870" stroke-width="2" rx="4" />
+<rect x="425" y="180" width="55" height="24" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="520" y="80" width="180" height="200" fill="#D4B0A8" stroke="#946050" stroke-width="2" rx="4" />
+<rect x="535" y="150" width="150" height="20" fill="#C8D8CC" stroke="#6A8E72" stroke-width="2" rx="4" />
+<rect x="535" y="174" width="150" height="20" fill="#D8C8B0" stroke="#A08858" stroke-width="2" rx="4" />
+<rect x="535" y="198" width="150" height="20" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="535" y="222" width="150" height="20" fill="#E8C0B0" stroke="#C06040" stroke-width="2" rx="4" />
+<rect x="535" y="246" width="150" height="20" fill="#C0B8B4" stroke="#887870" stroke-width="2" rx="4" />
+<rect x="80" y="360" width="120" height="22" fill="#C8D8CC" stroke="#6A8E72" stroke-width="2" rx="4" />
+<rect x="80" y="388" width="120" height="22" fill="#D4B0A8" stroke="#946050" stroke-width="2" rx="4" />
+<rect x="80" y="416" width="120" height="22" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="80" y="444" width="120" height="22" fill="#E8C0B0" stroke="#C06040" stroke-width="2" rx="4" />
+<rect x="80" y="472" width="120" height="22" fill="#C0B8B4" stroke="#887870" stroke-width="2" rx="4" />
+<path d="M 110 170 L 230 170" fill="none" stroke="#8A7F70" stroke-width="1.5" />
+<path d="M 330 170 L 450 170" fill="none" stroke="#8A7F70" stroke-width="1.5" />
+<text x="400" y="24" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">META-ALGORITHM: THREE DIALS</text>
+<text x="170" y="178" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="170" y="113" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="28" fill="#3A342C" text-anchor="middle">α</text>
+<text x="170" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">sampling mix</text>
+<text x="110" y="161" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">0</text>
+<text x="230" y="161" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">1</text>
+<text x="130" y="190" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">off-policy</text>
+<text x="170" y="190" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">mixed</text>
+<text x="225" y="190" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">on-policy</text>
+<text x="390" y="178" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="390" y="113" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="28" fill="#3A342C" text-anchor="middle">λ</text>
+<text x="390" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">advantage blend</text>
+<text x="330" y="161" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">0</text>
+<text x="450" y="161" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">1</text>
+<text x="352.5" y="190" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">outcome R</text>
+<text x="397.5" y="190" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">mixed</text>
+<text x="452.5" y="190" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">teacher KL</text>
+<text x="610" y="178" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="610" y="109" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="24" fill="#3A342C" text-anchor="middle">π_T</text>
+<text x="610" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">teacher choice</text>
+<text x="610" y="158" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">data δ_y</text>
+<text x="610" y="182" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">external</text>
+<text x="610" y="206" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">same-family</text>
+<text x="610" y="230" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">self + y*</text>
+<text x="610" y="254" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle">self + demo</text>
+<text x="400" y="323" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#3A342C" text-anchor="middle">EVERY ALGORITHM IS A SETTING OF THESE THREE DIALS</text>
+<text x="120" y="347" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">Method</text>
+<text x="260" y="347" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">α</text>
+<text x="340" y="347" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">λ</text>
+<text x="460" y="347" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">Teacher π_T</text>
+<text x="140" y="371" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">SFT</text>
+<text x="235" y="372" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">0</text>
+<text x="315" y="372" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">0</text>
+<text x="460" y="370" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">data δ_y</text>
+<text x="140" y="399" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">RL/GRPO</text>
+<text x="235" y="400" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">1</text>
+<text x="315" y="400" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">0</text>
+<text x="460" y="398" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">—</text>
+<text x="140" y="427" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">OPD</text>
+<text x="235" y="428" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">1</text>
+<text x="315" y="428" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">1</text>
+<text x="460" y="426" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">same-family</text>
+<text x="140" y="455" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">OPSD</text>
+<text x="235" y="456" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">1</text>
+<text x="315" y="456" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">1</text>
+<text x="460" y="454" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">self + y*</text>
+<text x="140" y="483" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">SDFT</text>
+<text x="235" y="484" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">1</text>
+<text x="315" y="484" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">1</text>
+<text x="460" y="482" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">self + demo</text>
+</svg>

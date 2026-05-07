@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14.600000000000001 -15 854.6 353" width="854.6" height="353">
+<rect x="-14.600000000000001" y="-15" width="854.6" height="353" fill="#FAF8F4" />
+<rect x="80" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="80" y="256.22824726458225" width="44" height="10.771752735417728" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="136" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="136" y="263.6466930278784" width="44" height="3.353306972121553" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="192" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="192" y="260.4872110623859" width="44" height="6.512788937614149" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="248" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="248" y="263.87168330712103" width="44" height="3.1283166928789825" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="304" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="304" y="263.58617648092957" width="44" height="3.4138235190704247" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="360" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="360" y="261.774090714105" width="44" height="5.225909285894965" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="416" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="416" y="256.3371566910754" width="44" height="10.662843308924632" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="472" y="90" width="48" height="32" fill="#E8C0B0" stroke="#C06040" stroke-width="2" rx="4" />
+<rect x="472" y="147" width="44" height="120" fill="#E8C0B0" stroke="#C06040" stroke-width="2" rx="4" />
+<rect x="528" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="528" y="263.0086968171119" width="44" height="3.991303182888089" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="584" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="584" y="262.93184712625026" width="44" height="4.068152873749719" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="640" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="640" y="260.4519677319151" width="44" height="6.548032268084922" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="696" y="90" width="48" height="32" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="696" y="259.77283746457675" width="44" height="7.227162535423255" fill="#B8C4C0" stroke="#5A7068" stroke-width="2" rx="4" />
+<rect x="620" y="90" width="200" height="90" fill="#FFF5EE" stroke="#C06040" stroke-width="2" rx="4" />
+<path d="M 70 267 L 772 267" fill="none" stroke="#8A7F70" stroke-width="1" />
+<path d="M 620 135 L 530 105" fill="none" stroke="#C06040" stroke-width="1.5" />
+<text x="400" y="24" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#3A342C" text-anchor="middle">OPSD — PIVOT TOKEN CONCENTRATION</text>
+<text x="400" y="58" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#8A7F70" text-anchor="middle">single rollout token sequence</text>
+<text x="104" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t1</text>
+<text x="102" y="259.6141236322911" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="160" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t2</text>
+<text x="158" y="263.3233465139392" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="216" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t3</text>
+<text x="214" y="261.74360553119294" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="272" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t4</text>
+<text x="270" y="263.4358416535605" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="328" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t5</text>
+<text x="326" y="263.2930882404648" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="384" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t6</text>
+<text x="382" y="262.38704535705244" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="440" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t7</text>
+<text x="438" y="259.6685783455377" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="496" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">pivot</text>
+<text x="494" y="205" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="552" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t9</text>
+<text x="550" y="263.004348408556" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="608" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t10</text>
+<text x="606" y="262.9659235631251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="664" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t11</text>
+<text x="662" y="261.7259838659576" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="720" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">t12</text>
+<text x="718" y="261.38641873228835" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#3A342C" text-anchor="middle"></text>
+<text x="50" y="208" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">per-token KL</text>
+<text x="496" y="145" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#C06040" text-anchor="middle">4.1</text>
+<text x="216" y="283" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#8A7F70" text-anchor="middle">~0</text>
+<text x="496" y="283" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#C06040" text-anchor="middle">~4.1</text>
+<text x="720" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">One pivot token</text>
+<text x="720" y="121.6" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">contributes 100x more</text>
+<text x="720" y="137.2" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#3A342C" text-anchor="middle">to loss than typical</text>
+<text x="400" y="309" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#8A7F70" text-anchor="middle">Student P(token) ≈ 0.01  vs  Teacher P(token) ≈ 0.6  →  KL concentrated on single position</text>
+</svg>
