@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OPD: 26 年后训练的标准件</title>
+  <title>OPD (On-Policy Distillation) 从DeepSeekV4中的后训练方法，学到的心得体会</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2378,46 +2378,70 @@ function setLocale(locale) {
 
 
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
 // ② 内容
 // ═══════════════════════════════════════
-var TITLE = "DeepSeek-V4 更像一篇系统论文，而不是一篇单纯的模型论文";
-var LEAD = "DeepSeek-V4 最值得看的地方，不是它把参数继续做大，也不是它做出了一个新的注意力名词。真正重要的是，它把长上下文这件事从“模型结构能不能表示”推进成了“模型结构、训练稳定性、KV cache、并行调度和推理成本能不能一起闭环”的问题。";
+var TITLE = `OPD (On-Policy Distillation)
+从DeepSeekV4中的后训练方法，学到的心得体会`;
+var LEAD = `DeepSeekV4 技术报告重点在讲架构和基础设施，训练算法只提了一个东西——OPD。但不止 V4，Qwen3、GLM-5、MiMo-V2-Flash 也都把 OPD 列为标配。这不是哪家独有的招，是行业在收敛。OPD 的思路很直觉：先让学生自己做题，老师再沿着学生的思路逐 token 纠正。核心就是从 Forward KL 换成 Reverse KL，信号密度直接从 O(1) 跳到 O(N)。`;
 var SECTIONS = [
   {
-    heading: "真正的问题不是长上下文本身，而是长上下文的成本曲线",
-    body: "很多长上下文工作都能把窗口做长，但只要推理 FLOPs 和 KV cache 的增长方式没有实质改变，它们就更像演示能力，而不是适合日常部署的系统。DeepSeek-V4 最重要的一点，在于它试图改写这条 cost curve，而不是单纯把上限继续往前推。"
+    heading: `现状：后训练路线正在从 SFT+RL 收敛到 SFT-OPD-RL`,
+    body: `V4 的技术报告大部分在讲架构变化和基础设施，训练算法几乎没展开。唯一重点提的就是 OPD。不只是 V4，Qwen3、GLM-5、MiMo-V2-Flash 的技术报告里也都把 OPD 列为后训练标配。不是 DeepSeek 一家的私房菜。现在模型迭代太快了，半年一代，版本月月发。怎么跟上这个节奏，是每个团队都要想的问题。要理解 OPD 为什么重要，先得回到 R1 时代，看看后训练的路线是怎么一步步走到今天的。`,
+    bodyHTML: '<div>V4 的技术报告大部分在讲架构变化和基础设施，训练算法几乎没展开。唯一重点提的就是 OPD。不只是 V4，<a href="https://arxiv.org/pdf/2604.00626" target="_blank">Qwen3</a>、<a href="https://arxiv.org/abs/2602.15763" target="_blank">GLM-5</a>、<a href="https://arxiv.org/abs/2601.02780" target="_blank">MiMo-V2-Flash</a> 的技术报告里也都把 OPD 列为后训练标配。不是 DeepSeek 一家的私房菜。现在模型迭代太快了，半年一代，版本月月发。怎么跟上这个节奏，是每个团队都要想的问题。要理解 OPD 为什么重要，先得回到 R1 时代，看看后训练的路线是怎么一步步走到今天的。</div>',
+    callout: `R1 当年让 GRPO 变成后训练标配，V4 现在让 OPD 走了同样的路——后训练流水线多了一道标准工序，各家在这个基础上各显神通。`
+  },
+  { image: `./figure/figure1.png`, caption: `Figure 1: R1 的训练流水线——先用 RL 激活推理能力，再用 SFT 稳定输出格式，最后再上 RL 精调。这个 RL→SFT→RL 的三段式，定义了后训练的基本骨架` },
+  { image: `./figure/figure2.png`, caption: `Figure 2: R1 系列的演进路线——从 V3 Base 到 R1-Zero（纯 RL，无 SFT），再到 R1（加入冷启动 SFT），最后 Distill 到各个小模型。这个路线图说明：后训练不是一步到位的，是多阶段的接力赛` },
+  {
+    heading: `从传统蒸馏到 OPD：Forward KL → Reverse KL`,
+    body: `看完 R1 的路线，核心问题来了：V4 的后训练到底改了什么？答案就一个——把蒸馏的 KL 方向反过来了。\n\nV3 那套 off-policy 蒸馏，说白了就是老师提前写好标准答案，学生照着背。Teacher 生成固定的 response，Student 去拟合它。这是 Forward KL，期望算在教师分布上。V4 的做法反过来：Student 先自己做一遍推理，Teacher 再对着学生的回答，逐 token 给 log-prob 反馈。这是 Reverse KL，期望算在学生分布上。THUNLP 的论文把这个区别讲得很透彻——这一换，信号密度直接从 O(1) 跳到 O(N)。下面这张图就是 V4 用这个思路整合多专家的流程。`,
+    bodyHTML: '<div>看完 R1 的路线，核心问题来了：V4 的后训练到底改了什么？答案就一个——把蒸馏的 KL 方向反过来了。</div><div>V3 那套 off-policy 蒸馏，说白了就是老师提前写好标准答案，学生照着背。Teacher 生成固定的 response，Student 去拟合它。这是 Forward KL，期望算在教师分布上。V4 的做法反过来：Student 先自己做一遍推理，Teacher 再对着学生的回答，逐 token 给 log-prob 反馈。这是 Reverse KL，期望算在学生分布上。<a href="https://arxiv.org/abs/2604.13016" target="_blank">THUNLP 的论文</a>把这个区别讲得很透彻——这一换，信号密度直接从 O(1) 跳到 O(N)。下面这张图就是 V4 用这个思路整合多专家的流程。</div>',
+    callout: `传统蒸馏是老师让学生硬背解题思路，OPD 是老师顺着学生的解题思路一步步纠正（token-level dense reward）。`
+  },
+  { image: `./figure/figure3.png`, caption: `Figure 3: V4 的多专家 OPD 整合——10+ 领域专家（Prover/Math2/Coder 等）各自练到极致，再通过 multi-teacher OPD 融合成统一模型。32T tokens 的规模，V3 的 off-policy 路线被整个替换` },
+  {
+    heading: `OPD 的本质：SFT 的拓展，RLVR 的补充`,
+    body: `理解了 KL 方向的区别，OPD 在整个后训练流程里的定位就清楚了。它不是替代 SFT 或 RL，而是夹在中间，承上启下。\n\n对 SFT 来说，OPD 是一种拓展。V4 报告里列了好几个专家模型——DeepSeek-Prover、Math2、Coder、V3——集百家之长，分阶段训练，有 mode-seeking 效果。不会死记硬背。对 RLVR 来说，OPD 是补充。Thinking Machines Lab 的解读也提到了：OPD 提供 token 级别的 dense reward，但不需要更新 policy model 的权重。训练更稳定，对基础设施也友好。\n\n各家现在的共识是 SFT → OPD → RL。Qwen3 和 MiMo 的技术报告都验证了这个路线。OPD 放中间，先学会走再学跑。下面几张图分别展示了 Forward KL 和 Reverse KL 的区别、MiMo 的三阶段做法、以及 V4 的多专家 OPD 整合。`,
+    bodyHTML: '<div>理解了 KL 方向的区别，OPD 在整个后训练流程里的定位就清楚了。它不是替代 SFT 或 RL，而是夹在中间，承上启下。</div><div>对 SFT 来说，OPD 是一种拓展。V4 报告里列了好几个专家模型——DeepSeek-Prover、Math2、Coder、V3——集百家之长，分阶段训练，有 mode-seeking 效果。不会死记硬背。对 RLVR 来说，OPD 是补充。<a href="https://thinkingmachines.ai/blog/on-policy-distillation/" target="_blank">Thinking Machines Lab 的解读</a>也提到了：OPD 提供 token 级别的 dense reward，但不需要更新 policy model 的权重。训练更稳定，对基础设施也友好。</div><div>各家现在的共识是 SFT → OPD → RL。<a href="https://arxiv.org/pdf/2604.00626" target="_blank">Qwen3</a> 和 <a href="https://arxiv.org/abs/2601.02780" target="_blank">MiMo</a> 的技术报告都验证了这个路线。OPD 放中间，先学会走再学跑。下面几张图分别展示了 Forward KL 和 Reverse KL 的区别、MiMo 的三阶段做法、以及 V4 的多专家 OPD 整合。</div>',
+    callout: `OPD 的优点会在 26 年产生更多衍生工作，尤其是对中小团队——能获得比 SFT 更强、比 RL 更稳定易用的算法。`
+  },
+  { image: `./figure/figure6.png`, caption: `Figure 4: Forward KL 和 Reverse KL 的根本区别——Forward KL 是老师出题学生背，期望在教师分布上计算，容易出现 mode collapsing；Reverse KL 是学生先做题老师再逐 token 纠正，期望在学生分布上计算，信号更密、分布匹配更准` },
+  { image: `./figure/figure5.png`, caption: `Figure 5: MiMo-V2-Flash 的三阶段后训练——先 SFT 打底，再分领域训练专家（Search/Code/Math 等），最后用 MOPD 做 token-level + seq-level 的双重复蒸馏。这是各家 SFT→OPD→RL 路线的一个具体实例` },
+  { image: `./figure/figure4.png`, caption: `Figure 6: V4 多专家 OPD 的完整流程（82T tokens 版本）——Base Model 训练多个领域专家，每个专家独立走 SFT+GRPO 练到极致，最后 multi-teacher OPD 把所有专家的知识融合到一个模型里` },
+  {
+    heading: `OPD 成功的条件：思维模式一致性 + 增量知识`,
+    bodyHTML: '<div>OPD 听起来很好用，但不是拿过来就能跑的。<a href="https://arxiv.org/abs/2604.13016" target="_blank">THUNLP 的论文</a>做了两组对比实验，<a href="https://zhuanlan.zhihu.com/p/2004506304065065334" target="_blank">YiFan-Zhang 的总结</a>也梳理过，说清楚了两件事。</div><div>第一个条件是思维模式要一致。同一个学生，从两个分数差不多的老师蒸馏。GRPO 老师（跟学生同源，思维模式兼容）效果碾压 Non-thinking 老师。初始 overlap ratio 就差了 20pp，训练到后面也追不回来。师生之间得先有共同语言，OPD 才能发挥作用。</div><div>第二个条件是老师得有新知识，而不只是参数更大。同家族大一号的模型蒸馏效果极差，gap recovery 接近 0%。只有经过额外 RL 训练、获得了新能力的老师，才能通过 OPD 传递增量知识，recovery 超过 80%。光靠大没用，得靠“会的东西不一样”。</div>',
+    body: `OPD 听起来很好用，但不是拿过来就能跑的。THUNLP 的论文做了两组对比实验，YiFan-Zhang 的总结也梳理过，说清楚了两件事。\n\n第一个条件是思维模式要一致。同一个学生，从两个分数差不多的老师蒸馏。GRPO 老师（跟学生同源，思维模式兼容）效果碾压 Non-thinking 老师。初始 overlap ratio 就差了 20pp，训练到后面也追不回来。师生之间得先有共同语言，OPD 才能发挥作用。\n\n第二个条件是老师得有新知识，而不只是参数更大。同家族大一号的模型蒸馏效果极差，gap recovery 接近 0%。只有经过额外 RL 训练、获得了新能力的老师，才能通过 OPD 传递增量知识，recovery 超过 80%。光靠大没用，得靠"会的东西不一样"。`
   },
   {
-    heading: "CSA + HCA 的价值，在于它拒绝用一条路径同时解决所有问题",
-    body: "如果只看名字，CSA 和 HCA 很容易被误读成两个并列的小创新。但更准确的理解是：DeepSeek-V4 明确承认，长上下文里的“质量保持”和“极端成本压缩”不是同一个优化目标，所以它把这两个责任拆给了两条不同压缩强度的路径。",
-    callout: "CSA 兼顾局部精度和远场选择；HCA 追求极端长上下文成本压缩。两条路径，两个旋钮，而不是一个。"
+    heading: `OPD 成功的经验：Cold Start + Entropy-Aware`,
+    body: `知道坑在哪了，下一个问题是：怎么避坑？各家积累了几条实战经验。\n\n先说 cold start。用 teacher 生成 200K 条 response 做 SFT，把 student 拉到 teacher 附近。然后再上 OPD。THUNLP 的论文验证了这一步的效果：不仅收敛更快，最终天花板也更高。这一步不能跳过——先拉齐分布再做 on-policy，顺序反了就废了。\n\n再说 prompt 选择。用 teacher 训练时见过的 prompt 做 OPD，但要混一些 OOD prompt，防止 student 的 entropy 塌缩。\n\nV4 报告里写了实际做法：Base-Model → 10+ 领域专家（各自练到极致）→ multi-teacher OPD 融合。V3 那套 off-policy 路线被整个替换掉了。下面这张图把 Forward KL 和 Reverse KL 的优化过程画得很清楚。`,
+    bodyHTML: '<div>知道坑在哪了，下一个问题是：怎么避坑？各家积累了几条实战经验。</div><div>先说 cold start。用 teacher 生成 200K 条 response 做 SFT，把 student 拉到 teacher 附近。然后再上 OPD。<a href="https://arxiv.org/abs/2604.13016" target="_blank">THUNLP 的论文</a>验证了这一步的效果：不仅收敛更快，最终天花板也更高。这一步不能跳过——先拉齐分布再做 on-policy，顺序反了就废了。</div><div>再说 prompt 选择。用 teacher 训练时见过的 prompt 做 OPD，但要混一些 OOD prompt，防止 student 的 entropy 塌缩。</div><div>V4 报告里写了实际做法：Base-Model → 10+ 领域专家（各自练到极致）→ multi-teacher OPD 融合。V3 那套 off-policy 路线被整个替换掉了。下面这张图把 Forward KL 和 Reverse KL 的优化过程画得很清楚。</div>',
+    callout: `冷启动的 forward-KL 阶段不是可选的——先拉齐分布再做 on-policy，这个顺序不能反。`
+  },
+  { image: `./figure/figure7.png`, caption: `Figure 7: 两种蒸馏范式的优化过程对比——左侧 Forward KL (SFT) 中 Student 被动学习 Teacher 的输出分布，右侧 Reverse KL (OPD) 中 Student 主动 rollout、Teacher 逐 token 评估。方向不同，信号密度差了一个数量级` },
+  {
+    heading: `对个人和团队的启发`,
+    bodyHTML: '<div>技术聊完了，最后说点题外话。<a href="https://zhuanlan.zhihu.com/p/2031622077107659474" target="_blank">九老师</a>有一篇文章，标题就叫“从 DeepSeek V4 的多专家 OPD 反观人类学习模式”，把 OPD 的训练范式跟人和人之间的学习做了类比，我觉得很有道理。</div><div>个人方面——从“要我学”变成“我要学”。碰到新问题，先自己想一遍，想完再找专家看自己的推理链哪里有问题。别被动等着喂。学习也要分阶段。从 SFT 到 RL 一步到位太难了。借鉴 OPD 的思路：先自己思考，再分别找不同专家指导，学起来更稳。</div><div>团队方面——OPD 有个反直觉的结论：分数越高的老师，不一定教得最好。关键是 thinking pattern consistency，大家得有相同的思维模式。怎么做到？多分享、多交流。论文、技术解读、甚至书籍和电影都行。关键是分享原始的、一手的信息。</div>',
+    body: `技术聊完了，最后说点题外话。九老师有一篇文章，标题就叫"从 DeepSeek V4 的多专家 OPD 反观人类学习模式"，把 OPD 的训练范式跟人和人之间的学习做了类比，我觉得很有道理。\n\n个人方面——从"要我学"变成"我要学"。碰到新问题，先自己想一遍，想完再找专家看自己的推理链哪里有问题。别被动等着喂。学习也要分阶段。从 SFT 到 RL 一步到位太难了。借鉴 OPD 的思路：先自己思考，再分别找不同专家指导，学起来更稳。\n\n团队方面——OPD 有个反直觉的结论：分数越高的老师，不一定教得最好。关键是 thinking pattern consistency，大家得有相同的思维模式。怎么做到？多分享、多交流。论文、技术解读、甚至书籍和电影都行。关键是分享原始的、一手的信息。`
   },
   {
-    image: "figures/hybird-attn.png",
-    caption: "Figure 1: DeepSeek-V4 注意力架构——SWA / CSA / HCA 三种注意力机制对比",
-    prompt: "Architecture diagram showing three attention mechanism variants (SWA, CSA, HCA) for a transformer-based LLM."
-  },
-  {
-    heading: "mHC 看起来像结构细节，但它其实是稳定性基础设施",
-    body: "DeepSeek-V4 同时叠加了长上下文压缩、MoE、混合精度、定制内核与推理侧缓存工程。在这种组合下，残差路径稳定性不再是默认前提，而是系统能否站住的基础设施。mHC 的意义不在于“模型图更复杂”，而在于作者明确把这个问题拎出来了。"
-  },
-  {
-    heading: "这篇论文真正值钱的地方，在于它没有把系统栈藏起来",
-    body: "如果只看 headline，这篇文章在讲 hybrid attention 和 benchmark。但真正值得工程团队注意的，是论文明确讨论了：expert parallelism 的细粒度 pipeline、deterministic / batch-invariant kernels、FP4 在训练和推理两边的现实处理方式、以及 on-disk KV cache reuse。这些东西加在一起，才构成了“为什么这套架构不是停留在论文图里的东西”。"
-  },
-  {
-    heading: "未来模型优势会越来越像联合设计优势",
-    body: "DeepSeek-V4 给我的最大启发不是某个模块，而是一个方向：未来模型进步越来越不像单轴参数竞争，而更像 architecture + runtime + storage + scheduling 的协同设计竞争。如果这个判断成立，那么很多团队接下来真正应该补的，不是更长 context 的 headline，而是更像存储系统的 KV cache、更像调度系统的 EP pipeline，以及更早进入设计阶段的推理 economics。"
-  },
-  {
-    heading: "Reference",
-    body: "[1] DeepSeek-V4 Technical Report\n[2] DeepSeek-V3 Technical Report\n[3] CSA: Compressed Sparse Attention\n[4] HCA: Hierarchical Context Attention\n[5] Mixed Hardware Compatibility (mHC)\n[6] Expert Parallelism & On-disk KV Cache Reuse",
-    bodyHTML: '<div><a href="https://arxiv.org/abs/2504.18356" target="_blank">[1] DeepSeek-V4 Technical Report</a></div><div><a href="https://arxiv.org/abs/2412.19437" target="_blank">[2] DeepSeek-V3 Technical Report</a></div><div><a href="#" target="_blank">[3] CSA: Compressed Sparse Attention</a></div><div><a href="#" target="_blank">[4] HCA: Hierarchical Context Attention</a></div><div><a href="#" target="_blank">[5] Mixed Hardware Compatibility (mHC)</a></div><div><a href="#" target="_blank">[6] Expert Parallelism &amp; On-disk KV Cache Reuse</a></div>'
+    heading: `Reference`,
+    body: `[1] DeepSeek V4 Technical Report
+[2] Rethinking On-Policy Distillation
+[3] Qwen3 Technical Report
+[4] GLM-5
+[5] MiMo-V2-Flash
+[6] On-Policy Distillation
+[7] The Illustrated DeepSeek-R1
+[8] RL/on policy distillation 进展
+[9] DeepSeek V4 多专家 OPD 反观人类学习`,
+    bodyHTML: '<div><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf" target="_blank">[1] DeepSeek V4 Technical Report</a></div><div><a href="https://arxiv.org/abs/2604.13016" target="_blank">[2] Rethinking On-Policy Distillation - Li et al. (THUNLP)</a></div><div><a href="https://arxiv.org/pdf/2604.00626" target="_blank">[3] Qwen3 Technical Report</a></div><div><a href="https://arxiv.org/abs/2602.15763" target="_blank">[4] GLM-5: from Vibe Coding to Agentic Engineering</a></div><div><a href="https://arxiv.org/abs/2601.02780" target="_blank">[5] MiMo-V2-Flash Technical Report</a></div><div><a href="https://thinkingmachines.ai/blog/on-policy-distillation/" target="_blank">[6] On-Policy Distillation - Thinking Machines Lab</a></div><div><a href="https://newsletter.languagemodels.co/p/the-illustrated-deepseek-r1" target="_blank">[7] The Illustrated DeepSeek-R1 - Jay Alammar</a></div><div><a href="https://zhuanlan.zhihu.com/p/2004506304065065334" target="_blank">[8] RL/on policy distillation 进展 - YiFan-Zhang</a></div><div><a href="https://zhuanlan.zhihu.com/p/2031622077107659474" target="_blank">[9] DeepSeek V4 多专家 OPD 反观人类学习 - 九老师</a></div>'
   }
 ];
-var PULSE = "如果长上下文的 cost curve 没被改掉，那它就还是演示能力；DeepSeek-V4 真正值钱的地方，是它试图把这张账单变成系统设计问题。";
+var PULSE = `26 年 OPD 已经变成后训练的基本标配，我们也要训练 LLM/Agent 一样来训练自己。`;
 
-// ═══════════════════════════════════════
 // ③ 排版
 // ═══════════════════════════════════════
 var SERIF = "'Noto Serif SC', Georgia, serif";
