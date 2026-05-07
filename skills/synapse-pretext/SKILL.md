@@ -263,11 +263,10 @@ The template exposes these variables for downstream skills to fill:
 
 ### Rendering rules
 
-- **All content strings MUST use backtick template literals** — never `"..."` or `"..."`. JavaScript only recognizes `"` (U+0022), `'` (U+0027), and `` ` `` (U+0060) as string delimiters. Chinese curly quotes `""` (U+201C/U+201D) are NOT valid JS delimiters and cause `SyntaxError: Invalid or unexpected token`. This means every `TITLE`, `LEAD`, `PULSE`, and every `heading`, `body`, `callout`, `image`, `caption`, `prompt` value inside `SECTIONS` must be wrapped in backticks.
+- Content strings: backtick template literals for body/heading/callout/caption/prompt. See **Curly Quote Rule** below for why.
 - `bodyHTML` fields (Reference section) use single quotes since they contain HTML tags
 - Image paths: use relative paths from output directory
 - DO NOT run prettier — it breaks the inlined ~2000-line pretext library
-
 The full rendering orchestration (copy template → fill variables) is defined in `synapse-forge` SKILL.md.
 
 ## Rules
@@ -280,7 +279,22 @@ The full rendering orchestration (copy template → fill variables) is defined i
 - All output using pretext must be self-contained — inline the library, do not reference external files.
 - Prepare once per text+font combination. Layout is the hot path.
 - Never trigger DOM reflow for text measurement. That is the entire point of this skill.
-- **All blog content strings MUST use backtick template literals** — `""` (U+201C/U+201D) are not valid JS string delimiters and cause SyntaxError. Every TITLE, LEAD, PULSE, heading, body, callout, image, caption, prompt must use backticks.
+### Curly Quote Rule (CRITICAL — verify after EVERY .html edit)
+
+Chinese curly quotes “” (U+201C/U+201D) are **never** valid JS string delimiters. They look like quotes but JavaScript treats them as regular characters, causing `SyntaxError: Invalid or unexpected token` that silently kills the entire `<script type="module">`. This has caused **3+ white-screen incidents**.
+
+**Root cause**: node scripts or Edit tool modifying HTML files that contain Chinese curly quotes as text content may accidentally:
+1. Replace a backtick/straight-quote **delimiter** with a curly quote
+2. Replace HTML attribute straight double quotes `"href=..."` with curly quotes `href="..."`
+
+**Allowed**: curly quotes as string **content** (“质量保持”) — never as **delimiters**
+
+**Mandatory verification after ANY edit to .html template files**:
+```bash
+node -e "new Function('async function _m(){' + require('fs').readFileSync('FILE','utf8').match(/<script type=\"module\">([\\s\\S]*)<\\/script>/)[1] + '}'); console.log('OK')"
+```
+If this fails → there are curly-quote delimiters or other syntax errors. **Fix before reporting done.**
+
 - **DO NOT run prettier** on pretext-powered HTML — it expands the inlined library's compact arrays and can introduce quote escaping issues.
 
 ## Reference

@@ -35,6 +35,38 @@ Stage 3: Synthesize — 摘录 + 数据点 → DSL（.dsl.md）
 
 ### Stage 1: Fetch & Parse
 
+#### MCP Service Setup (智谱 GLM)
+
+Forge 依赖两个 MCP 服务进行网页抓取和搜索，均由智谱 AI (`open.bigmodel.cn`) 提供，需要 API Token。
+
+在 `~/.claude.json` 的 `mcpServers` 中配置：
+
+```json
+{
+  "mcpServers": {
+    "web-search-prime": {
+      "type": "http",
+      "url": "https://open.bigmodel.cn/api/mcp/web_search_prime/mcp",
+      "headers": {
+        "Authorization": "Bearer {YOUR_GLM_API_KEY}"
+      }
+    },
+    "web-reader": {
+      "type": "http",
+      "url": "https://open.bigmodel.cn/api/mcp/web_reader/mcp",
+      "headers": {
+        "Authorization": "Bearer {YOUR_GLM_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+- **Token 获取**: 在 [智谱开放平台](https://open.bigmodel.cn/) 注册并创建 API Key
+- **web-search-prime**: 网页搜索，支持 `content_size=high`（2500 字摘要）和 `location=cn`（中文内容优化）
+- **web-reader**: 网页全文抓取，支持 `retain_images=true`（保留图片 URL）和 `with_images_summary=true`（图片摘要）
+- 两个服务共用同一个 API Key
+
 #### Tool Selection (by site type)
 
 | Site Type | Primary Tool | Fallback | Why |
@@ -53,6 +85,31 @@ For each source, launch **two tool calls in parallel**:
 2. `mcp__web-reader__webReader` — full content (may fail for some Chinese sites)
 
 Use whichever returns more content. If both succeed, prefer the reader output; if reader is truncated, merge with search summary.
+
+#### Image Extraction from Web Sources
+
+When source articles contain figures that need to be downloaded (especially Chinese sites like WeChat, Zhihu):
+
+```
+mcp__web-reader__webReader(
+  url: "https://mp.weixin.qq.com/s/...",
+  return_format: "markdown",
+  retain_images: true,
+  with_images_summary: true
+)
+```
+
+- `retain_images: true` — preserves all image URLs in the markdown output
+- `with_images_summary: true` — adds an images summary section listing all extracted images
+- **Critical for WeChat articles**: WeChat CDN images (`mmbiz.qpic.cn`) are only accessible with proper referer. The web-reader fetches them during page parsing when the referer is correct. Extract URLs from the output, then download with curl:
+
+```bash
+mkdir -p figures
+curl -sL -o "figures/{name}.png" "{image_url}"
+```
+
+- Verify downloads: `file figures/*.png` — reject any that are `HTML document` (error pages)
+- For arXiv: use `mcp__web-reader__webReader` on the HTML version URL to get image paths in `/html/{id}vN/x{N}.png` format
 
 #### Extraction
 
@@ -258,5 +315,23 @@ figure-XX-descriptivename.{svg,png,jpg}
 
 - NO hallucinated content — if source doesn't say it, don't include it
 - NO summary-only output — forge produces DSL with judgment, not vague summaries
-- NO oily marketing phrases — see FORGE-DSL.md Section C 句式红黑榜
-- NO curly-quote string delimiters in rendered HTML — when rendering DSL to HTML (blog or slides), all JS content strings must use backtick template literals. Curly quotes `""` (U+201C/U+201D) are not valid JS string delimiters and cause SyntaxError white-screen failure
+- NO oily marketing phrases — see FORGE.DSL.md Section C 句式红黑榜
+- **NO curly quotes as JS string delimiters** — this has caused repeated white-screen failures (3+ incidents). See below
+
+### Curly Quote Rule (CRITICAL — verified after EVERY file edit)
+
+Chinese curly quotes “” (U+201C / U+201D) are **never** valid JS string delimiters. They look like quotes but JavaScript treats them as regular characters, causing `SyntaxError: Invalid or unexpected token` that silently kills the entire `<script type="module">`.
+
+**Allowed delimiters**: backtick `` ` `` for body/heading/callout/caption/prompt, single quote `'` for bodyHTML
+
+**Allowed content**: curly quotes are fine INSIDE strings (e.g. “质量保持” in body text)
+
+**What goes wrong**: when using node scripts or the Edit tool to modify HTML files containing Chinese curly quotes as text content, the script may accidentally:
+1. Replace the string's backtick/straight-quote **delimiter** with a curly quote
+2. Replace HTML attribute straight double quotes `"href=..."` with curly quotes `href=“...”`
+
+**Mandatory verification after ANY edit to .html template files**:
+```bash
+node -e "new Function('async function _m(){' + require('fs').readFileSync('FILE','utf8').match(/<script type=\"module\">([\\s\\S]*)<\\/script>/)[1] + '}'); console.log('OK')"
+```
+If this fails → there are curly-quote delimiters or other syntax errors. Fix before reporting done.

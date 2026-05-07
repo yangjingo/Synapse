@@ -231,11 +231,26 @@ Overall arc follows slides logic: 起(Context) → 承(Mechanism) → 转(Failur
 {
   image: `{relative path to image}`,
   caption: `{Figure N: what this figure teaches, not just what it shows}`,
-  prompt: `{generation prompt if image missing}`
+  prompt: `{detailed generation prompt — visible in figure area, shown below caption}`
 }
 ```
 
 Figure caption principle: **explain WHY, not just WHAT**. A good caption tells the reader what insight the figure encodes — why the curves have these shapes, what the visual difference means, how it connects to the surrounding argument. Not just labels like "XX vs YY comparison."
+
+Figure prompt principle: **visible generation spec**. The `prompt` field is rendered as visible text below the caption in the figure area (separated by a thin border, smaller lighter font). It serves dual purpose:
+1. **When image exists**: acts as an explicit generation spec visible to readers — describes exactly what the figure should contain, including color codes, layout, labels.
+2. **When image missing**: falls back to placeholder display.
+
+Prompt format — must include concrete visual details:
+```
+"Create a dense, clean engineering figure for a hard-core technical article.
+Use {background color} background, {specific hex colors for each element}.
+{Describe the precise visual layout: axes, curves, bars, annotations, labels}.
+{Include specific data points or labels that appear in the figure}.
+All fonts in Virgil/hand-drawn style.
+Keep it flat, technical, editorial.
+Avoid: marketing aesthetics, 3D hardware art, decorative gradients, rainbow color coding, oversized icons, vague labels."
+```
 
 Examples:
 - Weak: "Figure 3: Forward KL vs Reverse KL 数据流对比"
@@ -277,7 +292,10 @@ Not every article needs all 10. Minimum: thesis → mechanism → takeaway → r
 
 - ALL content strings use backtick template literals (`` ` ``), except `bodyHTML` which uses single-quoted strings with straight double quotes for HTML attributes
 - `bodyHTML` strings MUST use `'single quotes'` as JS delimiter — this preserves straight `"` for HTML attributes (`href="..."`, `target="_blank"`)
-- **NO curly quotes** (`""`) as JS string delimiters — causes SyntaxError white-screen
+- **NO curly quotes** (“” / U+201C/U+201D) as JS string delimiters — causes SyntaxError white-screen. **3+ incidents**. Curly quotes are fine as string **content** (“质量保持”) but NEVER as **delimiters**. After ANY edit to .html templates, verify:
+  ```
+  node -e "new Function('async function _m(){' + require('fs').readFileSync('FILE','utf8').match(/<script type=\"module\">([\\s\\S]*)<\\/script>/)[1] + '}'); console.log('OK')"
+  ```
 - Image paths: relative from output directory
 - `callout` renders as highlighted blockquote
 - `prompt` shown as placeholder when image file is missing
