@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Team Vibe Coding 404 | Synapse v6.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&family=JetBrains+Mono&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --grid-line: #fafafa;
+        --main-color: #1e1e1e;
+        --accent-claude: #d97757;
+        --accent-blue: #6a9bcc;
+        --accent-green: #788c5d;
+        --item-bg: rgba(217, 119, 87, 0.05);
+        --strong-bg: rgba(217, 119, 87, 0.12);
+        --font-hand: "Gochi Hand", cursive;
+        --font-mono: "JetBrains Mono", monospace;
+        --font-head: "Poppins", sans-serif;
+        --shadow: 12px 12px 0px #1e1e1e;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      .reveal { font-family: var(--font-hand); color: var(--main-color); }
+      .reveal .slides { text-align: left; }
+
+      /* ── pretext animated background ── */
+      .pretext-stage {
+        position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none;
+      }
+      .pretext-stage::after {
+        content: ""; position: absolute; inset: 0;
+        background:
+          linear-gradient(180deg, var(--bg-color), transparent 14%, transparent 86%, var(--bg-color)),
+          linear-gradient(90deg, var(--bg-color), transparent 8%, transparent 92%, var(--bg-color));
+        opacity: 0.88;
+      }
+      .pretext-bg { position: absolute; inset: 0; }
+      .pretext-bg .pt-line {
+        position: absolute; left: 24px; right: 24px; white-space: nowrap;
+        font-family: var(--font-head); font-size: clamp(14px, 1.6vw, 20px);
+        font-weight: 600; letter-spacing: -0.03em;
+        color: rgba(30, 30, 30, 0.06); transform-origin: left center;
+        will-change: transform, opacity; user-select: none;
+      }
+      .pretext-bg .pt-line.pt-orange { color: rgba(217, 119, 87, 0.10); }
+      .pretext-bg .pt-line.pt-blue { color: rgba(106, 155, 204, 0.09); }
+      .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.08); }
+      .slide-content { position: relative; z-index: 1; }
+
+      /* ── slide structure ── */
+      .header-layer {
+        border-bottom: 8px solid var(--main-color); margin-bottom: 40px;
+        padding-bottom: 20px; position: relative;
+      }
+      .header-layer h2 {
+        font-family: var(--font-hand) !important; font-weight: 800;
+        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+        margin: 0 !important; color: var(--main-color) !important;
+        text-transform: none !important;
+      }
+      .ui-label {
+        position: absolute; top: -30px; right: 0; font-size: 1rem;
+        opacity: 0.3; letter-spacing: 2px; text-transform: uppercase;
+      }
+      .canvas-layer {
+        display: grid; grid-template-columns: 65% 35%; gap: 40px;
+        align-items: start; min-height: 500px;
+      }
+      .canvas-layer.push-left {
+        display: flex !important; justify-content: flex-start !important;
+        align-items: center !important; width: 100%; min-height: 500px; padding-left: 5%;
+      }
+      .canvas-footer {
+        display: flex !important; justify-content: flex-start !important;
+        align-items: flex-start !important; width: 100%; min-height: 500px;
+        padding-left: 5%; padding-top: 10px;
+      }
+      .canvas-footer .canvas-text { width: 100%; }
+      .canvas-text { font-size: clamp(1.1rem, 2.2vw, 2rem); line-height: 1.3; }
+      .canvas-text ul { list-style: none; padding: 0; margin: 0; }
+      .canvas-text li {
+        margin-bottom: 20px; position: relative;
+        padding: 10px 10px 10px 45px; border-radius: 6px;
+      }
+      .canvas-text li::before {
+        content: "\2192"; position: absolute; left: 10px;
+        font-weight: 800; color: var(--accent-claude);
+      }
+      .no-bullet .canvas-text li { padding-left: 20px; }
+      .no-bullet .canvas-text li::before { content: ""; }
+      strong, mark {
+        background: var(--strong-bg); padding: 0 6px; border-radius: 4px;
+        display: inline-block; transform: rotate(-0.5deg); font-weight: 800;
+        color: inherit;
+      }
+      .visual-box {
+        border: 5px solid var(--main-color); background: #fff; min-height: 380px;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        padding: 25px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+        transform: scale(var(--visual-scale, 1)) translateY(var(--visual-y, 0));
+        transform-origin: center;
+      }
+      .visual-box img { width: 100%; height: 100%; object-fit: contain; }
+      .code-container {
+        background: #1e1e1e; padding: 15px; border-radius: 4px;
+        font-family: var(--font-mono); font-size: 0.8rem; color: #d4d4d4;
+        overflow: hidden; width: 100%;
+      }
+      .pulse-layer {
+        position: absolute; bottom: 20px; left: 55px; background: #fff;
+        border: 6px solid var(--main-color); padding: 20px 40px;
+        transform: rotate(var(--pulse-rotate, -1.5deg)) translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1));
+        box-shadow: var(--shadow); font-weight: 800;
+        font-size: clamp(1.2rem, 2vw, 2.2rem); z-index: 10; transform-origin: center;
+      }
+      .pulse-animated {
+        transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease;
+      }
+      .pulse-animated:hover {
+        transform: rotate(0deg) scale(1.06); box-shadow: 14px 14px 0px #1e1e1e;
+      }
+      .ref-list li { margin-bottom: 12px; font-size: 1.1rem; }
+      .ref-list a { color: inherit; text-decoration: none; }
+      .ref-list a:hover { text-decoration: underline; color: var(--accent-claude); }
+      .reference-tag {
+        font-size: 0.8rem; opacity: 0.5; margin-top: 10px; display: block;
+        color: var(--accent-claude) !important; text-decoration: none;
+      }
+      .reference-tag:hover { opacity: 1; text-decoration: underline; }
+      .reveal .slides section .fragment {
+        opacity: 0; transform: translateY(20px);
+        transition: opacity 400ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .reveal .slides section .fragment.visible {
+        opacity: 1; transform: translateY(0);
+      }
+      .footer-watermark {
+        position: absolute; bottom: 30px; right: 30px;
+        font-family: var(--font-hand); font-size: 0.8rem; opacity: 0.1; color: #999; z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- 00 / Cover -->
+        <section data-transition="none">
+          <div class="header-layer" style="border-bottom: none; padding-left: 5%; margin-top: 15%">
+            <div class="ui-label">00 / Cover</div>
+            <h1 style="font-size: 4.5rem; font-weight: 800; margin: 0; line-height: 1;">Team Vibe Coding 404</h1>
+            <h2 style="margin-top: 30px; color: var(--accent-claude) !important;">反向版：如何快速用 Vibe Coding 把你的项目给搞烂？ + OPC 一人公司延展</h2>
+            <div style="margin-top: 60px; font-family: var(--font-hand); font-size: 1.2rem; line-height: 2; opacity: 0.8">
+              Version: <strong>Synapse v6.0</strong> &nbsp;&nbsp; Author: <strong>Why.J</strong> &nbsp;&nbsp; Date: <strong>2026/05/12</strong>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+
+        <!-- 01 / Context -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">01 / Context</div>
+              <h2>现状分析：21 条措施，一个根因</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>事实 1</strong>: AI 生成代码重复率是人工代码的 <mark>8 倍</mark>，技术债务增加 <mark>32.45 issues/KLOC</mark>，BLOCKER 级漏洞检出率高 2.3 倍。</li>
+                  <li><strong>事实 2</strong>: 长期依赖 AI 的程序员认知能力比独立编程者低 <mark>17%</mark>，Debug 全线崩盘，22 名开发者承认变得懒惰冷漠。</li>
+                  <li><strong>事实 3</strong>: <mark>70%</mark> 的 AI 项目失败归因于组织就绪度不足，40% 员工每月收到 AI 低质量产出，团队信任全面崩盘。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">&#12300; AI 不制造混乱，它加速混乱。大模型不是问题，治不好的管理病才是。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-01-context.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        
+        <!-- 02 / Agenda -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">02 / Agenda</div>
+              <h2>从 21 条到 7 个角色 + OPC 延展</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment"><strong>Q1</strong>: CEO/CTO（1-3）——<mark>削编增效 + 追风口 + AI 裁员</mark>，决策者用工具替代判断？</li>
+                  <li class="fragment"><strong>Q2</strong>: PM + 项目经理（4-9）——<mark>AI代写需求 + 压缩时间 + 不复盘</mark>，流程全面投降？</li>
+                  <li class="fragment"><strong>Q3</strong>: Dev（10-15）——<mark>认知退化 17% + 漏洞 2.3x + 删库</mark>，六连击？</li>
+                  <li class="fragment"><strong>Q4</strong>: QA + Ops + 全团队（16-21）——<mark>不验收 + Workslop + 只学咒语</mark>，终点是 AI 降神会？</li>
+                  <li class="fragment"><strong>Q5</strong>: 延展——如果以上发生在<mark>OPC 一人公司</mark>，后果是什么？如何避免？</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+<!-- 03 / CEO / CTO -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">03 / CEO / CTO</div>
+              <h2>CEO / CTO（1-3）：用工具替代判断</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>1. 削编增效</strong>: 两人配 50 个 Agent 干十人的活——连"好"都定义不了，AI 也救不了你。</li>
+                  <li><strong>2. 追风口</strong>: 这周 DeepSeek 下周 Claude——不做调研就拍板，不是果敢，是<mark>赌博</mark>。</li>
+                  <li><strong>3. AI 裁员</strong>: 代码量扔进大模型输出末位淘汰名单——<mark>算法的输入带着组织偏见</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">&#12300; 不应该用AI替代管理判断，而应该用AI增强管理判断——先定义"效"是什么，再谈"增效"。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-03-ceo-cto.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 04 / PM + Project -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">04 / PM + PM</div>
+              <h2>产品经理 + 项目经理（4-9）</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>4. AI 代写需求</strong>: 德勤 237 页报告引用学者全是 AI 编的——<mark>集体盲飞</mark>。</li>
+                  <li><strong>5. 全塞 P0</strong>: AI 给 400 个方向全塞——战略是取舍，你要砍掉 <mark>399 个</mark>。</li>
+                  <li><strong>6. 享受幻觉</strong>: 三个方案差值 200%——AI 放大的是你的<mark>混乱</mark>。</li>
+                  <li><strong>7-9</strong>: 压缩时间到 1 天、AI 站会纪要、三句话挡住复盘——<mark>流程全面投降</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.0">&#12300; 不应该让AI替代用户调研，而应该用AI整理调研结果——AI能帮你写文档，不能帮你理解用户。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-04-pm-project.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 05 / Dev I -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">05 / Dev I</div>
+              <h2>开发人员 I（10-12）：认知外包 + 质量崩盘</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>10. Vibe Coding</strong>: AI 代码重复率 8 倍、技术债 +32.45 issues/KLOC——那不是债，是<mark>遗产</mark>。</li>
+                  <li><strong>11. 认知外包</strong>: 认知能力低 17%，Debug 全线崩盘——你不是在用 AI，你在给 <mark>AI 当乙方</mark>。</li>
+                  <li><strong>12. 不做 CR</strong>: 67% 认为 AI 代码"更安全"，实际 BLOCKER 漏洞高 <mark>2.3 倍</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.0">&#12300; 不应该Vibe Coding全盘接受，而应该把AI当副驾驶审查每一行——AI写的代码比人写的更需要Review。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-05-dev-cognitive-outsourcing.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 06 / Dev II -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">06 / Dev II</div>
+              <h2>开发人员 II（13-15）：Agent 失控 + 知识消亡</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>13. 多 Agent 并行</strong>: Cursor Agent 删库——"我猜会作用在 Staging 环境，我没有<mark>验证</mark>"。</li>
+                  <li><strong>14. 知识消亡</strong>: 没有架构文档指望大模型"一锅炖"——你投喂的是<mark>"数据泔水"</mark>，团队名存实亡。</li>
+                  <li><strong>15. 必上 SFT</strong>: 模型升级旧 SFT 失效——你永远叫不醒一个正在攒<mark>"SFT落地经验"简历</mark>的人。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.0">&#12300; 不应该消灭知识工程，而应该先建好文档和知识库——没有骨架的AI投喂只是数据泔水。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-06-dev-knowledge-loss.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 07 / QA + Ops + Team -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">07 / QA + Ops + Team</div>
+              <h2>QA + 运营 + 全团队（16-21）</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>16-18</strong>: AI 写测试覆盖 95% 但 P0 频发；不验收；Bug 归因"模型局限"——<mark>甩锅话语权越大</mark>。</li>
+                  <li><strong>19</strong>: 1400 个智能体铺全公司——PPT 上"AI赋能"比落地重要，1400 让<mark>老板高潮</mark>。</li>
+                  <li><strong>20</strong>: Workslop——40% 员工收到 AI 垃圾，每人花 2 小时善后，<mark>创新力和信任崩盘</mark>。</li>
+                  <li><strong>21</strong>: 只学咒语——你分不清自己在管理技术团队还是 <mark>AI 降神会现场</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.98">&#12300; 不应该只学AI咒语，而应该先搞懂基础原理——第6个原因藏在你的私域业务规则中。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-07-qa-ops-team.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 08 / Take A Ways -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">08 / Take A Ways</div>
+              <h2>TL;DR — 7 个角色的不应该 / 应该</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment"><strong>CEO/CTO</strong>: 不应该用AI替代管理判断，而应该用AI <mark>增强管理判断</mark>——先定义"效"是什么，再谈"增效"。</li>
+                  <li class="fragment"><strong>产品经理</strong>: 不应该让AI替代用户调研，而应该用AI <mark>整理调研结果</mark>——AI能帮你写文档，但不能帮你理解用户。</li>
+                  <li class="fragment"><strong>项目经理</strong>: 不应该压缩研发时间到AI生成时间，而应该用AI <mark>提效去提升质量</mark>而非压缩周期。</li>
+                  <li class="fragment"><strong>开发人员</strong>: 不应该Vibe Coding全盘接受，而应该把AI当<mark>副驾驶审查每一行</mark>——AI写的代码比人写的更需要Review。</li>
+                  <li class="fragment"><strong>QA</strong>: 不应该把Bug归因"模型局限"，而应该<mark>复盘整个质量流程</mark>——大模型的局限是已知的，你的流程缺失才是真正的P0。</li>
+                  <li class="fragment"><strong>运营</strong>: 不应该用数量证明AI价值，而应该用<mark>实际业务成果</mark>——1400个智能体里有多少在真正创造价值？</li>
+                  <li class="fragment"><strong>全团队</strong>: 不应该只学"AI咒语"，而应该先<mark>搞懂基础原理</mark>——Prompt工程救不了你。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated fragment">&#12300; <strong>大模型不是问题，治好的管理病才是。先把管理基础设施搞对，再上AI。</strong> &#12301;</div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 09 / OPC Context -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">09 / OPC Context</div>
+              <h2>OPC 毒性倍率：不是团队崩了，是你崩了</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>倍率 1</strong>: 团队里每条反模式伤害一个角色；OPC 里你<mark>同时扮演全部 7 个角色</mark>，每一条都直接砍在你唯一的产出能力上。</li>
+                  <li><strong>倍率 2</strong>: 团队有扩散缓冲——有人离职、有人质疑；OPC 的死亡螺旋是<mark>连续的、静默的</mark>，直到公司突然死亡。</li>
+                  <li><strong>倍率 3</strong>: 一人公司的品牌 = 你个人信誉。团队可以说"这是模型的问题"，客户对你说：<mark>"我付钱给你，不是给 OpenAI"</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">&#12300; 团队里 AI 加速混乱，至少混乱是可见的；OPC 里 AI 加速混乱，混乱是隐形的——直到你发现自己在给 AI 打工。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-09-opc-context.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 10 / Death Spiral -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">10 / Death Spiral</div>
+              <h2>OPC 特有的静默死亡螺旋</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><mark>追风口(换工具) → 学习成本吃时间 → 产出延迟 → 现金流压力 → 压缩时间赶工 → Vibe Coding 应付 → 质量崩 → 客户流失 → 更焦虑 → 更依赖 AI → 认知退化 → 死循环</mark></li>
+                  <li>团队里这个螺旋至少有<mark>断点</mark>——有人离职、有人质疑、有人在 standup 上说"这不正常"。</li>
+                  <li>OPC 里这个螺旋是<mark>连续的、静默的</mark>。没有人会在你追风口时拉住你，没有人会在你 Vibe Coding 时说"等一下"。</li>
+                  <li>直到你突然发现：上个月交付的客户在缩减预算，你的代码你自己看不懂了，<mark>你离不开 AI 但 AI 给你的产出越来越差</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.0">&#12300; 团队的死亡螺旋有人能踩刹车；OPC 的死亡螺旋只有一个刹车——你自己的自律。但你正在用 AI 替代那份自律。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-10-death-spiral.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 11 / Principle 1+2 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">11 / Principle 1 + 2</div>
+              <h2>AI 加速已会之事 + 无 AI 时间</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>原则 1</strong>: 只用 AI 做<mark>你已经会做的事的加速器</mark>，不做你不会做的事的替代品。不会手写正则？先学，再让 AI 加速。<mark>OPC 的竞争壁垒是你自己的能力深度，不是 AI 的速度。</mark></li>
+                  <li><strong>原则 2</strong>: 每周至少<mark>半天"无 AI 时间"</mark>。手写代码、手写文档、手动测试。保持手感——认知外包是温水煮青蛙。定期验证自己还能独立完成核心工作。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.0">&#12300; AI 是你已有能力的倍增器，不是缺失能力的替代品——如果你不会做，AI 的输出你连判断对错的能力都没有。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-11-principle-amplifier-vs-crutch.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 12 / Principle 3 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">12 / Principle 3</div>
+              <h2>工具栈锁定：不追风口</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>选一个模型、一个框架、一套工作流，<mark>至少用三个月再评估</mark>。</li>
+                  <li>每次切换必须计算：<mark>切换成本 vs 一个月内能收回的收益</mark>。学新工具 3 天 × 日薪换算 = 切换成本。如果算不清楚，不切。</li>
+                  <li>一人公司没有"技术选型委员会"，但你需要<mark>比团队更严格的锁定纪律</mark>——因为没有人帮你收场。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.0">&#12300; 不应该每周换一个新工具，而应该把一个工具用到极致——DeepSeek 好，Claude 好，但你来回换，每个都用不好的那个才是最贵的。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-12-principle-tool-lock.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 13 / Principle 4 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">13 / Principle 4</div>
+              <h2>影子团队：一人也要有人 Review</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>把关键决策写在公开场合（博客、社群），让<mark>同行质疑</mark>。</li>
+                  <li>找 2-3 个同频的独立开发者<mark>互相 review</mark>。</li>
+                  <li>用 git blame 自己：<mark>一周后回头看自己的代码，当别人的代码 review</mark>。</li>
+                  <li>目标不是组建虚拟团队，是给自己装一个<mark>外部刹车片</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.0">&#12300; 不应该一个人闷头 Vibe Coding，而应该把关键产出暴露给同行——孤独是 OPC 最大的生产力杀手，也是质量杀手。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-13-principle-shadow-team.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+        <!-- 14 / Principle 5 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">14 / Principle 5</div>
+              <h2>客户触达频率 > AI 使用频率</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>一人公司最大的优势：<mark>你离用户最近</mark>。</li>
+                  <li>每周至少一次<mark>直接和用户对话</mark>，不能用 AI 替代。你对自己的用户理解决定了 AI 建议哪些有用、哪些是垃圾。</li>
+                  <li><mark>没有用户直觉，你的 prompt 越写越精确，方向越来越偏。</mark></li>
+                  <li>AI 可以帮你整理用户反馈，但不能帮你<mark>产生用户同理心</mark>。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.0">&#12300; 不应该让 AI 替你和用户对话，而应该亲自对话后让 AI 帮你整理——你的一手用户认知，是 AI 永远无法从文档中推导出来的。 &#12301;</div>
+              </div>
+              <div class="visual-box"><img src="./figures/slide-14-principle-user-contact.png" style="width: 90%; max-height: 280px; object-fit: contain; border-radius: 8px;" /></div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+
+        <!-- 15 / Reference -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">15 / Reference</div>
+              <h2>Reference</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text" style="font-size: 1.1rem;">
+                <ul class="ref-list">
+                  <li><strong><a href="https://mp.weixin.qq.com/s/jwILxorZ4saMMR34WB5_kg" target="_blank">如何用大模型搞垮一个团队？</a></strong> - 茹炳晟</li>
+                  <li><strong>Team Vibe Coding 404</strong> - Why.J - OPC 延展讨论</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + vibe-coding-404 + 2026/05/12</div>
+        </section>
+
+
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script type="module">
+      import { prepareWithSegments, layoutWithLines } from 'https://esm.sh/@chenglou/pretext';
+
+      // ── KaTeX rendering (::math directive) ──
+      document.querySelectorAll('[data-katex]').forEach(el => {
+        if (window.katex) katex.render(el.getAttribute('data-katex'), el, { displayMode: true });
+      });
+
+      // ── visual-box data-scale ──
+      document.querySelectorAll(".visual-box[data-scale]").forEach((box) => {
+        box.style.setProperty("--visual-scale", box.getAttribute("data-scale"));
+      });
+
+      // ── Reveal.js ──
+      Reveal.initialize({
+        hash: true, center: true, transition: "none",
+        width: 1400, height: 900, margin: 0.05,
+      });
+
+      // ── pretext sources ──
+      const coverSource = [
+        'Team Vibe Coding 404 AI amplify management disease cognitive outsourcing knowledge engineering OPC',
+      ].join(' ');
+
+      const slideSource = [
+        'AI', 'amplifier', 'cognitive', 'outsourcing', 'knowledge', 'management', 'code quality', 'vibe coding', 'OPC', 'death spiral',
+      ].join('  /  ');
+
+      // ── pretext layout ──
+      function getLines(text, font, maxWidth, lineHeight) {
+        const prepared = prepareWithSegments(text, font);
+        const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+        return lines.map(l => l.text);
+      }
+
+      function buildStage(stage) {
+        const isCover = stage.classList.contains('cover-stage');
+        const src = isCover
+          ? Array.from({ length: 5 }, () => coverSource).join(' ')
+          : Array.from({ length: 12 }, () => slideSource).join(' ');
+        const bg = stage.querySelector('.pretext-bg');
+        if (!bg) return [];
+        const w = stage.clientWidth || 1400;
+        const h = stage.clientHeight || 900;
+        const padding = isCover ? 28 : 24;
+        const usable = Math.max(200, w - padding * 2);
+        const fontSize = isCover ? Math.max(18, Math.min(28, w * 0.02)) : Math.max(14, Math.min(20, w * 0.014));
+        const lineHeight = Math.round(fontSize * (isCover ? 1.25 : 1.8));
+        const font = `600 ${fontSize}px Poppins, Arial, sans-serif`;
+        const wrapped = getLines(src, font, usable * 0.92, lineHeight);
+        const top = Math.max(20, (h - wrapped.length * lineHeight) / 2);
+        bg.innerHTML = '';
+        return wrapped.map((text, i) => {
+          const el = document.createElement('div');
+          el.className = 'pt-line';
+          if (i % 9 === 2) el.classList.add('pt-orange');
+          if (i % 11 === 5) el.classList.add('pt-blue');
+          if (i % 13 === 7) el.classList.add('pt-green');
+          el.textContent = text;
+          el.style.top = `${top + i * lineHeight}px`;
+          el.style.left = `${padding}px`;
+          el.style.fontSize = `${fontSize}px`;
+          bg.appendChild(el);
+          return { el, index: i, baseTop: top + i * lineHeight };
+        });
+      }
+
+      const stages = Array.from(document.querySelectorAll('.pretext-stage'));
+      const stageMap = new Map();
+      function rebuildAll() { stageMap.clear(); stages.forEach(s => { stageMap.set(s, buildStage(s)); }); }
+      rebuildAll();
+
+      const pointers = new Map();
+      stages.forEach(s => pointers.set(s, { x: 0.65, y: 0.4 }));
+
+      function animate(time) {
+        stageMap.forEach((rows, stage) => {
+          const w = stage.clientWidth || 1400;
+          const h = stage.clientHeight || 900;
+          const p = pointers.get(stage) || { x: 0.65, y: 0.4 };
+          const isCover = stage.classList.contains('cover-stage');
+          const amp = isCover ? 16 : 8;
+          const driftAmp = isCover ? 8 : 4;
+          const rotAmp = isCover ? 0.35 : 0.15;
+          rows.forEach(({ el, index, baseTop }) => {
+            const dx = p.x * w - w * 0.5;
+            const dy = p.y * h - baseTop;
+            const wave = Math.sin(time * 0.0009 + index * 0.5) * amp;
+            const drift = Math.cos(time * 0.0005 + index * 0.3) * driftAmp;
+            const pull = dx * 0.014 * Math.exp(-Math.abs(dy) / 180);
+            const vert = Math.sin(time * 0.0007 + index * 0.4) * 2;
+            const rot = Math.sin(time * 0.0004 + index * 0.16) * rotAmp;
+            const baseOpacity = isCover ? 0.65 : 0.38;
+            const fade = Math.min(Math.abs(dy) / h, isCover ? 0.4 : 0.22);
+            const opacity = Math.max(isCover ? 0.10 : 0.04, baseOpacity - fade);
+            el.style.opacity = String(opacity);
+            el.style.transform = `translate3d(${wave + drift + pull}px, ${vert}px, 0) rotate(${rot}deg)`;
+          });
+        });
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      document.addEventListener('pointermove', (e) => {
+        stages.forEach(stage => {
+          const rect = stage.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            pointers.set(stage, {
+              x: Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)),
+              y: Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)),
+            });
+          }
+        });
+      });
+
+      Reveal.on('slidechanged', () => { setTimeout(rebuildAll, 120); });
+      window.addEventListener('resize', rebuildAll);
+    </script>
+  </body>
+</html>

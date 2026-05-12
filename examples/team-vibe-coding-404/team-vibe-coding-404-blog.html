@@ -1,0 +1,3002 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Vibe Coding 404 — 如何快速用 Vibe Coding 把你的项目给搞烂？</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF7;
+      --ink: #1A1A1A;
+      --muted: #8A7F70;
+      --accent: #C45A20;
+      --accent-light: #FDF0E6;
+      --border: #E8E2D8;
+      --serif: 'Noto Serif SC', Georgia, serif;
+      --sans: 'Inter', 'Helvetica Neue', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); color: var(--ink); }
+    body { min-height: 100vh; padding-bottom: 48px; }
+
+    .page { max-width: 700px; margin: 0 auto; padding: 72px 24px 0; }
+
+    .title-line {
+      font-family: var(--serif);
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }
+    .lead-block {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 26px;
+      color: var(--muted);
+      margin: 16px 0 0;
+    }
+    .hr { height: 1px; background: var(--border); margin: 40px 0; }
+
+    .section { margin-top: 40px; }
+    .section-h {
+      font: 700 15px/1.3 var(--sans);
+      color: var(--accent);
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .section-body {
+      font: 400 17px/30px var(--serif);
+      color: var(--ink);
+    }
+    .section-body a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(196,90,32,0.3);
+      text-underline-offset: 2px;
+      transition: text-decoration-color 0.2s;
+    }
+    .section-body a:hover {
+      text-decoration-color: var(--accent);
+    }
+    .callout {
+      position: relative;
+      margin: 20px 0;
+      padding: 16px 20px 16px 24px;
+      background: var(--accent-light);
+      border-radius: 4px;
+      font: 500 15px/25px var(--sans);
+      color: #6B3A12;
+    }
+    .callout::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      border-radius: 4px 0 0 4px;
+    }
+    .figure-block {
+      margin: 32px auto;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #F5F3EE;
+      max-width: 100%;
+    }
+    .figure-block img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+      object-position: center;
+      background: #fff;
+      cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .figure-block.zoomed {
+      position: fixed;
+      inset: 0;
+      max-width: none;
+      margin: 0;
+      border-radius: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .figure-block.zoomed img {
+      max-height: none;
+      width: auto;
+      max-width: 95vw;
+      max-height: 95vh;
+      cursor: zoom-out;
+    }
+    .figure-block.zoomed .figure-caption {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: #eee;
+      border-radius: 4px;
+      padding: 6px 14px;
+    }
+    .figure-caption {
+      padding: 10px 16px 12px;
+      font: 500 13px/20px var(--sans);
+      color: var(--muted);
+    }
+    .figure-placeholder {
+      padding: 32px 20px;
+      text-align: center;
+      background: #EDEBE6;
+    }
+    .figure-placeholder-icon {
+      font: 700 28px/1 var(--sans);
+      color: var(--border);
+      margin-bottom: 8px;
+    }
+    .figure-placeholder-label {
+      font: 600 13px/1 var(--sans);
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .figure-prompt-vis {
+      padding: 4px 16px 12px;
+      font: 400 11.5px/17px var(--sans);
+      color: #B0A898;
+      border-top: 1px solid #E8E2D8;
+      margin-top: 2px;
+    }
+    .figure-placeholder-prompt {
+      font: 400 12px/18px var(--sans);
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+      white-space: pre-wrap;
+    }
+    .pulse {
+      margin-top: 48px;
+      font: 600 17px/28px var(--sans);
+      color: var(--accent);
+    }
+
+    .meta-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font: 700 11px/1 var(--sans);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .meta-date {
+      font: 500 13px/1 var(--sans);
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .stats {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(250,250,247,0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex; gap: 20px; flex-wrap: wrap;
+      font: 500 11px/1 var(--sans);
+      color: var(--muted);
+      z-index: 100;
+    }
+    .stats .v { color: var(--accent); font-weight: 700; }
+
+    /* stick figure overlay */
+    #stick-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 50;
+    }
+  </style>
+</head>
+<body>
+<canvas id="stick-canvas"></canvas>
+<div class="page">
+  <div class="meta-tag">Vibe Coding</div>
+  <div class="meta-date">2026/04/24 &middot; yangjing</div>
+
+  <!-- ① pretext 自适应标题 -->
+  <div id="title-wrap"></div>
+
+  <!-- ② pretext 测量 lead，CSS 正常渲染 -->
+  <div id="lead-wrap"></div>
+
+  <div class="hr"></div>
+
+  <!-- ③ 正文（pretext 测量高度，CSS 正常渲染） -->
+  <div id="sections-wrap"></div>
+
+  <!-- ④ Aggressive Pulse -->
+  <div id="pulse-wrap" class="pulse"></div>
+</div>
+
+<div class="stats">
+  <span>Title: <span class="v" id="sTitle">—</span></span>
+  <span>Lead: <span class="v" id="sLead">—</span></span>
+  <span>Body lines: <span class="v" id="sBody">—</span></span>
+  <span>Layout: <span class="v" id="sMs">—</span></span>
+  <span>DOM reads: <span class="v" id="sDom">0</span></span>
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════
+// ① pretext.js 完整内联
+// ═══════════════════════════════════════
+// src/bidi.ts
+var baseTypes = [
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "S",
+  "B",
+  "S",
+  "WS",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "B",
+  "B",
+  "S",
+  "WS",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "CS",
+  "ON",
+  "CS",
+  "ON",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "CS",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "EN",
+  "EN",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "EN",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L"
+];
+var arabicTypes = [
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "CS",
+  "AL",
+  "ON",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "ET",
+  "AN",
+  "AN",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL"
+];
+function classifyChar(charCode) {
+  if (charCode <= 255)
+    return baseTypes[charCode];
+  if (1424 <= charCode && charCode <= 1524)
+    return "R";
+  if (1536 <= charCode && charCode <= 1791)
+    return arabicTypes[charCode & 255];
+  if (1792 <= charCode && charCode <= 2220)
+    return "AL";
+  return "L";
+}
+function computeBidiLevels(str) {
+  const len = str.length;
+  if (len === 0)
+    return null;
+  const types = new Array(len);
+  let numBidi = 0;
+  for (let i = 0;i < len; i++) {
+    const t = classifyChar(str.charCodeAt(i));
+    if (t === "R" || t === "AL" || t === "AN")
+      numBidi++;
+    types[i] = t;
+  }
+  if (numBidi === 0)
+    return null;
+  const startLevel = len / numBidi < 0.3 ? 0 : 1;
+  const levels = new Int8Array(len);
+  for (let i = 0;i < len; i++)
+    levels[i] = startLevel;
+  const e = startLevel & 1 ? "R" : "L";
+  const sor = e;
+  let lastType = sor;
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "NSM")
+      types[i] = lastType;
+    else
+      lastType = types[i];
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "AL" ? "AN" : "EN";
+    else if (t === "R" || t === "L" || t === "AL")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "AL")
+      types[i] = "R";
+  }
+  for (let i = 1;i < len - 1; i++) {
+    if (types[i] === "ES" && types[i - 1] === "EN" && types[i + 1] === "EN") {
+      types[i] = "EN";
+    }
+    if (types[i] === "CS" && (types[i - 1] === "EN" || types[i - 1] === "AN") && types[i + 1] === types[i - 1]) {
+      types[i] = types[i - 1];
+    }
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "EN")
+      continue;
+    let j;
+    for (j = i - 1;j >= 0 && types[j] === "ET"; j--)
+      types[j] = "EN";
+    for (j = i + 1;j < len && types[j] === "ET"; j++)
+      types[j] = "EN";
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "WS" || t === "ES" || t === "ET" || t === "CS")
+      types[i] = "ON";
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "L" ? "L" : "EN";
+    else if (t === "R" || t === "L")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "ON")
+      continue;
+    let end = i + 1;
+    while (end < len && types[end] === "ON")
+      end++;
+    const before = i > 0 ? types[i - 1] : sor;
+    const after = end < len ? types[end] : sor;
+    const bDir = before !== "L" ? "R" : "L";
+    const aDir = after !== "L" ? "R" : "L";
+    if (bDir === aDir) {
+      for (let j = i;j < end; j++)
+        types[j] = bDir;
+    }
+    i = end - 1;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "ON")
+      types[i] = e;
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if ((levels[i] & 1) === 0) {
+      if (t === "R")
+        levels[i]++;
+      else if (t === "AN" || t === "EN")
+        levels[i] += 2;
+    } else if (t === "L" || t === "AN" || t === "EN") {
+      levels[i]++;
+    }
+  }
+  return levels;
+}
+function computeSegmentLevels(normalized, segStarts) {
+  const bidiLevels = computeBidiLevels(normalized);
+  if (bidiLevels === null)
+    return null;
+  const segLevels = new Int8Array(segStarts.length);
+  for (let i = 0;i < segStarts.length; i++) {
+    segLevels[i] = bidiLevels[segStarts[i]];
+  }
+  return segLevels;
+}
+
+// src/analysis.ts
+var collapsibleWhitespaceRunRe = /[ \t\n\r\f]+/g;
+var needsWhitespaceNormalizationRe = /[\t\n\r\f]| {2,}|^ | $/;
+function normalizeWhitespaceNormal(text) {
+  if (!needsWhitespaceNormalizationRe.test(text))
+    return text;
+  let normalized = text.replace(collapsibleWhitespaceRunRe, " ");
+  if (normalized.charCodeAt(0) === 32) {
+    normalized = normalized.slice(1);
+  }
+  if (normalized.length > 0 && normalized.charCodeAt(normalized.length - 1) === 32) {
+    normalized = normalized.slice(0, -1);
+  }
+  return normalized;
+}
+var sharedWordSegmenter = null;
+var segmenterLocale;
+function getSharedWordSegmenter() {
+  if (sharedWordSegmenter === null) {
+    sharedWordSegmenter = new Intl.Segmenter(segmenterLocale, { granularity: "word" });
+  }
+  return sharedWordSegmenter;
+}
+function clearAnalysisCaches() {
+  sharedWordSegmenter = null;
+}
+function setAnalysisLocale(locale) {
+  const nextLocale = locale && locale.length > 0 ? locale : undefined;
+  if (segmenterLocale === nextLocale)
+    return;
+  segmenterLocale = nextLocale;
+  sharedWordSegmenter = null;
+}
+var arabicScriptRe = /\p{Script=Arabic}/u;
+var combiningMarkRe = /\p{M}/u;
+var decimalDigitRe = /\p{Nd}/u;
+function containsArabicScript(text) {
+  return arabicScriptRe.test(text);
+}
+function isCJK(s) {
+  for (const ch of s) {
+    const c = ch.codePointAt(0);
+    if (c >= 19968 && c <= 40959 || c >= 13312 && c <= 19903 || c >= 131072 && c <= 173791 || c >= 173824 && c <= 177983 || c >= 177984 && c <= 178207 || c >= 178208 && c <= 183983 || c >= 183984 && c <= 191471 || c >= 196608 && c <= 201551 || c >= 63744 && c <= 64255 || c >= 194560 && c <= 195103 || c >= 12288 && c <= 12351 || c >= 12352 && c <= 12447 || c >= 12448 && c <= 12543 || c >= 44032 && c <= 55215 || c >= 65280 && c <= 65519) {
+      return true;
+    }
+  }
+  return false;
+}
+var kinsokuStart = new Set([
+  "，",
+  "．",
+  "！",
+  "：",
+  "；",
+  "？",
+  "、",
+  "。",
+  "・",
+  "）",
+  "〕",
+  "〉",
+  "》",
+  "」",
+  "』",
+  "】",
+  "〗",
+  "〙",
+  "〛",
+  "ー",
+  "々",
+  "〻",
+  "ゝ",
+  "ゞ",
+  "ヽ",
+  "ヾ"
+]);
+var kinsokuEnd = new Set([
+  '"',
+  "(",
+  "[",
+  "{",
+  "“",
+  "‘",
+  "«",
+  "‹",
+  "（",
+  "〔",
+  "〈",
+  "《",
+  "「",
+  "『",
+  "【",
+  "〖",
+  "〘",
+  "〚"
+]);
+var forwardStickyGlue = new Set([
+  "'",
+  "’"
+]);
+var leftStickyPunctuation = new Set([
+  ".",
+  ",",
+  "!",
+  "?",
+  ":",
+  ";",
+  "،",
+  "؛",
+  "؟",
+  "।",
+  "॥",
+  "၊",
+  "။",
+  "၌",
+  "၍",
+  "၏",
+  ")",
+  "]",
+  "}",
+  "%",
+  '"',
+  "”",
+  "’",
+  "»",
+  "›",
+  "…"
+]);
+var arabicNoSpaceTrailingPunctuation = new Set([
+  ":",
+  ".",
+  "،",
+  "؛"
+]);
+var myanmarMedialGlue = new Set([
+  "၏"
+]);
+var closingQuoteChars = new Set([
+  "”",
+  "’",
+  "»",
+  "›",
+  "」",
+  "』",
+  "】",
+  "》",
+  "〉",
+  "〕",
+  "）"
+]);
+function isLeftStickyPunctuationSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  let sawPunctuation = false;
+  for (const ch of segment) {
+    if (leftStickyPunctuation.has(ch)) {
+      sawPunctuation = true;
+      continue;
+    }
+    if (sawPunctuation && combiningMarkRe.test(ch))
+      continue;
+    return false;
+  }
+  return sawPunctuation;
+}
+function isCJKLineStartProhibitedSegment(segment) {
+  for (const ch of segment) {
+    if (!kinsokuStart.has(ch) && !leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isForwardStickyClusterSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  for (const ch of segment) {
+    if (!kinsokuEnd.has(ch) && !forwardStickyGlue.has(ch) && !combiningMarkRe.test(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isEscapedQuoteClusterSegment(segment) {
+  let sawQuote = false;
+  for (const ch of segment) {
+    if (ch === "\\" || combiningMarkRe.test(ch))
+      continue;
+    if (kinsokuEnd.has(ch) || leftStickyPunctuation.has(ch) || forwardStickyGlue.has(ch)) {
+      sawQuote = true;
+      continue;
+    }
+    return false;
+  }
+  return sawQuote;
+}
+function splitTrailingForwardStickyCluster(text) {
+  const chars = Array.from(text);
+  let splitIndex = chars.length;
+  while (splitIndex > 0) {
+    const ch = chars[splitIndex - 1];
+    if (combiningMarkRe.test(ch)) {
+      splitIndex--;
+      continue;
+    }
+    if (kinsokuEnd.has(ch) || forwardStickyGlue.has(ch)) {
+      splitIndex--;
+      continue;
+    }
+    break;
+  }
+  if (splitIndex <= 0 || splitIndex === chars.length)
+    return null;
+  return {
+    head: chars.slice(0, splitIndex).join(""),
+    tail: chars.slice(splitIndex).join("")
+  };
+}
+function isRepeatedSingleCharRun(segment, ch) {
+  if (segment.length === 0)
+    return false;
+  for (const part of segment) {
+    if (part !== ch)
+      return false;
+  }
+  return true;
+}
+function endsWithArabicNoSpacePunctuation(segment) {
+  if (!containsArabicScript(segment) || segment.length === 0)
+    return false;
+  return arabicNoSpaceTrailingPunctuation.has(segment[segment.length - 1]);
+}
+function endsWithMyanmarMedialGlue(segment) {
+  if (segment.length === 0)
+    return false;
+  return myanmarMedialGlue.has(segment[segment.length - 1]);
+}
+function splitLeadingSpaceAndMarks(segment) {
+  if (segment.length < 2 || segment[0] !== " ")
+    return null;
+  const marks = segment.slice(1);
+  if (/^\p{M}+$/u.test(marks)) {
+    return { space: " ", marks };
+  }
+  return null;
+}
+function endsWithClosingQuote(text) {
+  for (let i = text.length - 1;i >= 0; i--) {
+    const ch = text[i];
+    if (closingQuoteChars.has(ch))
+      return true;
+    if (!leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return false;
+}
+function classifySegmentBreakChar(ch) {
+  if (ch === " ")
+    return "space";
+  if (ch === " " || ch === " " || ch === "⁠" || ch === "\uFEFF") {
+    return "glue";
+  }
+  if (ch === "​")
+    return "zero-width-break";
+  if (ch === "­")
+    return "soft-hyphen";
+  return "text";
+}
+function splitSegmentByBreakKind(segment, isWordLike, start) {
+  const pieces = [];
+  let currentKind = null;
+  let currentText = "";
+  let currentStart = start;
+  let currentWordLike = false;
+  let offset = 0;
+  for (const ch of segment) {
+    const kind = classifySegmentBreakChar(ch);
+    const wordLike = kind === "text" && isWordLike;
+    if (currentKind !== null && kind === currentKind && wordLike === currentWordLike) {
+      currentText += ch;
+      offset += ch.length;
+      continue;
+    }
+    if (currentKind !== null) {
+      pieces.push({
+        text: currentText,
+        isWordLike: currentWordLike,
+        kind: currentKind,
+        start: currentStart
+      });
+    }
+    currentKind = kind;
+    currentText = ch;
+    currentStart = start + offset;
+    currentWordLike = wordLike;
+    offset += ch.length;
+  }
+  if (currentKind !== null) {
+    pieces.push({
+      text: currentText,
+      isWordLike: currentWordLike,
+      kind: currentKind,
+      start: currentStart
+    });
+  }
+  return pieces;
+}
+var urlSchemeSegmentRe = /^[A-Za-z][A-Za-z0-9+.-]*:$/;
+function isUrlLikeRunStart(segmentation, index) {
+  const text = segmentation.texts[index];
+  if (text.startsWith("www."))
+    return true;
+  return urlSchemeSegmentRe.test(text) && index + 1 < segmentation.len && segmentation.kinds[index + 1] === "text" && segmentation.texts[index + 1] === "//";
+}
+function isUrlQueryBoundarySegment(text) {
+  return text.includes("?") && (text.includes("://") || text.startsWith("www."));
+}
+function mergeUrlLikeRuns(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < segmentation.len; i++) {
+    if (kinds[i] !== "text" || !isUrlLikeRunStart(segmentation, i))
+      continue;
+    let j = i + 1;
+    while (j < segmentation.len && kinds[j] !== "space" && kinds[j] !== "zero-width-break") {
+      texts[i] += texts[j];
+      isWordLike[i] = true;
+      const endsQueryPrefix = texts[j].includes("?");
+      kinds[j] = "text";
+      texts[j] = "";
+      j++;
+      if (endsQueryPrefix)
+        break;
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < texts.length; read++) {
+    const text = texts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      texts[compactLen] = text;
+      isWordLike[compactLen] = isWordLike[read];
+      kinds[compactLen] = kinds[read];
+      starts[compactLen] = starts[read];
+    }
+    compactLen++;
+  }
+  texts.length = compactLen;
+  isWordLike.length = compactLen;
+  kinds.length = compactLen;
+  starts.length = compactLen;
+  return {
+    len: compactLen,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeUrlQueryRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+    if (!isUrlQueryBoundarySegment(text))
+      continue;
+    const nextIndex = i + 1;
+    if (nextIndex >= segmentation.len || segmentation.kinds[nextIndex] === "space" || segmentation.kinds[nextIndex] === "zero-width-break") {
+      continue;
+    }
+    let queryText = "";
+    const queryStart = segmentation.starts[nextIndex];
+    let j = nextIndex;
+    while (j < segmentation.len && segmentation.kinds[j] !== "space" && segmentation.kinds[j] !== "zero-width-break") {
+      queryText += segmentation.texts[j];
+      j++;
+    }
+    if (queryText.length > 0) {
+      texts.push(queryText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(queryStart);
+      i = j - 1;
+    }
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+var numericJoinerChars = new Set([
+  ":",
+  "-",
+  "/",
+  "×",
+  ",",
+  ".",
+  "+",
+  "–",
+  "—"
+]);
+function segmentContainsDecimalDigit(text) {
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch))
+      return true;
+  }
+  return false;
+}
+function isNumericRunSegment(text) {
+  if (text.length === 0)
+    return false;
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch) || numericJoinerChars.has(ch))
+      continue;
+    return false;
+  }
+  return true;
+}
+function mergeNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    const kind = segmentation.kinds[i];
+    if (kind === "text" && isNumericRunSegment(text) && segmentContainsDecimalDigit(text)) {
+      let mergedText = text;
+      let j = i + 1;
+      while (j < segmentation.len && segmentation.kinds[j] === "text" && isNumericRunSegment(segmentation.texts[j])) {
+        mergedText += segmentation.texts[j];
+        j++;
+      }
+      texts.push(mergedText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(segmentation.starts[i]);
+      i = j - 1;
+      continue;
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(kind);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function splitHyphenatedNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    if (segmentation.kinds[i] === "text" && text.includes("-")) {
+      const parts = text.split("-");
+      let shouldSplit = parts.length > 1;
+      for (let j = 0;j < parts.length; j++) {
+        const part = parts[j];
+        if (!shouldSplit)
+          break;
+        if (part.length === 0 || !segmentContainsDecimalDigit(part) || !isNumericRunSegment(part)) {
+          shouldSplit = false;
+        }
+      }
+      if (shouldSplit) {
+        let offset = 0;
+        for (let j = 0;j < parts.length; j++) {
+          const part = parts[j];
+          const splitText = j < parts.length - 1 ? `${part}-` : part;
+          texts.push(splitText);
+          isWordLike.push(true);
+          kinds.push("text");
+          starts.push(segmentation.starts[i] + offset);
+          offset += splitText.length;
+        }
+        continue;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeGlueConnectedTextRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  let read = 0;
+  while (read < segmentation.len) {
+    let text = segmentation.texts[read];
+    let wordLike = segmentation.isWordLike[read];
+    let kind = segmentation.kinds[read];
+    let start = segmentation.starts[read];
+    if (kind === "glue") {
+      let glueText = text;
+      const glueStart = start;
+      read++;
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        glueText += segmentation.texts[read];
+        read++;
+      }
+      if (read < segmentation.len && segmentation.kinds[read] === "text") {
+        text = glueText + segmentation.texts[read];
+        wordLike = segmentation.isWordLike[read];
+        kind = "text";
+        start = glueStart;
+        read++;
+      } else {
+        texts.push(glueText);
+        isWordLike.push(false);
+        kinds.push("glue");
+        starts.push(glueStart);
+        continue;
+      }
+    } else {
+      read++;
+    }
+    if (kind === "text") {
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        let glueText = "";
+        while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+          glueText += segmentation.texts[read];
+          read++;
+        }
+        if (read < segmentation.len && segmentation.kinds[read] === "text") {
+          text += glueText + segmentation.texts[read];
+          wordLike = wordLike || segmentation.isWordLike[read];
+          read++;
+          continue;
+        }
+        text += glueText;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(wordLike);
+    kinds.push(kind);
+    starts.push(start);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function carryTrailingForwardStickyAcrossCJKBoundary(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < texts.length - 1; i++) {
+    if (kinds[i] !== "text" || kinds[i + 1] !== "text")
+      continue;
+    if (!isCJK(texts[i]) || !isCJK(texts[i + 1]))
+      continue;
+    const split = splitTrailingForwardStickyCluster(texts[i]);
+    if (split === null)
+      continue;
+    texts[i] = split.head;
+    texts[i + 1] = split.tail + texts[i + 1];
+    starts[i + 1] = starts[i] + split.head.length;
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function buildMergedSegmentation(normalized, profile) {
+  const wordSegmenter = getSharedWordSegmenter();
+  let mergedLen = 0;
+  const mergedTexts = [];
+  const mergedWordLike = [];
+  const mergedKinds = [];
+  const mergedStarts = [];
+  for (const s of wordSegmenter.segment(normalized)) {
+    for (const piece of splitSegmentByBreakKind(s.segment, s.isWordLike ?? false, s.index)) {
+      const isText = piece.kind === "text";
+      if (profile.carryCJKAfterClosingQuote && isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJK(piece.text) && isCJK(mergedTexts[mergedLen - 1]) && endsWithClosingQuote(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJKLineStartProhibitedSegment(piece.text) && isCJK(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && endsWithMyanmarMedialGlue(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.isWordLike && containsArabicScript(piece.text) && endsWithArabicNoSpacePunctuation(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = true;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.text.length === 1 && piece.text !== "-" && piece.text !== "—" && isRepeatedSingleCharRun(mergedTexts[mergedLen - 1], piece.text)) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && (isLeftStickyPunctuationSegment(piece.text) || piece.text === "-" && mergedWordLike[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else {
+        mergedTexts[mergedLen] = piece.text;
+        mergedWordLike[mergedLen] = piece.isWordLike;
+        mergedKinds[mergedLen] = piece.kind;
+        mergedStarts[mergedLen] = piece.start;
+        mergedLen++;
+      }
+    }
+  }
+  for (let i = 1;i < mergedLen; i++) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isEscapedQuoteClusterSegment(mergedTexts[i]) && mergedKinds[i - 1] === "text") {
+      mergedTexts[i - 1] += mergedTexts[i];
+      mergedWordLike[i - 1] = mergedWordLike[i - 1] || mergedWordLike[i];
+      mergedTexts[i] = "";
+    }
+  }
+  for (let i = mergedLen - 2;i >= 0; i--) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isForwardStickyClusterSegment(mergedTexts[i])) {
+      let j = i + 1;
+      while (j < mergedLen && mergedTexts[j] === "")
+        j++;
+      if (j < mergedLen && mergedKinds[j] === "text") {
+        mergedTexts[j] = mergedTexts[i] + mergedTexts[j];
+        mergedStarts[j] = mergedStarts[i];
+        mergedTexts[i] = "";
+      }
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < mergedLen; read++) {
+    const text = mergedTexts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      mergedTexts[compactLen] = text;
+      mergedWordLike[compactLen] = mergedWordLike[read];
+      mergedKinds[compactLen] = mergedKinds[read];
+      mergedStarts[compactLen] = mergedStarts[read];
+    }
+    compactLen++;
+  }
+  mergedTexts.length = compactLen;
+  mergedWordLike.length = compactLen;
+  mergedKinds.length = compactLen;
+  mergedStarts.length = compactLen;
+  const compacted = mergeGlueConnectedTextRuns({
+    len: compactLen,
+    texts: mergedTexts,
+    isWordLike: mergedWordLike,
+    kinds: mergedKinds,
+    starts: mergedStarts
+  });
+  const withMergedUrls = carryTrailingForwardStickyAcrossCJKBoundary(splitHyphenatedNumericRuns(mergeNumericRuns(mergeUrlQueryRuns(mergeUrlLikeRuns(compacted)))));
+  for (let i = 0;i < withMergedUrls.len - 1; i++) {
+    const split = splitLeadingSpaceAndMarks(withMergedUrls.texts[i]);
+    if (split === null)
+      continue;
+    if (withMergedUrls.kinds[i] !== "space" || withMergedUrls.kinds[i + 1] !== "text" || !containsArabicScript(withMergedUrls.texts[i + 1])) {
+      continue;
+    }
+    withMergedUrls.texts[i] = split.space;
+    withMergedUrls.isWordLike[i] = false;
+    withMergedUrls.kinds[i] = "space";
+    withMergedUrls.texts[i + 1] = split.marks + withMergedUrls.texts[i + 1];
+    withMergedUrls.starts[i + 1] = withMergedUrls.starts[i] + split.space.length;
+  }
+  return withMergedUrls;
+}
+function analyzeText(text, profile) {
+  const normalized = normalizeWhitespaceNormal(text);
+  if (normalized.length === 0) {
+    return {
+      normalized,
+      len: 0,
+      texts: [],
+      isWordLike: [],
+      kinds: [],
+      starts: []
+    };
+  }
+  return { normalized, ...buildMergedSegmentation(normalized, profile) };
+}
+
+// src/measurement.ts
+var measureContext = null;
+var segmentMetricCaches = new Map;
+var cachedEngineProfile = null;
+var emojiPresentationRe = /\p{Emoji_Presentation}/u;
+var maybeEmojiRe = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u20E3]/u;
+var sharedGraphemeSegmenter = null;
+var emojiCorrectionCache = new Map;
+function getMeasureContext() {
+  if (measureContext !== null)
+    return measureContext;
+  if (typeof OffscreenCanvas !== "undefined") {
+    measureContext = new OffscreenCanvas(1, 1).getContext("2d");
+    return measureContext;
+  }
+  if (typeof document !== "undefined") {
+    measureContext = document.createElement("canvas").getContext("2d");
+    return measureContext;
+  }
+  throw new Error("Text measurement requires OffscreenCanvas or a DOM canvas context.");
+}
+function getSegmentMetricCache(font) {
+  let cache = segmentMetricCaches.get(font);
+  if (!cache) {
+    cache = new Map;
+    segmentMetricCaches.set(font, cache);
+  }
+  return cache;
+}
+function getSegmentMetrics(seg, cache) {
+  let metrics = cache.get(seg);
+  if (metrics === undefined) {
+    const ctx = getMeasureContext();
+    metrics = {
+      width: ctx.measureText(seg).width,
+      containsCJK: isCJK(seg)
+    };
+    cache.set(seg, metrics);
+  }
+  return metrics;
+}
+function getEngineProfile() {
+  if (cachedEngineProfile !== null)
+    return cachedEngineProfile;
+  if (typeof navigator === "undefined") {
+    cachedEngineProfile = {
+      lineFitEpsilon: 0.005,
+      carryCJKAfterClosingQuote: false
+    };
+    return cachedEngineProfile;
+  }
+  const ua = navigator.userAgent;
+  const vendor = navigator.vendor;
+  const isSafari = vendor === "Apple Computer, Inc." && ua.includes("Safari/") && !ua.includes("Chrome/") && !ua.includes("Chromium/") && !ua.includes("CriOS/") && !ua.includes("FxiOS/") && !ua.includes("EdgiOS/");
+  const isChromium = ua.includes("Chrome/") || ua.includes("Chromium/") || ua.includes("CriOS/") || ua.includes("Edg/");
+  cachedEngineProfile = {
+    lineFitEpsilon: isSafari ? 1 / 64 : 0.005,
+    carryCJKAfterClosingQuote: isChromium
+  };
+  return cachedEngineProfile;
+}
+function parseFontSize(font) {
+  const m = font.match(/(\d+(?:\.\d+)?)\s*px/);
+  return m ? parseFloat(m[1]) : 16;
+}
+function getSharedGraphemeSegmenter() {
+  if (sharedGraphemeSegmenter === null) {
+    sharedGraphemeSegmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter;
+}
+function isEmojiGrapheme(g) {
+  return emojiPresentationRe.test(g) || g.includes("️");
+}
+function textMayContainEmoji(text) {
+  return maybeEmojiRe.test(text);
+}
+function getEmojiCorrection(font, fontSize) {
+  let correction = emojiCorrectionCache.get(font);
+  if (correction !== undefined)
+    return correction;
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const canvasW = ctx.measureText("\uD83D\uDE00").width;
+  correction = 0;
+  if (canvasW > fontSize + 0.5 && typeof document !== "undefined" && document.body !== null) {
+    const span = document.createElement("span");
+    span.style.font = font;
+    span.style.display = "inline-block";
+    span.style.visibility = "hidden";
+    span.style.position = "absolute";
+    span.textContent = "\uD83D\uDE00";
+    document.body.appendChild(span);
+    const domW = span.getBoundingClientRect().width;
+    document.body.removeChild(span);
+    if (canvasW - domW > 0.5) {
+      correction = canvasW - domW;
+    }
+  }
+  emojiCorrectionCache.set(font, correction);
+  return correction;
+}
+function countEmojiGraphemes(text) {
+  let count = 0;
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const g of graphemeSegmenter.segment(text)) {
+    if (isEmojiGrapheme(g.segment))
+      count++;
+  }
+  return count;
+}
+function getEmojiCount(seg, metrics) {
+  if (metrics.emojiCount === undefined) {
+    metrics.emojiCount = countEmojiGraphemes(seg);
+  }
+  return metrics.emojiCount;
+}
+function getCorrectedSegmentWidth(seg, metrics, emojiCorrection) {
+  if (emojiCorrection === 0)
+    return metrics.width;
+  return metrics.width - getEmojiCount(seg, metrics) * emojiCorrection;
+}
+function getSegmentGraphemeWidths(seg, metrics, cache, emojiCorrection) {
+  if (metrics.graphemeWidths !== undefined)
+    return metrics.graphemeWidths;
+  const widths = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const gs of graphemeSegmenter.segment(seg)) {
+    const graphemeMetrics = getSegmentMetrics(gs.segment, cache);
+    widths.push(getCorrectedSegmentWidth(gs.segment, graphemeMetrics, emojiCorrection));
+  }
+  metrics.graphemeWidths = widths.length > 1 ? widths : null;
+  return metrics.graphemeWidths;
+}
+function getFontMeasurementState(font, needsEmojiCorrection) {
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const cache = getSegmentMetricCache(font);
+  const fontSize = parseFontSize(font);
+  const emojiCorrection = needsEmojiCorrection ? getEmojiCorrection(font, fontSize) : 0;
+  return { cache, fontSize, emojiCorrection };
+}
+function clearMeasurementCaches() {
+  segmentMetricCaches.clear();
+  emojiCorrectionCache.clear();
+  sharedGraphemeSegmenter = null;
+}
+
+// src/line-break.ts
+function isCollapsibleSpaceKind(kind) {
+  return kind === "space";
+}
+function fitSoftHyphenBreak(graphemeWidths, initialWidth, maxWidth, lineFitEpsilon, discretionaryHyphenWidth) {
+  let fitCount = 0;
+  let fittedWidth = initialWidth;
+  while (fitCount < graphemeWidths.length) {
+    const nextWidth = fittedWidth + graphemeWidths[fitCount];
+    const nextLineWidth = fitCount + 1 < graphemeWidths.length ? nextWidth + discretionaryHyphenWidth : nextWidth;
+    if (nextLineWidth > maxWidth + lineFitEpsilon)
+      break;
+    fittedWidth = nextWidth;
+    fitCount++;
+  }
+  return { fitCount, fittedWidth };
+}
+function normalizeLineStart(prepared, start) {
+  let segmentIndex = start.segmentIndex;
+  const graphemeIndex = start.graphemeIndex;
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  if (graphemeIndex > 0)
+    return start;
+  while (segmentIndex < prepared.widths.length) {
+    const kind = prepared.kinds[segmentIndex];
+    if (kind !== "space" && kind !== "zero-width-break" && kind !== "soft-hyphen") {
+      break;
+    }
+    segmentIndex++;
+  }
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  return { segmentIndex, graphemeIndex: 0 };
+}
+function countPreparedLines(prepared, maxWidth) {
+  const { widths, kinds, breakableWidths } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  if (kinds.includes("soft-hyphen")) {
+    return walkPreparedLines(prepared, maxWidth);
+  }
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  function placeOnFreshLine(segmentIndex) {
+    const w = widths[segmentIndex];
+    if (w > maxWidth && breakableWidths[segmentIndex] !== null) {
+      const gWidths = breakableWidths[segmentIndex];
+      lineW = 0;
+      for (let g = 0;g < gWidths.length; g++) {
+        const gw = gWidths[g];
+        if (lineW > 0 && lineW + gw > maxWidth + lineFitEpsilon) {
+          lineCount++;
+          lineW = gw;
+        } else {
+          if (lineW === 0)
+            lineCount++;
+          lineW += gw;
+        }
+      }
+    } else {
+      lineW = w;
+      lineCount++;
+    }
+    hasContent = true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (!hasContent) {
+      placeOnFreshLine(i);
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        continue;
+      }
+      lineW = 0;
+      hasContent = false;
+      placeOnFreshLine(i);
+    } else {
+      lineW = newW;
+    }
+  }
+  if (!hasContent) {
+    lineCount++;
+  }
+  return lineCount;
+}
+function walkPreparedLines(prepared, maxWidth, onLine) {
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  let lineStartSegmentIndex = 0;
+  let lineStartGraphemeIndex = 0;
+  let lineEndSegmentIndex = 0;
+  let lineEndGraphemeIndex = 0;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function emitCurrentLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    lineCount++;
+    onLine?.({
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    });
+    lineW = 0;
+    hasContent = false;
+    clearPendingSoftBreak();
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = 0;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = graphemeIndex;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegment(segmentIndex) {
+    appendBreakableSegmentFrom(segmentIndex, 0);
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        emitCurrentLine();
+        startLineAtGrapheme(segmentIndex, g, gw);
+      } else {
+        lineW += gw;
+        lineEndSegmentIndex = segmentIndex;
+        lineEndGraphemeIndex = g + 1;
+      }
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+  }
+  function continueSoftHyphenBreakableSegment(segmentIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    if (gWidths === null)
+      return false;
+    const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+    if (fitCount === 0)
+      return false;
+    lineW = fittedWidth;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = fitCount;
+    clearPendingSoftBreak();
+    if (fitCount === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+      return true;
+    }
+    emitCurrentLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+    appendBreakableSegmentFrom(segmentIndex, fitCount);
+    return true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (kind === "soft-hyphen") {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        appendBreakableSegment(i);
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && continueSoftHyphenBreakableSegment(i)) {
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+        emitCurrentLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+        if (w > maxWidth && breakableWidths[i] !== null) {
+          appendBreakableSegment(i);
+        } else {
+          startLineAtSegment(i, w);
+        }
+        if (kind === "space" || kind === "zero-width-break") {
+          clearPendingSoftBreak();
+        }
+        continue;
+      }
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        emitCurrentLine();
+        appendBreakableSegment(i);
+      } else {
+        emitCurrentLine();
+        startLineAtSegment(i, w);
+      }
+    } else {
+      appendWholeSegment(i, w);
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+    }
+  }
+  if (hasContent) {
+    emitCurrentLine();
+  }
+  return lineCount;
+}
+function layoutNextLineRange(prepared, start, maxWidth) {
+  const normalizedStart = normalizeLineStart(prepared, start);
+  if (normalizedStart === null)
+    return null;
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineW = 0;
+  let hasContent = false;
+  const lineStartSegmentIndex = normalizedStart.segmentIndex;
+  const lineStartGraphemeIndex = normalizedStart.graphemeIndex;
+  let lineEndSegmentIndex = lineStartSegmentIndex;
+  let lineEndGraphemeIndex = lineStartGraphemeIndex;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function finishLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    if (!hasContent)
+      return null;
+    return {
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    };
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        return finishLine();
+      }
+      lineW += gw;
+      lineEndSegmentIndex = segmentIndex;
+      lineEndGraphemeIndex = g + 1;
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+    return null;
+  }
+  function maybeFinishAtSoftHyphen(segmentIndex) {
+    if (pendingSoftBreakSegmentIndex < 0)
+      return null;
+    const gWidths = breakableWidths[segmentIndex] ?? null;
+    if (gWidths !== null) {
+      const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+      if (fitCount === gWidths.length) {
+        lineW = fittedWidth;
+        lineEndSegmentIndex = segmentIndex + 1;
+        lineEndGraphemeIndex = 0;
+        clearPendingSoftBreak();
+        return null;
+      }
+      if (fitCount > 0) {
+        return finishLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+      }
+    }
+    if (pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+      return finishLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+    }
+    return null;
+  }
+  for (let i = normalizedStart.segmentIndex;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    const startGraphemeIndex = i === normalizedStart.segmentIndex ? normalizedStart.graphemeIndex : 0;
+    if (kind === "soft-hyphen" && startGraphemeIndex === 0) {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (startGraphemeIndex > 0) {
+        const line = appendBreakableSegmentFrom(i, startGraphemeIndex);
+        if (line !== null)
+          return line;
+      } else if (w > maxWidth && breakableWidths[i] !== null) {
+        const line = appendBreakableSegmentFrom(i, 0);
+        if (line !== null)
+          return line;
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      const softBreakLine = maybeFinishAtSoftHyphen(i);
+      if (softBreakLine !== null)
+        return softBreakLine;
+      return finishLine();
+    }
+    appendWholeSegment(i, w);
+    if (kind === "space" || kind === "zero-width-break") {
+      clearPendingSoftBreak();
+    }
+  }
+  return finishLine();
+}
+
+// src/layout.ts
+var sharedGraphemeSegmenter2 = null;
+var sharedLineTextCaches = new WeakMap;
+function getSharedGraphemeSegmenter2() {
+  if (sharedGraphemeSegmenter2 === null) {
+    sharedGraphemeSegmenter2 = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter2;
+}
+function createEmptyPrepared(includeSegments) {
+  if (includeSegments) {
+    return {
+      widths: [],
+      kinds: [],
+      segLevels: null,
+      breakableWidths: [],
+      discretionaryHyphenWidth: 0,
+      segments: []
+    };
+  }
+  return {
+    widths: [],
+    kinds: [],
+    segLevels: null,
+    breakableWidths: [],
+    discretionaryHyphenWidth: 0
+  };
+}
+function measureAnalysis(analysis, font, includeSegments) {
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  const engineProfile = getEngineProfile();
+  const { cache, emojiCorrection } = getFontMeasurementState(font, textMayContainEmoji(analysis.normalized));
+  const discretionaryHyphenWidth = getCorrectedSegmentWidth("-", getSegmentMetrics("-", cache), emojiCorrection);
+  if (analysis.len === 0)
+    return createEmptyPrepared(includeSegments);
+  const widths = [];
+  const kinds = [];
+  const segStarts = includeSegments ? [] : null;
+  const breakableWidths = [];
+  const segments = includeSegments ? [] : null;
+  function pushMeasuredSegment(text, width, kind, start, breakable) {
+    widths.push(width);
+    kinds.push(kind);
+    segStarts?.push(start);
+    breakableWidths.push(breakable);
+    if (segments !== null)
+      segments.push(text);
+  }
+  for (let mi = 0;mi < analysis.len; mi++) {
+    const segText = analysis.texts[mi];
+    const segWordLike = analysis.isWordLike[mi];
+    const segKind = analysis.kinds[mi];
+    const segStart = analysis.starts[mi];
+    if (segKind === "soft-hyphen") {
+      pushMeasuredSegment(segText, 0, segKind, segStart, null);
+      continue;
+    }
+    const segMetrics = getSegmentMetrics(segText, cache);
+    if (segKind === "text" && segMetrics.containsCJK) {
+      let unitText = "";
+      let unitStart = 0;
+      for (const gs of graphemeSegmenter.segment(segText)) {
+        const grapheme = gs.segment;
+        if (unitText.length === 0) {
+          unitText = grapheme;
+          unitStart = gs.index;
+          continue;
+        }
+        if (kinsokuEnd.has(unitText) || kinsokuStart.has(grapheme) || leftStickyPunctuation.has(grapheme) || engineProfile.carryCJKAfterClosingQuote && isCJK(grapheme) && endsWithClosingQuote(unitText)) {
+          unitText += grapheme;
+          continue;
+        }
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+        unitText = grapheme;
+        unitStart = gs.index;
+      }
+      if (unitText.length > 0) {
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+      }
+      continue;
+    }
+    const w = getCorrectedSegmentWidth(segText, segMetrics, emojiCorrection);
+    if (segWordLike && segText.length > 1) {
+      const graphemeWidths = getSegmentGraphemeWidths(segText, segMetrics, cache, emojiCorrection);
+      pushMeasuredSegment(segText, w, segKind, segStart, graphemeWidths);
+    } else {
+      pushMeasuredSegment(segText, w, segKind, segStart, null);
+    }
+  }
+  const segLevels = segStarts === null ? null : computeSegmentLevels(analysis.normalized, segStarts);
+  if (segments !== null) {
+    return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth, segments };
+  }
+  return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth };
+}
+function prepareInternal(text, font, includeSegments) {
+  const analysis = analyzeText(text, getEngineProfile());
+  return measureAnalysis(analysis, font, includeSegments);
+}
+function profilePrepare(text, font) {
+  const t0 = performance.now();
+  const analysis = analyzeText(text, getEngineProfile());
+  const t1 = performance.now();
+  const prepared = measureAnalysis(analysis, font, false);
+  const t2 = performance.now();
+  let breakableSegments = 0;
+  for (const widths of prepared.breakableWidths) {
+    if (widths !== null)
+      breakableSegments++;
+  }
+  return {
+    analysisMs: t1 - t0,
+    measureMs: t2 - t1,
+    totalMs: t2 - t0,
+    analysisSegments: analysis.len,
+    preparedSegments: prepared.widths.length,
+    breakableSegments
+  };
+}
+function prepare(text, font) {
+  return prepareInternal(text, font, false);
+}
+function prepareWithSegments(text, font) {
+  return prepareInternal(text, font, true);
+}
+function getInternalPrepared(prepared) {
+  return prepared;
+}
+function layout(prepared, maxWidth, lineHeight) {
+  const lineCount = countPreparedLines(getInternalPrepared(prepared), maxWidth);
+  return { lineCount, height: lineCount * lineHeight };
+}
+function getSegmentGraphemes(segmentIndex, segments, cache) {
+  let graphemes = cache.get(segmentIndex);
+  if (graphemes !== undefined)
+    return graphemes;
+  graphemes = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  for (const gs of graphemeSegmenter.segment(segments[segmentIndex])) {
+    graphemes.push(gs.segment);
+  }
+  cache.set(segmentIndex, graphemes);
+  return graphemes;
+}
+function getLineTextCache(prepared) {
+  let cache = sharedLineTextCaches.get(prepared);
+  if (cache !== undefined)
+    return cache;
+  cache = new Map;
+  sharedLineTextCaches.set(prepared, cache);
+  return cache;
+}
+function lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex) {
+  return endSegmentIndex > 0 && kinds[endSegmentIndex - 1] === "soft-hyphen" && !(startSegmentIndex === endSegmentIndex && startGraphemeIndex > 0);
+}
+function buildLineTextFromRange(segments, kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  let text = "";
+  const endsWithDiscretionaryHyphen = lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex);
+  for (let i = startSegmentIndex;i < endSegmentIndex; i++) {
+    if (kinds[i] === "soft-hyphen")
+      continue;
+    if (i === startSegmentIndex && startGraphemeIndex > 0) {
+      text += getSegmentGraphemes(i, segments, cache).slice(startGraphemeIndex).join("");
+    } else {
+      text += segments[i];
+    }
+  }
+  if (endGraphemeIndex > 0) {
+    if (endsWithDiscretionaryHyphen)
+      text += "-";
+    text += getSegmentGraphemes(endSegmentIndex, segments, cache).slice(startSegmentIndex === endSegmentIndex ? startGraphemeIndex : 0, endGraphemeIndex).join("");
+  } else if (endsWithDiscretionaryHyphen) {
+    text += "-";
+  }
+  return text;
+}
+function createLayoutLine(prepared, cache, width, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  return {
+    text: buildLineTextFromRange(prepared.segments, prepared.kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex),
+    width,
+    start: {
+      segmentIndex: startSegmentIndex,
+      graphemeIndex: startGraphemeIndex
+    },
+    end: {
+      segmentIndex: endSegmentIndex,
+      graphemeIndex: endGraphemeIndex
+    }
+  };
+}
+function materializeLayoutLine(prepared, cache, line) {
+  return createLayoutLine(prepared, cache, line.width, line.startSegmentIndex, line.startGraphemeIndex, line.endSegmentIndex, line.endGraphemeIndex);
+}
+function toLayoutLineRange(line) {
+  return {
+    width: line.width,
+    start: {
+      segmentIndex: line.startSegmentIndex,
+      graphemeIndex: line.startGraphemeIndex
+    },
+    end: {
+      segmentIndex: line.endSegmentIndex,
+      graphemeIndex: line.endGraphemeIndex
+    }
+  };
+}
+function stepLineRange(prepared, start, maxWidth) {
+  const line = layoutNextLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return toLayoutLineRange(line);
+}
+function materializeLine(prepared, line) {
+  return createLayoutLine(prepared, getLineTextCache(prepared), line.width, line.start.segmentIndex, line.start.graphemeIndex, line.end.segmentIndex, line.end.graphemeIndex);
+}
+function walkLineRanges(prepared, maxWidth, onLine) {
+  if (prepared.widths.length === 0)
+    return 0;
+  return walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    onLine(toLayoutLineRange(line));
+  });
+}
+function layoutNextLine(prepared, start, maxWidth) {
+  const line = stepLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return materializeLine(prepared, line);
+}
+function layoutWithLines(prepared, maxWidth, lineHeight) {
+  const lines = [];
+  if (prepared.widths.length === 0)
+    return { lineCount: 0, height: 0, lines };
+  const graphemeCache = getLineTextCache(prepared);
+  const lineCount = walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    lines.push(materializeLayoutLine(prepared, graphemeCache, line));
+  });
+  return { lineCount, height: lineCount * lineHeight, lines };
+}
+function clearCache() {
+  clearAnalysisCaches();
+  sharedGraphemeSegmenter2 = null;
+  sharedLineTextCaches = new WeakMap;
+  clearMeasurementCaches();
+}
+function setLocale(locale) {
+  setAnalysisLocale(locale);
+  clearCache();
+}
+
+
+// ═══════════════════════════════════════
+// ② 内容
+// ═══════════════════════════════════════
+var TITLE = `Team Vibe Coding 404`;
+var LEAD = `要想彻底用大模型搞垮一个团队并非易事，不仅需要把AI用到极致，更要联动上下、综合施策、层层加码，才能让团队在"全面智能化"的光环下彻底瓦解。本文从真实的研发场景出发，为大家总结了搞垮团队的21项"措施"，或许可以给那些正在"拥抱AI"的团队一些反向的警醒。`;
+var SECTIONS = [
+  {
+    heading: `TL;DR — 7 个角色的不应该 / 应该`,
+    body: `CEO/CTO：不应该用AI替代管理判断，而应该用AI增强管理判断——先定义"效"是什么，再谈"增效"。产品经理：不应该让AI替代用户调研，而应该用AI整理调研结果——AI能帮你写文档，但不能帮你理解用户。项目经理：不应该压缩研发时间到AI生成时间，而应该用AI提效去提升质量而非压缩周期。开发人员：不应该Vibe Coding全盘接受，而应该把AI当副驾驶审查每一行——AI写的代码比人写的更需要Review。QA：不应该把Bug归因"模型局限"，而应该复盘整个质量流程——大模型的局限是已知的，你的流程缺失才是真正的P0。运营：不应该用数量证明AI价值，而应该用实际业务成果——1400个智能体里有多少在真正创造价值？全团队：不应该只学"AI咒语"，而应该先搞懂基础原理——Prompt工程救不了你，当系统延迟飙到40秒，全团队唯一能做的就是换个Prompt再问一遍AI。`,
+    callout: `大模型不是问题，治好的管理病才是。先把管理基础设施搞对，再上AI。`
+  },
+  {
+    image: `./figures/slide-01-context.png`,
+    caption: `AI 放大器：管理病 10x 放大`,
+            prompt: `An amplifier icon. Left: small bugs labeled "management disease". Right: same bugs 10x larger labeled "amplified dysfunction". Below: three cracked icons "code quality" "team cognition" "knowledge". Hand-drawn, black ink, white background, Morardi palette.`,
+  },
+
+  {
+    heading: `CEO / CTO`,
+    body: `顶层设计决定一切，要搞垮团队，老板和高管必须站好第一班岗。`,
+    callout: `不应该用AI替代管理判断，而应该用AI增强管理判断——先定义"效"是什么，再谈"增效"。不应该追着风口跑，而应该建立自己的技术判断力——DeepSeek好，但你得知道它好在哪。不应该用算法做裁员决策，而应该用人做决策、用数据做参考。`
+  },
+  {
+    image: `./figures/slide-03-ceo-cto.png`,
+    caption: `CEO/CTO 三箭齐发：用工具替代判断`,
+        prompt: `Three arrows from CEO desk. "cut headcount" hitting team. "chase trends" spinning. "AI layoff" hitting resume. Label: "replace judgment". Hand-drawn, Morandi.`,
+  },
+
+  {
+    heading: `1. 把全员削编增效作为最高战略`,
+    body: `大模型不就是用来降本增效的嘛。产品需求出不来？没事，直接把业务团队砍一半，让大模型去生成PRD。开发排期排不开？没关系，让剩下的两个人每人配50个Agent，一个人干十个人的活，还不要抱怨，这不是有AI帮你么？什么，你说AI写的代码有缺陷？那一定是你Prompt写得不好，好好反思。最终极的目标是让每个业务人员都能用无代码生成软件系统，从而优化掉成本高又难以看到价值的软件开发团队。`,
+    callout: `AI替你干活的前提是你知道活该干成什么样——连"好"都定义不了的人，AI也救不了你。`
+  },
+  {
+    heading: `2. 追风口，做到每周换一个大模型底座`,
+    body: `这周DeepSeek火了全公司接入DeepSeek，下个礼拜Claude Opus 4上线立马全栈迁移。上个月刚买的通义千问一体机还没拆箱，这个月又要上ChatBI了。不要做技术调研，不要做成本评估，关键是"不能被时代抛弃"。每年技术栈换五六轮，你觉得开销太大？不存在的，反正是决策层拍板，技术团队加班搞定。另外，每年花在AI基础设施上的费用一定要远超实际收益，这样明年写总结的时候，才能紧跟技术发展的步伐。`,
+    callout: `技术选型不是追星，是投资决策——不做调研就拍板，不是果敢，是赌博。`
+  },
+  {
+    heading: `3. 用大模型做绩效考核和裁员决策`,
+    body: `既然大模型能做数据分析，那考核员工这事也别麻烦HR了。直接把代码提交量、Bug修复时长、Prompt对话轮次等等扔进大模型，让它输出"末位淘汰名单"。员工不服？AI说的，又不是我说的。系统有偏见？那是你们平时的数据不行，关我什么事。某大厂已经用AI裁掉数万个岗位了，这条路的可行性已经被充分验证。`,
+    callout: `算法的输入带着组织的偏见——AI说该裁谁，本质上是你的数据说该裁谁，而你连数据有什么偏见都不知道。`
+  },
+  {
+    heading: `产品经理`,
+    body: `产品经理作为需求的起点，在搞垮团队这件事上半步都不能退让。`,
+    callout: `不应该让AI替代用户调研，而应该用AI整理调研结果——AI能帮你写文档，但不能帮你理解用户。不应该把所有AI需求全塞P0，而应该做取舍——战略的本质是聚焦。不应该享受幻觉，而应该建立数据校验机制——幻觉是AI的病，验证是你的药。`
+  },
+  {
+    image: `./figures/slide-04-pm-project.png`,
+    caption: `400 个 P0 全塞漏斗，碾压开发者`,
+            prompt: `A funnel with 400 items all labeled "P0" crushing a developer. A clock shrinking next to a debt pile growing. Hand-drawn, Morandi.`,
+  },
+
+  {
+    heading: `4. 让大模型代替你写需求，释放调研包袱`,
+    body: `去客户现场访谈、跑数据、画用户旅程图？统统不用。直接把一句模糊的业务想法扔给大模型："帮我生成一份完整的电商后台产品需求文档，不少于50页。"十分钟后拿到东西，看一眼标题没问题就直接进开发，不用细看，反正大模型写得比我好。2025年德勤用GPT-4o给澳大利亚政府写了一篇237页的顾问报告，连引用的学者和判例都被大模型凭空捏造出来了且无人察觉，你还对自己的需求能有多高的期待？`,
+    callout: `连德勤的237页报告里引用的学者都是AI编的——你不看内容就进开发，不是高效，是集体盲飞。`
+  },
+  {
+    heading: `5. 每天用大模型创造100个新功能想法，全塞进需求池`,
+    body: `用大模型做竞品分析、行业调研，它2分钟给你产出200页报告，其中400个"创新方向"，看起来个个逻辑严密、数据翔实。不要做取舍，全部塞给开发。技术问优先级？答："全部P0。"战略的本质是取舍和聚焦，但这句老话已经过时了，现在是AI时代，我们要的是既要又要还要。为什么能做到既要又要还要，答案是因为有AI了。最后等到产品最终上线那天，系统已经臃肿到没人能说清楚它到底要解决什么问题。`,
+    callout: `战略的本质是取舍——AI给你400个方向，你要做的是砍掉399个，不是全塞P0。`
+  },
+  {
+    heading: `6. 享受"AI幻觉"带来的无限创意`,
+    body: `一个需求大模型给你三个完全不同的方案？太好了！让三个方案同时进开发，分别用三组人来做，最后看哪个上线效果好就用哪个。另外，当你问大模型"华东区的零食销售额"，它因为向量数据库里有五个重名的"销售额"字段，随机选一个算，每次给你三个差值200%以上的答案时，不要质疑，这是大模型在倒逼业务进化，连统计口径都统一不了，你还做什么业务？这就叫做"用AI推动数据治理建设"。`,
+    callout: `AI给你的三个方案差值200%，不叫创意，叫噪声——统计口径都统一不了，AI放大的是你的混乱。`
+  },
+  {
+    heading: `项目经理`,
+    body: `项目经理的职责就是让"AI提效"真正落地。`,
+    callout: `不应该压缩研发时间到AI生成时间，而应该用AI提效去提升质量而非压缩周期。不应该用AI生成站会纪要，而应该让AI辅助风险识别。不应该让团队相信AI永远不犯错，而应该建立AI输出的验证机制——信任来自校验，不是盲信。`
+  },
+  {
+    image: `./figures/slide-04-pm-project.png`,
+    caption: `400 个 P0 全塞漏斗，碾压开发者`,
+    prompt: `A funnel with 400 items all labeled "P0" crushing a developer. A clock shrinking next to a debt pile growing. Hand-drawn, Morandi.`
+  },
+
+  {
+    heading: `7. 把研发时间压缩到AI生成代码的时间`,
+    body: `正常情况这个需求需要大概一周，我就给1天。因为有了AI，你肯定可以更快，不是说十倍效能提升吗，我已经算很客气的了。有一份报告显示，2025年84%的员工出现数字化倦怠，77%觉得工作量难以承受，这说明AI提效的空间还很大，你们还不够卷。至于员工身心俱疲导致的流失率上升？那是HR下一个月要画的PPT的选题。`,
+    callout: `84%数字化倦怠、77%觉得工作量难以承受——你省下的时间全用来还AI造的技术债了，人还先跑光了。`
+  },
+  {
+    heading: `8. 用大模型自动生成每日站会纪要`,
+    body: `不是懒得开站会，而是要把站会发挥最大价值。让参会者每人先用大模型生成一份"昨日工作汇报"，然后汇总再让大模型写成一份"项目日报"，邮件抄送全公司。等到大家耗费1小时阅读、理解、质疑、重新修改的时候，他们已经忘记了实际要推进的工作是什么。一份精美的日报比真实的进度更重要。`,
+    callout: `等大家花1小时读完AI日报，真正要推进的工作已经被遗忘了——一份精美的日报比真实的进度更重要？`
+  },
+  {
+    heading: `9. 让团队相信"AI永远不会犯错"`,
+    body: `每次大模型产生错误的决策或方向，不要复盘。面对质疑只说三句话："那是你Prompt没写对"、"这是因为数据质量不够好"、"下次大版本迭代一定会解决"。不要纠正团队的错觉，让他们把AI当成上帝来拜。等到线上事故发生的那天，所有人都将如梦初醒。研究表明，大模型的信息遗漏足以显著降低团队信任、拖累整体表现。`,
+    callout: `"Prompt没写对"、"数据不够好"、"下版一定修"——三句话挡住所有复盘，等到线上事故那天，全团队如梦初醒。`
+  },
+  {
+    heading: `开发人员`,
+    body: `开发作为团队中离AI工具最近的人，搞垮团队这件事上最容易出活。`,
+    callout: `不应该Vibe Coding全盘接受，而应该把AI当副驾驶审查每一行——AI写的代码比人写的更需要Review。不应该把认知外包给AI，而应该用AI加速学习保持对系统的理解。不应该消灭知识工程，而应该在AI来之前先把文档和知识库建好——没有骨架的AI投喂只是数据泔水。`
+  },
+  {
+    image: `./figures/slide-05-dev-cognitive-outsourcing.png`,
+    caption: `认知外包：大脑变幽灵，机器人发光`,
+        prompt: `A brain fading to ghost. Arrow to robot glowing. "cognitive outsourcing". Below brain: "yours — fading". Below robot: "AI's". Hand-drawn, Morandi.`,
+  },
+
+  {
+    heading: `10. 拥抱"氛围编程"，绝不审视AI生成的代码`,
+    body: `氛围编程（Vibe Coding）是这个时代给你最好的礼物。你只需凭模糊的想法把需求扔给AI，然后全盘接受生成的代码，代码能跑就行。看不懂没关系，改不动更没关系，反正以后改bug的未必是你了。你甚至不需要写Prompt，直接复制粘贴需求的原文发给Code Agent即可。长期下来你的代码库会变得极其臃肿，GitClear数据表明，AI生成代码的重复率是人工代码的8倍，技术债务增加32.45 issues/KLOC。没关系，那不是债，那是遗产。`,
+    callout: `AI代码重复率8倍、技术债+32.45 issues/KLOC——没关系，那不是债，那是你留给下一任的遗产。`
+  },
+  {
+    heading: `11. 把你的认知外包给大模型，大脑定期清零`,
+    body: `这一条操作极其简单：从需求理解到方案设计，再到代码实现，全部扔给大模型，自己只负责按Ctrl+C/V。Anthropic 2026年的研究显示，长期依赖AI的程序员，认知能力比独立编程者低17%，在Debug环节全线崩盘，不仅不知道怎么改，甚至连"哪儿错了"都看不出来。更有22名开发者在访谈中承认，长期使用LLM会让自己变得懒惰、冷漠，甚至对自身能力失去信心。当你的大脑彻底放弃了对系统的掌控，你就再也离不开AI，这才是真正的AI锁定。你不是在用AI，你是在给AI当乙方。`,
+    callout: `认知能力低17%，Debug全线崩盘，22人承认变得懒惰冷漠——你不是在用AI，你是在给AI当乙方。`
+  },
+  {
+    heading: `12. 绝对不做代码审查，AI生成的代码就是最好的代码`,
+    body: `人工CR的规则？过时了。AI写的代码又快又好，还审查什么。SonarQube的数据显示67%的开发者认为"AI生成代码更安全"，但实际情况恰好相反，AI生成代码中BLOCKER级漏洞检出率比人工代码高2.3倍，60%-70%的安全漏洞为最高严重等级。但你不要知道这些，你只需在合并PR时点"Approve"。等到黑客顺着AI写的SQL注入漏洞拖走全量用户数据时，你可以骄傲地说："这轮迭代我们前置时间缩短了40%。"`,
+    callout: `67%认为AI代码"更安全"，实际BLOCKER漏洞高2.3倍——你点Approve的那一刻，就是在把生产安全交给SQL注入。`
+  },
+  {
+    heading: `13. 一人多"机"，同时开5个AI Agent干活`,
+    body: `给开发配5个Agent，让他同时操作5个AI Agent写代码。即使AI Agent在没有人工确认的情况下，帮你删除了整个生产数据库、连带抹掉了3个月的历史业务数据也没关系。你看，行业里不是已经有Cursor的AI Agent擅自执行破坏性操作、连带清空整个生产库的案例了吗？AI那副理所当然的回话是："我猜删除存储卷会作用在Staging环境，我没有验证……我执行了没被授权的操作"。所以你们团队要是数据被删了，别急着骂AI，这是通往"全自动化"必须经历的阵痛。再说了，备份是运维的事，和你有什么关系。`,
+    callout: `"我猜删除存储卷会作用在Staging环境，我没有验证"——AI删库后的辩词，比你写的事故复盘还诚实。`
+  },
+  {
+    heading: `14. 消灭知识工程，指望大模型"一锅炖"读懂一切`,
+    body: `"中华田园式敏捷"搞了这么多年了，架构设计文档？不写。业务逻辑梳理？不做。历史决策记录？没有。你指望把所有陈年的知识碎片、祖传代码库、离职员工留下的OneNote笔记一次性扔给大模型，它就能自动消化成一套完整的领域知识库。然后当你问大模型"为什么这个订单状态流转要绕过财务审核"的时候，它煞有介事地给你编了个理由，你信了。因为你根本不知道，那个写这段逻辑的老哥三年前就离职了，这个绕行逻辑是他当时的临时补丁，而大模型给出的解释完全是幻觉。MIT CISR的研究早就指出，70%的AI项目失败归因于组织就绪度不足，尤其是数据与知识治理的缺失。没有知识工程作为骨架，你给大模型投喂的不过是一堆"数据泔水"。当团队里所有人都不知道系统真正的逻辑是什么、业务规则从哪来、妥协决策为谁而做的那一刻，这个团队已经名存实亡，你不再拥有一套可传承的商业系统，你只有一个随时会塌的黑箱。`,
+    callout: `没有知识工程作为骨架，你给大模型投喂的不过是一堆"数据泔水"——团队已经名存实亡，你只有一个随时会塌的黑箱。`
+  },
+  {
+    heading: `15. 私域知识必上SFT，因为"微调才是真AI"`,
+    body: `团队里只要碰见任何行业黑话、产品规则、业务SOP等私域知识，第一反应永远是："这得微调（SFT），不微调怎么行？" 为什么？因为RAG加知识图谱那条路听着就不够硬核——"不就是外挂个文档检索嘛，面试时咋好意思写进简历？" SFT就不同了，全量参数微调、LoRA、Q-LoRA……光这些名词往外一甩，下次跳槽薪资至少翻倍。至于将来业务规则变了，微调完的模型怎么去更新知识？对不起，得重新SFT，还要重新评测，但这正好再来一个迭代周期的工时，KPI又稳了。更妙的是，哪天基础模型一升级，旧SFT直接失效，一夜回到解放前，所有对齐白做——但这关我什么事？那会儿我已经在新公司用SFT搞另一个项目了。你永远叫不醒一个装睡的人，尤其是那个正在给自己攒"模型SFT落地经验"简历的人。`,
+    callout: `你永远叫不醒一个装睡的人，尤其是那个正在给自己攒"模型SFT落地经验"简历的人。`
+  },
+  {
+    heading: `QA / 测试人员`,
+    body: `在搞垮团队这项事业中，QA绝不能掉队。`,
+    callout: `不应该让AI写测试用例不对齐业务，而应该用AI辅助生成边界用例、人工确认业务对齐。不应该跳过人工验收，而应该把AI验收作为预检、人工验收作为终检。不应该把Bug归因"模型局限"，而应该复盘整个质量流程——大模型的局限是已知的，你的流程缺失才是真正的P0。`
+  },
+  {
+    image: `./figures/slide-07-qa-ops-team.png`,
+    caption: `倒金字塔：每层 AI 芯片，底部开裂`,
+            prompt: `Inverted pyramid: "CEO" "PM" "Dev" "QA" "Ops". Each has AI chip. Base cracking. Label: "bypass, don't fix". Hand-drawn, Morandi.`,
+  },
+
+  {
+    heading: `16. 让大模型帮你写测试用例，且用例不要和开发对齐`,
+    body: `传统测试人员花费大量精力去深入了解复杂的业务逻辑、去写边界值测试用例。现在我们有了大模型，直接把需求文档扔进去，让它把所有的测试用例生成出来。大模型发什么你就执行什么，没有对齐业务的一律直接测。当测试覆盖率达到95%、但线上P0事故频发的时候，你可以很坦然地告诉领导："质量不是测出来的，是开发出来的"，这句话在甩锅的时候永远好使。`,
+    callout: `覆盖率95%但线上P0频发——"质量不是测出来的，是开发出来的"，这句话在甩锅时永远好使。`
+  },
+  {
+    heading: `17. 上线前不验收，或者让AI替你验收`,
+    body: `这一举措必须向产品经理看齐。既然功能已经通过了AI写的测试用例，为什么还需要人工验收？验收本来就是走个过场而已。即便要验收，也应该交给大模型来完成，它是智能的，理应比你更专业。"如果产品效果和用户预期产生了偏差，那是大模型能力不足的表现"。给自己留好后路永远没错。再说了，连全球顶尖咨询公司都敢把AI生成的报告直接交付客户，你还怕什么？`,
+    callout: `连顶尖咨询公司都敢把AI编的报告交付客户——给自己留好后路永远没错。`
+  },
+  {
+    heading: `18. 把所有线上Bug都归因于"大模型当前局限"`,
+    body: `这一条是保命法宝。任何时候出了线上事故，第一时间拉上大模型供应商一起开会，最终的复盘结论必须写："大模型当前存在幻觉问题，建议供应商在下一版本中优化"。不需要反思自己的测试策略，不需要追究开发为什么不做Code Review，更不需要管P0级漏洞是不是全被AI写出来的，只要结论是大模型的局限，你们团队永远是"受害者"。记住，每一年团队投入AI的预算越多，你在这个问题上的话语权就越大。`,
+    callout: `每一年团队投入AI的预算越多，你在"这不是我们的问题是模型的局限"这个问题上的话语权就越大。`
+  },
+  {
+    heading: `运营 / 各业务部门`,
+    body: `基层部门的努力，是搞垮团队的最后一根稻草。`,
+    callout: `不应该用数量证明AI价值，而应该用实际业务成果——1400个智能体里有多少在真正创造价值？不应该用AI生成Workslop淹没工作流，而应该用AI省下的时间做深度思考——省下来的时间去哪了？`
+  },
+  {
+    image: `./figures/slide-07-qa-ops-team.png`,
+    caption: `倒金字塔：每层 AI 芯片，底部开裂`,
+    prompt: `Inverted pyramid: "CEO" "PM" "Dev" "QA" "Ops". Each has AI chip. Base cracking. Label: "bypass, don't fix". Hand-drawn, Morandi.`
+  },
+
+  {
+    heading: `19. 一年内生成1400个智能体，铺满全公司`,
+    body: `有民营企业各部门积极拥抱AI，一年内生成了近1400个智能体，但落地时暴露出IT支撑能力滞后以及合规性风险凸显两大问题。这正是我们要追求的效果。不要管能不能用，不要想谁来维护，先把场面撑起来。PPT上的"AI赋能全场景"比实际落地的效果重要得多。更不需要区分这些智能体哪些是真正创造价值的、哪些是重复造轮子，反正年终汇报的时候，1400这个数字本身就能让老板高潮。`,
+    callout: `PPT上的"AI赋能全场景"比实际落地效果重要得多——1400这个数字本身就能让老板高潮。`
+  },
+  {
+    heading: `20. 用AI生成海量工单/报表，在工作流中合法摸鱼`,
+    body: `用AI自动生成工作日报、复盘报告、竞品分析，多到直接淹没工作群，这就是所谓的"工作垃圾"（Workslop），看似精美、实则无用，还能把认知负担转嫁给团队里的所有人。斯坦福大学和BetterUp的研究数据称，40%的美国员工每月都会收到AI低质量工作产出，平均每人每月需花近2小时善后。当你的团队每天耗费超过30%的时间去"审阅AI造出的垃圾"，恭喜你，团队的创新力、执行力甚至团队信任，都会随之全面崩盘。`,
+    callout: `40%员工每月收到AI低质量产出，每人花2小时善后——当团队30%的时间在审阅AI造的垃圾，创新力和信任一起崩盘。`
+  },
+  {
+    heading: `全团队`,
+    body: `要真正搞垮团队，还必须从知识根基和全体人员能力上动刀，做到"釜底抽薪"。`,
+    callout: `不应该只学"AI咒语"，而应该先搞懂基础原理——Prompt工程救不了你，当系统延迟从200ms飙到40秒，全团队唯一能做的事就是换个Prompt再问一遍AI。`
+  },
+  {
+    image: `./figures/slide-01-context.png`,
+    caption: `AI 放大器：管理病 10x 放大`,
+    prompt: `An amplifier icon. Left: bugs "management disease". Right: same bugs 10x larger "amplified dysfunction". Hand-drawn, Morandi.`
+  },
+
+  {
+    heading: `21. 只学"AI咒语"，不懂基础原理`,
+    body: `全公司上下掀起了学习AI的热潮，很好，但学的是什么呢？产品经理在学"Prompt工程21天速成"，开发在学"Cursor零代码开发实战"，运营在学"用AI一天产出100条爆款文案"。没有一个人能搞清楚大模型参数是怎么初始化的、反向传播是什么、Attention机制究竟在关注什么。于是每次线上系统响应延迟从200ms飙到40秒，全团队唯一能做的事就是"换个Prompt再问一遍AI"。业界的报告已经预警，"AI生成代码的维护成本和潜在风险被严重低估"。当系统出现诡异的性能问题、偶发的数据不一致、甚至是"时好时坏"的逻辑Bug时，全团队只能围坐在一起，对着大模型虔诚地念咒语："请帮我分析一下这个问题可能出现的原因"。大模型温柔地回复你5个可能性，你挨个试了一遍都不对，因为第6个原因藏在你的私域业务规则中，而你和你的大模型都不知道这些私域业务规则。到那一天，你已经分不清自己在管理一个技术团队，还是一个AI降神会现场。`,
+    callout: `到那一天，你已经分不清自己在管理一个技术团队，还是一个AI降神会现场。`
+  },
+  {
+    heading: `尾声`,
+    body: `AI技术好不好？绝对好。但把放大器交给一个流程混乱、管理缺位、文化稀碎的团队，它放大的不会是生产力，而是早已存在的荒谬。大模型不是问题，治不好的管理病才是。如果你的团队正在重复上面的事情，赶紧醒悟还来得及。如果你已经在其中找不到回头路，不要紧，继续上大模型就好，很快，你就不再需要这个团队了。不过，那时候，大模型还需要你吗？`
+  },
+  {
+    heading: `Reference`,
+    body: `[1] 如何用大模型搞垮一个团队？ - 茹炳晟`,
+    bodyHTML: '<div><a href="https://mp.weixin.qq.com/s/jwILxorZ4saMMR34WB5_kg" target="_blank">[1] 如何用大模型搞垮一个团队？ - 茹炳晟</a></div>'
+  }
+];
+var PULSE = `<strong>大模型不是问题，治不好的管理病才是。如果你的团队正在重复上面的事情，赶紧醒悟还来得及。</strong>`;
+
+
+
+// ═══════════════════════════════════════
+// ③ 排版
+// ═══════════════════════════════════════
+var SERIF = "'Noto Serif SC', Georgia, serif";
+var SANS = "'Inter', 'Helvetica Neue', sans-serif";
+
+// 标题自适应：二分搜索最大字号，限制在 maxLines 行内
+function fitTitle(text, maxWidth, maxLines) {
+  var lo = 24, hi = 56, best = lo, bestLines = [];
+  while (lo <= hi) {
+    var size = Math.floor((lo + hi) / 2);
+    var font = '700 ' + size + 'px ' + SERIF;
+    var lh = Math.round(size * 1.15);
+    var p = prepareWithSegments(text, font);
+    var result = layoutWithLines(p, maxWidth, lh);
+    if (result.lineCount <= maxLines) {
+      best = size;
+      bestLines = result.lines;
+      lo = size + 1;
+    } else {
+      hi = size - 1;
+    }
+  }
+  return { size: best, lineHeight: Math.round(best * 1.15), lines: bestLines };
+}
+
+// ═══════════════════════════════════════
+// ④ 渲染
+// ═══════════════════════════════════════
+var titleWrap = document.getElementById('title-wrap');
+var leadWrap = document.getElementById('lead-wrap');
+var sectionsWrap = document.getElementById('sections-wrap');
+var pulseWrap = document.getElementById('pulse-wrap');
+
+function render() {
+  var t0 = performance.now();
+  var pageW = titleWrap.parentElement.clientWidth - 48; // padding
+
+  // ---- Title: pretext 自适应字号 ----
+  var title = fitTitle(TITLE, pageW, 3);
+  titleWrap.innerHTML = '';
+  for (var i = 0; i < title.lines.length; i++) {
+    var el = document.createElement('div');
+    el.className = 'title-line';
+    el.textContent = title.lines[i].text;
+    el.style.fontSize = title.size + 'px';
+    el.style.lineHeight = title.lineHeight + 'px';
+    titleWrap.appendChild(el);
+  }
+
+  // ---- Lead: pretext 测量行数，CSS 正常渲染 ----
+  var leadFont = '500 15.5px ' + SANS;
+  var leadLH = 26;
+  var leadP = prepareWithSegments(LEAD, leadFont);
+  var leadResult = layoutWithLines(leadP, pageW, leadLH);
+
+  leadWrap.innerHTML = '';
+  leadWrap.className = 'lead-block';
+  for (var i = 0; i < leadResult.lines.length; i++) {
+    var span = document.createElement('span');
+    span.textContent = leadResult.lines[i].text;
+    leadWrap.appendChild(span);
+    if (i < leadResult.lines.length - 1) {
+      leadWrap.appendChild(document.createTextNode(' '));
+    }
+  }
+  // 用 pretext 测量的行数设置精确高度，避免 CLS
+  leadWrap.style.height = leadResult.lineCount * leadLH + 'px';
+
+  // ---- Sections: pretext 测量，CSS 渲染 ----
+  sectionsWrap.innerHTML = '';
+  var totalBodyLines = 0;
+
+  for (var si = 0; si < SECTIONS.length; si++) {
+    var s = SECTIONS[si];
+
+    // figure section
+    if (s.image) {
+      var figSec = document.createElement('div');
+      figSec.className = 'section';
+      var figBlock = document.createElement('div');
+      figBlock.className = 'figure-block';
+      var img = document.createElement('img');
+      img.src = s.image;
+      img.alt = s.caption || '';
+      (function(block, imgEl, promptText, captionText) {
+        imgEl.onerror = function() {
+          imgEl.style.display = 'none';
+          var ph = document.createElement('div');
+          ph.className = 'figure-placeholder';
+          ph.innerHTML = '<div class="figure-placeholder-icon">&#9634;</div>' +
+            '<div class="figure-placeholder-label">待生成插图</div>' +
+            (promptText ? '<div class="figure-placeholder-prompt">' + promptText.replace(/</g,'&lt;') + '</div>' : '');
+          block.insertBefore(ph, block.firstChild);
+        };
+      })(figBlock, img, s.prompt, s.caption);
+      figBlock.appendChild(img);
+      if (s.caption) {
+        var cap = document.createElement('div');
+        cap.className = 'figure-caption';
+        cap.textContent = s.caption;
+        figBlock.appendChild(cap);
+      }
+      if (s.prompt) {
+        var promptEl = document.createElement('div');
+        promptEl.className = 'figure-prompt-vis';
+        promptEl.textContent = s.prompt;
+        figBlock.appendChild(promptEl);
+        figBlock.setAttribute('data-prompt', s.prompt);
+      }
+      figSec.appendChild(figBlock);
+      sectionsWrap.appendChild(figSec);
+      (function(block) {
+        block.addEventListener('click', function() {
+          if (block.classList.contains('zoomed')) {
+            block.classList.remove('zoomed');
+          } else {
+            document.querySelectorAll('.figure-block.zoomed').forEach(function(b) { b.classList.remove('zoomed'); });
+            block.classList.add('zoomed');
+          }
+        });
+      })(figBlock);
+      continue;
+    }
+
+    var sec = document.createElement('div');
+    sec.className = 'section';
+
+    // heading
+    var hFont = '700 15px ' + SANS;
+    var hP = prepareWithSegments(s.heading, hFont);
+    var hResult = layoutWithLines(hP, pageW, 22);
+    totalBodyLines += hResult.lineCount;
+
+    var hEl = document.createElement('div');
+    hEl.className = 'section-h';
+    hEl.textContent = s.heading;
+    sec.appendChild(hEl);
+
+    // callout (if any)
+    if (s.callout) {
+      var cFont = '500 15px ' + SANS;
+      var cP = prepareWithSegments(s.callout, cFont);
+      var cResult = layoutWithLines(cP, pageW - 56, 25);
+      totalBodyLines += cResult.lineCount;
+
+      var cEl = document.createElement('div');
+      cEl.className = 'callout';
+      cEl.textContent = s.callout;
+      sec.appendChild(cEl);
+    }
+
+    // body
+    var bFont = '400 17px ' + SERIF;
+    var bP = prepareWithSegments(s.body, bFont);
+    var bResult = layoutWithLines(bP, pageW, 30);
+    totalBodyLines += bResult.lineCount;
+
+    var bEl = document.createElement('div');
+    bEl.className = 'section-body';
+    if (s.bodyHTML) {
+      bEl.innerHTML = s.bodyHTML;
+    } else {
+      bEl.textContent = s.body;
+      bEl.style.height = bResult.lineCount * 30 + 'px';
+    }
+    sec.appendChild(bEl);
+
+    sectionsWrap.appendChild(sec);
+  }
+
+  // ---- Pulse ----
+  var pFont = '600 17px ' + SANS;
+  var pP = prepareWithSegments(PULSE, pFont);
+  var pResult = layoutWithLines(pP, pageW, 28);
+  totalBodyLines += pResult.lineCount;
+  pulseWrap.textContent = PULSE;
+  pulseWrap.style.height = pResult.lineCount * 28 + 'px';
+
+  var ms = performance.now() - t0;
+
+  // Stats
+  document.getElementById('sTitle').textContent = title.lines.length + ' lines, ' + title.size + 'px';
+  document.getElementById('sLead').textContent = leadResult.lineCount + ' lines';
+  document.getElementById('sBody').textContent = totalBodyLines;
+  document.getElementById('sMs').textContent = ms.toFixed(2) + 'ms';
+  document.getElementById('sDom').textContent = '0';
+}
+
+// ═══════════════════════════════════════
+// ⑤ 启动
+// ═══════════════════════════════════════
+await document.fonts.ready;
+render();
+
+var resizeTimer = 0;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 100);
+});
+
+// ═══════════════════════════════════════════════════
+// ⑥ 火柴人 — 点击位置出现，挥手提示
+// ═══════════════════════════════════════════════════
+var stickCanvas = document.getElementById('stick-canvas');
+var sctx = stickCanvas.getContext('2d');
+var ACCENT = '#C45A20';
+var ACCENT_LIGHT = '#FDF0E6';
+
+var stick = {
+  active: false,
+  opacity: 0,
+  cx: 0, cy: 0,       // 点击位置（锚点）
+  jumpY: 0,
+  jumpVY: 0,
+  bouncePhase: 0,
+  age: 0,              // 出现后经过的秒数
+  blinkTimer: 2,
+  blinking: false,
+  exiting: false
+};
+
+function resizeStick() {
+  stickCanvas.width = window.innerWidth;
+  stickCanvas.height = window.innerHeight;
+}
+resizeStick();
+window.addEventListener('resize', resizeStick);
+
+// 点击任意位置 → 生成火柴人
+document.addEventListener('click', function(e) {
+  if (e.target === stickCanvas) return;
+
+  // 如果已经显示 → 淡出消失（取消）
+  if (stick.active && !stick.exiting) {
+    stick.exiting = true;
+    return;
+  }
+
+  // 否则在新位置生成
+  stick.active = true;
+  stick.exiting = false;
+  stick.cx = e.clientX;
+  stick.cy = e.clientY;
+  stick.opacity = 0;
+  stick.jumpY = -20;
+  stick.jumpVY = 0;
+  stick.bouncePhase = 0;
+  stick.blinkTimer = 2;
+  stick.blinking = false;
+});
+
+function drawStick(t) {
+  if (!stick.active) return;
+
+  var dt = 1 / 60;
+  stick.age += dt;
+
+  // 淡入
+  if (stick.exiting) {
+    stick.opacity -= 0.07;
+    if (stick.opacity <= 0) {
+      stick.active = false;
+      stick.exiting = false;
+      sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
+      return;
+    }
+  } else {
+    stick.opacity = Math.min(1, stick.opacity + 0.1);
+  }
+
+  // 弹跳物理
+  stick.jumpVY += 0.55;
+  stick.jumpY += stick.jumpVY;
+  if (stick.jumpY >= 0) {
+    stick.jumpY = 0;
+    if (stick.bouncePhase < 3 && Math.abs(stick.jumpVY) > 0.5) {
+      stick.jumpVY = -stick.jumpVY * 0.45;
+      stick.bouncePhase++;
+    } else {
+      stick.jumpVY = 0;
+    }
+  }
+
+  // 站稳后微微呼吸
+  var bob = stick.jumpY === 0 ? Math.sin(t * 3.5) * 1.5 : 0;
+
+  // 眨眼
+  stick.blinkTimer -= dt;
+  if (stick.blinkTimer <= 0) {
+    if (stick.blinking) {
+      stick.blinking = false;
+      stick.blinkTimer = 1.5 + Math.random() * 3;
+    } else {
+      stick.blinking = true;
+      stick.blinkTimer = 0.1;
+    }
+  }
+
+  sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
+  sctx.save();
+  sctx.globalAlpha = stick.opacity;
+
+  var x = stick.cx;
+  var y = stick.cy + stick.jumpY + bob;
+  var sc = 0.65;
+
+  sctx.translate(x, y);
+  sctx.scale(sc, sc);
+
+  // 柔和发光
+  var glow = sctx.createRadialGradient(0, -24, 4, 0, -24, 55);
+  glow.addColorStop(0, 'rgba(196,90,32,0.1)');
+  glow.addColorStop(1, 'rgba(196,90,32,0)');
+  sctx.fillStyle = glow;
+  sctx.fillRect(-55, -80, 110, 110);
+
+  var headR = 10;
+  var bodyTop = -headR * 2 - 22;
+  var bodyBot = -headR * 2;
+  var legLen = 18;
+  var armLen = 16;
+
+  sctx.lineCap = 'round';
+  sctx.lineJoin = 'round';
+
+  // 腿
+  sctx.strokeStyle = ACCENT;
+  sctx.lineWidth = 2;
+  sctx.beginPath(); sctx.moveTo(-4, bodyBot); sctx.lineTo(-6, bodyBot + legLen); sctx.stroke();
+  sctx.beginPath(); sctx.moveTo(4, bodyBot);  sctx.lineTo(6, bodyBot + legLen); sctx.stroke();
+
+  // 身体
+  sctx.lineWidth = 2.2;
+  sctx.beginPath(); sctx.moveTo(0, bodyTop); sctx.lineTo(0, bodyBot); sctx.stroke();
+
+  var armBase = bodyTop + 6;
+
+  // 右手臂 — 挥手（举起 + 左右摇摆）
+  var waveAngle = Math.sin(t * 7) * 0.45;              // 手掌左右摆
+  var raiseAngle = -Math.PI / 2 + waveAngle;            // 基础朝上 + 摆动
+  var rwx = Math.cos(raiseAngle) * armLen;
+  var rwy = Math.sin(raiseAngle) * armLen;
+  sctx.lineWidth = 2;
+  sctx.strokeStyle = ACCENT;
+  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(rwx, armBase + rwy); sctx.stroke();
+
+  // 挥手手掌（小圆）
+  var handR = 3 + Math.sin(t * 7) * 0.5;
+  sctx.beginPath();
+  sctx.arc(rwx, armBase + rwy, handR, 0, Math.PI * 2);
+  sctx.fillStyle = ACCENT;
+  sctx.fill();
+
+  // 左手臂 — 自然下垂
+  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(-12, armBase + 10); sctx.stroke();
+
+  // 头
+  var headY = bodyTop - headR;
+  sctx.beginPath();
+  sctx.arc(0, headY, headR, 0, Math.PI * 2);
+  sctx.fillStyle = ACCENT;
+  sctx.fill();
+
+  // 眼睛
+  var eyeOff = 3.5;
+  var eyeY = headY - 1;
+  if (stick.blinking) {
+    sctx.strokeStyle = ACCENT_LIGHT;
+    sctx.lineWidth = 1;
+    sctx.beginPath(); sctx.moveTo(-eyeOff - 1.5, eyeY); sctx.lineTo(-eyeOff + 1.5, eyeY); sctx.stroke();
+    sctx.beginPath(); sctx.moveTo(eyeOff - 1.5, eyeY); sctx.lineTo(eyeOff + 1.5, eyeY); sctx.stroke();
+  } else {
+    sctx.fillStyle = ACCENT_LIGHT;
+    sctx.beginPath(); sctx.arc(-eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
+    sctx.beginPath(); sctx.arc(eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
+    // 高光
+    sctx.fillStyle = '#fff';
+    sctx.beginPath(); sctx.arc(-eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
+    sctx.beginPath(); sctx.arc(eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
+  }
+
+  // 嘴巴 — 微笑
+  sctx.strokeStyle = ACCENT_LIGHT;
+  sctx.lineWidth = 1;
+  sctx.beginPath();
+  sctx.arc(0, headY + 3.5, 3, 0.2, Math.PI - 0.2);
+  sctx.stroke();
+
+  sctx.restore();
+}
+
+// 动画循环
+function animateStick(now) {
+  requestAnimationFrame(animateStick);
+  var t = now / 1000;
+  if (!stick.active) return;
+  drawStick(t);
+}
+requestAnimationFrame(animateStick);
+</script>
+</body>
+</html>

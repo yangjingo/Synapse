@@ -96,6 +96,7 @@ Slides HTML MUST be copied from verified template, never hand-written. Hand-writ
 5. Image paths: relative from output directory
 6. DO NOT run prettier
 7. Verify: `node -e "new Function(require('fs').readFileSync('file','utf8').match(/<script.*>([\s\S]*)<\/script>/)[1])"`
+8. **Figure sync**: when DSL contains `Type: figure` sections, read reference template first (e.g. `dsv4-blog-opd-en.html`) and copy its complete figure pattern — independent section objects, prompts from slides DSL `::visual`, CSS `figure-prompt-vis`, rendering code. See `synapse-forge` SKILL.md "Figure Sync Rule" for full checklist
 
 ### Blog Content Principles
 

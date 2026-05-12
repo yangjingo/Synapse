@@ -320,18 +320,30 @@ figure-XX-descriptivename.{svg,png,jpg}
 
 ### Curly Quote Rule (CRITICAL — verified after EVERY file edit)
 
-Chinese curly quotes “” (U+201C / U+201D) are **never** valid JS string delimiters. They look like quotes but JavaScript treats them as regular characters, causing `SyntaxError: Invalid or unexpected token` that silently kills the entire `<script type="module">`.
+Chinese curly quotes “” (U+201C / U+201D) are **never** valid JS string delimiters. They look like quotes but JavaScript treats them as regular characters, causing  that silently kills the entire .
 
-**Allowed delimiters**: backtick `` ` `` for body/heading/callout/caption/prompt, single quote `'` for bodyHTML
+**Allowed delimiters**: backtick \ for body/heading/callout/caption/prompt, single quote  for bodyHTML
 
 **Allowed content**: curly quotes are fine INSIDE strings (e.g. “质量保持” in body text)
 
 **What goes wrong**: when using node scripts or the Edit tool to modify HTML files containing Chinese curly quotes as text content, the script may accidentally:
 1. Replace the string's backtick/straight-quote **delimiter** with a curly quote
-2. Replace HTML attribute straight double quotes `"href=..."` with curly quotes `href=“...”`
+2. Replace HTML attribute straight double quotes \href=...\ with curly quotes href=“...”
 
 **Mandatory verification after ANY edit to .html template files**:
-```bash
-node -e "new Function('async function _m(){' + require('fs').readFileSync('FILE','utf8').match(/<script type=\"module\">([\\s\\S]*)<\\/script>/)[1] + '}'); console.log('OK')"
-```
-If this fails → there are curly-quote delimiters or other syntax errors. Fix before reporting done.
+\If this fails → there are curly-quote delimiters or other syntax errors. Fix before reporting done.
+
+### Figure Sync Rule (CRITICAL — read reference template FIRST, copy its pattern EXACTLY)
+
+When adding figure support to blog or slides HTML, you MUST:
+
+1. **Read the closest reference template** (e.g. `skills/synapse-pretext/examples/dsv4-blog-opd-en.html`) before writing any code
+2. **Copy its complete figure pattern** — do NOT improvise or partially implement. The pattern includes:
+   - **DSL**: independent `Type: figure` section (NOT inline inside `Type: text` sections) with `Image`, `Caption`, `Prompt` fields
+   - **HTML SECTIONS array**: independent section object with only `image`, `caption`, `prompt` (no `heading` or `body`)
+   - **Prompt source**: extract from slides DSL `::visual` nano-banana prompts verbatim — never hand-write prompt text
+   - **CSS**: `figure-prompt-vis` class for visible prompt display below images
+   - **Rendering logic**: `promptEl` appended to `figBlock` so prompt is always visible, not just on `img.onerror`
+3. **Verify all five pieces exist** after implementation: DSL `Type: figure` section, HTML figure section object, prompt from slides `::visual`, CSS `figure-prompt-vis`, and rendering code that creates `promptEl`
+
+**What goes wrong when you skip this**: figures end up as inline fields inside text sections, prompts are missing or hand-written instead of extracted from slides DSL, or prompts exist as data but are never rendered visually. Each of these has caused multi-round user corrections.

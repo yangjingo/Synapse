@@ -188,7 +188,27 @@ Mouse-following radial gradient particles on a fixed canvas. Emits from cursor +
 
 **Implementation pattern:** Fixed canvas overlay, `requestAnimationFrame` loop, emit particles at mouse position + bottom edge.
 
-### 6. Figure → skill delegation
+### 6. Figure implementation (copy from reference first)
+
+When rendering blog HTML with figures, **always read the closest reference template first** and copy its complete figure pattern. Do not improvise.
+
+Reference templates (in order of completeness):
+- `examples/dsv4-blog-opd-en.html` — most complete figure implementation
+- `examples/dsv4-blog-layout.html` — base template with figure support
+
+The complete pattern has **five pieces** — all must exist:
+
+| # | Piece | Location | What to verify |
+|---|-------|----------|----------------|
+| 1 | DSL `Type: figure` section | `.dsl.md` | Independent section with `Image`, `Caption`, `Prompt` fields (NOT inline inside `Type: text`) |
+| 2 | HTML figure section object | SECTIONS array | `{ image: \`...\`, caption: \`...\`, prompt: \`...\` }` — no `heading` or `body` |
+| 3 | Prompt source | slides DSL | Extract verbatim from slides DSL `::visual` nano-banana prompts, never hand-write |
+| 4 | CSS `figure-prompt-vis` class | `<style>` block | Visible prompt display styling |
+| 5 | Rendering code | `<script>` | `promptEl` created and appended to `figBlock` so prompt is always visible |
+
+**What goes wrong when you skip this**: figures end up as inline fields inside text sections, prompts are missing or hand-written, or prompts exist as data but are never rendered. Each has caused multi-round user corrections.
+
+### 7. Figure → skill delegation
 
 When `s.image` points to a non-existent file, `img.onerror` shows a "待生成插图" placeholder with the prompt. To resolve:
 
