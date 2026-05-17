@@ -1,0 +1,3080 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>手撕 DeepSeek-V4 注意力方案 | Synapse v6.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF7;
+      --ink: #1A1A1A;
+      --muted: #8A7F70;
+      --accent: #C45A20;
+      --accent-light: #FDF0E6;
+      --border: #E8E2D8;
+      --serif: 'Noto Serif SC', Georgia, serif;
+      --sans: 'Inter', 'Helvetica Neue', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); color: var(--ink); }
+    body { min-height: 100vh; padding-bottom: 48px; }
+
+    .page { max-width: 700px; margin: 0 auto; padding: 72px 24px 0; }
+
+    .title-line {
+      font-family: var(--serif);
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }
+    .lead-block {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 26px;
+      color: var(--muted);
+      margin: 16px 0 0;
+    }
+    .hr { height: 1px; background: var(--border); margin: 40px 0; }
+
+    .section { margin-top: 40px; }
+    .section-h {
+      font: 700 15px/1.3 var(--sans);
+      color: var(--accent);
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .section-body {
+      font: 400 17px/30px var(--serif);
+      color: var(--ink);
+    }
+    .section-body a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(196,90,32,0.3);
+      text-underline-offset: 2px;
+      transition: text-decoration-color 0.2s;
+    }
+    .section-body a:hover {
+      text-decoration-color: var(--accent);
+    }
+    .callout {
+      position: relative;
+      margin: 20px 0;
+      padding: 16px 20px 16px 24px;
+      background: var(--accent-light);
+      border-radius: 4px;
+      font: 500 15px/25px var(--sans);
+      color: #6B3A12;
+    }
+    .callout::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      border-radius: 4px 0 0 4px;
+    }
+    .figure-block {
+      margin: 32px auto;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #F5F3EE;
+      max-width: 100%;
+    }
+    .figure-block img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+      object-position: center;
+      background: #fff;
+      cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .figure-block.zoomed {
+      position: fixed;
+      inset: 0;
+      max-width: none;
+      margin: 0;
+      border-radius: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .figure-block.zoomed img {
+      max-height: none;
+      width: auto;
+      max-width: 95vw;
+      max-height: 95vh;
+      cursor: zoom-out;
+    }
+    .figure-block.zoomed .figure-caption {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: #eee;
+      border-radius: 4px;
+      padding: 6px 14px;
+    }
+    .figure-caption {
+      padding: 10px 16px 4px;
+      font: 500 13px/20px var(--sans);
+      color: var(--muted);
+    }
+    .figure-prompt-vis {
+      padding: 4px 16px 12px;
+      font: 400 11.5px/17px var(--sans);
+      color: #B0A898;
+      border-top: 1px solid #E8E2D8;
+      margin-top: 2px;
+    }
+    .figure-placeholder {
+      padding: 32px 20px;
+      text-align: center;
+      background: #EDEBE6;
+    }
+    .figure-placeholder-icon {
+      font: 700 28px/1 var(--sans);
+      color: var(--border);
+      margin-bottom: 8px;
+    }
+    .figure-placeholder-label {
+      font: 600 13px/1 var(--sans);
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .figure-placeholder-prompt {
+      font: 400 12px/18px var(--sans);
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+      white-space: pre-wrap;
+    }
+    .pulse {
+      margin-top: 48px;
+      font: 600 17px/28px var(--sans);
+      color: var(--accent);
+    }
+
+    .section-body pre {
+      background: #1E1E2E;
+      color: #CDD6F4;
+      padding: 16px 20px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 16px 0;
+      font: 400 13px/20px 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      tab-size: 4;
+      position: relative;
+      -webkit-user-select: all;
+      user-select: all;
+    }
+    .section-body pre:hover {
+      outline: 2px solid #45475A;
+      outline-offset: -2px;
+    }
+    .section-body pre::after {
+      content: '复制';
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: #313244;
+      color: #A6ADC8;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font: 500 11px/1 var(--sans);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: auto;
+    }
+    .section-body pre:hover::after {
+      opacity: 1;
+    }
+    .section-body pre.copied::after {
+      content: '已复制';
+      background: #A6E3A1;
+      color: #1E1E2E;
+    }
+    .section-body pre code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      font: inherit;
+      color: inherit;
+    }
+    .section-body code {
+      background: var(--accent-light);
+      color: #6B3A12;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font: 400 13px/1.4 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    }
+    .section-body .kw { color: #CBA6F7; }
+    .section-body .fn { color: #89B4FA; }
+    .section-body .st { color: #A6E3A1; }
+    .section-body .cm { color: #6C7086; font-style: italic; }
+    .section-body .nb { color: #FAB387; }
+    .section-body .op { color: #89DCEB; }
+
+    .meta-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font: 700 11px/1 var(--sans);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .meta-date {
+      font: 500 13px/1 var(--sans);
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .stats {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(250,250,247,0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex; gap: 20px; flex-wrap: wrap;
+      font: 500 11px/1 var(--sans);
+      color: var(--muted);
+      z-index: 100;
+    }
+    .stats .v { color: var(--accent); font-weight: 700; }
+
+    /* stick figure overlay */
+    #stick-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 50;
+    }
+  </style>
+</head>
+<body>
+<canvas id="stick-canvas"></canvas>
+<div class="page">
+  <div class="meta-tag">注意力机制</div>
+  <div class="meta-date">2026/05/17 &middot; Why.J</div>
+
+  <!-- ① pretext 自适应标题 -->
+  <div id="title-wrap"></div>
+
+  <!-- ② pretext 测量 lead，CSS 正常渲染 -->
+  <div id="lead-wrap"></div>
+
+  <div class="hr"></div>
+
+  <!-- ③ 正文（pretext 测量高度，CSS 正常渲染） -->
+  <div id="sections-wrap"></div>
+
+  <!-- ④ Aggressive Pulse -->
+  <div id="pulse-wrap" class="pulse"></div>
+</div>
+
+<div class="stats">
+  <span>Title: <span class="v" id="sTitle">—</span></span>
+  <span>Lead: <span class="v" id="sLead">—</span></span>
+  <span>Body lines: <span class="v" id="sBody">—</span></span>
+  <span>Layout: <span class="v" id="sMs">—</span></span>
+  <span>DOM reads: <span class="v" id="sDom">0</span></span>
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════
+// ① pretext.js 完整内联
+// ═══════════════════════════════════════
+// src/bidi.ts
+var baseTypes = [
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "S",
+  "B",
+  "S",
+  "WS",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "B",
+  "B",
+  "S",
+  "WS",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "CS",
+  "ON",
+  "CS",
+  "ON",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "CS",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "EN",
+  "EN",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "EN",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L"
+];
+var arabicTypes = [
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "CS",
+  "AL",
+  "ON",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "ET",
+  "AN",
+  "AN",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL"
+];
+function classifyChar(charCode) {
+  if (charCode <= 255)
+    return baseTypes[charCode];
+  if (1424 <= charCode && charCode <= 1524)
+    return "R";
+  if (1536 <= charCode && charCode <= 1791)
+    return arabicTypes[charCode & 255];
+  if (1792 <= charCode && charCode <= 2220)
+    return "AL";
+  return "L";
+}
+function computeBidiLevels(str) {
+  const len = str.length;
+  if (len === 0)
+    return null;
+  const types = new Array(len);
+  let numBidi = 0;
+  for (let i = 0;i < len; i++) {
+    const t = classifyChar(str.charCodeAt(i));
+    if (t === "R" || t === "AL" || t === "AN")
+      numBidi++;
+    types[i] = t;
+  }
+  if (numBidi === 0)
+    return null;
+  const startLevel = len / numBidi < 0.3 ? 0 : 1;
+  const levels = new Int8Array(len);
+  for (let i = 0;i < len; i++)
+    levels[i] = startLevel;
+  const e = startLevel & 1 ? "R" : "L";
+  const sor = e;
+  let lastType = sor;
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "NSM")
+      types[i] = lastType;
+    else
+      lastType = types[i];
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "AL" ? "AN" : "EN";
+    else if (t === "R" || t === "L" || t === "AL")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "AL")
+      types[i] = "R";
+  }
+  for (let i = 1;i < len - 1; i++) {
+    if (types[i] === "ES" && types[i - 1] === "EN" && types[i + 1] === "EN") {
+      types[i] = "EN";
+    }
+    if (types[i] === "CS" && (types[i - 1] === "EN" || types[i - 1] === "AN") && types[i + 1] === types[i - 1]) {
+      types[i] = types[i - 1];
+    }
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "EN")
+      continue;
+    let j;
+    for (j = i - 1;j >= 0 && types[j] === "ET"; j--)
+      types[j] = "EN";
+    for (j = i + 1;j < len && types[j] === "ET"; j++)
+      types[j] = "EN";
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "WS" || t === "ES" || t === "ET" || t === "CS")
+      types[i] = "ON";
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "L" ? "L" : "EN";
+    else if (t === "R" || t === "L")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "ON")
+      continue;
+    let end = i + 1;
+    while (end < len && types[end] === "ON")
+      end++;
+    const before = i > 0 ? types[i - 1] : sor;
+    const after = end < len ? types[end] : sor;
+    const bDir = before !== "L" ? "R" : "L";
+    const aDir = after !== "L" ? "R" : "L";
+    if (bDir === aDir) {
+      for (let j = i;j < end; j++)
+        types[j] = bDir;
+    }
+    i = end - 1;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "ON")
+      types[i] = e;
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if ((levels[i] & 1) === 0) {
+      if (t === "R")
+        levels[i]++;
+      else if (t === "AN" || t === "EN")
+        levels[i] += 2;
+    } else if (t === "L" || t === "AN" || t === "EN") {
+      levels[i]++;
+    }
+  }
+  return levels;
+}
+function computeSegmentLevels(normalized, segStarts) {
+  const bidiLevels = computeBidiLevels(normalized);
+  if (bidiLevels === null)
+    return null;
+  const segLevels = new Int8Array(segStarts.length);
+  for (let i = 0;i < segStarts.length; i++) {
+    segLevels[i] = bidiLevels[segStarts[i]];
+  }
+  return segLevels;
+}
+
+// src/analysis.ts
+var collapsibleWhitespaceRunRe = /[ \t\n\r\f]+/g;
+var needsWhitespaceNormalizationRe = /[\t\n\r\f]| {2,}|^ | $/;
+function normalizeWhitespaceNormal(text) {
+  if (!needsWhitespaceNormalizationRe.test(text))
+    return text;
+  let normalized = text.replace(collapsibleWhitespaceRunRe, " ");
+  if (normalized.charCodeAt(0) === 32) {
+    normalized = normalized.slice(1);
+  }
+  if (normalized.length > 0 && normalized.charCodeAt(normalized.length - 1) === 32) {
+    normalized = normalized.slice(0, -1);
+  }
+  return normalized;
+}
+var sharedWordSegmenter = null;
+var segmenterLocale;
+function getSharedWordSegmenter() {
+  if (sharedWordSegmenter === null) {
+    sharedWordSegmenter = new Intl.Segmenter(segmenterLocale, { granularity: "word" });
+  }
+  return sharedWordSegmenter;
+}
+function clearAnalysisCaches() {
+  sharedWordSegmenter = null;
+}
+function setAnalysisLocale(locale) {
+  const nextLocale = locale && locale.length > 0 ? locale : undefined;
+  if (segmenterLocale === nextLocale)
+    return;
+  segmenterLocale = nextLocale;
+  sharedWordSegmenter = null;
+}
+var arabicScriptRe = /\p{Script=Arabic}/u;
+var combiningMarkRe = /\p{M}/u;
+var decimalDigitRe = /\p{Nd}/u;
+function containsArabicScript(text) {
+  return arabicScriptRe.test(text);
+}
+function isCJK(s) {
+  for (const ch of s) {
+    const c = ch.codePointAt(0);
+    if (c >= 19968 && c <= 40959 || c >= 13312 && c <= 19903 || c >= 131072 && c <= 173791 || c >= 173824 && c <= 177983 || c >= 177984 && c <= 178207 || c >= 178208 && c <= 183983 || c >= 183984 && c <= 191471 || c >= 196608 && c <= 201551 || c >= 63744 && c <= 64255 || c >= 194560 && c <= 195103 || c >= 12288 && c <= 12351 || c >= 12352 && c <= 12447 || c >= 12448 && c <= 12543 || c >= 44032 && c <= 55215 || c >= 65280 && c <= 65519) {
+      return true;
+    }
+  }
+  return false;
+}
+var kinsokuStart = new Set([
+  "，",
+  "．",
+  "！",
+  "：",
+  "；",
+  "？",
+  "、",
+  "。",
+  "・",
+  "）",
+  "〕",
+  "〉",
+  "》",
+  "」",
+  "』",
+  "】",
+  "〗",
+  "〙",
+  "〛",
+  "ー",
+  "々",
+  "〻",
+  "ゝ",
+  "ゞ",
+  "ヽ",
+  "ヾ"
+]);
+var kinsokuEnd = new Set([
+  '"',
+  "(",
+  "[",
+  "{",
+  "“",
+  "‘",
+  "«",
+  "‹",
+  "（",
+  "〔",
+  "〈",
+  "《",
+  "「",
+  "『",
+  "【",
+  "〖",
+  "〘",
+  "〚"
+]);
+var forwardStickyGlue = new Set([
+  "'",
+  "’"
+]);
+var leftStickyPunctuation = new Set([
+  ".",
+  ",",
+  "!",
+  "?",
+  ":",
+  ";",
+  "،",
+  "؛",
+  "؟",
+  "।",
+  "॥",
+  "၊",
+  "။",
+  "၌",
+  "၍",
+  "၏",
+  ")",
+  "]",
+  "}",
+  "%",
+  '"',
+  "”",
+  "’",
+  "»",
+  "›",
+  "…"
+]);
+var arabicNoSpaceTrailingPunctuation = new Set([
+  ":",
+  ".",
+  "،",
+  "؛"
+]);
+var myanmarMedialGlue = new Set([
+  "၏"
+]);
+var closingQuoteChars = new Set([
+  "”",
+  "’",
+  "»",
+  "›",
+  "」",
+  "』",
+  "】",
+  "》",
+  "〉",
+  "〕",
+  "）"
+]);
+function isLeftStickyPunctuationSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  let sawPunctuation = false;
+  for (const ch of segment) {
+    if (leftStickyPunctuation.has(ch)) {
+      sawPunctuation = true;
+      continue;
+    }
+    if (sawPunctuation && combiningMarkRe.test(ch))
+      continue;
+    return false;
+  }
+  return sawPunctuation;
+}
+function isCJKLineStartProhibitedSegment(segment) {
+  for (const ch of segment) {
+    if (!kinsokuStart.has(ch) && !leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isForwardStickyClusterSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  for (const ch of segment) {
+    if (!kinsokuEnd.has(ch) && !forwardStickyGlue.has(ch) && !combiningMarkRe.test(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isEscapedQuoteClusterSegment(segment) {
+  let sawQuote = false;
+  for (const ch of segment) {
+    if (ch === "\\" || combiningMarkRe.test(ch))
+      continue;
+    if (kinsokuEnd.has(ch) || leftStickyPunctuation.has(ch) || forwardStickyGlue.has(ch)) {
+      sawQuote = true;
+      continue;
+    }
+    return false;
+  }
+  return sawQuote;
+}
+function splitTrailingForwardStickyCluster(text) {
+  const chars = Array.from(text);
+  let splitIndex = chars.length;
+  while (splitIndex > 0) {
+    const ch = chars[splitIndex - 1];
+    if (combiningMarkRe.test(ch)) {
+      splitIndex--;
+      continue;
+    }
+    if (kinsokuEnd.has(ch) || forwardStickyGlue.has(ch)) {
+      splitIndex--;
+      continue;
+    }
+    break;
+  }
+  if (splitIndex <= 0 || splitIndex === chars.length)
+    return null;
+  return {
+    head: chars.slice(0, splitIndex).join(""),
+    tail: chars.slice(splitIndex).join("")
+  };
+}
+function isRepeatedSingleCharRun(segment, ch) {
+  if (segment.length === 0)
+    return false;
+  for (const part of segment) {
+    if (part !== ch)
+      return false;
+  }
+  return true;
+}
+function endsWithArabicNoSpacePunctuation(segment) {
+  if (!containsArabicScript(segment) || segment.length === 0)
+    return false;
+  return arabicNoSpaceTrailingPunctuation.has(segment[segment.length - 1]);
+}
+function endsWithMyanmarMedialGlue(segment) {
+  if (segment.length === 0)
+    return false;
+  return myanmarMedialGlue.has(segment[segment.length - 1]);
+}
+function splitLeadingSpaceAndMarks(segment) {
+  if (segment.length < 2 || segment[0] !== " ")
+    return null;
+  const marks = segment.slice(1);
+  if (/^\p{M}+$/u.test(marks)) {
+    return { space: " ", marks };
+  }
+  return null;
+}
+function endsWithClosingQuote(text) {
+  for (let i = text.length - 1;i >= 0; i--) {
+    const ch = text[i];
+    if (closingQuoteChars.has(ch))
+      return true;
+    if (!leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return false;
+}
+function classifySegmentBreakChar(ch) {
+  if (ch === " ")
+    return "space";
+  if (ch === " " || ch === " " || ch === "⁠" || ch === "\uFEFF") {
+    return "glue";
+  }
+  if (ch === "​")
+    return "zero-width-break";
+  if (ch === "­")
+    return "soft-hyphen";
+  return "text";
+}
+function splitSegmentByBreakKind(segment, isWordLike, start) {
+  const pieces = [];
+  let currentKind = null;
+  let currentText = "";
+  let currentStart = start;
+  let currentWordLike = false;
+  let offset = 0;
+  for (const ch of segment) {
+    const kind = classifySegmentBreakChar(ch);
+    const wordLike = kind === "text" && isWordLike;
+    if (currentKind !== null && kind === currentKind && wordLike === currentWordLike) {
+      currentText += ch;
+      offset += ch.length;
+      continue;
+    }
+    if (currentKind !== null) {
+      pieces.push({
+        text: currentText,
+        isWordLike: currentWordLike,
+        kind: currentKind,
+        start: currentStart
+      });
+    }
+    currentKind = kind;
+    currentText = ch;
+    currentStart = start + offset;
+    currentWordLike = wordLike;
+    offset += ch.length;
+  }
+  if (currentKind !== null) {
+    pieces.push({
+      text: currentText,
+      isWordLike: currentWordLike,
+      kind: currentKind,
+      start: currentStart
+    });
+  }
+  return pieces;
+}
+var urlSchemeSegmentRe = /^[A-Za-z][A-Za-z0-9+.-]*:$/;
+function isUrlLikeRunStart(segmentation, index) {
+  const text = segmentation.texts[index];
+  if (text.startsWith("www."))
+    return true;
+  return urlSchemeSegmentRe.test(text) && index + 1 < segmentation.len && segmentation.kinds[index + 1] === "text" && segmentation.texts[index + 1] === "//";
+}
+function isUrlQueryBoundarySegment(text) {
+  return text.includes("?") && (text.includes("://") || text.startsWith("www."));
+}
+function mergeUrlLikeRuns(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < segmentation.len; i++) {
+    if (kinds[i] !== "text" || !isUrlLikeRunStart(segmentation, i))
+      continue;
+    let j = i + 1;
+    while (j < segmentation.len && kinds[j] !== "space" && kinds[j] !== "zero-width-break") {
+      texts[i] += texts[j];
+      isWordLike[i] = true;
+      const endsQueryPrefix = texts[j].includes("?");
+      kinds[j] = "text";
+      texts[j] = "";
+      j++;
+      if (endsQueryPrefix)
+        break;
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < texts.length; read++) {
+    const text = texts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      texts[compactLen] = text;
+      isWordLike[compactLen] = isWordLike[read];
+      kinds[compactLen] = kinds[read];
+      starts[compactLen] = starts[read];
+    }
+    compactLen++;
+  }
+  texts.length = compactLen;
+  isWordLike.length = compactLen;
+  kinds.length = compactLen;
+  starts.length = compactLen;
+  return {
+    len: compactLen,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeUrlQueryRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+    if (!isUrlQueryBoundarySegment(text))
+      continue;
+    const nextIndex = i + 1;
+    if (nextIndex >= segmentation.len || segmentation.kinds[nextIndex] === "space" || segmentation.kinds[nextIndex] === "zero-width-break") {
+      continue;
+    }
+    let queryText = "";
+    const queryStart = segmentation.starts[nextIndex];
+    let j = nextIndex;
+    while (j < segmentation.len && segmentation.kinds[j] !== "space" && segmentation.kinds[j] !== "zero-width-break") {
+      queryText += segmentation.texts[j];
+      j++;
+    }
+    if (queryText.length > 0) {
+      texts.push(queryText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(queryStart);
+      i = j - 1;
+    }
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+var numericJoinerChars = new Set([
+  ":",
+  "-",
+  "/",
+  "×",
+  ",",
+  ".",
+  "+",
+  "–",
+  "—"
+]);
+function segmentContainsDecimalDigit(text) {
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch))
+      return true;
+  }
+  return false;
+}
+function isNumericRunSegment(text) {
+  if (text.length === 0)
+    return false;
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch) || numericJoinerChars.has(ch))
+      continue;
+    return false;
+  }
+  return true;
+}
+function mergeNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    const kind = segmentation.kinds[i];
+    if (kind === "text" && isNumericRunSegment(text) && segmentContainsDecimalDigit(text)) {
+      let mergedText = text;
+      let j = i + 1;
+      while (j < segmentation.len && segmentation.kinds[j] === "text" && isNumericRunSegment(segmentation.texts[j])) {
+        mergedText += segmentation.texts[j];
+        j++;
+      }
+      texts.push(mergedText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(segmentation.starts[i]);
+      i = j - 1;
+      continue;
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(kind);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function splitHyphenatedNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    if (segmentation.kinds[i] === "text" && text.includes("-")) {
+      const parts = text.split("-");
+      let shouldSplit = parts.length > 1;
+      for (let j = 0;j < parts.length; j++) {
+        const part = parts[j];
+        if (!shouldSplit)
+          break;
+        if (part.length === 0 || !segmentContainsDecimalDigit(part) || !isNumericRunSegment(part)) {
+          shouldSplit = false;
+        }
+      }
+      if (shouldSplit) {
+        let offset = 0;
+        for (let j = 0;j < parts.length; j++) {
+          const part = parts[j];
+          const splitText = j < parts.length - 1 ? `${part}-` : part;
+          texts.push(splitText);
+          isWordLike.push(true);
+          kinds.push("text");
+          starts.push(segmentation.starts[i] + offset);
+          offset += splitText.length;
+        }
+        continue;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeGlueConnectedTextRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  let read = 0;
+  while (read < segmentation.len) {
+    let text = segmentation.texts[read];
+    let wordLike = segmentation.isWordLike[read];
+    let kind = segmentation.kinds[read];
+    let start = segmentation.starts[read];
+    if (kind === "glue") {
+      let glueText = text;
+      const glueStart = start;
+      read++;
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        glueText += segmentation.texts[read];
+        read++;
+      }
+      if (read < segmentation.len && segmentation.kinds[read] === "text") {
+        text = glueText + segmentation.texts[read];
+        wordLike = segmentation.isWordLike[read];
+        kind = "text";
+        start = glueStart;
+        read++;
+      } else {
+        texts.push(glueText);
+        isWordLike.push(false);
+        kinds.push("glue");
+        starts.push(glueStart);
+        continue;
+      }
+    } else {
+      read++;
+    }
+    if (kind === "text") {
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        let glueText = "";
+        while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+          glueText += segmentation.texts[read];
+          read++;
+        }
+        if (read < segmentation.len && segmentation.kinds[read] === "text") {
+          text += glueText + segmentation.texts[read];
+          wordLike = wordLike || segmentation.isWordLike[read];
+          read++;
+          continue;
+        }
+        text += glueText;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(wordLike);
+    kinds.push(kind);
+    starts.push(start);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function carryTrailingForwardStickyAcrossCJKBoundary(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < texts.length - 1; i++) {
+    if (kinds[i] !== "text" || kinds[i + 1] !== "text")
+      continue;
+    if (!isCJK(texts[i]) || !isCJK(texts[i + 1]))
+      continue;
+    const split = splitTrailingForwardStickyCluster(texts[i]);
+    if (split === null)
+      continue;
+    texts[i] = split.head;
+    texts[i + 1] = split.tail + texts[i + 1];
+    starts[i + 1] = starts[i] + split.head.length;
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function buildMergedSegmentation(normalized, profile) {
+  const wordSegmenter = getSharedWordSegmenter();
+  let mergedLen = 0;
+  const mergedTexts = [];
+  const mergedWordLike = [];
+  const mergedKinds = [];
+  const mergedStarts = [];
+  for (const s of wordSegmenter.segment(normalized)) {
+    for (const piece of splitSegmentByBreakKind(s.segment, s.isWordLike ?? false, s.index)) {
+      const isText = piece.kind === "text";
+      if (profile.carryCJKAfterClosingQuote && isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJK(piece.text) && isCJK(mergedTexts[mergedLen - 1]) && endsWithClosingQuote(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJKLineStartProhibitedSegment(piece.text) && isCJK(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && endsWithMyanmarMedialGlue(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.isWordLike && containsArabicScript(piece.text) && endsWithArabicNoSpacePunctuation(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = true;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.text.length === 1 && piece.text !== "-" && piece.text !== "—" && isRepeatedSingleCharRun(mergedTexts[mergedLen - 1], piece.text)) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && (isLeftStickyPunctuationSegment(piece.text) || piece.text === "-" && mergedWordLike[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else {
+        mergedTexts[mergedLen] = piece.text;
+        mergedWordLike[mergedLen] = piece.isWordLike;
+        mergedKinds[mergedLen] = piece.kind;
+        mergedStarts[mergedLen] = piece.start;
+        mergedLen++;
+      }
+    }
+  }
+  for (let i = 1;i < mergedLen; i++) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isEscapedQuoteClusterSegment(mergedTexts[i]) && mergedKinds[i - 1] === "text") {
+      mergedTexts[i - 1] += mergedTexts[i];
+      mergedWordLike[i - 1] = mergedWordLike[i - 1] || mergedWordLike[i];
+      mergedTexts[i] = "";
+    }
+  }
+  for (let i = mergedLen - 2;i >= 0; i--) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isForwardStickyClusterSegment(mergedTexts[i])) {
+      let j = i + 1;
+      while (j < mergedLen && mergedTexts[j] === "")
+        j++;
+      if (j < mergedLen && mergedKinds[j] === "text") {
+        mergedTexts[j] = mergedTexts[i] + mergedTexts[j];
+        mergedStarts[j] = mergedStarts[i];
+        mergedTexts[i] = "";
+      }
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < mergedLen; read++) {
+    const text = mergedTexts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      mergedTexts[compactLen] = text;
+      mergedWordLike[compactLen] = mergedWordLike[read];
+      mergedKinds[compactLen] = mergedKinds[read];
+      mergedStarts[compactLen] = mergedStarts[read];
+    }
+    compactLen++;
+  }
+  mergedTexts.length = compactLen;
+  mergedWordLike.length = compactLen;
+  mergedKinds.length = compactLen;
+  mergedStarts.length = compactLen;
+  const compacted = mergeGlueConnectedTextRuns({
+    len: compactLen,
+    texts: mergedTexts,
+    isWordLike: mergedWordLike,
+    kinds: mergedKinds,
+    starts: mergedStarts
+  });
+  const withMergedUrls = carryTrailingForwardStickyAcrossCJKBoundary(splitHyphenatedNumericRuns(mergeNumericRuns(mergeUrlQueryRuns(mergeUrlLikeRuns(compacted)))));
+  for (let i = 0;i < withMergedUrls.len - 1; i++) {
+    const split = splitLeadingSpaceAndMarks(withMergedUrls.texts[i]);
+    if (split === null)
+      continue;
+    if (withMergedUrls.kinds[i] !== "space" || withMergedUrls.kinds[i + 1] !== "text" || !containsArabicScript(withMergedUrls.texts[i + 1])) {
+      continue;
+    }
+    withMergedUrls.texts[i] = split.space;
+    withMergedUrls.isWordLike[i] = false;
+    withMergedUrls.kinds[i] = "space";
+    withMergedUrls.texts[i + 1] = split.marks + withMergedUrls.texts[i + 1];
+    withMergedUrls.starts[i + 1] = withMergedUrls.starts[i] + split.space.length;
+  }
+  return withMergedUrls;
+}
+function analyzeText(text, profile) {
+  const normalized = normalizeWhitespaceNormal(text);
+  if (normalized.length === 0) {
+    return {
+      normalized,
+      len: 0,
+      texts: [],
+      isWordLike: [],
+      kinds: [],
+      starts: []
+    };
+  }
+  return { normalized, ...buildMergedSegmentation(normalized, profile) };
+}
+
+// src/measurement.ts
+var measureContext = null;
+var segmentMetricCaches = new Map;
+var cachedEngineProfile = null;
+var emojiPresentationRe = /\p{Emoji_Presentation}/u;
+var maybeEmojiRe = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u20E3]/u;
+var sharedGraphemeSegmenter = null;
+var emojiCorrectionCache = new Map;
+function getMeasureContext() {
+  if (measureContext !== null)
+    return measureContext;
+  if (typeof OffscreenCanvas !== "undefined") {
+    measureContext = new OffscreenCanvas(1, 1).getContext("2d");
+    return measureContext;
+  }
+  if (typeof document !== "undefined") {
+    measureContext = document.createElement("canvas").getContext("2d");
+    return measureContext;
+  }
+  throw new Error("Text measurement requires OffscreenCanvas or a DOM canvas context.");
+}
+function getSegmentMetricCache(font) {
+  let cache = segmentMetricCaches.get(font);
+  if (!cache) {
+    cache = new Map;
+    segmentMetricCaches.set(font, cache);
+  }
+  return cache;
+}
+function getSegmentMetrics(seg, cache) {
+  let metrics = cache.get(seg);
+  if (metrics === undefined) {
+    const ctx = getMeasureContext();
+    metrics = {
+      width: ctx.measureText(seg).width,
+      containsCJK: isCJK(seg)
+    };
+    cache.set(seg, metrics);
+  }
+  return metrics;
+}
+function getEngineProfile() {
+  if (cachedEngineProfile !== null)
+    return cachedEngineProfile;
+  if (typeof navigator === "undefined") {
+    cachedEngineProfile = {
+      lineFitEpsilon: 0.005,
+      carryCJKAfterClosingQuote: false
+    };
+    return cachedEngineProfile;
+  }
+  const ua = navigator.userAgent;
+  const vendor = navigator.vendor;
+  const isSafari = vendor === "Apple Computer, Inc." && ua.includes("Safari/") && !ua.includes("Chrome/") && !ua.includes("Chromium/") && !ua.includes("CriOS/") && !ua.includes("FxiOS/") && !ua.includes("EdgiOS/");
+  const isChromium = ua.includes("Chrome/") || ua.includes("Chromium/") || ua.includes("CriOS/") || ua.includes("Edg/");
+  cachedEngineProfile = {
+    lineFitEpsilon: isSafari ? 1 / 64 : 0.005,
+    carryCJKAfterClosingQuote: isChromium
+  };
+  return cachedEngineProfile;
+}
+function parseFontSize(font) {
+  const m = font.match(/(\d+(?:\.\d+)?)\s*px/);
+  return m ? parseFloat(m[1]) : 16;
+}
+function getSharedGraphemeSegmenter() {
+  if (sharedGraphemeSegmenter === null) {
+    sharedGraphemeSegmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter;
+}
+function isEmojiGrapheme(g) {
+  return emojiPresentationRe.test(g) || g.includes("️");
+}
+function textMayContainEmoji(text) {
+  return maybeEmojiRe.test(text);
+}
+function getEmojiCorrection(font, fontSize) {
+  let correction = emojiCorrectionCache.get(font);
+  if (correction !== undefined)
+    return correction;
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const canvasW = ctx.measureText("\uD83D\uDE00").width;
+  correction = 0;
+  if (canvasW > fontSize + 0.5 && typeof document !== "undefined" && document.body !== null) {
+    const span = document.createElement("span");
+    span.style.font = font;
+    span.style.display = "inline-block";
+    span.style.visibility = "hidden";
+    span.style.position = "absolute";
+    span.textContent = "\uD83D\uDE00";
+    document.body.appendChild(span);
+    const domW = span.getBoundingClientRect().width;
+    document.body.removeChild(span);
+    if (canvasW - domW > 0.5) {
+      correction = canvasW - domW;
+    }
+  }
+  emojiCorrectionCache.set(font, correction);
+  return correction;
+}
+function countEmojiGraphemes(text) {
+  let count = 0;
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const g of graphemeSegmenter.segment(text)) {
+    if (isEmojiGrapheme(g.segment))
+      count++;
+  }
+  return count;
+}
+function getEmojiCount(seg, metrics) {
+  if (metrics.emojiCount === undefined) {
+    metrics.emojiCount = countEmojiGraphemes(seg);
+  }
+  return metrics.emojiCount;
+}
+function getCorrectedSegmentWidth(seg, metrics, emojiCorrection) {
+  if (emojiCorrection === 0)
+    return metrics.width;
+  return metrics.width - getEmojiCount(seg, metrics) * emojiCorrection;
+}
+function getSegmentGraphemeWidths(seg, metrics, cache, emojiCorrection) {
+  if (metrics.graphemeWidths !== undefined)
+    return metrics.graphemeWidths;
+  const widths = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const gs of graphemeSegmenter.segment(seg)) {
+    const graphemeMetrics = getSegmentMetrics(gs.segment, cache);
+    widths.push(getCorrectedSegmentWidth(gs.segment, graphemeMetrics, emojiCorrection));
+  }
+  metrics.graphemeWidths = widths.length > 1 ? widths : null;
+  return metrics.graphemeWidths;
+}
+function getFontMeasurementState(font, needsEmojiCorrection) {
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const cache = getSegmentMetricCache(font);
+  const fontSize = parseFontSize(font);
+  const emojiCorrection = needsEmojiCorrection ? getEmojiCorrection(font, fontSize) : 0;
+  return { cache, fontSize, emojiCorrection };
+}
+function clearMeasurementCaches() {
+  segmentMetricCaches.clear();
+  emojiCorrectionCache.clear();
+  sharedGraphemeSegmenter = null;
+}
+
+// src/line-break.ts
+function isCollapsibleSpaceKind(kind) {
+  return kind === "space";
+}
+function fitSoftHyphenBreak(graphemeWidths, initialWidth, maxWidth, lineFitEpsilon, discretionaryHyphenWidth) {
+  let fitCount = 0;
+  let fittedWidth = initialWidth;
+  while (fitCount < graphemeWidths.length) {
+    const nextWidth = fittedWidth + graphemeWidths[fitCount];
+    const nextLineWidth = fitCount + 1 < graphemeWidths.length ? nextWidth + discretionaryHyphenWidth : nextWidth;
+    if (nextLineWidth > maxWidth + lineFitEpsilon)
+      break;
+    fittedWidth = nextWidth;
+    fitCount++;
+  }
+  return { fitCount, fittedWidth };
+}
+function normalizeLineStart(prepared, start) {
+  let segmentIndex = start.segmentIndex;
+  const graphemeIndex = start.graphemeIndex;
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  if (graphemeIndex > 0)
+    return start;
+  while (segmentIndex < prepared.widths.length) {
+    const kind = prepared.kinds[segmentIndex];
+    if (kind !== "space" && kind !== "zero-width-break" && kind !== "soft-hyphen") {
+      break;
+    }
+    segmentIndex++;
+  }
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  return { segmentIndex, graphemeIndex: 0 };
+}
+function countPreparedLines(prepared, maxWidth) {
+  const { widths, kinds, breakableWidths } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  if (kinds.includes("soft-hyphen")) {
+    return walkPreparedLines(prepared, maxWidth);
+  }
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  function placeOnFreshLine(segmentIndex) {
+    const w = widths[segmentIndex];
+    if (w > maxWidth && breakableWidths[segmentIndex] !== null) {
+      const gWidths = breakableWidths[segmentIndex];
+      lineW = 0;
+      for (let g = 0;g < gWidths.length; g++) {
+        const gw = gWidths[g];
+        if (lineW > 0 && lineW + gw > maxWidth + lineFitEpsilon) {
+          lineCount++;
+          lineW = gw;
+        } else {
+          if (lineW === 0)
+            lineCount++;
+          lineW += gw;
+        }
+      }
+    } else {
+      lineW = w;
+      lineCount++;
+    }
+    hasContent = true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (!hasContent) {
+      placeOnFreshLine(i);
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        continue;
+      }
+      lineW = 0;
+      hasContent = false;
+      placeOnFreshLine(i);
+    } else {
+      lineW = newW;
+    }
+  }
+  if (!hasContent) {
+    lineCount++;
+  }
+  return lineCount;
+}
+function walkPreparedLines(prepared, maxWidth, onLine) {
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  let lineStartSegmentIndex = 0;
+  let lineStartGraphemeIndex = 0;
+  let lineEndSegmentIndex = 0;
+  let lineEndGraphemeIndex = 0;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function emitCurrentLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    lineCount++;
+    onLine?.({
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    });
+    lineW = 0;
+    hasContent = false;
+    clearPendingSoftBreak();
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = 0;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = graphemeIndex;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegment(segmentIndex) {
+    appendBreakableSegmentFrom(segmentIndex, 0);
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        emitCurrentLine();
+        startLineAtGrapheme(segmentIndex, g, gw);
+      } else {
+        lineW += gw;
+        lineEndSegmentIndex = segmentIndex;
+        lineEndGraphemeIndex = g + 1;
+      }
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+  }
+  function continueSoftHyphenBreakableSegment(segmentIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    if (gWidths === null)
+      return false;
+    const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+    if (fitCount === 0)
+      return false;
+    lineW = fittedWidth;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = fitCount;
+    clearPendingSoftBreak();
+    if (fitCount === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+      return true;
+    }
+    emitCurrentLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+    appendBreakableSegmentFrom(segmentIndex, fitCount);
+    return true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (kind === "soft-hyphen") {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        appendBreakableSegment(i);
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && continueSoftHyphenBreakableSegment(i)) {
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+        emitCurrentLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+        if (w > maxWidth && breakableWidths[i] !== null) {
+          appendBreakableSegment(i);
+        } else {
+          startLineAtSegment(i, w);
+        }
+        if (kind === "space" || kind === "zero-width-break") {
+          clearPendingSoftBreak();
+        }
+        continue;
+      }
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        emitCurrentLine();
+        appendBreakableSegment(i);
+      } else {
+        emitCurrentLine();
+        startLineAtSegment(i, w);
+      }
+    } else {
+      appendWholeSegment(i, w);
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+    }
+  }
+  if (hasContent) {
+    emitCurrentLine();
+  }
+  return lineCount;
+}
+function layoutNextLineRange(prepared, start, maxWidth) {
+  const normalizedStart = normalizeLineStart(prepared, start);
+  if (normalizedStart === null)
+    return null;
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineW = 0;
+  let hasContent = false;
+  const lineStartSegmentIndex = normalizedStart.segmentIndex;
+  const lineStartGraphemeIndex = normalizedStart.graphemeIndex;
+  let lineEndSegmentIndex = lineStartSegmentIndex;
+  let lineEndGraphemeIndex = lineStartGraphemeIndex;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function finishLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    if (!hasContent)
+      return null;
+    return {
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    };
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        return finishLine();
+      }
+      lineW += gw;
+      lineEndSegmentIndex = segmentIndex;
+      lineEndGraphemeIndex = g + 1;
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+    return null;
+  }
+  function maybeFinishAtSoftHyphen(segmentIndex) {
+    if (pendingSoftBreakSegmentIndex < 0)
+      return null;
+    const gWidths = breakableWidths[segmentIndex] ?? null;
+    if (gWidths !== null) {
+      const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+      if (fitCount === gWidths.length) {
+        lineW = fittedWidth;
+        lineEndSegmentIndex = segmentIndex + 1;
+        lineEndGraphemeIndex = 0;
+        clearPendingSoftBreak();
+        return null;
+      }
+      if (fitCount > 0) {
+        return finishLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+      }
+    }
+    if (pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+      return finishLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+    }
+    return null;
+  }
+  for (let i = normalizedStart.segmentIndex;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    const startGraphemeIndex = i === normalizedStart.segmentIndex ? normalizedStart.graphemeIndex : 0;
+    if (kind === "soft-hyphen" && startGraphemeIndex === 0) {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (startGraphemeIndex > 0) {
+        const line = appendBreakableSegmentFrom(i, startGraphemeIndex);
+        if (line !== null)
+          return line;
+      } else if (w > maxWidth && breakableWidths[i] !== null) {
+        const line = appendBreakableSegmentFrom(i, 0);
+        if (line !== null)
+          return line;
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      const softBreakLine = maybeFinishAtSoftHyphen(i);
+      if (softBreakLine !== null)
+        return softBreakLine;
+      return finishLine();
+    }
+    appendWholeSegment(i, w);
+    if (kind === "space" || kind === "zero-width-break") {
+      clearPendingSoftBreak();
+    }
+  }
+  return finishLine();
+}
+
+// src/layout.ts
+var sharedGraphemeSegmenter2 = null;
+var sharedLineTextCaches = new WeakMap;
+function getSharedGraphemeSegmenter2() {
+  if (sharedGraphemeSegmenter2 === null) {
+    sharedGraphemeSegmenter2 = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter2;
+}
+function createEmptyPrepared(includeSegments) {
+  if (includeSegments) {
+    return {
+      widths: [],
+      kinds: [],
+      segLevels: null,
+      breakableWidths: [],
+      discretionaryHyphenWidth: 0,
+      segments: []
+    };
+  }
+  return {
+    widths: [],
+    kinds: [],
+    segLevels: null,
+    breakableWidths: [],
+    discretionaryHyphenWidth: 0
+  };
+}
+function measureAnalysis(analysis, font, includeSegments) {
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  const engineProfile = getEngineProfile();
+  const { cache, emojiCorrection } = getFontMeasurementState(font, textMayContainEmoji(analysis.normalized));
+  const discretionaryHyphenWidth = getCorrectedSegmentWidth("-", getSegmentMetrics("-", cache), emojiCorrection);
+  if (analysis.len === 0)
+    return createEmptyPrepared(includeSegments);
+  const widths = [];
+  const kinds = [];
+  const segStarts = includeSegments ? [] : null;
+  const breakableWidths = [];
+  const segments = includeSegments ? [] : null;
+  function pushMeasuredSegment(text, width, kind, start, breakable) {
+    widths.push(width);
+    kinds.push(kind);
+    segStarts?.push(start);
+    breakableWidths.push(breakable);
+    if (segments !== null)
+      segments.push(text);
+  }
+  for (let mi = 0;mi < analysis.len; mi++) {
+    const segText = analysis.texts[mi];
+    const segWordLike = analysis.isWordLike[mi];
+    const segKind = analysis.kinds[mi];
+    const segStart = analysis.starts[mi];
+    if (segKind === "soft-hyphen") {
+      pushMeasuredSegment(segText, 0, segKind, segStart, null);
+      continue;
+    }
+    const segMetrics = getSegmentMetrics(segText, cache);
+    if (segKind === "text" && segMetrics.containsCJK) {
+      let unitText = "";
+      let unitStart = 0;
+      for (const gs of graphemeSegmenter.segment(segText)) {
+        const grapheme = gs.segment;
+        if (unitText.length === 0) {
+          unitText = grapheme;
+          unitStart = gs.index;
+          continue;
+        }
+        if (kinsokuEnd.has(unitText) || kinsokuStart.has(grapheme) || leftStickyPunctuation.has(grapheme) || engineProfile.carryCJKAfterClosingQuote && isCJK(grapheme) && endsWithClosingQuote(unitText)) {
+          unitText += grapheme;
+          continue;
+        }
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+        unitText = grapheme;
+        unitStart = gs.index;
+      }
+      if (unitText.length > 0) {
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+      }
+      continue;
+    }
+    const w = getCorrectedSegmentWidth(segText, segMetrics, emojiCorrection);
+    if (segWordLike && segText.length > 1) {
+      const graphemeWidths = getSegmentGraphemeWidths(segText, segMetrics, cache, emojiCorrection);
+      pushMeasuredSegment(segText, w, segKind, segStart, graphemeWidths);
+    } else {
+      pushMeasuredSegment(segText, w, segKind, segStart, null);
+    }
+  }
+  const segLevels = segStarts === null ? null : computeSegmentLevels(analysis.normalized, segStarts);
+  if (segments !== null) {
+    return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth, segments };
+  }
+  return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth };
+}
+function prepareInternal(text, font, includeSegments) {
+  const analysis = analyzeText(text, getEngineProfile());
+  return measureAnalysis(analysis, font, includeSegments);
+}
+function profilePrepare(text, font) {
+  const t0 = performance.now();
+  const analysis = analyzeText(text, getEngineProfile());
+  const t1 = performance.now();
+  const prepared = measureAnalysis(analysis, font, false);
+  const t2 = performance.now();
+  let breakableSegments = 0;
+  for (const widths of prepared.breakableWidths) {
+    if (widths !== null)
+      breakableSegments++;
+  }
+  return {
+    analysisMs: t1 - t0,
+    measureMs: t2 - t1,
+    totalMs: t2 - t0,
+    analysisSegments: analysis.len,
+    preparedSegments: prepared.widths.length,
+    breakableSegments
+  };
+}
+function prepare(text, font) {
+  return prepareInternal(text, font, false);
+}
+function prepareWithSegments(text, font) {
+  return prepareInternal(text, font, true);
+}
+function getInternalPrepared(prepared) {
+  return prepared;
+}
+function layout(prepared, maxWidth, lineHeight) {
+  const lineCount = countPreparedLines(getInternalPrepared(prepared), maxWidth);
+  return { lineCount, height: lineCount * lineHeight };
+}
+function getSegmentGraphemes(segmentIndex, segments, cache) {
+  let graphemes = cache.get(segmentIndex);
+  if (graphemes !== undefined)
+    return graphemes;
+  graphemes = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  for (const gs of graphemeSegmenter.segment(segments[segmentIndex])) {
+    graphemes.push(gs.segment);
+  }
+  cache.set(segmentIndex, graphemes);
+  return graphemes;
+}
+function getLineTextCache(prepared) {
+  let cache = sharedLineTextCaches.get(prepared);
+  if (cache !== undefined)
+    return cache;
+  cache = new Map;
+  sharedLineTextCaches.set(prepared, cache);
+  return cache;
+}
+function lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex) {
+  return endSegmentIndex > 0 && kinds[endSegmentIndex - 1] === "soft-hyphen" && !(startSegmentIndex === endSegmentIndex && startGraphemeIndex > 0);
+}
+function buildLineTextFromRange(segments, kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  let text = "";
+  const endsWithDiscretionaryHyphen = lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex);
+  for (let i = startSegmentIndex;i < endSegmentIndex; i++) {
+    if (kinds[i] === "soft-hyphen")
+      continue;
+    if (i === startSegmentIndex && startGraphemeIndex > 0) {
+      text += getSegmentGraphemes(i, segments, cache).slice(startGraphemeIndex).join("");
+    } else {
+      text += segments[i];
+    }
+  }
+  if (endGraphemeIndex > 0) {
+    if (endsWithDiscretionaryHyphen)
+      text += "-";
+    text += getSegmentGraphemes(endSegmentIndex, segments, cache).slice(startSegmentIndex === endSegmentIndex ? startGraphemeIndex : 0, endGraphemeIndex).join("");
+  } else if (endsWithDiscretionaryHyphen) {
+    text += "-";
+  }
+  return text;
+}
+function createLayoutLine(prepared, cache, width, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  return {
+    text: buildLineTextFromRange(prepared.segments, prepared.kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex),
+    width,
+    start: {
+      segmentIndex: startSegmentIndex,
+      graphemeIndex: startGraphemeIndex
+    },
+    end: {
+      segmentIndex: endSegmentIndex,
+      graphemeIndex: endGraphemeIndex
+    }
+  };
+}
+function materializeLayoutLine(prepared, cache, line) {
+  return createLayoutLine(prepared, cache, line.width, line.startSegmentIndex, line.startGraphemeIndex, line.endSegmentIndex, line.endGraphemeIndex);
+}
+function toLayoutLineRange(line) {
+  return {
+    width: line.width,
+    start: {
+      segmentIndex: line.startSegmentIndex,
+      graphemeIndex: line.startGraphemeIndex
+    },
+    end: {
+      segmentIndex: line.endSegmentIndex,
+      graphemeIndex: line.endGraphemeIndex
+    }
+  };
+}
+function stepLineRange(prepared, start, maxWidth) {
+  const line = layoutNextLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return toLayoutLineRange(line);
+}
+function materializeLine(prepared, line) {
+  return createLayoutLine(prepared, getLineTextCache(prepared), line.width, line.start.segmentIndex, line.start.graphemeIndex, line.end.segmentIndex, line.end.graphemeIndex);
+}
+function walkLineRanges(prepared, maxWidth, onLine) {
+  if (prepared.widths.length === 0)
+    return 0;
+  return walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    onLine(toLayoutLineRange(line));
+  });
+}
+function layoutNextLine(prepared, start, maxWidth) {
+  const line = stepLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return materializeLine(prepared, line);
+}
+function layoutWithLines(prepared, maxWidth, lineHeight) {
+  const lines = [];
+  if (prepared.widths.length === 0)
+    return { lineCount: 0, height: 0, lines };
+  const graphemeCache = getLineTextCache(prepared);
+  const lineCount = walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    lines.push(materializeLayoutLine(prepared, graphemeCache, line));
+  });
+  return { lineCount, height: lineCount * lineHeight, lines };
+}
+function clearCache() {
+  clearAnalysisCaches();
+  sharedGraphemeSegmenter2 = null;
+  sharedLineTextCaches = new WeakMap;
+  clearMeasurementCaches();
+}
+function setLocale(locale) {
+  setAnalysisLocale(locale);
+  clearCache();
+}
+
+
+// ═══════════════════════════════════════
+// ② 内容
+// ═══════════════════════════════════════
+var TITLE = `手撕 DeepSeek-V4 注意力方案`;
+var LEAD = `DeepSeek-V4 的注意力方案不是从零发明的。它是 NSA 的全局压缩和 DSA 的稀疏选取拼在一起，加上原生训练。整个架构的核心思路很清楚：不同距离的上下文不该共享同一种表示——距离变成结构变量。HCA 负责远场强压缩，CSA 负责精确选取，SWA 兜底局部，MQA 砍 KV-Cache。四条路径各司其职，不是简单并列。这篇文章会从标准注意力开始，逐层构建，把 V4 注意力方案的每一个模块拆干净。`;
+var SECTIONS = [
+  // ═══ Context (slides 01) ═══
+  {
+    heading: `V4 注意力架构的三个核心事实`,
+    body: `先说三个事实，后面所有的代码和设计都是围绕它们展开的。事实一：V4 提出两种注意力——HCA 以压缩率 128 对 KV 做强压缩（block-level），CSA 以压缩率 4 做轻量压缩加 Indexer 筛选 top-k（token-level），分工明确。事实二：V4 注意力不是从零发明，而是有机融合了 NSA（HCA 前身）和 DSA（Indexer 来源），关键是原生训练而非继续预训练。事实三：Sparse Kernel 逐 query 拉取非连续 KV 子集，MQA 下单次矩阵乘即得所有头的注意力分数——零浪费计算。这三个事实串起来就是一句话：不同距离的上下文不应共享同一种表示——距离变成结构变量。`,
+    bodyHTML: '<div>先说三个事实，后面所有的代码和设计都是围绕它们展开的。</div><div>事实一：V4 提出两种注意力——HCA 以压缩率 128 对 KV 做强压缩（block-level），CSA 以压缩率 4 做轻量压缩加 Indexer 筛选 top-k（token-level），分工明确。</div><div>事实二：V4 注意力不是从零发明，而是有机融合了 <a href=”https://arxiv.org/abs/2502.11089” target=”_blank”>NSA</a>（HCA 前身）和 DSA（Indexer 来源），关键是原生训练而非继续预训练。</div><div>事实三：Sparse Kernel 逐 query 拉取非连续 KV 子集，MQA 下单次矩阵乘即得所有头的注意力分数——零浪费计算。</div><div>这三个事实串起来就是一句话：不同距离的上下文不应共享同一种表示——距离变成结构变量。</div>',
+    callout: `不同距离的上下文不应共享同一种表示——距离变成结构变量。`
+  },
+
+  // ═══ Mechanism I: V4 全貌 (slides 03-06) ═══
+  {
+    image: `./figures/fig-hca-csa-overview.png`,
+    caption: `Fig 1: V4 注意力方案全貌——HCA 压缩率 128 block-level 强压缩捕获全局信息，CSA 压缩率 4 加 Indexer top-k 筛选兼顾全局与局部，SWA 128-token 窗口近场补充，MQA 单头 KV 减少 Cache。`,
+    prompt: `HCA/CSA/SWA/MQA 四条注意力路径的全局架构图。V4 原始论文配图。`
+  },
+  {
+    heading: `前置工作：NSA——HCA 的前身`,
+    body: `NSA（Native Sparse Attention）是 HCA 的前身，采用动态分层稀疏策略，将粗粒度 token 压缩与细粒度 token 选择结合。NSA 的关键创新在于可以端到端原生训练，而非后处理。但 V4 做了取舍：NSA 的 Select Attention（块级稀疏）在 V4 中被移除了，V4 改用 MQA 来减少多头计算复杂度。DSA（DeepSeek Sparse Attention）则是 CSA 的前身，在 V3.2 中引入，用 Indexer 网络做 token 级 KV 筛选，已经是产品验证过的方案。但 DSA 有个限制：它基于 V3.1-T 基座继续预训练，不是原生预训练。V4 最大的定位变化就是原生训练。CSA 的 Indexer 来自 DSA，但进一步融入了 Compressed-KV 来弥补全局信息。还有一个关键设计：退化机制——当某一层不压缩 KV 时（compress_ratio=0），退化为纯 SWA。这是训练稳定性的安全网。`,
+    bodyHTML: '<div><a href=”https://arxiv.org/abs/2502.11089” target=”_blank”>NSA（Native Sparse Attention）</a>是 HCA 的前身，采用动态分层稀疏策略，将粗粒度 token 压缩与细粒度 token 选择结合。NSA 的关键创新在于可以端到端原生训练，而非后处理。</div><div>但 V4 做了取舍：NSA 的 Select Attention（块级稀疏）在 V4 中被移除了，V4 改用 MQA 来减少多头计算复杂度。DSA（DeepSeek Sparse Attention）则是 CSA 的前身，在 V3.2 中引入，用 Indexer 网络做 token 级 KV 筛选，已经是产品验证过的方案。但 DSA 有个限制：它基于 V3.1-T 基座继续预训练，不是原生预训练。</div><div>V4 最大的定位变化就是原生训练。CSA 的 Indexer 来自 DSA，但进一步融入了 Compressed-KV 来弥补全局信息。还有一个关键设计：退化机制——当某一层不压缩 KV 时（compress_ratio=0），退化为纯 SWA。这是训练稳定性的安全网。</div>',
+    callout: `V4 注意力 = NSA 的全局压缩 + DSA 的稀疏选取 + 原生训练。`
+  },
+  {
+    image: `./figures/fig-nsa-dsa-timeline.png`,
+    caption: `Fig 2: NSA 和 DSA 的演进时间线——NSA 是 HCA 前身提供动态分层稀疏，DSA 是 CSA 前身提供 Indexer 稀疏选取，V4 将两者融合为统一的原生训练架构。`,
+    prompt: `NSA/DSA 演进时间线，展示两种前置工作到 V4 的融合过程。V4 原始论文配图。`
+  },
+
+  // ═══ Mechanism II: 标准注意力到稀疏注意力 (slides 07-15) ═══
+  {
+    heading: `标准注意力：Scaled Dot-Product Attention`,
+    body: `所有注意力变体的起点。公式很经典：S = Q @ K^T，然后 softmax，再 P @ V。代码写出来是这样的：先做矩阵乘法得到注意力分数 S，如果传了 mask 就把 mask 为 False 的位置填成负无穷（softmax 后变零），然后 softmax 归一化，最后乘 V 得到输出。复杂度是 O(L^2)，所有 KV 都参与计算。这就是问题所在——当序列长度 L 到了百万级别，这个复杂度不可接受。参数方面预留了 mask，用于后面控制 KV 的选择范围。这行代码虽然简单，但它是后面所有稀疏注意力变体的基础接口。`,
+    bodyHTML: '<div>所有注意力变体的起点。公式很经典：S = Q @ K<sup>T</sup>，然后 softmax，再 P @ V。代码写出来是这样的：</div><pre><code>def ScaledDotProductionAttention(Q, K, V, M):\n    S = Q @ K.transpose(-2, -1)\n    if M != None:\n        S = S.masked_fill(M == False, float(\'-inf\'))\n    P = F.softmax(S, dim=-1)\n    Z = P @ V\n    return Z</code></pre><div>复杂度是 O(L<sup>2</sup>)，所有 KV 都参与计算。这就是问题所在——当序列长度 L 到了百万级别，这个复杂度不可接受。参数方面预留了 mask，用于后面控制 KV 的选择范围。</div>'
+  },
+  {
+    heading: `随机掩码：只是”标记”而非”减量”`,
+    body: `第一步尝试：生成随机的 bool 掩码，让每个 query 只注意随机选中的 KV 位置。代码就是生成一个 [bsz, seq_len, seq_len] 的随机 bool 矩阵，然后传给 ScaledDotProductionAttention。但这有个关键问题：虽然 mask 标记了哪些位置参与计算，但底层实现仍然在计算所有位置，只是把 mask 为 False 的位置在 softmax 前填成负无穷。计算量没有真正减少——只是”标记”而不是”减量”。这是一个重要的区分：mask 掩码是稀疏注意力的起点，但它并没有改变计算复杂度。`,
+    bodyHTML: '<div>第一步尝试：生成随机的 bool 掩码，让每个 query 只注意随机选中的 KV 位置。</div><pre><code>shape = [bsz, seq_len, seq_len]\nM_random = torch.randint(0, 2, size=shape, dtype=torch.bool)\nO_random_mask = ScaledDotProductionAttention(X, X, X, M_random)</code></pre><div>但这有个关键问题：虽然 mask 标记了哪些位置参与计算，但底层实现仍然在计算所有位置，只是把 mask 为 False 的位置在 softmax 前填成负无穷。计算量没有真正减少——只是”标记”而不是”减量”。这是一个重要的区分：mask 掩码是稀疏注意力的起点，但它并没有改变计算复杂度。</div>',
+    callout: `随机掩码是稀疏注意力的起点，但只是”标记”而非”减量”。`
+  },
+  {
+    image: `./figures/fig-mask-free-attn.png`,
+    caption: `Fig 3: Mask-Free 注意力——只计算 mask 非零位置的 KV，逐 query 拉取非零位置，实打实减少计算量，是所有稀疏注意力的基本计算单元。`,
+    prompt: `Mask-Free 注意力示意图，展示单 query 对非零 mask 位置 KV 的拉取过程。V4 原始论文配图。`
+  },
+  {
+    heading: `Mask-Free：SingleQuerySDPA 和完整遍历`,
+    body: `真正减少计算量的方式是：不生成掩码矩阵，而是直接只拉取需要计算的 KV 位置。核心是 SingleQuerySDPA 函数——输入一个 query 向量和对应的 K、V 子集，计算注意力结果。这是所有稀疏注意力的基本计算单元。完整实现是 AttentionFreeMask 类：对每个 batch、每个 query 位置 j，用 torch.where 找出 mask 中非零的位置索引，只拉取这些位置的 K 和 V，调用 SingleQuerySDPA 计算。这样计算量严格等于非零 mask 位置的 KV 数量，没有浪费。`,
+    bodyHTML: '<div>真正减少计算量的方式是：不生成掩码矩阵，而是直接只拉取需要计算的 KV 位置。核心是 SingleQuerySDPA 函数——输入一个 query 向量和对应的 K、V 子集，计算注意力结果。这是所有稀疏注意力的基本计算单元。</div><pre><code>def SingleQuerySDPA(q, K, V):\n    S = q @ K.t()\n    P = F.softmax(S, dim=-1)\n    Z = P @ V\n    return Z</code></pre><div>完整实现是 AttentionFreeMask 类：对每个 batch、每个 query 位置 j，用 torch.where 找出 mask 中非零的位置索引，只拉取这些位置的 K 和 V，调用 SingleQuerySDPA 计算。</div><pre><code>def forward_free_mask(self, X, mask):\n    B, L, D = X.shape\n    Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)\n    Z = torch.zeros_like(Q)\n    for i in range(B):\n        for j in range(L):\n            idx = torch.where(mask[i, j] != 0)[0].tolist()\n            q, K_, V_ = Q[i,[j], :], K[i, idx, :], V[i, idx, :]\n            Z[i,j,:] = SingleQuerySDPA(q, K_, V_)\n    O = self.Wo(Z)\n    return O</code></pre><div>这样计算量严格等于非零 mask 位置的 KV 数量，没有浪费。</div>'
+  },
+  {
+    image: `./figures/fig-topk-attn.png`,
+    caption: `Fig 4: Top-K 注意力的两种模式——Post 模式先算全量注意力分数再选 top-k，无法避免 O(L^2)；Pre 模式由 Indexer 先选 KV 再算注意力，只算必要位置。V4 选择了 Pre 模式。`,
+    prompt: `Top-K 注意力 Post vs Pre 模式概念图。V4 原始论文配图。`
+  },
+  {
+    image: `./figures/fig-post-vs-pre.png`,
+    caption: `Fig 5: Post vs Pre 模式详细流程对比——Post 必须先算全量 S = Q @ K^T，复杂度 O(L^2) 逃不掉，选 top-k 只是后处理；Pre 由筛选函数先选 KV，只对选中的 KV 计算注意力。`,
+    prompt: `Post vs Pre Top-K 注意力模式详细流程对比图。V4 原始论文配图。`
+  },
+  {
+    heading: `Top-K：Pre 模式先选后算，逐 query 必要性`,
+    body: `Post 模式的问题很明确：必须先算全量 S = Q @ K^T，复杂度 O(L^2) 逃不掉，选 top-k 只是后处理。Pre 模式的优势是先用轻量评分筛选 KV，只对选中的 KV 计算注意力。V4 选了 Pre 模式——由 Indexer 先选 KV，再逐 query 计算。实现上，Pre 模式的 Indexer 先模拟评分（实际是可学习的投影），torch.topk 选出 top-k 索引，然后只对这些索引的 KV 调用 SingleQuerySDPA。这里有个看似低效但实际必要的设计：逐 query 拉取 top-k KV。原因是在稀疏选取下，各 query 的 KV 集合互不相交，FlashAttention 的块式复用失去前提——FlashAttention 假设 KV 连续，Sparse 场景不满足。所以逐 query 不是低效，而是唯一选择。`,
+    bodyHTML: '<div>Post 模式的问题很明确：必须先算全量 S = Q @ K<sup>T</sup>，复杂度 O(L<sup>2</sup>) 逃不掉，选 top-k 只是后处理。Pre 模式的优势是先用轻量评分筛选 KV，只对选中的 KV 计算注意力。V4 选了 Pre 模式——由 Indexer 先选 KV，再逐 query 计算。</div><pre><code>def forward(self, X, topk=10, is_post=True):\n    B, L, D = X.shape\n    Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)\n    Z = torch.zeros_like(Q)\n    for i in range(B):\n        for j in range(L):\n            if is_post:\n                S = Q[i,[j], :] @ K[i].t()\n                # ... select top-k from S\n            else:\n                # Pre: Indexer 先选 KV\n                S = torch.randn(1, L)  # 模拟 Indexer 评分\n                _, idx = torch.topk(S, topk)\n                idx = idx[0].tolist()\n                q, K_, V_ = Q[i,[j], :], K[i, idx, :], V[i, idx, :]\n                Z[i,j,:] = SingleQuerySDPA(q, K_, V_)\n    O = self.Wo(Z)\n    return O</code></pre><div>这里有个看似低效但实际必要的设计：逐 query 拉取 top-k KV。原因是在稀疏选取下，各 query 的 KV 集合互不相交，FlashAttention 的块式复用失去前提——FlashAttention 假设 KV 连续，Sparse 场景不满足。</div>',
+    callout: `稀疏选取下各 query 的 KV 集合互不相交，FlashAttention 的块式复用失去前提。`
+  },
+
+  // ═══ Mechanism III: 压缩注意力 + SWA (slides 16-22) ═══
+  {
+    image: `./figures/fig-compress-attn.png`,
+    caption: `Fig 6: 压缩注意力的核心概念——等间距 mean-pooling 将 KV 降维，当上下文长度 1M、压缩率 128 时，压缩后仅有 7812.5 个 KV。代价是位置编码对齐和因果信息泄漏问题。`,
+    prompt: `压缩注意力示意图，展示 mean-pooling 对 KV 的等间距压缩过程。V4 原始论文配图。`
+  },
+  {
+    heading: `压缩注意力：核心概念与代码实现`,
+    body: `压缩注意力的直觉是：当上下文长度为 1M、压缩率为 128 时，压缩后仅有 7812.5 个 KV。方法用等间距的池化平均（mean-pooling，免参数）来压缩 KV。代码实现很直接：AttentionCompress 类的 forward 方法中，先线性投影得到 Q、K、V，然后根据 compress_ratio 做 reshape 加 mean-pooling——K_ = K.reshape(B, n_c, c, D).mean(dim=2)，V 同理。压缩后的 KV 直接送入 ScaledDotProductionAttention 计算。压缩率是结构旋钮：ratio=1 退化为标准注意力（KV 长度不变，256）；ratio=4 把 KV 缩到 64，计算量降至 1/4；ratio=16 缩到 16，降至 1/16；ratio=128 时 1M 上下文仅 7812.5 个 KV，极端压缩。`,
+    bodyHTML: '<div>压缩注意力的直觉是：当上下文长度为 1M、压缩率为 128 时，压缩后仅有 7812.5 个 KV。方法用等间距的池化平均（mean-pooling，免参数）来压缩 KV。</div><pre><code>class AttentionCompress(nn.Module):\n    def forward(self, X, compress_ratio):\n        B, L, D = X.shape\n        Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)\n        c, n_c = compress_ratio, L // compress_ratio\n        if compress_ratio != 0:\n            # mean-pooling 压缩\n            K_ = K.reshape(B, n_c, c, D).mean(dim=2)\n            V_ = V.reshape(B, n_c, c, D).mean(dim=2)\n        Z = ScaledDotProductionAttention(Q, K_, V_, None)\n        O = self.Wo(Z)\n        return O</code></pre><div>压缩率是结构旋钮：ratio=1 退化为标准注意力（KV 长度不变，256）；ratio=4 把 KV 缩到 64，计算量降至 1/4；ratio=16 缩到 16，降至 1/16；ratio=128 时 1M 上下文仅 7812.5 个 KV，极端压缩。</div>',
+    callout: `压缩率是结构旋钮——ratio=1 退化为标准注意力，ratio=128 砍到极致。`
+  },
+  {
+    heading: `压缩注意力的四个遗留问题`,
+    body: `压缩注意力虽然漂亮，但带了四个工程上的坑。第一，位置编码：Compressed KV 的 RoPE 如何处理？原来的每个 token 有独立的位置编码，压缩后一个位置对应多个 token，位置怎么对齐？第二，KV-Cache：Inference Prefill/Decode 时如何增量更新？压缩 KV 不是简单的追加，需要整块重新计算。第三，因果信息泄漏：因果注意力下，一个压缩块包含多个 token 的 KV，query 只应看到过去的信息，但压缩可能把未来 token 的信息混入。第四，Overlap 平滑：相邻块的 Compressed KV 如何通过 overlap 平滑表达？段间边界信息可能断裂。这些问题将在 HCA 和 CSA 的具体实现中逐一解决。`,
+    bodyHTML: '<div>压缩注意力虽然漂亮，但带了四个工程上的坑。</div><div>第一，位置编码：Compressed KV 的 RoPE 如何处理？原来的每个 token 有独立的位置编码，压缩后一个位置对应多个 token，位置怎么对齐？</div><div>第二，KV-Cache：Inference Prefill/Decode 时如何增量更新？压缩 KV 不是简单的追加，需要整块重新计算。</div><div>第三，因果信息泄漏：因果注意力下，一个压缩块包含多个 token 的 KV，query 只应看到过去的信息，但压缩可能把未来 token 的信息混入。</div><div>第四，Overlap 平滑：相邻块的 Compressed KV 如何通过 overlap 平滑表达？段间边界信息可能断裂。</div><div>这些问题将在 HCA 和 CSA 的具体实现中逐一解决。</div>'
+  },
+  {
+    image: `./figures/fig-swa-blockwise.png`,
+    caption: `Fig 7: 滑窗注意力（SWA）与 block-wise attention——每个 query 仅关注窗口内的 KV，O(L^2) 降到 O(L*w)，block-wise attention 天然适配 SWA。`,
+    prompt: `SWA block-wise attention 示意图。V4 原始论文配图。`
+  },
+  {
+    heading: `滑窗注意力：代码实现与注意力抽象小结`,
+    body: `滑窗注意力是压缩注意力的自然补充：每个 query 仅关注窗口内的 KV，O(L^2) 降到 O(L*w)。实现上复用了 SingleQuerySDPA，只是 KV 的选取范围变成了窗口。代码中 AttentionSlidingWindow 的 forward 方法，对每个 query j，left = max(j, j - window_size)，right = min(j, j + window_size)，拉取这个范围内的 K 和 V，调用 SingleQuerySDPA。block-wise attention 天然适配 SWA。到这里，五种注意力抽象全部出场了：标准注意力（全局 O(L^2)，所有 KV 参与）、Mask-Free（真正减少计算量，逐 query 拉取）、Top-K（Pre 模式先选后算，避免 O(L^2)）、压缩注意力（降维表示，遗留位置编码和因果泄漏）、滑窗注意力（局部信息，O(L*w) 复杂度）。V4 的 HCA 和 CSA 就是这五种抽象的有机组合。`,
+    bodyHTML: '<div>滑窗注意力是压缩注意力的自然补充：每个 query 仅关注窗口内的 KV，O(L<sup>2</sup>) 降到 O(L*w)。实现上复用了 SingleQuerySDPA，只是 KV 的选取范围变成了窗口。</div><pre><code>class AttentionSlidingWindow(nn.Module):\n    def forward(self, X, window_size):\n        B, L, D = X.shape\n        Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)\n        Z = torch.zeros_like(Q)\n        for i in range(B):\n            for j in range(L):\n                left = max(j, j - window_size)\n                right = min(j, j + window_size)\n                q = Q[i,[j], :]\n                K_ = K[i, left:right, :]\n                V_ = V[i, left:right, :]\n                Z[i,j,:] = SingleQuerySDPA(q, K_, V_)\n        O = self.Wo(Z)\n        return O</code></pre><div>block-wise attention 天然适配 SWA。到这里，五种注意力抽象全部出场了：标准注意力（全局 O(L<sup>2</sup>)）、Mask-Free（逐 query 拉取）、Top-K（Pre 模式先选后算）、压缩注意力（降维表示）、滑窗注意力（局部 O(L*w)）。V4 的 HCA 和 CSA 就是这五种抽象的有机组合。</div>',
+    callout: `五种注意力各有分工——V4 的 HCA/CSA 是它们的有机组合。`
+  },
+
+  // ═══ Mechanism IV: HCA (slides 23-26) ═══
+  {
+    heading: `HCA：可学习 Compressor 设计`,
+    body: `HCA（Heavily Compressed Attention）的压缩不再用简单的 mean-pooling，而是用了一个可学习的 Compressor。核心是一个线性投影 w_compress，参数是 [compress_ratio, 1] 的线性层，对每段 KV 做加权压缩。和 mean-pooling 相比，Compressor 的压缩表达更具表达能力——它可以学习哪些 token 更重要，给更高的权重。代码实现：Compressor 类在 __init__ 中初始化 w_compress = nn.Linear(compress_ratios, 1, bias=False)，forward 中先 reshape 为 [B, n_c, c, D]，然后 transpose 再过线性投影压缩。`,
+    bodyHTML: '<div>HCA（Heavily Compressed Attention）的压缩不再用简单的 mean-pooling，而是用了一个可学习的 Compressor。核心是一个线性投影 w<sub>compress</sub>，参数是 [compress_ratio, 1] 的线性层，对每段 KV 做加权压缩。和 mean-pooling 相比，Compressor 的压缩表达更具表达能力——它可以学习哪些 token 更重要，给更高的权重。</div><pre><code>class Compressor(nn.Module):\n    def __init__(self, compress_ratios, dim):\n        super().__init__()\n        self.compress_ratios = compress_ratios\n        self.w_compress = nn.Linear(compress_ratios, 1, bias=False)\n\n    def forward(self, X):\n        B, L, D = X.shape\n        c, n_c = self.compress_ratios, L // self.compress_ratios\n        if self.compress_ratios > 1:\n            X_ = X.reshape(B, n_c, c, D)\n            X_ = self.w_compress(X_.transpose(2,3))[...,0]\n        return X_</code></pre>'
+  },
+  {
+    heading: `HCA：因果压缩前向计算`,
+    body: `因果约束是 HCA 的关键设计：第 j 个 query 只能看到 j // ratio 个压缩 KV 块。以 ratio=4 为例，序列长度 8192 仅产生 2048 个压缩 KV。实现中，先通过 Compressor 得到压缩后的 K_ 和 V_，然后逐 query 计算注意力。因果边界 j_ = j // compress_ratios，只看 j_ 之前的压缩 KV。代码中 j_ = j // args.compress_ratios，K_c 和 V_c 只取 [:j_] 的部分。这保证了 query 不会看到未来的信息。`,
+    bodyHTML: '<div>因果约束是 HCA 的关键设计：第 j 个 query 只能看到 j // ratio 个压缩 KV 块。以 ratio=4 为例，序列长度 8192 仅产生 2048 个压缩 KV。</div><pre><code>bsz, seq_len = 2, 8192\nargs.compress_ratios = 4\n\ncompressor = Compressor(args.compress_ratios, args.dim)\nK_ = compressor(K)  # [B, 2048, D]\nV_ = compressor(V)  # [B, 2048, D]\n\nO = torch.zeros_like(Q)\nfor i in range(bsz):\n    for j in range(seq_len):\n        j_ = j // args.compress_ratios  # 因果边界\n        K_c, V_c = K_[i, :j_], V_[i, :j_]\n        O[i,j] = Q[i, [j]] @ K_c.T @ V_c</code></pre><div>因果边界 j_ = j // compress_ratios，只看 j_ 之前的压缩 KV，保证 query 不会看到未来信息。</div>'
+  },
+  {
+    heading: `HCA：信息泄漏与 SWA 配合`,
+    body: `因果约束下压缩 KV 的信息泄漏是真实问题。一个压缩块包含多个 token 的 KV，query 只应看到过去的信息。因果边界 j_ = j // ratio 只看到 j_ 之前的完整压缩块——但代价是当前 token 所在块的信息被丢弃。这就是为什么 HCA 必须夹带 SWA：没有 SWA，因果压缩的信息空缺无法填补。分工很清楚——HCA 通过强压缩捕获远场信息（代价更低），SWA 填补因果压缩丢弃的当前块信息（近场不丢）。HCA 不独立运行，这是设计上的硬约束。`,
+    bodyHTML: '<div>因果约束下压缩 KV 的信息泄漏是真实问题。一个压缩块包含多个 token 的 KV，query 只应看到过去的信息。因果边界 j_ = j // ratio 只看到 j_ 之前的完整压缩块——但代价是当前 token 所在块的信息被丢弃。</div><div>这就是为什么 HCA 必须夹带 SWA：没有 SWA，因果压缩的信息空缺无法填补。分工很清楚——HCA 通过强压缩捕获远场信息（代价更低），SWA 填补因果压缩丢弃的当前块信息（近场不丢）。</div>',
+    callout: `因果约束下压缩 KV 的信息泄漏是真实问题——空缺由 SWA 补，这是 HCA 必须夹带 SWA 的原因。`
+  },
+
+  // ═══ Mechanism V: CSA (slides 27-35) ═══
+  {
+    heading: `CSA：Indexer 类设计与前向计算流程`,
+    body: `CSA（Compressed Sparse Attention）的 Indexer 功能是轻量投影做点积评分，top-k 选出稀疏索引。简化版是投影到 1 维做评分——Wk_light 和 Wq_light 都是 nn.Linear(dim, 1)，Q 和 K 各投影后做点积，torch.topk 选出 top-k 索引。但 V4 实际的实现更复杂：投影到 n_head=64 维，weights_proj 学习每个头的重要性权重，再加权求和。CSA 的前向计算分四步：第一步，Compressor 对 KV 做轻量压缩（ratio=4）；第二步，Indexer 对原始 KV 做 top-k 筛选；第三步，每个 query 同时计算稀疏 KV 和压缩 KV 注意力；第四步，结果相加。双路注意力——稀疏 KV 保证精度，压缩 KV 弥补全局信息。`,
+    bodyHTML: '<div>CSA（Compressed Sparse Attention）的 Indexer 功能是轻量投影做点积评分，top-k 选出稀疏索引。简化版是投影到 1 维做评分：</div><pre><code>class Indexer(nn.Module):\n    def __init__(self, args):\n        super().__init__()\n        dim, n_head = args.dim, args.n_heads\n        # 简化版：投影到1维做点积评分\n        self.Wk_light = nn.Linear(dim, 1, bias=False)\n        self.Wq_light = nn.Linear(dim, 1, bias=False)\n\n    def forward(self, Q, K, topk):\n        Q_, K_ = self.Wq_light(Q), self.Wk_light(K)\n        S = Q_ @ K_.transpose(-2, -1)\n        _, idx = torch.topk(S, topk, dim=-1)\n        return idx</code></pre><div>但 V4 实际的实现更复杂：投影到 n_head=64 维，weights_proj 学习每个头的重要性权重，再加权求和。CSA 的前向计算分四步：第一步 Compressor 压缩 KV（ratio=4）；第二步 Indexer top-k 筛选；第三步双路注意力；第四步结果相加。</div>',
+    callout: `双路注意力——稀疏 KV 保证精度，压缩 KV 弥补全局信息。`
+  },
+  {
+    heading: `CSA：代码实现（基础版）`,
+    body: `基础版代码把 Compressor 和 Indexer 串联起来：先用 Compressor 压缩 KV（ratio=4），再用 Indexer 选出稀疏索引。然后逐 query 计算：对每个 query 位置 j，分别对稀疏 KV 和压缩 KV 算注意力，结果累加。这就是双路注意力的核心。`,
+    bodyHTML: '<div>基础版代码把 Compressor 和 Indexer 串联起来：</div><pre><code>Q = torch.randn(bsz, seq_len, args.dim)\nK = torch.randn(bsz, seq_len, args.dim)\nV = torch.randn(bsz, seq_len, args.dim)\n\nargs.compress_ratios = 4\ncompressor = Compressor(args.compress_ratios, args.dim)\nK_ = compressor(K)  # 压缩 KV\nV_ = compressor(V)\n\nindexer = Indexer(args)\nidx = indexer(Q, K, args.attn_top_k)  # 稀疏索引\n\nz = torch.zeros_like(Q)\nfor i in range(bsz):\n    for j in range(seq_len):\n        sparse_ids = idx[i, j]\n        z[i, [j]] += attn(Q[i, [j]], K[i, sparse_ids], V[i, sparse_ids])\n        z[i, [j]] += attn(Q[i, [j]], K_[i, :], V_[i, :])  # 压缩 KV</code></pre><div>对每个 query 位置 j，分别对稀疏 KV 和压缩 KV 算注意力，结果累加。这就是双路注意力的核心。</div>'
+  },
+  {
+    image: `./figures/fig-csa-overlap.png`,
+    caption: `Fig 8: CSA Overlap 平滑策略——将相邻段的压缩特征拼到当前位置，使段间过渡自然，避免边界信息断裂。仅在 CSA 中使用，HCA 不需要 overlap。`,
+    prompt: `CSA Overlap 平滑策略示意图。V4 原始论文配图。`
+  },
+  {
+    heading: `CSA：Overlap 平滑策略与代码`,
+    body: `Overlap 的目的是把相邻段的压缩特征拼到当前位置，使段间过渡自然，避免边界信息断裂。这个设计只在 CSA 中使用，HCA 不需要。代码中 overlap 函数先创建一个 [B, L, D*2] 的张量，前半部分放前一段的压缩特征（X_[:, 1:, :D] = X[:, :L-1, :]），后半部分放当前段（X_[:, :, D:] = X）。overlap 后压缩 KV 从 [B, L/4, D] 变为 [B, L/4, 2D]，再通过 reshape 加 sum 压缩回 [B, L/4, D]。coff = 1 + overlap_flag，当 overlap_flag=1 时做 sum 压缩。`,
+    bodyHTML: '<div>Overlap 的目的是把相邻段的压缩特征拼到当前位置，使段间过渡自然，避免边界信息断裂。这个设计只在 CSA 中使用，HCA 不需要。</div><pre><code>def overlap(X):\n    B, L, D = X.shape\n    X_ = torch.zeros(B, L, D*2)\n    X_[:, :, D:] = X          # 当前段\n    X_[:, 1:, :D] = X[:, :L-1, :]  # 前一段\n    return X_\n\n# Overlap 后再压缩回原维度\noverlap_flag = 1\ncoff = 1 + overlap_flag\n\nK_ = overlap(compressor(K))  # [B, L/4, 2D]\nV_ = overlap(compressor(V))\n\nif overlap_flag:\n    _, L_c, _ = K_.shape\n    K_ = K_.reshape(bsz, L_c, args.dim, coff).sum(dim=-1)\n    V_ = V_.reshape(bsz, L_c, args.dim, coff).sum(dim=-1)</code></pre><div>overlap 后压缩 KV 从 [B, L/4, D] 变为 [B, L/4, 2D]，再通过 reshape 加 sum 压缩回 [B, L/4, D]。</div>'
+  },
+  {
+    image: `./figures/fig-csa-complete.png`,
+    caption: `Fig 9: CSA 三路 KV 拼接完整流程——Top-K 稀疏 KV 保证精度，滑窗 KV 保局部，压缩 KV 弥补全局信息，三路在候选索引层面拼接后统一 Softmax 归一化。`,
+    prompt: `CSA 三路 KV 拼接完整流程图。V4 原始论文配图。`
+  },
+  {
+    heading: `CSA：三路 KV 拼接与统一 Softmax`,
+    body: `CSA 的工程精髓在于三路 KV 拼接：每个 query 同时关注稀疏 KV（Top-K 筛选的）、窗口 KV（SWA 滑窗的）、压缩 KV（Compressor 压缩的）。拼接在候选索引层面：K_mix = torch.cat((K[i, sparse_ids], K[i, left:right], K_[i, :]))，V 同理。注意力计算统一进行，softmax 自动归一化。这里有个关键设计：三路 KV 拼接为统一序列后做全局 Softmax，不需要分别归一化再加权。分别归一化会丢失跨路径的相对重要性。完整计算要点是：原始 KV 和压缩 KV 在内存中拼接为统一序列，候选索引由 [window_ids, sparse_ids, compress_ids] 三路拼接，Sparse Kernel 按候选索引逐 query 拉取 KV 子集，零浪费计算注意力。`,
+    bodyHTML: '<div>CSA 的工程精髓在于三路 KV 拼接：每个 query 同时关注稀疏 KV（Top-K 筛选的）、窗口 KV（SWA 滑窗的）、压缩 KV（Compressor 压缩的）。</div><pre><code>win = 128\nz = torch.zeros_like(Q)\nfor i in range(bsz):\n    for j in range(seq_len):\n        sparse_ids = idx[i, j]\n        left, right = max(0, j-win), min(seq_len, j+win)\n\n        K_mix = torch.cat((\n            K[i, sparse_ids],      # Top-K 稀疏 KV\n            K[i, left:right],      # 滑窗 KV\n            K_[i, :]))             # 压缩 KV\n        V_mix = torch.cat((\n            V[i, sparse_ids],\n            V[i, left:right],\n            V_[i, :]))\n\n        z[i,j] = attn(Q[i, [j]], K_mix, V_mix)</code></pre><div>三路 KV 拼接为统一序列后做全局 Softmax，不需要分别归一化再加权。分别归一化会丢失跨路径的相对重要性。</div>',
+    callout: `三路 KV 拼接是 V4 注意力的工程精髓——一条路径做不到，三条路各司其职。`
+  },
+
+  // ═══ Mechanism VI: MQA (slides 36-42) ═══
+  {
+    image: `./figures/fig-mqa-vs-mla.png`,
+    caption: `Fig 10: MQA vs MLA 核心区别——MLA 上投影到多头 KV 后再算注意力，推理时需反复加载上投影矩阵把 latent cache 还原成高维 KV，长解码下开销显著；V4-MQA 直接用单头 KV 计算，引入分组输出投影控制 Wo 规模。`,
+    prompt: `MQA 与 MLA 对比示意图。V4 原始论文配图。`
+  },
+  {
+    heading: `V4-MQA：算法设计与完整代码`,
+    body: `V4 用了 MQA（Multi Query Attention），KV 头数 n_kv_heads = 1，极大减少 KV-Cache 量。MQA 下单 query 维度为 [H, d]，单头 KV 块为 [blk, d]，一次矩阵乘即得所有头分数。但 V4-MQA 不只是 KV 头数为 1 的 MQA——它引入了分组输出投影。完整代码：MQA 类的 __init__ 中，n_kv_heads = 1，Wq 投影到 n_heads * head_dim，Wc 投影到 head_dim（中间压缩），Wk 和 Wv 从 head_dim 投影到 head_dim。关键是 Wo_a 和 Wo_b 两段投影——Wo_a 把 n_heads * head_dim // o_groups 维度降到 o_groups * o_lora_rank，Wo_b 再升维回 dim。前向计算中，Q reshape 为多头格式，K 和 V reshape 为单头（因为 n_kv_heads=1），计算注意力后通过 Wo_a 分组降维再 Wo_b 升维回 dim。`,
+    bodyHTML: '<div>V4 用了 MQA（Multi Query Attention），KV 头数 n<sub>kv_heads</sub> = 1，极大减少 KV-Cache 量。但 V4-MQA 不只是 KV 头数为 1 的 MQA——它引入了分组输出投影。</div><pre><code>class MQA(nn.Module):\n    def __init__(self, args, o_lora_rank, o_groups):\n        super().__init__()\n        dim, head_dim, self.n_heads = args.dim, args.head_dim, args.n_heads\n        self.n_kv_heads = 1\n        self.Wq = nn.Linear(dim, self.n_heads * head_dim, bias=False)\n        self.Wc = nn.Linear(dim, head_dim, bias=False)\n        self.Wk = nn.Linear(head_dim, head_dim, bias=False)\n        self.Wv = nn.Linear(head_dim, head_dim, bias=False)\n        self.o_lora_rank, self.o_groups = o_lora_rank, o_groups\n        self.Wo_a = nn.Linear(self.n_heads * head_dim // o_groups,\n                              o_groups * o_lora_rank, bias=False)\n        self.Wo_b = nn.Linear(o_lora_rank * self.n_heads, dim, bias=False)</code></pre><pre><code>    def forward(self, X, mask):\n        B, L, D = X.shape\n        Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)\n        Q = Q.reshape(B, L, self.n_heads, D // self.n_heads).transpose(1, 2)\n        K = K.reshape(B, L, self.n_heads, D // self.n_kv_heads).transpose(1, 2)\n        V = V.reshape(B, L, self.n_heads, D // self.n_kv_heads).transpose(1, 2)\n        Z = ScaledDotProductionAttention(Q, K, V, mask)\n\n        d = self.n_heads * D // self.o_groups\n        Z = Z.reshape(B, L, self.o_groups, d)\n        Z = self.Wo_a(Z)           # 分组降维\n        Z = Z.reshape(B, L, self.o_lora_rank * d)\n        O = self.Wo_b(Z)           # 升维回 dim\n        return O</code></pre>'
+  },
+  {
+    heading: `Group Projection：参数规模分析与验证`,
+    body: `V4-Pro 的配置是 dim=7168, n_heads=128, head_dim=512, o_groups=16。多头输出拼接后维度是 128 * 512 = 65536，全连接 Wo [65536, 7168] 参数量约 4.7 亿，不可接受。V4 的拆分方案：Wo_a = [16, 1024, 4096] 分组降维，Wo_b = [16384, 7168] 升维回 dim。参数量从 O(D^2) 降到 O(D * r)。数学等价性可以用简单代码验证：Wo_a = torch.ones(2, 4, 3)（2 groups），X = torch.ones(5, 4)，Y = X @ Wo_a 的结果和逐组 Y1 = X @ Wo_a[0] 完全一致，norm 差为 0。五条洞察：第一，每 8 个头拼为一条组向量，128 头共 16 条；第二，组隔离，组间计算完全隔离；第三，分组等价于把 128 个头压成 16 个共享组头，每组独立投影权重；第四，总开销由组数、组内维度与中间维度决定；第五，块对角结构贴合 Tensor Core 高效区间，适配 FP4/FP8 量化。`,
+    bodyHTML: '<div>V4-Pro 的配置是 dim=7168, n_heads=128, head_dim=512, o_groups=16。多头输出拼接后维度是 128 * 512 = 65536，全连接 W<sub>o</sub> [65536, 7168] 参数量约 4.7 亿，不可接受。</div><div>V4 的拆分方案：W<sub>o_a</sub> = [16, 1024, 4096] 分组降维，W<sub>o_b</sub> = [16384, 7168] 升维回 dim。参数量从 O(D<sup>2</sup>) 降到 O(D * r)。</div><div>数学等价性可以用简单代码验证：</div><pre><code>Wo_a = torch.ones(2, 4, 3)  # 2 groups, 4 dim_in, 3 dim_out\nX = torch.ones(5, 4)         # 5 batchsize, 4 dim_in\nWo_a[0] *= 2\nWo_a[1] *= 3\n\nY = X @ Wo_a           # torch.Size([2, 5, 3])\nY1 = X @ Wo_a[0]       # torch.Size([5, 3])\nY2 = X @ Wo_a[1]       # torch.Size([5, 3])\n\nprint(torch.norm(Y - torch.stack([Y1, Y2], dim=0)))  # 0</code></pre><div>五条洞察：第一，每 8 个头拼为一条组向量，128 头共 16 条；第二，组隔离，组间计算完全隔离；第三，分组等价于把 128 个头压成 16 个共享组头，每组独立投影权重；第四，总开销由组数、组内维度与中间维度决定；第五，块对角结构贴合 Tensor Core 高效区间，适配 FP4/FP8 量化。</div>',
+    callout: `128x512=65536 维全连接不可行——分组投影把参数量从 O(D^2) 降到 O(D * r)。`
+  },
+
+  // ═══ Mechanism VII: Sparse Kernel (slides 43-48) ═══
+  {
+    image: `./figures/fig-sparse-kernel-overview.png`,
+    caption: `Fig 11: Sparse Attention Kernel 调用接口——V4 统一接口 sparse_attn(q, kv, attn_sink, topk_idxs, softmax_scale)，KV 布局为原始 KV + 压缩 KV 拼接，索引来源三路：SWA + Sparse + Compress。`,
+    prompt: `Sparse Attention Kernel 调用接口和 KV 布局图。V4 原始论文配图。`
+  },
+  {
+    heading: `Sparse Kernel：主函数入口`,
+    body: `V4 的 Sparse Attention Kernel 统一接口是 sparse_attn(q, kv, attn_sink, topk_idxs, softmax_scale)。KV 布局是 kv = [2, L + L_compressed, d]，原始 KV 和压缩 KV 拼在一起。索引来源三路：SWA + Sparse + Compress。主函数入口的测试代码展示了基本用法：L=4, H=8, d=32，L_compressed=6，kv 张量形状 [2, 10, 32] 包含 4 个原始加 6 个压缩 KV。topk_ids 由三路索引组成——num_win_ids=2（滑窗），num_sparse_ids=3（稀疏），num_compressed_ids=1（压缩），总共 K=6 个候选。调用 sparse_linear_attn_torch(q, kv, topk_ids, block=3)，输出形状 [4, 8, 32]。`,
+    bodyHTML: '<div>V4 的 Sparse Attention Kernel 统一接口是 sparse_attn(q, kv, attn_sink, topk_idxs, softmax_scale)。KV 布局是 kv = [2, L + L<sub>compressed</sub>, d]，原始 KV 和压缩 KV 拼在一起。索引来源三路：SWA + Sparse + Compress。</div><pre><code>if __name__ == “__main__”:\n    L, H, d = 4, 8, 32\n    L_compressed = 6\n\n    # QKV\n    q = torch.randn(L, H, d)\n    kv = torch.randn(2, L + L_compressed, d)  # 原始 KV + 压缩 KV\n\n    # ids: 三路来源\n    num_win_ids = 2\n    num_sparse_ids = 3\n    num_compressed_ids = 1\n    K = num_win_ids + num_sparse_ids + num_compressed_ids\n\n    topk_ids = torch.randint(0, L + L_compressed, (L, K))\n\n    # sparse attn\n    out = sparse_linear_attn_torch(q, kv, topk_ids, block=3)\n    print(out.shape)  # torch.Size([4, 8, 32]</code></pre>'
+  },
+  {
+    image: `./figures/fig-sparse-kernel-detail.png`,
+    caption: `Fig 12: Sparse Kernel 核心实现——外循环逐 query，内循环分块 gather 非连续 KV 子集，计算注意力。各 query 的稀疏子集互不相交，FlashAttention 的块式复用前提不成立。`,
+    prompt: `Sparse Kernel 逐 query 块式 gather 的详细计算流程图。V4 原始论文配图。`
+  },
+  {
+    heading: `Sparse Kernel：逐 query 块式 gather 与 MQA 优势`,
+    body: `核心实现是 sparse_linear_attn_torch 函数。外循环逐 query（for i in range(L)），内循环分块 gather（for t in range(num_blocks)）：topk_ids 分块，逐块从非连续地址拉取 KV 子集。kv_block = kv[:, idxs] 是非连续 gather，scores = qi @ kv_block[0].T 计算 q @ K，acc_o += scores @ kv_block[1] 计算 score @ V。三个关键提炼：第一，外循环逐 query 内循环分块，topk_ids 分块 gather 逐块计算；第二，gather 的 KV 地址不连续，各 query 的稀疏子集互不相交；第三，MQA 优势——qi [H, d] @ K_block.T [d, blk] 得 [H, blk]，多头并行无额外开销。MQA 下 KV 只有一份所有 query 头共享，一次 GEMM 即可计算所有头的注意力分数。对比 MHA 需要 H 次独立 gather 加 H 次 GEMM。MQA 的计算优势在 Sparse Kernel 中充分体现。`,
+    bodyHTML: '<div>核心实现是 sparse_linear_attn_torch 函数：</div><pre><code>def sparse_linear_attn_torch(q, kv, topk_ids, block=64, scale=None):\n    L, H, d = q.shape\n    K_topk = topk_ids.shape[1]\n    num_blocks = math.ceil(K_topk / block)\n    o = torch.zeros(L, H, d, device=q.device, dtype=q.dtype)\n\n    for i in range(L):              # 外循环：逐 query\n        qi = q[i]                    # [H, d]\n        acc_o = torch.zeros(H, d)\n\n        for t in range(num_blocks):  # 内循环：分块 gather\n            start = t * block\n            end = min(start + block, K_topk)\n            idxs = topk_ids[i, start:end]\n\n            kv_block = kv[:, idxs]   # 非连续 KV gather\n            scores = qi @ kv_block[0].T   # q @ K\n            acc_o += scores @ kv_block[1]  # score @ V\n\n        o[i] = acc_o\n    return o</code></pre><div>三个关键提炼：第一，外循环逐 query 内循环分块；第二，gather 的 KV 地址不连续，各 query 稀疏子集互不相交；第三，MQA 优势——qi [H, d] @ K<sub>block</sub><sup>T</sup> [d, blk] 得 [H, blk]，多头并行无额外开销。</div><div>MQA 下 KV 只有一份所有 query 头共享，一次 GEMM 即可计算所有头的注意力分数。对比 MHA 需要 H 次独立 gather 加 H 次 GEMM。</div>',
+    callout: `一次矩阵乘即得所有头的注意力分数——MQA 的计算优势在 Kernel 层充分体现。`
+  },
+
+  // ═══ Summary + Training (slides 49-50) ═══
+  {
+    heading: `V4 注意力方案全景回顾与训练策略`,
+    body: `把所有模块串起来看一遍：HCA 负责 block-level 强压缩（ratio=128），捕获全局信息；CSA 负责 token-level 稀疏选取加轻量压缩（ratio=4），做精确注意力建模；SWA 负责局部窗口（128 token），近场兜底；MQA 用单头 KV 加分组投影，减少 KV-Cache 同时控制输出参数；Sparse Kernel 做逐 query 块式 gather，零浪费计算。block-level 全局加 token-level 精确加局部窗口兜底。训练策略上，V4 用的是”先短后长”：初始阶段 SWA 为训练兜底，模型先学会局部注意力；随着训练推进，逐步学会压缩和稀疏；HCA/CSA 退化为 SWA 时仍可兜底，不会训练崩溃。先学会走再学会跑——SWA 兜底确保训练稳定性。这是一个工程上很实用的安全设计。`,
+    bodyHTML: '<div>把所有模块串起来看一遍：HCA 负责 block-level 强压缩（ratio=128），捕获全局信息；CSA 负责 token-level 稀疏选取加轻量压缩（ratio=4），做精确注意力建模；SWA 负责局部窗口（128 token），近场兜底；MQA 用单头 KV 加分组投影，减少 KV-Cache 同时控制输出参数；Sparse Kernel 做逐 query 块式 gather，零浪费计算。</div><div>训练策略上，V4 用的是”先短后长”：初始阶段 SWA 为训练兜底，模型先学会局部注意力；随着训练推进，逐步学会压缩和稀疏；HCA/CSA 退化为 SWA 时仍可兜底，不会训练崩溃。先学会走再学会跑——SWA 兜底确保训练稳定性。</div>',
+    callout: `先学会走再学会跑——SWA 兜底确保训练稳定性。`
+  },
+
+  // ═══ Take A Ways (slide 51) ═══
+  {
+    heading: `Take A Ways：七组问题的回答`,
+    body: `Q1：从标准注意力到稀疏注意力需要哪些抽象？A1：标准注意力到 Mask-Free（减量）到 Top-K（选择性）到压缩（降维）到滑窗（局部），每层解决一个具体问题。Q2：Mask-Free 和 Top-K 如何真正减少计算量？A2：Mask-Free 逐 query 拉取 KV 真正减少计算；Top-K Pre 模式先选后算避免 O(L^2)，是 V4 Sparse Kernel 的基础。Q3：压缩注意力和滑窗注意力各自的数学直觉和工程限制？A3：压缩注意力的数学直觉是”距离越远压缩越狠”，工程限制是位置编码对齐和因果泄漏，由 HCA/CSA 各自解决。Q4：HCA 的 Compressor 如何实现因果压缩？A4：Compressor 用可学习投影做因果强压缩，信息空缺由 SWA 填补——HCA 不独立运行。Q5：CSA 的 Indexer + Overlap 如何平衡精度和全局信息？A5：Indexer 做稀疏选取保证精度，Compressor 弥补全局信息，overlap 消除段间断裂，统一 Softmax 归一化。Q6：V4-MQA 的分组投影解决了什么参数瓶颈？A6：Wo 拆成 Wo_a + Wo_b 两段分组投影，128x512=65536 到分组后参数量从 O(D^2) 降到 O(D*r)。Q7（终极问题）：Sparse Kernel 在非连续 KV 上如何实现零浪费？整个 V4 注意力方案是 NSA 加 DSA 的有机融合——block-level 全局加 token-level 精确加局部窗口兜底，Sparse Kernel 逐 query 零浪费计算。`,
+    bodyHTML: '<div><b>Q1</b>：从标准注意力到稀疏注意力需要哪些抽象？<b>A1</b>：标准注意力到 Mask-Free（减量）到 Top-K（选择性）到压缩（降维）到滑窗（局部），每层解决一个具体问题。</div><div><b>Q2</b>：Mask-Free 和 Top-K 如何真正减少计算量？<b>A2</b>：Mask-Free 逐 query 拉取 KV 真正减少计算；Top-K Pre 模式先选后算避免 O(L<sup>2</sup>)，是 V4 Sparse Kernel 的基础。</div><div><b>Q3</b>：压缩注意力和滑窗注意力各自的数学直觉和工程限制？<b>A3</b>：压缩注意力的数学直觉是”距离越远压缩越狠”，工程限制是位置编码对齐和因果泄漏，由 HCA/CSA 各自解决。</div><div><b>Q4</b>：HCA 的 Compressor 如何实现因果压缩？<b>A4</b>：Compressor 用可学习投影做因果强压缩，信息空缺由 SWA 填补——HCA 不独立运行。</div><div><b>Q5</b>：CSA 的 Indexer + Overlap 如何平衡精度和全局信息？<b>A5</b>：Indexer 做稀疏选取保证精度，Compressor 弥补全局信息，overlap 消除段间断裂，统一 Softmax 归一化。</div><div><b>Q6</b>：V4-MQA 的分组投影解决了什么参数瓶颈？<b>A6</b>：W<sub>o</sub> 拆成 W<sub>o_a</sub> + W<sub>o_b</sub> 两段分组投影，128x512=65536 到分组后参数量从 O(D<sup>2</sup>) 降到 O(D*r)。</div><div><b>Q7</b>（终极）：整个 V4 注意力方案是 <a href=”https://arxiv.org/abs/2502.11089” target=”_blank”>NSA</a> 加 DSA 的有机融合——block-level 全局加 token-level 精确加局部窗口兜底，Sparse Kernel 逐 query 零浪费计算。</div>'
+  },
+
+  // ═══ Reference (slide 52) ═══
+  {
+    heading: `Reference`,
+    body: `[1] 手撕 DeepSeek-V4 (2): 注意力方案\n[2] DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence\n[3] NSA: Native Sparse Attention\n[4] DSA: DeepSeek Sparse Attention\n[5] 手撕 DeepSeek-V4 (1): 模型架构\n[6] 手撕 NSA: 原生稀疏注意力\n[7] 手撕 DSA: DeepSeek-V3.2 的 Sparse Attention\n[8] DeepSeek-V4-mini 代码仓库`,
+    bodyHTML: '<div><a href=”https://mp.weixin.qq.com/s/824ZVhBvdvHroA_nJyoj-g” target=”_blank”>[1] 手撕 DeepSeek-V4 (2): 注意力方案 - 小冬瓜AIGC</a></div><div><a href=”https://arxiv.org/abs/2504.18356” target=”_blank”>[2] DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence - DeepSeek Team</a></div><div><a href=”https://arxiv.org/abs/2502.11089” target=”_blank”>[3] NSA: Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention</a></div><div><a href=”#” target=”_blank”>[4] DSA: DeepSeek Sparse Attention - DeepSeek Team</a></div><div><a href=”https://zhuanlan.zhihu.com/p/2032043071395869284” target=”_blank”>[5] 手撕 DeepSeek-V4 (1): 模型架构</a></div><div><a href=”https://zhuanlan.zhihu.com/p/24841366485” target=”_blank”>[6] 手撕 NSA: DeepSeek 新作 - 原生稀疏注意力</a></div><div><a href=”https://zhuanlan.zhihu.com/p/1957032283270812718” target=”_blank”>[7] 手撕 DSA: DeepSeek-V3.2 的 Sparse Attention</a></div><div><a href=”https://github.com/dhcode-cpp/DeepSeek-V4-mini” target=”_blank”>[8] DeepSeek-V4-mini 代码仓库</a></div>'
+  }
+];
+var PULSE = `V4 注意力方案不是花哨的设计——block-level 全局加 token-level 精确加局部窗口兜底，把 NSA 和 DSA 的好想法拼对了，Sparse Kernel 逐 query 零浪费计算。`;
+
+// ═══════════════════════════════════════
+// ③ 排版
+// ═══════════════════════════════════════
+var SERIF = "'Noto Serif SC', Georgia, serif";
+var SANS = "'Inter', 'Helvetica Neue', sans-serif";
+
+// 标题自适应：二分搜索最大字号，限制在 maxLines 行内
+function fitTitle(text, maxWidth, maxLines) {
+  var lo = 24, hi = 56, best = lo, bestLines = [];
+  while (lo <= hi) {
+    var size = Math.floor((lo + hi) / 2);
+    var font = '700 ' + size + 'px ' + SERIF;
+    var lh = Math.round(size * 1.15);
+    var p = prepareWithSegments(text, font);
+    var result = layoutWithLines(p, maxWidth, lh);
+    if (result.lineCount <= maxLines) {
+      best = size;
+      bestLines = result.lines;
+      lo = size + 1;
+    } else {
+      hi = size - 1;
+    }
+  }
+  return { size: best, lineHeight: Math.round(best * 1.15), lines: bestLines };
+}
+
+// ═══════════════════════════════════════
+// ④ 渲染
+// ═══════════════════════════════════════
+var titleWrap = document.getElementById('title-wrap');
+var leadWrap = document.getElementById('lead-wrap');
+var sectionsWrap = document.getElementById('sections-wrap');
+var pulseWrap = document.getElementById('pulse-wrap');
+
+function render() {
+  var t0 = performance.now();
+  var pageW = titleWrap.parentElement.clientWidth - 48; // padding
+
+  // ---- Title: pretext 自适应字号 ----
+  var title = fitTitle(TITLE, pageW, 3);
+  titleWrap.innerHTML = '';
+  for (var i = 0; i < title.lines.length; i++) {
+    var el = document.createElement('div');
+    el.className = 'title-line';
+    el.textContent = title.lines[i].text;
+    el.style.fontSize = title.size + 'px';
+    el.style.lineHeight = title.lineHeight + 'px';
+    titleWrap.appendChild(el);
+  }
+
+  // ---- Lead: pretext 测量行数，CSS 正常渲染 ----
+  var leadFont = '500 15.5px ' + SANS;
+  var leadLH = 26;
+  var leadP = prepareWithSegments(LEAD, leadFont);
+  var leadResult = layoutWithLines(leadP, pageW, leadLH);
+
+  leadWrap.innerHTML = '';
+  leadWrap.className = 'lead-block';
+  for (var i = 0; i < leadResult.lines.length; i++) {
+    var span = document.createElement('span');
+    span.textContent = leadResult.lines[i].text;
+    leadWrap.appendChild(span);
+    if (i < leadResult.lines.length - 1) {
+      leadWrap.appendChild(document.createTextNode(' '));
+    }
+  }
+  // 用 pretext 测量的行数设置精确高度，避免 CLS
+  leadWrap.style.height = leadResult.lineCount * leadLH + 'px';
+
+  // ---- Sections: pretext 测量，CSS 渲染 ----
+  sectionsWrap.innerHTML = '';
+  var totalBodyLines = 0;
+
+  for (var si = 0; si < SECTIONS.length; si++) {
+    var s = SECTIONS[si];
+
+    // figure section
+    if (s.image) {
+      var figSec = document.createElement('div');
+      figSec.className = 'section';
+      var figBlock = document.createElement('div');
+      figBlock.className = 'figure-block';
+      var img = document.createElement('img');
+      img.src = s.image;
+      img.alt = s.caption || '';
+      (function(block, imgEl, promptText, captionText) {
+        imgEl.onerror = function() {
+          imgEl.style.display = 'none';
+          var ph = document.createElement('div');
+          ph.className = 'figure-placeholder';
+          ph.innerHTML = '<div class="figure-placeholder-icon">&#9634;</div>' +
+            '<div class="figure-placeholder-label">待生成插图</div>' +
+            (promptText ? '<div class="figure-placeholder-prompt">' + promptText.replace(/</g,'&lt;') + '</div>' : '');
+          block.insertBefore(ph, block.firstChild);
+        };
+      })(figBlock, img, s.prompt, s.caption);
+      figBlock.appendChild(img);
+      if (s.caption) {
+        var cap = document.createElement('div');
+        cap.className = 'figure-caption';
+        cap.textContent = s.caption;
+        figBlock.appendChild(cap);
+      }
+      if (s.prompt) {
+        var promptEl = document.createElement('div');
+        promptEl.className = 'figure-prompt-vis';
+        promptEl.textContent = s.prompt;
+        figBlock.appendChild(promptEl);
+        figBlock.setAttribute('data-prompt', s.prompt);
+      }
+      figSec.appendChild(figBlock);
+      sectionsWrap.appendChild(figSec);
+      (function(block) {
+        block.addEventListener('click', function() {
+          if (block.classList.contains('zoomed')) {
+            block.classList.remove('zoomed');
+          } else {
+            document.querySelectorAll('.figure-block.zoomed').forEach(function(b) { b.classList.remove('zoomed'); });
+            block.classList.add('zoomed');
+          }
+        });
+      })(figBlock);
+      continue;
+    }
+
+    var sec = document.createElement('div');
+    sec.className = 'section';
+
+    // heading
+    var hFont = '700 15px ' + SANS;
+    var hP = prepareWithSegments(s.heading, hFont);
+    var hResult = layoutWithLines(hP, pageW, 22);
+    totalBodyLines += hResult.lineCount;
+
+    var hEl = document.createElement('div');
+    hEl.className = 'section-h';
+    hEl.textContent = s.heading;
+    sec.appendChild(hEl);
+
+    // callout (if any)
+    if (s.callout) {
+      var cFont = '500 15px ' + SANS;
+      var cP = prepareWithSegments(s.callout, cFont);
+      var cResult = layoutWithLines(cP, pageW - 56, 25);
+      totalBodyLines += cResult.lineCount;
+
+      var cEl = document.createElement('div');
+      cEl.className = 'callout';
+      cEl.textContent = s.callout;
+      sec.appendChild(cEl);
+    }
+
+    // body
+    var bFont = '400 17px ' + SERIF;
+    var bP = prepareWithSegments(s.body, bFont);
+    var bResult = layoutWithLines(bP, pageW, 30);
+    totalBodyLines += bResult.lineCount;
+
+    var bEl = document.createElement('div');
+    bEl.className = 'section-body';
+    if (s.bodyHTML) {
+      bEl.innerHTML = s.bodyHTML;
+    } else {
+      bEl.textContent = s.body;
+      bEl.style.height = bResult.lineCount * 30 + 'px';
+    }
+    sec.appendChild(bEl);
+
+    sectionsWrap.appendChild(sec);
+  }
+
+  // ---- Pulse ----
+  var pFont = '600 17px ' + SANS;
+  var pP = prepareWithSegments(PULSE, pFont);
+  var pResult = layoutWithLines(pP, pageW, 28);
+  totalBodyLines += pResult.lineCount;
+  pulseWrap.textContent = PULSE;
+  pulseWrap.style.height = pResult.lineCount * 28 + 'px';
+
+  var ms = performance.now() - t0;
+
+  // Stats
+  document.getElementById('sTitle').textContent = title.lines.length + ' lines, ' + title.size + 'px';
+  document.getElementById('sLead').textContent = leadResult.lineCount + ' lines';
+  document.getElementById('sBody').textContent = totalBodyLines;
+  document.getElementById('sMs').textContent = ms.toFixed(2) + 'ms';
+  document.getElementById('sDom').textContent = '0';
+}
+
+// ═══════════════════════════════════════
+// ⑤ 启动
+// ═══════════════════════════════════════
+await document.fonts.ready;
+render();
+
+// 代码块点击复制
+document.addEventListener('click', function(e) {
+  var pre = e.target.closest('.section-body pre');
+  if (!pre) return;
+  var code = pre.querySelector('code');
+  var text = code ? code.textContent : pre.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    pre.classList.add('copied');
+    setTimeout(function() { pre.classList.remove('copied'); }, 1500);
+  });
+});
+
+var resizeTimer = 0;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 100);
+});
+
+// ═══════════════════════════════════════════════════
+// ⑥ 火柴人 — 点击位置出现，挥手提示
+// ═══════════════════════════════════════════════════
+var stickCanvas = document.getElementById('stick-canvas');
+var sctx = stickCanvas.getContext('2d');
+var ACCENT = '#C45A20';
+var ACCENT_LIGHT = '#FDF0E6';
+
+var stick = {
+  active: false,
+  opacity: 0,
+  cx: 0, cy: 0,       // 点击位置（锚点）
+  jumpY: 0,
+  jumpVY: 0,
+  bouncePhase: 0,
+  age: 0,              // 出现后经过的秒数
+  blinkTimer: 2,
+  blinking: false,
+  exiting: false
+};
+
+function resizeStick() {
+  stickCanvas.width = window.innerWidth;
+  stickCanvas.height = window.innerHeight;
+}
+resizeStick();
+window.addEventListener('resize', resizeStick);
+
+// 点击任意位置 → 生成火柴人
+document.addEventListener('click', function(e) {
+  if (e.target === stickCanvas) return;
+
+  // 如果已经显示 → 淡出消失（取消）
+  if (stick.active && !stick.exiting) {
+    stick.exiting = true;
+    return;
+  }
+
+  // 否则在新位置生成
+  stick.active = true;
+  stick.exiting = false;
+  stick.cx = e.clientX;
+  stick.cy = e.clientY;
+  stick.opacity = 0;
+  stick.jumpY = -20;
+  stick.jumpVY = 0;
+  stick.bouncePhase = 0;
+  stick.blinkTimer = 2;
+  stick.blinking = false;
+});
+
+function drawStick(t) {
+  if (!stick.active) return;
+
+  var dt = 1 / 60;
+  stick.age += dt;
+
+  // 淡入
+  if (stick.exiting) {
+    stick.opacity -= 0.07;
+    if (stick.opacity <= 0) {
+      stick.active = false;
+      stick.exiting = false;
+      sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
+      return;
+    }
+  } else {
+    stick.opacity = Math.min(1, stick.opacity + 0.1);
+  }
+
+  // 弹跳物理
+  stick.jumpVY += 0.55;
+  stick.jumpY += stick.jumpVY;
+  if (stick.jumpY >= 0) {
+    stick.jumpY = 0;
+    if (stick.bouncePhase < 3 && Math.abs(stick.jumpVY) > 0.5) {
+      stick.jumpVY = -stick.jumpVY * 0.45;
+      stick.bouncePhase++;
+    } else {
+      stick.jumpVY = 0;
+    }
+  }
+
+  // 站稳后微微呼吸
+  var bob = stick.jumpY === 0 ? Math.sin(t * 3.5) * 1.5 : 0;
+
+  // 眨眼
+  stick.blinkTimer -= dt;
+  if (stick.blinkTimer <= 0) {
+    if (stick.blinking) {
+      stick.blinking = false;
+      stick.blinkTimer = 1.5 + Math.random() * 3;
+    } else {
+      stick.blinking = true;
+      stick.blinkTimer = 0.1;
+    }
+  }
+
+  sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
+  sctx.save();
+  sctx.globalAlpha = stick.opacity;
+
+  var x = stick.cx;
+  var y = stick.cy + stick.jumpY + bob;
+  var sc = 0.65;
+
+  sctx.translate(x, y);
+  sctx.scale(sc, sc);
+
+  // 柔和发光
+  var glow = sctx.createRadialGradient(0, -24, 4, 0, -24, 55);
+  glow.addColorStop(0, 'rgba(196,90,32,0.1)');
+  glow.addColorStop(1, 'rgba(196,90,32,0)');
+  sctx.fillStyle = glow;
+  sctx.fillRect(-55, -80, 110, 110);
+
+  var headR = 10;
+  var bodyTop = -headR * 2 - 22;
+  var bodyBot = -headR * 2;
+  var legLen = 18;
+  var armLen = 16;
+
+  sctx.lineCap = 'round';
+  sctx.lineJoin = 'round';
+
+  // 腿
+  sctx.strokeStyle = ACCENT;
+  sctx.lineWidth = 2;
+  sctx.beginPath(); sctx.moveTo(-4, bodyBot); sctx.lineTo(-6, bodyBot + legLen); sctx.stroke();
+  sctx.beginPath(); sctx.moveTo(4, bodyBot);  sctx.lineTo(6, bodyBot + legLen); sctx.stroke();
+
+  // 身体
+  sctx.lineWidth = 2.2;
+  sctx.beginPath(); sctx.moveTo(0, bodyTop); sctx.lineTo(0, bodyBot); sctx.stroke();
+
+  var armBase = bodyTop + 6;
+
+  // 右手臂 — 挥手（举起 + 左右摇摆）
+  var waveAngle = Math.sin(t * 7) * 0.45;              // 手掌左右摆
+  var raiseAngle = -Math.PI / 2 + waveAngle;            // 基础朝上 + 摆动
+  var rwx = Math.cos(raiseAngle) * armLen;
+  var rwy = Math.sin(raiseAngle) * armLen;
+  sctx.lineWidth = 2;
+  sctx.strokeStyle = ACCENT;
+  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(rwx, armBase + rwy); sctx.stroke();
+
+  // 挥手手掌（小圆）
+  var handR = 3 + Math.sin(t * 7) * 0.5;
+  sctx.beginPath();
+  sctx.arc(rwx, armBase + rwy, handR, 0, Math.PI * 2);
+  sctx.fillStyle = ACCENT;
+  sctx.fill();
+
+  // 左手臂 — 自然下垂
+  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(-12, armBase + 10); sctx.stroke();
+
+  // 头
+  var headY = bodyTop - headR;
+  sctx.beginPath();
+  sctx.arc(0, headY, headR, 0, Math.PI * 2);
+  sctx.fillStyle = ACCENT;
+  sctx.fill();
+
+  // 眼睛
+  var eyeOff = 3.5;
+  var eyeY = headY - 1;
+  if (stick.blinking) {
+    sctx.strokeStyle = ACCENT_LIGHT;
+    sctx.lineWidth = 1;
+    sctx.beginPath(); sctx.moveTo(-eyeOff - 1.5, eyeY); sctx.lineTo(-eyeOff + 1.5, eyeY); sctx.stroke();
+    sctx.beginPath(); sctx.moveTo(eyeOff - 1.5, eyeY); sctx.lineTo(eyeOff + 1.5, eyeY); sctx.stroke();
+  } else {
+    sctx.fillStyle = ACCENT_LIGHT;
+    sctx.beginPath(); sctx.arc(-eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
+    sctx.beginPath(); sctx.arc(eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
+    // 高光
+    sctx.fillStyle = '#fff';
+    sctx.beginPath(); sctx.arc(-eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
+    sctx.beginPath(); sctx.arc(eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
+  }
+
+  // 嘴巴 — 微笑
+  sctx.strokeStyle = ACCENT_LIGHT;
+  sctx.lineWidth = 1;
+  sctx.beginPath();
+  sctx.arc(0, headY + 3.5, 3, 0.2, Math.PI - 0.2);
+  sctx.stroke();
+
+  sctx.restore();
+}
+
+// 动画循环
+function animateStick(now) {
+  requestAnimationFrame(animateStick);
+  var t = now / 1000;
+  if (!stick.active) return;
+  drawStick(t);
+}
+requestAnimationFrame(animateStick);
+</script>
+</body>
+</html>

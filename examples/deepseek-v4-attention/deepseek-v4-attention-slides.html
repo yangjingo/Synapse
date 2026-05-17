@@ -1,0 +1,2649 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>DeepSeek-V4 Attention | Synapse v6.0</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&family=JetBrains+Mono&family=Poppins:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --grid-line: #fafafa;
+        --main-color: #1e1e1e;
+        --accent-claude: #d97757;
+        --accent-blue: #6a9bcc;
+        --accent-green: #788c5d;
+        --item-bg: rgba(217, 119, 87, 0.05);
+        --strong-bg: rgba(217, 119, 87, 0.12);
+        --font-hand: "Gochi Hand", cursive;
+        --font-mono: "JetBrains Mono", monospace;
+        --font-head: "Poppins", sans-serif;
+        --shadow: 12px 12px 0px #1e1e1e;
+      }
+      body {
+        background-color: var(--bg-color);
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .reveal {
+        font-family: var(--font-hand);
+        color: var(--main-color);
+      }
+      .reveal .slides {
+        text-align: left;
+      }
+      .pretext-stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+      }
+      .pretext-stage::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            180deg,
+            var(--bg-color),
+            transparent 14%,
+            transparent 86%,
+            var(--bg-color)
+          ),
+          linear-gradient(
+            90deg,
+            var(--bg-color),
+            transparent 8%,
+            transparent 92%,
+            var(--bg-color)
+          );
+        opacity: 0.88;
+      }
+      .pretext-bg {
+        position: absolute;
+        inset: 0;
+      }
+      .pretext-bg .pt-line {
+        position: absolute;
+        left: 24px;
+        right: 24px;
+        white-space: nowrap;
+        font-family: var(--font-head);
+        font-size: clamp(14px, 1.6vw, 20px);
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        color: rgba(30, 30, 30, 0.06);
+        transform-origin: left center;
+        will-change: transform, opacity;
+        user-select: none;
+      }
+      .pretext-bg .pt-line.pt-orange {
+        color: rgba(217, 119, 87, 0.1);
+      }
+      .pretext-bg .pt-line.pt-blue {
+        color: rgba(106, 155, 204, 0.09);
+      }
+      .pretext-bg .pt-line.pt-green {
+        color: rgba(120, 140, 93, 0.08);
+      }
+      .slide-content {
+        position: relative;
+        z-index: 1;
+      }
+      .header-layer {
+        border-bottom: 8px solid var(--main-color);
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        position: relative;
+      }
+      .header-layer h2 {
+        font-family: var(--font-hand) !important;
+        font-weight: 800;
+        font-size: clamp(1.8rem, 4vw, 3.2rem) !important;
+        margin: 0 !important;
+        color: var(--main-color) !important;
+        text-transform: none !important;
+      }
+      .ui-label {
+        position: absolute;
+        top: -28px;
+        right: 0;
+        font-size: 0.9rem;
+        opacity: 0.3;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .canvas-layer {
+        display: grid;
+        grid-template-columns: 65% 35%;
+        gap: 30px;
+        align-items: start;
+        min-height: 480px;
+      }
+      .canvas-layer.fig-wide {
+        grid-template-columns: 42% 58%;
+        gap: 24px;
+      }
+      .canvas-layer.fig-wide .visual-box {
+        min-height: 430px;
+      }
+      .canvas-layer.fig-wide .visual-box img {
+        max-height: 420px;
+        width: auto;
+        max-width: 100%;
+      }
+      .canvas-layer.fig-hero {
+        grid-template-columns: 30% 70%;
+        gap: 20px;
+      }
+      .canvas-layer.fig-hero .visual-box {
+        min-height: 520px;
+        border-width: 6px;
+      }
+      .canvas-layer.fig-hero .visual-box img {
+        max-height: 510px;
+        width: auto;
+        max-width: 100%;
+      }
+      .canvas-layer.push-left {
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        width: 100%;
+        min-height: 480px;
+        padding-left: 5%;
+      }
+      .canvas-footer {
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        width: 100%;
+        min-height: 480px;
+        padding-left: 5%;
+        padding-top: 10px;
+      }
+      .canvas-footer .canvas-text {
+        width: 100%;
+      }
+      .canvas-text {
+        font-size: clamp(0.95rem, 1.8vw, 1.6rem);
+        line-height: 1.3;
+      }
+      .canvas-text ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .canvas-text li {
+        margin-bottom: 14px;
+        position: relative;
+        padding: 8px 8px 8px 40px;
+        border-radius: 6px;
+      }
+      .canvas-text li::before {
+        content: "\2192";
+        position: absolute;
+        left: 10px;
+        font-weight: 800;
+        color: var(--accent-claude);
+      }
+      .no-bullet .canvas-text li {
+        padding-left: 20px;
+      }
+      .no-bullet .canvas-text li::before {
+        content: "";
+      }
+      strong,
+      mark {
+        background: var(--strong-bg);
+        padding: 0 6px;
+        border-radius: 4px;
+        display: inline-block;
+        transform: rotate(-0.5deg);
+        font-weight: 800;
+        color: inherit;
+      }
+      .visual-box {
+        border: 5px solid var(--main-color);
+        background: #fff;
+        min-height: 340px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        transform: scale(var(--visual-scale, 1)) translateY(var(--visual-y, 0));
+        transform-origin: center;
+      }
+      .visual-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .code-container {
+        background: #1e1e1e;
+        padding: 12px;
+        border-radius: 4px;
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        color: #d4d4d4;
+        overflow: hidden;
+        width: 100%;
+        line-height: 1.4;
+      }
+      .code-container pre {
+        margin: 0;
+      }
+      .code-container code {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+      }
+      .pulse-layer {
+        position: absolute;
+        bottom: 15px;
+        left: 50px;
+        background: #fff;
+        border: 6px solid var(--main-color);
+        padding: 15px 30px;
+        transform: rotate(var(--pulse-rotate, -1.5deg))
+          translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1));
+        box-shadow: var(--shadow);
+        font-weight: 800;
+        font-size: clamp(1rem, 1.6vw, 1.8rem);
+        z-index: 10;
+        transform-origin: center;
+      }
+      .pulse-animated {
+        transition:
+          transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+          box-shadow 320ms ease;
+      }
+      .pulse-animated:hover {
+        transform: rotate(0deg) scale(1.06);
+        box-shadow: 14px 14px 0px #1e1e1e;
+      }
+      .ref-list li {
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+      }
+      .ref-list a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .ref-list a:hover {
+        text-decoration: underline;
+        color: var(--accent-claude);
+      }
+      .reveal .slides section .fragment {
+        opacity: 0;
+        transform: translateY(20px);
+        transition:
+          opacity 400ms ease,
+          transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .reveal .slides section .fragment.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .footer-watermark {
+        position: absolute;
+        bottom: 25px;
+        right: 25px;
+        font-family: var(--font-hand);
+        font-size: 0.75rem;
+        opacity: 0.1;
+        color: #999;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- 00 / Cover -->
+        <section data-transition="none">
+          <div
+            class="header-layer"
+            style="border-bottom: none; padding-left: 5%; margin-top: 15%"
+          >
+            <div class="ui-label">00 / Cover</div>
+            <h1
+              style="
+                font-size: 4.5rem;
+                font-weight: 800;
+                margin: 0;
+                line-height: 1;
+              "
+            >
+              DeepSeek-V4 Attention
+            </h1>
+            <h2
+              style="margin-top: 25px; color: var(--accent-claude) !important"
+            >
+              从标准注意力到 HCA / CSA / SWA / MQA，逐层构建 V4 的稀疏注意力架构
+            </h2>
+            <div
+              style="
+                margin-top: 50px;
+                font-family: var(--font-hand);
+                font-size: 1.1rem;
+                line-height: 2;
+                opacity: 0.8;
+              "
+            >
+              Version: <strong>Synapse v6.0</strong> &nbsp;&nbsp; Author:
+              <strong>Why.J</strong> &nbsp;&nbsp; Date:
+              <strong>2026/05/17</strong>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 01 / Context -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">01 / Context</div>
+              <h2>现状分析：V4 注意力架构的核心事实</h2>
+            </div>
+            <div class="canvas-layer fig-hero">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>事实 1</strong>: V4 提出两种注意力——HCA 以压缩率 128
+                    对 KV 做强压缩（block-level），CSA 以压缩率 4 做轻量压缩 +
+                    Indexer 筛选 top-k（token-level），<mark>分工明确</mark>。
+                  </li>
+                  <li>
+                    <strong>事实 2</strong>: V4
+                    注意力不是从零发明，而是有机融合了 NSA（HCA 前身）和
+                    DSA（Indexer
+                    来源），关键是<mark>原生训练</mark>而非继续预训练。
+                  </li>
+                  <li>
+                    <strong>事实 3</strong>: Sparse Kernel 逐 query 拉取非连续
+                    KV 子集，MQA
+                    下单次矩阵乘即得所有头的注意力分数——<mark>零浪费计算</mark>。
+                  </li>
+                </ul>
+                <div
+                  class="pulse-layer pulse-animated"
+                  style="--pulse-scale: 1.05"
+                >
+                  「 不同距离的上下文不应共享同一种表示——距离变成结构变量。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-hca-csa-overview.png"
+                  alt="HCA/CSA Overview"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 02 / Agenda -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">02 / Agenda</div>
+              <h2>从注意力抽象到 V4 实现：七组关键问题</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment">
+                    <strong>Q1</strong>:
+                    从标准注意力到稀疏注意力，中间需要哪些<mark>注意力抽象</mark>？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q2</strong>: Mask-Free 和 Top-K 如何真正减少计算量？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q3</strong>:
+                    压缩注意力和滑窗注意力各自的<mark>数学直觉和工程限制</mark>是什么？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q4</strong>: HCA 的 Compressor
+                    如何实现因果压缩？信息泄漏怎么处理？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q5</strong>: CSA 的 Indexer + Overlap
+                    如何<mark>平衡精度和全局信息</mark>？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q6</strong>: V4-MQA
+                    的分组投影解决了什么<mark>参数瓶颈</mark>？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q7</strong>: Sparse Kernel 在非连续 KV
+                    上如何实现<mark>零浪费</mark>？
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 03 / V4 注意力方案全貌 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">03 / Mechanism I</div>
+              <h2>V4 注意力方案全貌</h2>
+            </div>
+            <div class="canvas-layer fig-hero">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>HCA</strong>: 压缩率 128，block-level 压缩
+                    KV，捕获全局信息。
+                  </li>
+                  <li>
+                    <strong>CSA</strong>: 压缩率 4，轻量压缩 + Indexer top-k
+                    筛选，兼顾全局与局部。
+                  </li>
+                  <li><strong>SWA</strong>: 选取就近 KV，局部信息补充。</li>
+                  <li>
+                    <strong>MQA</strong>: KV 头数保持为 1，减少 KV-Cache。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-hca-csa-overview.png"
+                  alt="V4 Attention Overview"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 04 / NSA -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">04 / Mechanism I</div>
+              <h2>前置工作：NSA (Native Sparse Attention)</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>NSA 是 HCA 的前身</strong>: 动态分层稀疏策略，粗粒度
+                    token 压缩与细粒度 token 选择结合。
+                  </li>
+                  <li>
+                    <strong>支持原生训练</strong>: 可端到端训练，而非后处理。
+                  </li>
+                  <li>
+                    <strong>V4 的取舍</strong>: NSA 的 Select Attention 在 V4
+                    中被移除，V4 采用 MQA 减少多头计算复杂度。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-nsa-dsa-timeline.png"
+                  alt="NSA/DSA Timeline"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 05 / DSA -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">05 / Mechanism I</div>
+              <h2>前置工作：DSA (DeepSeek Sparse Attention)</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>DSA 是 CSA 的前身</strong>: 在 V3.2 中引入，用
+                    Indexer 网络做 token 级 KV 筛选，产品验证方案。
+                  </li>
+                  <li>
+                    <strong>非原生训练</strong>: 基于 V3.1-T 基座继续预训练。
+                  </li>
+                  <li>
+                    <strong>V4 的改进</strong>: CSA 的 Indexer 源自 DSA，并融入
+                    Compressed-KV 弥补全局信息。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-nsa-dsa-timeline.png"
+                  alt="NSA/DSA Timeline"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 06 / V4 定位 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">06 / Mechanism I</div>
+              <h2>V4 注意力的关键定位</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>作为 DSA 续作</strong>:
+                    最大特点是<mark>原生训练</mark>，而非继续预训练。
+                  </li>
+                  <li>
+                    <strong>在 DSA 基础上的改进</strong>: 融合了 Compressed-KV
+                    做注意力计算，弥补全局序列信息。
+                  </li>
+                  <li>
+                    <strong>退化机制</strong>: compress_ratio=0 时退化为纯 SWA。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 V4 注意力 = NSA 的全局压缩 + DSA 的稀疏选取 + 原生训练。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 07 / 标准注意力 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">07 / Mechanism II</div>
+              <h2>标准注意力计算：Scaled Dot-Product Attention</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>公式</strong>: S = Q @ K^T → softmax → P @ V</li>
+                  <li>
+                    <strong>参数</strong>: mask 预留，用于控制 KV 的选择范围。
+                  </li>
+                  <li>
+                    <strong>复杂度</strong>: 全局 O(L^2)，所有 KV 参与计算。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>def ScaledDotProductionAttention(Q, K, V, M):
+    S = Q @ K.transpose(-2, -1)
+    if M != None:
+        S = S.masked_fill(M == False, float('-inf'))
+    P = F.softmax(S, dim = -1)
+    Z = P @ V
+    return Z
+
+M = torch.ones(bsz, seq_len, seq_len)
+Z = ScaledDotProductionAttention(X, X, X, M)
+print(Z.shape)  # torch.Size([2, 256, 512])</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 08 / 随机注意力 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">08 / Mechanism II</div>
+              <h2>随机注意力计算：Bool 掩码</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>思路</strong>: 生成随机 bool 掩码，每个 query
+                    仅注意随机选中的 KV 位置。
+                  </li>
+                  <li>
+                    <strong>局限</strong>: 仅用 mask
+                    标记，并未真正减少注意力计算量。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 随机掩码是稀疏注意力的起点，但只是"标记"而非"减量"。 」
+                </div>
+              </div>
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>shape = [bsz, seq_len, seq_len]
+M_random = torch.randint(
+    0, 2, size=shape, dtype=torch.bool)
+O_random_mask = ScaledDotProductionAttention(
+    X, X, X, M_random)
+print((M_random.int())[0, :2, :10])
+# tensor([[0, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+#         [1, 0, 0, 0, 1, 0, 1, 1, 0, 1]],
+#        dtype=torch.int32)</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 09 / Mask-Free 概念 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">09 / Mechanism II</div>
+              <h2>Mask-Free 随机注意力：概念</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>核心思想</strong>: 只计算 mask 非零位置的
+                    KV，实打实减少计算量。
+                  </li>
+                  <li>
+                    <strong>实现方式</strong>: 先写出单 Q 多 KV
+                    的注意力方程，再遍历每个 query。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-mask-free-attn.png"
+                  alt="Mask-Free Attention"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 10 / SingleQuerySDPA -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">10 / Mechanism II</div>
+              <h2>Mask-Free：SingleQuerySDPA 实现</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>单 query 接口</strong>: 输入一个 query 向量和 K、V
+                    子集，输出注意力结果。
+                  </li>
+                  <li>
+                    <strong>基本计算单元</strong>: 这是所有稀疏注意力的基础。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>def SingleQuerySDPA(q, K, V):
+    S = q @ K.t()
+    P = F.softmax(S, dim=-1)
+    Z = P @ V
+    return Z</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 11 / Mask-Free 完整实现 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">11 / Mechanism II</div>
+              <h2>Mask-Free：完整遍历实现</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>class AttentionFreeMask(nn.Module):
+  def __init__(self, args):
+    super().__init__()
+    self.Wq = nn.Linear(dim, n_heads * head_dim, bias=False)
+    self.Wk = nn.Linear(dim, n_kv_heads * head_dim, bias=False)
+    self.Wv = nn.Linear(dim, n_kv_heads * head_dim, bias=False)
+    self.Wo = nn.Linear(dim, dim, bias=False)
+
+  def forward_free_mask(self, X, mask):
+    B, L, D = X.shape
+    Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)
+    Z = torch.zeros_like(Q)
+    for i in range(B):
+      for j in range(L):
+        idx = torch.where(mask[i, j] != 0)[0].tolist()
+        q = Q[i,[j], :]
+        K_ = K[i, idx, :]
+        V_ = V[i, idx, :]
+        Z[i,j,:] = SingleQuerySDPA(q, K_, V_)
+    O = self.Wo(Z)
+    return O</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li>
+                    <strong>逐 batch + 逐 query</strong>: 双层循环，对每个 query
+                    找到 mask 非零位置。
+                  </li>
+                  <li><strong>只计算必要 KV</strong>: 真正减少计算量。</li>
+                  <li>
+                    <strong>输出投影</strong>: 最后通过 Wo 映射回原始维度。
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 12 / Top-K Post vs Pre -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">12 / Mechanism II</div>
+              <h2>Top-K 注意力：Post vs Pre 模式</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>Post</strong>: 先计算完整注意力分数，再选
+                    Top-K。无法避免 O(L^2)。
+                  </li>
+                  <li>
+                    <strong>Pre</strong>: 由 Indexer 先行选
+                    KV，再计算注意力，只算必要位置。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/fig-topk-attn.png" alt="Top-K Attention" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 13 / Top-K Pre 分析 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">13 / Mechanism II</div>
+              <h2>Top-K：Pre 模式为什么要先选？</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>Post 的问题</strong>: 必须先算全量 S = Q @
+                    K^T，O(L^2)，top-k 只是后处理。
+                  </li>
+                  <li>
+                    <strong>Pre 的优势</strong>: 先用轻量评分筛选
+                    KV，只对选中的计算注意力。
+                  </li>
+                  <li>
+                    <strong>V4 的选择</strong>: Pre 模式——Indexer 先选 KV，再逐
+                    query 计算。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/fig-post-vs-pre.png" alt="Post vs Pre" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 14 / Top-K 代码 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">14 / Mechanism II</div>
+              <h2>Top-K：零浪费的注意力计算</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>class AttentionTopK(nn.Module):
+  def forward(self, X, topk=10, is_post=True):
+    B, L, D = X.shape
+    Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)
+    Z = torch.zeros_like(Q)
+    for i in range(B):
+      for j in range(L):
+        if is_post:
+          S = Q[i,[j], :] @ K[i].t()
+          # ... select top-k from S
+        else:
+          # Pre: Indexer 先选 KV
+          S = torch.randn(1, L)  # 模拟评分
+          _, idx = torch.topk(S, topk)
+          idx = idx[0].tolist()
+          q = Q[i,[j], :]
+          K_ = K[i, idx, :]
+          V_ = V[i, idx, :]
+          Z[i,j,:] = SingleQuerySDPA(q, K_, V_)
+    O = self.Wo(Z)
+    return O</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li>
+                    <strong>Pre 模式</strong>: 用随机分数模拟 Indexer（V4
+                    实际用可学习评分）。
+                  </li>
+                  <li>
+                    <strong>零浪费</strong>: 只对选中的 top-k KV 计算注意力。
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 15 / Top-K 小结 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">15 / Mechanism II</div>
+              <h2>Top-K 小结：逐 query 的必要性</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>逐 query 拉取 top-k KV</strong> 看似低效，但 V4 的
+                    Sparse Attn Kernel 确实如此实现。
+                  </li>
+                  <li>
+                    <strong>原因</strong>: 稀疏选取下各 query 的 KV
+                    集合<mark>互不相交</mark>，块式复用失去前提。
+                  </li>
+                  <li>
+                    <strong>不是 FlashAttention</strong>: FlashAttention 假设 KV
+                    连续，Sparse 场景不满足。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 稀疏选取下各 query 的 KV 集合互不相交，FlashAttention
+              的块式复用失去前提。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 16 / 压缩注意力概念 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">16 / Mechanism III</div>
+              <h2>压缩注意力：核心概念</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>直觉</strong>: 上下文 1M、压缩率 128 时，压缩后仅有
+                    <mark>7812.5</mark> 个 KV。
+                  </li>
+                  <li>
+                    <strong>方法</strong>: 等间距 mean-pooling（免参数）压缩
+                    KV。
+                  </li>
+                  <li>
+                    <strong>代价</strong>: 位置编码对齐、因果泄漏等新问题。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-compress-attn.png"
+                  alt="Compressed Attention"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 17 / 压缩注意力代码 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">17 / Mechanism III</div>
+              <h2>压缩注意力：代码实现</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>class AttentionCompress(nn.Module):
+  def forward(self, X, compress_ratio):
+    B, L, D = X.shape
+    Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)
+    c, n_c = compress_ratio, L // compress_ratio
+    if compress_ratio != 0:
+      # mean-pooling 压缩
+      K_ = K.reshape(B, n_c, c, D).mean(dim=2)
+      V_ = V.reshape(B, n_c, c, D).mean(dim=2)
+    Z = ScaledDotProductionAttention(Q, K_, V_, None)
+    O = self.Wo(Z)
+    return O</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li>
+                    <strong>reshape + mean</strong>: 按 compress_ratio
+                    分块取平均。
+                  </li>
+                  <li>
+                    <strong>复用标准注意力</strong>: 压缩后的 KV 直接用
+                    ScaledDotProduct。
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 18 / 压缩率对比 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">18 / Mechanism III</div>
+              <h2>压缩率对比分析</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>ratio=1</strong>: 退化为标准注意力，KV
+                    长度不变（256）。
+                  </li>
+                  <li>
+                    <strong>ratio=4</strong>: KV 从 256 缩至 64，计算量降至
+                    1/4。
+                  </li>
+                  <li>
+                    <strong>ratio=16</strong>: KV 缩至 16，计算量降至 1/16。
+                  </li>
+                  <li>
+                    <strong>ratio=128</strong>: 1M 上下文仅 7812.5 个
+                    KV，<mark>极端压缩</mark>。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 压缩率是结构旋钮——ratio=1 退化为标准注意力，ratio=128
+              砍到极致。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 19 / 压缩遗留问题 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">19 / Mechanism III</div>
+              <h2>压缩注意力的遗留问题</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>位置编码</strong>: Compressed KV 的 RoPE 如何处理？
+                  </li>
+                  <li>
+                    <strong>KV-Cache</strong>: Inference Prefill/Decode
+                    时如何增量更新？
+                  </li>
+                  <li>
+                    <strong>因果信息泄漏</strong>: 因果注意力下压缩 KV
+                    的信息泄漏如何掩码？
+                  </li>
+                  <li>
+                    <strong>Overlap 平滑</strong>: 相邻块的 Compressed KV
+                    如何平滑表达？
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 这些问题将在 HCA/CSA 的具体实现中逐一解决。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 20 / 滑窗注意力概念 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">20 / Mechanism III</div>
+              <h2>滑窗注意力：概念与计算</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>核心</strong>: 每个 query 仅关注窗口内 KV，O(L^2) →
+                    O(L*w)。
+                  </li>
+                  <li>
+                    <strong>模式</strong>: 复用候选 ID 式的 KV 选取，零浪费。
+                  </li>
+                  <li>
+                    <strong>天然适配</strong>: block-wise attention 天然适配
+                    SWA。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-swa-blockwise.png"
+                  alt="SWA Block-wise"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 21 / 滑窗代码 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">21 / Mechanism III</div>
+              <h2>滑窗注意力：代码实现</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>class AttentionSlidingWindow(nn.Module):
+  def forward(self, X, window_size):
+    B, L, D = X.shape
+    Q, K, V = self.Wq(X), self.Wk(X), self.Wv(X)
+    Z = torch.zeros_like(Q)
+    for i in range(B):
+      for j in range(L):
+        left = max(j, j - window_size)
+        right = min(j, j + window_size)
+        q = Q[i,[j], :]
+        K_ = K[i, left:right, :]
+        V_ = V[i, left:right, :]
+        Z[i,j,:] = SingleQuerySDPA(q, K_, V_)
+    O = self.Wo(Z)
+    return O</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li>
+                    <strong>窗口裁剪</strong>: left/right 边界确定窗口范围。
+                  </li>
+                  <li><strong>输出</strong>: torch.Size([2, 256, 512])</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 22 / 注意力抽象小结 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">22 / Mechanism III</div>
+              <h2>注意力抽象小结</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>标准注意力</strong>: 全局 O(L^2)，所有 KV 参与。
+                  </li>
+                  <li>
+                    <strong>Mask-Free</strong>: 真正减少计算量，逐 query 拉取。
+                  </li>
+                  <li>
+                    <strong>Top-K</strong>: Pre 模式先选后算，避免 O(L^2)。
+                  </li>
+                  <li>
+                    <strong>压缩注意力</strong>:
+                    降维表示，遗留位置编码和因果泄漏。
+                  </li>
+                  <li>
+                    <strong>滑窗注意力</strong>: 局部信息，O(L*w) 复杂度。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 五种注意力各有分工——V4 的 HCA/CSA 是它们的有机组合。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 23 / Compressor -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">23 / Mechanism IV</div>
+              <h2>HCA：Compressor 类设计</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>class Compressor(nn.Module):
+  def __init__(self, compress_ratios, dim):
+    super().__init__()
+    self.compress_ratios = compress_ratios
+    self.w_compress = nn.Linear(
+        compress_ratios, 1, bias=False)
+
+  def forward(self, X):
+    B, L, D = X.shape
+    c, n_c = self.compress_ratios, L // c
+    if self.compress_ratios > 1:
+      X_ = X.reshape(B, n_c, c, D)
+      X_ = self.w_compress(
+          X_.transpose(2,3))[...,0]
+    return X_</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li>
+                    <strong>可学习压缩</strong>: 线性投影 w_compress
+                    做加权压缩。
+                  </li>
+                  <li><strong>对比 mean-pooling</strong>: 表达能力更强。</li>
+                  <li><strong>参数</strong>: w_compress [ratio, 1]。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 24 / HCA 因果压缩 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">24 / Mechanism IV</div>
+              <h2>HCA：因果压缩前向计算</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>bsz, seq_len = 2, 8192
+args.compress_ratios = 4
+compressor = Compressor(4, args.dim)
+K_ = compressor(K)  # [B, 2048, D]
+V_ = compressor(V)
+
+O = torch.zeros_like(Q)
+for i in range(bsz):
+  for j in range(seq_len):
+    j_ = j // args.compress_ratios
+    K_c, V_c = K_[i, :j_], V_[i, :j_]
+    O[i,j] = Q[i, [j]] @ K_c.T @ V_c</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li>
+                    <strong>因果约束</strong>: query j 只看到 j // ratio
+                    个压缩块。
+                  </li>
+                  <li><strong>ratio=4</strong>: 8192 → 2048 个压缩 KV。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 25 / HCA 信息泄漏 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">25 / Mechanism IV</div>
+              <h2>HCA：信息泄漏分析</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>问题</strong>: 一个压缩块包含多个 token 的
+                    KV，可能包含未来信息。
+                  </li>
+                  <li>
+                    <strong>解决</strong>: 因果边界 j_ = j // ratio，只看到 j_
+                    之前的完整块。
+                  </li>
+                  <li>
+                    <strong>代价</strong>: 当前 token 所在块的信息被丢弃。
+                  </li>
+                  <li><strong>补充</strong>: 需要 SWA 填补丢弃的信息。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 因果约束下压缩 KV 的信息泄漏是真实问题——空缺由 SWA 补。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 26 / HCA + SWA -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">26 / Mechanism IV</div>
+              <h2>HCA + SWA 配合机制</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>HCA 负责全局</strong>: 通过强压缩捕获远场信息。
+                  </li>
+                  <li>
+                    <strong>SWA 补充局部</strong>:
+                    填补因果压缩丢弃的当前块信息。
+                  </li>
+                  <li>
+                    <strong>分工</strong>: HCA 管"代价更低"，SWA 管"近场不丢"。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 HCA 不独立运行——没有 SWA，因果压缩的信息空缺无法填补。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 27 / Indexer -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">27 / Mechanism V</div>
+              <h2>CSA：Indexer 类设计</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>class Indexer(nn.Module):
+  def __init__(self, args):
+    super().__init__()
+    dim = args.dim
+    # 简化版：投影到1维做点积评分
+    self.Wk_light = nn.Linear(dim, 1, bias=False)
+    self.Wq_light = nn.Linear(dim, 1, bias=False)
+
+  def forward(self, Q, K, topk):
+    Q_ = self.Wq_light(Q)
+    K_ = self.Wk_light(K)
+    S = Q_ @ K_.transpose(-2, -1)
+    _, idx = torch.topk(S, topk, dim=-1)
+    return idx</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li><strong>轻量投影</strong>: 映射到 1 维做点积评分。</li>
+                  <li>
+                    <strong>V4 实际</strong>: 64 维多头评分 + 可学习加权。
+                  </li>
+                  <li><strong>topk 选出</strong>: 稀疏索引。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 28 / CSA 流程 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">28 / Mechanism V</div>
+              <h2>CSA：前向计算流程</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>Step 1</strong>: Compressor 对 KV
+                    做轻量压缩（ratio=4）。
+                  </li>
+                  <li>
+                    <strong>Step 2</strong>: Indexer 对原始 KV 做 top-k 筛选。
+                  </li>
+                  <li>
+                    <strong>Step 3</strong>: 每个 query 同时计算稀疏 KV + 压缩
+                    KV 注意力。
+                  </li>
+                  <li><strong>Step 4</strong>: 结果相加，得到最终输出。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 双路注意力——稀疏 KV 保证精度，压缩 KV 弥补全局信息。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 29 / CSA 基础代码 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">29 / Mechanism V</div>
+              <h2>CSA：代码实现（基础版）</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>Q = torch.randn(bsz, seq_len, args.dim)
+K = torch.randn(bsz, seq_len, args.dim)
+V = torch.randn(bsz, seq_len, args.dim)
+
+args.compress_ratios = 4
+compressor = Compressor(4, args.dim)
+K_ = compressor(K)
+V_ = compressor(V)
+
+indexer = Indexer(args)
+idx = indexer(Q, K, args.attn_top_k)
+
+z = torch.zeros_like(Q)
+for i in range(bsz):
+  for j in range(seq_len):
+    sparse_ids = idx[i, j]
+    # 稀疏 KV 注意力
+    z[i,[j]] += attn(Q[i,[j]],
+      K[i, sparse_ids], V[i, sparse_ids])
+    # 压缩 KV 注意力
+    z[i,[j]] += attn(Q[i,[j]],
+      K_[i,:], V_[i,:])</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li><strong>双路相加</strong>: 稀疏 + 压缩。</li>
+                  <li><strong>Compressor</strong>: ratio=4 轻量压缩。</li>
+                  <li><strong>Indexer</strong>: top-k 筛选。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 30 / Overlap 概念 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">30 / Mechanism V</div>
+              <h2>CSA：Overlap 平滑策略</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>目的</strong>: 相邻段压缩特征拼接，段间过渡自然。
+                  </li>
+                  <li><strong>仅在 CSA</strong>: HCA 不需要 overlap。</li>
+                  <li>
+                    <strong>效果</strong>: [B, L/4, D] → overlap → [B, L/4, 2D]
+                    → sum → [B, L/4, D]。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/fig-csa-overlap.png" alt="CSA Overlap" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 31 / Overlap 代码 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">31 / Mechanism V</div>
+              <h2>CSA：Overlap 代码实现</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>def overlap(X):
+  B, L, D = X.shape
+  X_ = torch.zeros(B, L, D*2)
+  X_[:, :, D:] = X            # 当前段
+  X_[:, 1:, :D] = X[:, :L-1, :]  # 前一段
+  return X_
+
+overlap_flag = 1
+coff = 1 + overlap_flag
+
+K_ = overlap(compressor(K))
+V_ = overlap(compressor(V))
+
+if overlap_flag:
+  _, L_c, _ = K_.shape
+  K_ = K_.reshape(bsz, L_c, args.dim, coff).sum(dim=-1)
+  V_ = V_.reshape(bsz, L_c, args.dim, coff).sum(dim=-1)</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li><strong>overlap 拼接</strong>: 当前段 + 前一段 → 2D。</li>
+                  <li><strong>sum 回原维度</strong>: reshape + sum。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 32 / SWA + CSA -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">32 / Mechanism V</div>
+              <h2>CSA：SWA + CSA 组合</h2>
+            </div>
+            <div class="canvas-layer fig-hero">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>三路 KV</strong>: 稀疏 KV + 窗口 KV + 压缩 KV。
+                  </li>
+                  <li><strong>拼接策略</strong>: 三路在候选索引层面拼接。</li>
+                  <li><strong>统一计算</strong>: softmax 自动归一化。</li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/fig-csa-complete.png" alt="CSA Complete" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 33 / 三路代码 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">33 / Mechanism V</div>
+              <h2>CSA：三路 KV 拼接代码</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>win = 128
+z = torch.zeros_like(Q)
+for i in range(bsz):
+  for j in range(seq_len):
+    sparse_ids = idx[i, j]
+    left = max(0, j - win)
+    right = min(seq_len, j + win)
+    K_mix = torch.cat((
+      K[i, sparse_ids],  # Top-K
+      K[i, left:right],  # 滑窗
+      K_[i, :]))         # 压缩 KV
+    V_mix = torch.cat((
+      V[i, sparse_ids],
+      V[i, left:right],
+      V_[i, :]))
+    z[i,j] = attn(Q[i,[j]], K_mix, V_mix)</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li><strong>torch.cat</strong>: 三路拼接。</li>
+                  <li><strong>统一注意力</strong>: 单次 attn 计算。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 34 / CSA 完整要点 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">34 / Mechanism V</div>
+              <h2>CSA：完整计算要点</h2>
+            </div>
+            <div class="canvas-layer fig-hero">
+              <div class="canvas-text">
+                <ul>
+                  <li>原始 KV + 压缩 KV 在内存中拼接为统一序列。</li>
+                  <li>
+                    候选索引由 [window_ids, sparse_ids, compress_ids] 三路拼接。
+                  </li>
+                  <li>Sparse Kernel 按候选索引逐 query 拉取 KV 子集。</li>
+                  <li>Softmax 在统一序列上自动归一化。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 三路 KV 拼接是 V4
+                  注意力的工程精髓——一条路径做不到，三条路各司其职。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/fig-csa-complete.png" alt="CSA Complete" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 35 / Softmax 归一化 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">35 / Mechanism V</div>
+              <h2>CSA：Softmax 归一化问题</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>问题</strong>: 多种注意力混合后，分数如何 Softmax
+                    归一化？
+                  </li>
+                  <li>
+                    <strong>V4 的方案</strong>: 三路 KV 拼接为统一序列，全局
+                    Softmax。
+                  </li>
+                  <li>
+                    <strong>优势</strong>:
+                    不需要分别归一化再加权，数学上等价且更简洁。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 统一 Softmax 是关键——分别归一化会丢失跨路径的相对重要性。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 36 / MQA vs MLA -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">36 / Mechanism VI</div>
+              <h2>MQA vs MLA：核心区别</h2>
+            </div>
+            <div class="canvas-layer fig-hero">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>MLA</strong>: 上投影到多头 KV
+                    再算注意力。推理时需反复加载上投影矩阵，长解码开销显著。
+                  </li>
+                  <li>
+                    <strong>V4-MQA</strong>: 直接用单头 KV
+                    计算注意力，引入分组输出投影控制 Wo 规模。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/fig-mqa-vs-mla.png" alt="MQA vs MLA" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 37 / MQA 算法 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">37 / Mechanism VI</div>
+              <h2>V4-MQA：算法设计</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>KV 头数</strong>: n_kv_heads = 1，极大减少 KV-Cache
+                    量。
+                  </li>
+                  <li>
+                    <strong>分组输出投影</strong>: 多头输出拼接后维度过大，引入
+                    Wo_a + Wo_b 两段投影。
+                  </li>
+                  <li>
+                    <strong>计算优势</strong>: 单 query [H, d] 与单头 KV [blk,
+                    d] 一次矩阵乘即得所有头分数。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 V4-MQA 不只是 KV 头数为 1——分组输出投影是独立的工程创新。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 38 / MQA 代码 init -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">38 / Mechanism VI</div>
+              <h2>V4-MQA：完整代码实现</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>class MQA(nn.Module):
+  def __init__(self, args, o_lora_rank, o_groups):
+    super().__init__()
+    dim = args.dim
+    head_dim = args.head_dim
+    self.n_heads = args.n_heads
+    self.n_kv_heads = 1
+    self.Wq = nn.Linear(dim,
+      self.n_heads * head_dim, bias=False)
+    self.Wc = nn.Linear(dim, head_dim, bias=False)
+    self.Wk = nn.Linear(head_dim, head_dim, bias=False)
+    self.Wv = nn.Linear(head_dim, head_dim, bias=False)
+    self.Wo_a = nn.Linear(
+      self.n_heads * head_dim // o_groups,
+      o_groups * o_lora_rank, bias=False)
+    self.Wo_b = nn.Linear(
+      o_lora_rank * self.n_heads, dim, bias=False)</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li><strong>Wc</strong>: 下投影到单头。</li>
+                  <li><strong>Wk/Wv</strong>: 单头 KV 投影。</li>
+                  <li><strong>Wo_a/Wo_b</strong>: 分组输出投影。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 39 / MQA forward -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">39 / Mechanism VI</div>
+              <h2>V4-MQA：前向计算代码</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>  def forward(self, X, mask):
+    B, L, D = X.shape
+    Q = self.Wq(X)
+    K = self.Wk(self.Wc(X))
+    V = self.Wv(self.Wc(X))
+    Q = Q.reshape(B, L, self.n_heads,
+              -1).transpose(1, 2)
+    K = K.reshape(B, L, 1, -1).transpose(1, 2)
+    V = V.reshape(B, L, 1, -1).transpose(1, 2)
+    Z = ScaledDotProductionAttention(
+        Q, K, V, mask)
+    d = self.n_heads * D // self.o_groups
+    Z = Z.reshape(B, L, self.o_groups, d)
+    Z = self.Wo_a(Z)        # 分组降维
+    Z = Z.reshape(B, L, -1)
+    O = self.Wo_b(Z)        # 升维回 dim
+    return O</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li><strong>注意</strong>: K/V reshape 为 n_kv_heads=1。</li>
+                  <li><strong>Wo_a</strong>: 分组降维。</li>
+                  <li><strong>Wo_b</strong>: 升维回 dim。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 40 / Group Projection 参数 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">40 / Mechanism VI</div>
+              <h2>Group Projection：参数规模分析</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>V4-Pro</strong>: dim=7168, n_heads=128,
+                    head_dim=512, o_groups=16
+                  </li>
+                  <li>
+                    <strong>问题</strong>: 128 x 512 = 65536，全连接 Wo
+                    参数不可接受。
+                  </li>
+                  <li>
+                    <strong>拆分</strong>: Wo_a [16, 1024, 4096] + Wo_b [16384,
+                    7168]
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 分组投影把参数量从 O(D^2) 降到 O(D * r)。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 41 / Group Projection 验证 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">41 / Mechanism VI</div>
+              <h2>Group Projection：验证代码</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>Wo_a = torch.ones(2, 4, 3)  # 2 groups
+X = torch.ones(5, 4)
+Wo_a[0] *= 2
+Wo_a[1] *= 3
+
+Y = X @ Wo_a       # [2, 5, 3]
+Y1 = X @ Wo_a[0]   # [5, 3]
+Y2 = X @ Wo_a[1]   # [5, 3]
+
+print(f'shapes: {Y.shape} | {Y1.shape} | {Y2.shape}')
+print(torch.norm(Y - torch.stack([Y1, Y2], dim=0)))
+# 0 -- 数学等价</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li>
+                    <strong>数学等价</strong>: Y = X @ Wo_a 等于逐组计算。
+                  </li>
+                  <li><strong>norm 差为 0</strong>: 验证分组正确性。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 42 / Group Projection 洞察 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">42 / Mechanism VI</div>
+              <h2>Group Projection：五条洞察</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>成组方式</strong>: 每 8
+                    个注意力头拼为一条组向量，128 头共得 16 条。
+                  </li>
+                  <li>
+                    <strong>组隔离</strong>: 每条组向量只与 Wo_a
+                    中对应子矩阵交互。
+                  </li>
+                  <li>
+                    <strong>权重独立</strong>: 128 个头压成 16
+                    个"共享组头"，每组独立权重。
+                  </li>
+                  <li>
+                    <strong>计算量可控</strong>:
+                    总开销由组数、组内维度与中间维度决定。
+                  </li>
+                  <li>
+                    <strong>硬件友好</strong>: 贴合 Tensor Core，适配 FP4/FP8
+                    量化。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 分组不是简单拆矩阵——是把 128 个头压成 16 个共享组头。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 43 / Sparse Kernel 接口 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">43 / Mechanism VII</div>
+              <h2>Sparse Attention Kernel：调用接口</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>统一接口</strong>: sparse_attn(q, kv, attn_sink,
+                    topk_idxs, softmax_scale)
+                  </li>
+                  <li>
+                    <strong>KV 布局</strong>: kv = [2, L + L_compressed, d]
+                  </li>
+                  <li>
+                    <strong>索引来源</strong>: 三路 — SWA + Sparse + Compress
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-sparse-kernel-overview.png"
+                  alt="Sparse Kernel Overview"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 44 / Sparse Kernel 主函数 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">44 / Mechanism VII</div>
+              <h2>Sparse Kernel：主函数入口</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>if __name__ == "__main__":
+  L, H, d = 4, 8, 32
+  L_compressed = 6
+
+  q = torch.randn(L, H, d)
+  kv = torch.randn(
+    2, L + L_compressed, d)
+
+  num_win_ids = 2
+  num_sparse_ids = 3
+  num_compressed_ids = 1
+  K = num_win_ids + num_sparse_ids \
+    + num_compressed_ids
+
+  topk_ids = torch.randint(
+    0, L + L_compressed, (L, K))
+
+  out = sparse_linear_attn_torch(
+    q, kv, topk_ids, block=3)
+  print(out.shape)  # [4, 8, 32]</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li><strong>KV 拼接</strong>: 原始 + 压缩。</li>
+                  <li><strong>topk_ids</strong>: 三路索引。</li>
+                  <li><strong>block=3</strong>: 分块大小。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 45 / Sparse Kernel 核心 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">45 / Mechanism VII</div>
+              <h2>Sparse Kernel：核心实现</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>外循环逐 query 计算注意力。</li>
+                  <li>内循环将 topk_ids 分块，逐块 gather 候选 KV。</li>
+                  <li>
+                    gather 的 KV 地址不连续，各 query 的稀疏子集互不相交。
+                  </li>
+                </ul>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-sparse-kernel-detail.png"
+                  alt="Sparse Kernel Detail"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 46 / Sparse Kernel 代码 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">46 / Mechanism VII</div>
+              <h2>Sparse Kernel：逐 query 块式 gather</h2>
+            </div>
+            <div class="canvas-layer" style="grid-template-columns: 55% 45%">
+              <div class="visual-box" style="--visual-scale: 0.85">
+                <div class="code-container">
+                  <pre><code>def sparse_linear_attn_torch(
+    q, kv, topk_ids, block=64):
+  L, H, d = q.shape
+  K_topk = topk_ids.shape[1]
+  num_blocks = math.ceil(K_topk / block)
+  o = torch.zeros(L, H, d)
+
+  for i in range(L):         # 逐 query
+    qi = q[i]                 # [H, d]
+    acc_o = torch.zeros(H, d)
+    for t in range(num_blocks): # 分块
+      start = t * block
+      end = min(start + block, K_topk)
+      idxs = topk_ids[i, start:end]
+      kv_block = kv[:, idxs]  # 非连续
+      scores = qi @ kv_block[0].T
+      acc_o += scores @ kv_block[1]
+    o[i] = acc_o
+  return o</code></pre>
+                </div>
+              </div>
+              <div
+                class="canvas-text"
+                style="font-size: clamp(0.85rem, 1.5vw, 1.3rem)"
+              >
+                <ul>
+                  <li>
+                    <strong>qi @ K_block.T</strong>: [H, d] @ [d, blk] = [H,
+                    blk]
+                  </li>
+                  <li><strong>score @ V</strong>: [H, blk] @ [blk, d]</li>
+                  <li><strong>累加</strong>: 跨块累加。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 47 / Kernel 提炼 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">47 / Mechanism VII</div>
+              <h2>Sparse Kernel：三个关键提炼</h2>
+            </div>
+            <div class="canvas-layer fig-wide">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>外循环逐 query，内循环分块</strong>: topk_ids 分块
+                    gather，逐块计算。
+                  </li>
+                  <li>
+                    <strong>gather 的 KV 地址不连续</strong>: 各 query
+                    的稀疏子集互不相交。
+                  </li>
+                  <li>
+                    <strong>MQA 优势</strong>: qi [H, d] @ K_block.T → [H,
+                    blk]，<mark>多头并行无额外开销</mark>。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 一次矩阵乘即得所有头的注意力分数——MQA 的计算优势在 Kernel
+                  层充分体现。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <img
+                  src="./figures/fig-sparse-kernel-detail.png"
+                  alt="Sparse Kernel Detail"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 48 / MQA 在 Kernel 中 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">48 / Mechanism VII</div>
+              <h2>MQA 在 Sparse Kernel 中的优势</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>单头 KV</strong>: MQA 下 KV 只有一份，所有 query
+                    头共享。
+                  </li>
+                  <li>
+                    <strong>矩阵乘维度</strong>: qi [H, d] @ K_block.T [d, blk]
+                    = scores [H, blk]
+                  </li>
+                  <li>
+                    <strong>多头并行</strong>: 一次 GEMM
+                    即可计算所有头的注意力分数。
+                  </li>
+                  <li>
+                    <strong>对比 MHA</strong>: MHA 需要 H 次独立 gather + H 次
+                    GEMM。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 MQA 的计算优势在 Sparse Kernel 中充分体现——单头 KV
+              让多头并行成为可能。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 49 / 全景回顾 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">49 / Summary</div>
+              <h2>V4 注意力方案全景回顾</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>HCA</strong>: block-level
+                    强压缩（ratio=128），负责全局信息理解。
+                  </li>
+                  <li>
+                    <strong>CSA</strong>: token-level 稀疏选取 +
+                    轻量压缩（ratio=4），负责精确注意力建模。
+                  </li>
+                  <li>
+                    <strong>SWA</strong>: 局部窗口（128 token），近场兜底。
+                  </li>
+                  <li>
+                    <strong>MQA</strong>: 单头 KV + 分组投影，减少 KV-Cache +
+                    控制输出参数。
+                  </li>
+                  <li>
+                    <strong>Sparse Kernel</strong>: 逐 query 块式
+                    gather，零浪费计算。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 block-level 全局 + token-level 精确 + 局部窗口兜底。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 50 / 训练策略 -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">50 / Summary</div>
+              <h2>V4 训练策略：先短后长</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>初始阶段</strong>: SWA
+                    为初始训练兜底，模型先学会局部注意力。
+                  </li>
+                  <li>
+                    <strong>渐进学习</strong>:
+                    随着训练推进，逐步学会压缩和稀疏。
+                  </li>
+                  <li>
+                    <strong>退化安全</strong>: HCA/CSA 退化为 SWA
+                    时仍可兜底，不会训练崩溃。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated">
+              「 先学会走再学会跑——SWA 兜底确保训练稳定性。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 51 / Take A Ways -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">51 / Take A Ways</div>
+              <h2>Take A Ways</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment">
+                    <strong>Q1 → A1</strong>: 标准注意力 → Mask-Free → Top-K →
+                    压缩 → 滑窗，<mark>每层解决一个具体问题</mark>。
+                  </li>
+                  <li class="fragment">
+                    <strong>Q2 → A2</strong>: Mask-Free 逐 query
+                    拉取真正减少计算；Top-K Pre 模式先选后算避免 O(L^2)。
+                  </li>
+                  <li class="fragment">
+                    <strong>Q3 → A3</strong>:
+                    压缩注意力的数学直觉是"距离越远压缩越狠"，工程限制由 HCA/CSA
+                    各自解决。
+                  </li>
+                  <li class="fragment">
+                    <strong>Q4 → A4</strong>: Compressor
+                    用可学习投影做因果强压缩，信息空缺由 SWA 填补。
+                  </li>
+                  <li class="fragment">
+                    <strong>Q5 → A5</strong>: Indexer 保证精度，Compressor
+                    弥补全局，overlap 消除断裂，统一 Softmax。
+                  </li>
+                  <li class="fragment">
+                    <strong>Q6 → A6</strong>: Wo 拆成 Wo_a + Wo_b，128x512=65536
+                    → 参数量从 O(D^2) 降到 O(D*r)。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated fragment">
+              「 V4 注意力方案整体是 NSA + DSA 的有机融合——block-level 全局 +
+              token-level 精确 + 局部窗口兜底，Sparse Kernel 逐 query
+              零浪费计算。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+
+        <!-- 52 / Reference -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">52 / Reference</div>
+              <h2>Reference</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text" style="font-size: 1rem">
+                <ul class="ref-list">
+                  <li>
+                    <strong
+                      ><a
+                        href="https://mp.weixin.qq.com/s/824ZVhBvdvHroA_nJyoj-g"
+                        target="_blank"
+                        >手撕 DeepSeek-V4 (2) : 注意力方案</a
+                      ></strong
+                    >
+                    - 小冬瓜AIGC
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://arxiv.org/abs/2502.11089"
+                        target="_blank"
+                        >NSA: Native Sparse Attention</a
+                      ></strong
+                    >
+                    - https://arxiv.org/abs/2502.11089
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://zhuanlan.zhihu.com/p/2032043071395869284"
+                        target="_blank"
+                        >手撕 DeepSeek-V4 (1) : 模型架构</a
+                      ></strong
+                    >
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://zhuanlan.zhihu.com/p/24841366485"
+                        target="_blank"
+                        >手撕NSA：DeepSeek新作-原生稀疏注意力</a
+                      ></strong
+                    >
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://zhuanlan.zhihu.com/p/1957032283270812718"
+                        target="_blank"
+                        >手撕 DSA：DeepSeek-V3.2 Sparse Attention</a
+                      ></strong
+                    >
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://github.com/dhcode-cpp/DeepSeek-V4-mini"
+                        target="_blank"
+                        >DeepSeek-V4-mini 代码仓库</a
+                      ></strong
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + DSV4-ATTN + 2026/05/17</div>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script type="module">
+      import {
+        prepareWithSegments,
+        layoutWithLines,
+      } from "https://esm.sh/@chenglou/pretext";
+      document.querySelectorAll("[data-katex]").forEach((el) => {
+        if (window.katex)
+          katex.render(el.getAttribute("data-katex"), el, {
+            displayMode: true,
+          });
+      });
+      document.querySelectorAll(".visual-box[data-scale]").forEach((box) => {
+        box.style.setProperty("--visual-scale", box.getAttribute("data-scale"));
+      });
+      Reveal.initialize({
+        hash: true,
+        center: true,
+        transition: "none",
+        width: 1400,
+        height: 900,
+        margin: 0.05,
+      });
+      const coverSource = [
+        "DeepSeek-V4 Attention HCA CSA SWA MQA Sparse Attention Kernel Compressed KV Indexer Group Projection Zero-Waste",
+      ].join(" ");
+      const slideSource = [
+        "DeepSeek-V4",
+        "HCA",
+        "CSA",
+        "SWA",
+        "MQA",
+        "Sparse Kernel",
+        "Compressor",
+        "Indexer",
+        "Top-K",
+        "Mask-Free",
+        "Group Projection",
+        "Zero-Waste",
+        "Overlap",
+        "Gather",
+        "Causal",
+      ].join("  /  ");
+      function getLines(text, font, maxWidth, lineHeight) {
+        const prepared = prepareWithSegments(text, font);
+        const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+        return lines.map((l) => l.text);
+      }
+      function buildStage(stage) {
+        const isCover = stage.classList.contains("cover-stage");
+        const src = isCover
+          ? Array.from({ length: 5 }, () => coverSource).join(" ")
+          : Array.from({ length: 12 }, () => slideSource).join(" ");
+        const bg = stage.querySelector(".pretext-bg");
+        if (!bg) return [];
+        const w = stage.clientWidth || 1400;
+        const h = stage.clientHeight || 900;
+        const padding = isCover ? 28 : 24;
+        const usable = Math.max(200, w - padding * 2);
+        const fontSize = isCover
+          ? Math.max(18, Math.min(28, w * 0.02))
+          : Math.max(14, Math.min(20, w * 0.014));
+        const lineHeight = Math.round(fontSize * (isCover ? 1.25 : 1.8));
+        const font = `600 ${fontSize}px Poppins, Arial, sans-serif`;
+        const wrapped = getLines(src, font, usable * 0.92, lineHeight);
+        const top = Math.max(20, (h - wrapped.length * lineHeight) / 2);
+        bg.innerHTML = "";
+        return wrapped.map((text, i) => {
+          const el = document.createElement("div");
+          el.className = "pt-line";
+          if (i % 9 === 2) el.classList.add("pt-orange");
+          if (i % 11 === 5) el.classList.add("pt-blue");
+          if (i % 13 === 7) el.classList.add("pt-green");
+          el.textContent = text;
+          el.style.top = `${top + i * lineHeight}px`;
+          el.style.left = `${padding}px`;
+          el.style.fontSize = `${fontSize}px`;
+          bg.appendChild(el);
+          return { el, index: i, baseTop: top + i * lineHeight };
+        });
+      }
+      const stages = Array.from(document.querySelectorAll(".pretext-stage"));
+      const stageMap = new Map();
+      function rebuildAll() {
+        stageMap.clear();
+        stages.forEach((s) => {
+          stageMap.set(s, buildStage(s));
+        });
+      }
+      rebuildAll();
+      const pointers = new Map();
+      stages.forEach((s) => pointers.set(s, { x: 0.65, y: 0.4 }));
+      function animate(time) {
+        stageMap.forEach((rows, stage) => {
+          const w = stage.clientWidth || 1400;
+          const h = stage.clientHeight || 900;
+          const p = pointers.get(stage) || { x: 0.65, y: 0.4 };
+          const isCover = stage.classList.contains("cover-stage");
+          const amp = isCover ? 16 : 8;
+          const driftAmp = isCover ? 8 : 4;
+          const rotAmp = isCover ? 0.35 : 0.15;
+          rows.forEach(({ el, index, baseTop }) => {
+            const dx = p.x * w - w * 0.5;
+            const dy = p.y * h - baseTop;
+            const wave = Math.sin(time * 0.0009 + index * 0.5) * amp;
+            const drift = Math.cos(time * 0.0005 + index * 0.3) * driftAmp;
+            const pull = dx * 0.014 * Math.exp(-Math.abs(dy) / 180);
+            const vert = Math.sin(time * 0.0007 + index * 0.4) * 2;
+            const rot = Math.sin(time * 0.0004 + index * 0.16) * rotAmp;
+            const baseOpacity = isCover ? 0.65 : 0.38;
+            const fade = Math.min(Math.abs(dy) / h, isCover ? 0.4 : 0.22);
+            const opacity = Math.max(isCover ? 0.1 : 0.04, baseOpacity - fade);
+            el.style.opacity = String(opacity);
+            el.style.transform = `translate3d(${wave + drift + pull}px, ${vert}px, 0) rotate(${rot}deg)`;
+          });
+        });
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+      document.addEventListener("pointermove", (e) => {
+        stages.forEach((stage) => {
+          const rect = stage.getBoundingClientRect();
+          if (
+            e.clientX >= rect.left &&
+            e.clientX <= rect.right &&
+            e.clientY >= rect.top &&
+            e.clientY <= rect.bottom
+          ) {
+            pointers.set(stage, {
+              x: Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)),
+              y: Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)),
+            });
+          }
+        });
+      });
+      Reveal.on("slidechanged", () => {
+        setTimeout(rebuildAll, 120);
+      });
+      window.addEventListener("resize", rebuildAll);
+    </script>
+  </body>
+</html>
