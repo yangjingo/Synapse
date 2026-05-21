@@ -114,7 +114,7 @@ function excalidrawToSvg(inputPath, outputPath, opts = {}) {
   let svg = parts.join('\n');
   if (svg.includes('marker-end="url(#arrowhead)"')) {
     svg = svg.replace('</svg>', '');
-    svg += `\n<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>\n</svg>`;
+    svg += `\n<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4A4540" /></marker></defs>\n</svg>`;
   }
 
   fs.writeFileSync(outputPath, svg);

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-104 -20 954 435" width="954" height="435">
+<rect x="-104" y="-20" width="954" height="435" fill="#F0ECE6" />
+<rect x="80" y="95" width="100" height="26" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="110" y="170" width="120" height="26" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="310" y="170" width="120" height="26" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="50" y="240" width="42" height="22" fill="#D8D4CE" stroke="#B0ACA6" stroke-width="2" rx="4" />
+<rect x="98" y="240" width="42" height="22" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="146" y="240" width="42" height="22" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="194" y="240" width="42" height="22" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="242" y="240" width="42" height="22" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="290" y="240" width="42" height="22" fill="#D8D4CE" stroke="#B0ACA6" stroke-width="2" rx="4" />
+<rect x="338" y="240" width="42" height="22" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="386" y="240" width="42" height="22" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="490" y="98" width="80" height="22" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="490" y="126" width="80" height="22" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="490" y="154" width="80" height="22" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="610" y="98" width="80" height="22" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="610" y="126" width="80" height="22" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="610" y="154" width="80" height="22" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="730" y="98" width="80" height="22" fill="#D0CCD8" stroke="#A098B0" stroke-width="2" rx="4" />
+<rect x="730" y="126" width="80" height="22" fill="#D0CCD8" stroke="#A098B0" stroke-width="2" rx="4" />
+<rect x="730" y="154" width="80" height="22" fill="#D0CCD8" stroke="#A098B0" stroke-width="2" rx="4" />
+<rect x="490" y="228" width="340" height="50" fill="#E0DCD6" stroke="#B8B4AE" stroke-width="2" rx="4" />
+<rect x="490" y="300" width="340" height="38" fill="#E0DCD6" stroke="#B8B4AE" stroke-width="2" rx="4" />
+<rect x="50" y="370" width="80" height="18" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="140" y="370" width="120" height="18" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="270" y="370" width="120" height="18" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="400" y="370" width="110" height="18" fill="#D8D4CE" stroke="#B0ACA6" stroke-width="2" rx="4" />
+<rect x="520" y="370" width="100" height="18" fill="#D0CCD8" stroke="#A098B0" stroke-width="2" rx="4" />
+<path d="M 435 50 L 435 395" fill="none" stroke="#908A84" stroke-width="1" />
+<text x="440" y="20" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4540" text-anchor="middle">Sparse Attn Kernel: Per-token Gather + Zero-waste MQA</text>
+<text x="220" y="52" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">(a) per-token gather from HBM</text>
+<text x="50" y="75" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">outer loop: for i in range(L):</text>
+<text x="130" y="108" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">qi = q[i]</text>
+<text x="200" y="106" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">[H, d]</text>
+<text x="50" y="130" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">inner loop: for t in range(num_blocks):</text>
+<text x="50" y="148" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">topk_ids[i] sliced into sub-blocks (blk=3):</text>
+<text x="170" y="183" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">1  4  6</text>
+<text x="60" y="183" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">t=0</text>
+<text x="170" y="204" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">sub-block t=0 ids</text>
+<text x="370" y="183" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">2  7  3</text>
+<text x="260" y="183" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">t=1</text>
+<text x="370" y="204" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">sub-block t=1 ids</text>
+<text x="50" y="222" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">HBM kv:</text>
+<text x="71" y="251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">k0</text>
+<text x="119" y="251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">k1</text>
+<text x="167" y="251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">k2</text>
+<text x="215" y="251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">k3</text>
+<text x="263" y="251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">k4</text>
+<text x="311" y="251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">k5</text>
+<text x="359" y="251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">k6</text>
+<text x="407" y="251" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">k7</text>
+<text x="220" y="275" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">kv[:, idxs] - only K of L slots touched</text>
+<text x="220" y="292" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">next qi[i+1] - different sparse subset</text>
+<text x="660" y="52" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">(b) zero-waste MQA attention</text>
+<text x="530" y="78" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">qi [H, d]</text>
+<text x="650" y="78" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">kv_block [blk, d]</text>
+<text x="770" y="78" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">scores [H, blk]</text>
+<text x="530" y="109" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">head 0</text>
+<text x="530" y="137" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">head 1</text>
+<text x="530" y="165" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">head 2</text>
+<text x="585" y="134" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">@</text>
+<text x="650" y="109" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k[idx0]</text>
+<text x="650" y="137" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k[idx1]</text>
+<text x="650" y="165" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k[idx2]</text>
+<text x="705" y="134" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">=</text>
+<text x="770" y="109" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">s[0,:]</text>
+<text x="770" y="137" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">s[1,:]</text>
+<text x="770" y="165" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">s[2,:]</text>
+<text x="530" y="201" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">[H x d]</text>
+<text x="650" y="201" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">[blk x d]</text>
+<text x="770" y="201" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">[H x blk]</text>
+<text x="660" y="253" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">no mask - zero-waste</text>
+<text x="660" y="249" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">only gathered KV in SRAM</text>
+<text x="660" y="263" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">unselected positions never enter GEMM</text>
+<text x="660" y="319" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">scores @ V_block -&gt; acc_o [H, d]</text>
+<text x="660" y="335" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">one GEMM scores all H heads</text>
+<text x="90" y="379" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">query qi</text>
+<text x="200" y="379" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">sub-block t=0 KV</text>
+<text x="330" y="379" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">sub-block t=1 KV</text>
+<text x="455" y="379" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">unselected / skipped</text>
+<text x="570" y="379" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">attention scores</text>
+</svg>

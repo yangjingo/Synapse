@@ -117,7 +117,7 @@ function place(x, y, w, h, type, token, text, fontSize = 15) {
   });
 
   // Text vertically centered in the box
-  const textH = ml ? h - 8 : 24;
+  const textH = ml ? h - 8 : 2 * fontSize;
   elements.push({
     type: 'text', id: tid,
     x: x + 8, y: y + (ml ? 4 : (h - textH) / 2),
@@ -404,7 +404,11 @@ function baseProps(id, type, x, y, w, h, token) {
 function _calcEdgePoints(a, b) {
   const dx = b.cx - a.cx, dy = b.cy - a.cy;
   let x1, y1, x2, y2;
-  if (Math.abs(dx) > Math.abs(dy)) {
+  // Prefer vertical when source is clearly above/below target
+  if (a.bot <= b.y || b.bot <= a.y) {
+    if (dy > 0) { x1 = a.cx; y1 = a.bot; x2 = b.cx; y2 = b.y; }
+    else { x1 = a.cx; y1 = a.y; x2 = b.cx; y2 = b.bot; }
+  } else if (Math.abs(dx) > Math.abs(dy)) {
     if (dx > 0) { x1 = a.right; y1 = a.cy; x2 = b.x; y2 = b.cy; }
     else { x1 = a.x; y1 = a.cy; x2 = b.right; y2 = b.cy; }
   } else {

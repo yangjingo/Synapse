@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-49 -20 925 435" width="925" height="435">
+<rect x="-49" y="-20" width="925" height="435" fill="#F0ECE6" />
+<rect x="30" y="115" width="52" height="24" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="90" y="115" width="52" height="24" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="150" y="115" width="52" height="24" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="210" y="115" width="52" height="24" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="270" y="115" width="52" height="24" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="330" y="115" width="52" height="24" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="30" y="180" width="70" height="24" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="108" y="180" width="70" height="24" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="186" y="180" width="70" height="24" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="30" y="243" width="352" height="28" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="390" y="243" width="226" height="28" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="464" y="85" width="120" height="26" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="600" y="85" width="120" height="26" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="736" y="85" width="120" height="26" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="464" y="160" width="392" height="30" fill="#E0DCD6" stroke="#B8B4AE" stroke-width="2" rx="4" />
+<rect x="510" y="255" width="300" height="34" fill="#D8D4CE" stroke="#A8A49E" stroke-width="2" rx="4" />
+<rect x="30" y="340" width="100" height="18" fill="#C0B8C8" stroke="#9088A0" stroke-width="2" rx="4" />
+<rect x="140" y="340" width="120" height="18" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="270" y="340" width="90" height="18" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="370" y="340" width="100" height="18" fill="#E0DCD6" stroke="#B8B4AE" stroke-width="2" rx="4" />
+<rect x="480" y="340" width="100" height="18" fill="#D8D4CE" stroke="#A8A49E" stroke-width="2" rx="4" />
+<path d="M 435 50 L 435 395" fill="none" stroke="#908A84" stroke-width="1" />
+<path d="M 524 111 L 524 160" fill="none" stroke="#887E9A" stroke-width="1" marker-end="url(#arrowhead)" />
+<path d="M 660 111 L 660 160" fill="none" stroke="#9088A0" stroke-width="1" marker-end="url(#arrowhead)" />
+<path d="M 796 111 L 796 160" fill="none" stroke="#7A9188" stroke-width="1" marker-end="url(#arrowhead)" />
+<path d="M 660 190 L 660 255" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<text x="440" y="21" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4540" text-anchor="middle">Sparse Attn Input: KV Layout and Index Assembly</text>
+<text x="200" y="57" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">(a) KV memory layout</text>
+<text x="200" y="70" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">kv = cat(K, cK)  shape: [2, L+L_c, d]</text>
+<text x="30" y="97" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">K (original):</text>
+<text x="56" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k0</text>
+<text x="116" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k1</text>
+<text x="176" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k2</text>
+<text x="236" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k3</text>
+<text x="296" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k4</text>
+<text x="356" y="127" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">k5</text>
+<text x="56" y="152" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">0</text>
+<text x="116" y="152" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">1</text>
+<text x="176" y="152" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">2</text>
+<text x="236" y="152" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">3</text>
+<text x="296" y="152" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">4</text>
+<text x="356" y="152" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">5</text>
+<text x="30" y="162" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">cK (compressed):</text>
+<text x="65" y="192" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">ck[0]</text>
+<text x="143" y="192" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">ck[1]</text>
+<text x="221" y="192" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">ck[2]</text>
+<text x="65" y="217" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">6</text>
+<text x="143" y="217" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">7</text>
+<text x="221" y="217" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">8</text>
+<text x="30" y="225" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">kv (concatenated):</text>
+<text x="206" y="257" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">K [idx 0-5]</text>
+<text x="503" y="257" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">ck [idx 6-8]</text>
+<text x="303" y="283" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">unified address space for gather</text>
+<text x="660" y="57" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4540" text-anchor="middle">(b) topk_ids assembly</text>
+<text x="524" y="98" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">SWA ids</text>
+<text x="524" y="120" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">e.g., [3, 4, 5]</text>
+<text x="660" y="98" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">Sparse ids</text>
+<text x="660" y="120" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">e.g., [1, 4]</text>
+<text x="796" y="98" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">cKV ids</text>
+<text x="796" y="120" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">e.g., [6, 7]</text>
+<text x="660" y="175" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">topk_ids[i] = cat(swa, sparse, compress)</text>
+<text x="660" y="199" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908A84" text-anchor="middle">e.g., [3, 4, 5, 1, 4, 6, 7] - unordered</text>
+<text x="660" y="225" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">ids are NOT sorted - gather uses scatter</text>
+<text x="660" y="272" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#4A4540" text-anchor="middle">kv[:, topk_ids[i]] - gathered KV subset</text>
+<text x="660" y="300" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908A84" text-anchor="middle">shape: [2, K, d] where K = |topk_ids|</text>
+<text x="80" y="349" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">original K</text>
+<text x="200" y="349" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">compressed KV</text>
+<text x="315" y="349" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">SWA ids</text>
+<text x="420" y="349" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">assembled topk_ids</text>
+<text x="530" y="349" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4540" text-anchor="middle">gathered subset</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4A4540" /></marker></defs>
+</svg>

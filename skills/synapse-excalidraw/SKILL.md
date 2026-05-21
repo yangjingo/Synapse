@@ -443,7 +443,7 @@ Only proceed to Phase 1 after all diagrams are confirmed.
 
 - **User confirmation required before export**: Always upload to excalidraw.com first, share the link with the user, and wait for approval. Never export (SVG/PNG/WebM) or integrate into downstream files without explicit user sign-off on the diagram content and layout.
 - Do not animate diagrams where a static version is equally clear
-- Always use dark mode background (`#1e1e2e`) for Synapse outputs
+- Background color must match palette: Morandi → `#F0ECE6` (light), Tailwind → `#1e1e2e` (dark). Never mix Morandi palette with dark background — contrast is too low
 - Camera must be 4:3 ratio — use presets: 400×300 (S), 600×450 (M), 800×600 (L), 1200×900 (XL)
 - All shapes get `roughness: 2` (hand-drawn) and `roundness: { "type": 3 }` by default
 - Font family must be `1` (Virgil/Excalifont handwritten)
@@ -466,11 +466,124 @@ Only proceed to Phase 1 after all diagrams are confirmed.
 
 When using `layout.js` to generate `.excalidraw` files programmatically:
 
-1. **All logical connections via `arrowBetween()`** — never use bare `arrow()` for relationships between shapes. `arrow()` is only for decorative/bracket paths with no semantic meaning.
+1. **Logical connections via `arrowBetween()` or `arrow()`** — use `arrowBetween()` when source and target centers are aligned. Use `arrow()` with exact coordinates for fan-in/fan-out patterns or when centers differ.
 2. **`validate()` must pass** — zero overlaps, zero text occlusion. If `autoFix()` is needed, re-run `validate()` to confirm clean.
 3. **Annotations must have complete content** — every `annotate()` call must have a real title and body with substantive text, not placeholder or empty strings.
 4. **Follow proven patterns** — reference `examples/gen-swa-attention.js` and `examples/gen-prefill-decode.js` as the canonical examples of working layout.js scripts.
 5. **Avoid raw `L.elements.push()`** unless building grid cells (like swa-attention's matrix). Use the `place()`/`below()`/`rightOf()` API for proper layout tracking and collision detection.
+6. **Min gap 8px between regions** — `layout.js validate()` uses minGap=4, but leave ≥8px between independent regions to avoid overlap warnings and ensure visual breathing room.
+
+### Arrow Rules (MANDATORY)
+
+1. **No polylines / bent arrows** — every arrow is a straight 2-point line. Never generate 3-point paths (down→across→down or right→down→right). When elements aren't aligned for a straight arrow, **move the elements**, not the arrow path.
+2. **Edge-center endpoints** — arrows must start and end at shape edge centers:
+   - Vertical arrows: `source.cx, source.bot` → `target.cx, target.y` (bottom-center → top-center)
+   - Horizontal arrows: `source.right, source.cy` → `target.x, target.cy` (right-center → left-center)
+3. **`_calcEdgePoints()` direction logic** — uses spatial containment, not geometric distance. When source is above target (`a.bot <= b.y`), the arrow is always vertical regardless of horizontal offset. This prevents fan-out arrows from incorrectly choosing horizontal direction when children are spread wide.
+4. **Fan-in (many→one): widen target** — when multiple sources feed one target, widen the target box to span all source cx values. Then use `arrow()` with exact coordinates: `arrow(src.cx, src.bot, src.cx, target.y, color, sw, 'arrow')` — each arrow is vertical (x1=x2), landing on the widened target top edge at the source's own x position.
+5. **Fan-out (one→many): T-junction pattern** — never use diagonal arrows for fan-out. Instead:
+   - Vertical stub from `source.cx, source.bot` down to a junction y (midpoint between source and targets)
+   - Horizontal connector line from leftmost target cx to rightmost target cx at junction y (using `arrow()` with no arrowhead)
+   - Vertical drops from junction y to each target top: `arrow(tgt.cx, junctionY, tgt.cx, tgt.y, color, sw, 'arrow')`
+6. **`arrow()` vs `arrowBetween()`** — use `arrow()` with exact coords for fan-in/fan-out and any path where centers don't align. Use `arrowBetween()` only when source and target centers are perfectly aligned. `arrowBetween()` routes center-to-center and creates diagonals when cx values differ.
+7. **Arrowhead marker color** — `exc-to-svg.js` arrowhead fill must match palette ink color (Morandi: `#4A4540`, NOT `#1e1e2e`). Verify after SVG export.
+
+### Two-Column Comparison Layout
+
+When rendering side-by-side comparison diagrams (e.g., "before vs after", "approach A vs B"):
+
+1. **Symmetric center axis** — divider at canvas center (x=400). Each section anchors to its own center point (`leftCx=200`, `rightCx=600`). All content positioned via `centerCx - width/2`, never hardcoded.
+2. **Equal visual density** — both columns must span similar physical width. If one is naturally narrower, enlarge elements or widen spacing to match. Asymmetric density = "one side is an afterthought".
+3. **Vertical rhythm mirror** — headers at same y, content blocks at same y, annotations at same y, bottom summaries at same y. The two halves should read in parallel.
+4. **Stack below, not beside** — supplementary info (stats, annotations) goes below the main content block, centered within the column. Hanging it to the side breaks the equal-width symmetry.
+5. **Divider stops before legend** — the vertical divider line must end above the legend area (`divider endY = legend Y - 15px`). The legend spans the full width below both columns and must not be split by the divider.
+6. **No text or boxes near the divider** — all text labels and box edges must stay ≥30px away from the divider (x=400). Text centered near x=400 will visually cross the divider. Move labels into their column's interior (e.g., combine q label + window info into one box) or center them at `leftCx`/`rightCx`.
+7. **Shared Y anchors across columns** — define shared Y constants (`kvY`, `qTopY`, `annY`, `sumBoxY`) used by BOTH columns. Elements that serve the same role (KV row, Q area, annotation, summary) must share the same Y position so the two halves read in parallel.
+
+### Container & placeInside Alignment Rules
+
+1. **No skip-level arrows** — if intermediate elements exist between two flow nodes (e.g., k-cells between scores and filter), they must be wrapped inside a parent flow node via `placeInside()`, or placed outside the arrow path as annotation. Never let an arrow pass through non-flow elements.
+2. **Center children with math, not hardcoded offsets** — use `(parentW - childTotalWidth) / 2` for horizontal centering. Left-aligned children inside a centered parent break visual symmetry.
+3. **Minimum cell size for text centering** — SVG renderer positions text baseline at `el.y + fontSize`, making text appear top-heavy in small cells. Use cell height ≥24px with fontSize ≤10. Cells smaller than 20px tall will look misaligned. `layout.js` uses `textH = 2 * fontSize` to ensure baseline lands at box center.
+4. **Equal parent box width in two-column layouts** — even when one column has 7 child cells and the other has 2, the parent boxes must share the same width. Use internal padding + centering to absorb the difference.
+5. **childOffY accounts for label height** — `_moveLabelToTop()` places label at `parent.y + 3`, occupying ~fontSize px. Children need `offsetY ≥ 3 + fontSize + gap` (≥24px for fontSize=10) to avoid overlapping the label.
+6. **Custom light containers for pure grouping** — when a container wraps children purely for visual grouping (no semantic meaning), use a custom light color `{ fill: '#E8E2DA', stroke: '#B0A898' }` instead of a palette token. This avoids semantic color collision — the container is visually distinct from children that carry semantic palette colors.
+
+### Container & Annotation Layout Rules
+
+1. **No cross-container arrows** — when sub-boxes live inside different parent boxes (created via `placeInside()`), never draw arrows between them. Arrows crossing parent box boundaries create visual clutter and confuse the containment hierarchy. Instead, use **text labels** inside the target block (e.g., `← from NSA`) to indicate provenance or inheritance.
+2. **Per-element annotations** — every ✓/× annotation must sit **directly below the sub-box it describes**, with text that names the explicit correspondence (e.g., `✓ → Compressed KV` under a "Compress" box). Generic pros/cons annotations that float near the parent box without pointing to a specific child are ambiguous and misleading.
+3. **Box titles are concise names only** — no URLs, no arXiv references, no parenthetical explanations inside the title label. Keep it to the component name (e.g., `NSA`, `DSA`, `V4 Attention`). Context and explanations go into annotation text, not the title.
+4. **Color-code kept vs. removed** — when showing which sub-components survive into a next generation, assign positive semantic colors (addnorm, embedding) to kept components and the `cross` role to removed/replaced ones. This gives immediate visual feedback without reading text.
+
+### Technical Diagram Quality Rules (MANDATORY)
+
+These rules distinguish "system design diagram" from "PPT sketch". Every generated diagram must feel **solid, ordered, systematic** — not hand-placed.
+
+#### 1. Strict Grid Alignment
+- All boxes at the same hierarchical level must have **identical width, height, padding, and font size**
+- Internal module spacing must be **uniform** — no ad-hoc gaps
+- Grid cells use consistent size with explicit gaps (≥4px between cells)
+- Violation = "手工摆放感" — the single biggest source of "cheap" appearance
+
+#### 2. Single Flow Direction
+- Diagrams must follow **one reading path**: either top→down or left→right
+- Never mix vertical and horizontal flow in the same diagram
+- Reading path must equal data/logic flow direction
+- User's eye should never "jump" backwards or diagonally
+
+#### 3. No Crossing / Diagonal Arrows
+- All arrows must be **orthogonal** (pure horizontal or pure vertical)
+- Arrows must never cross — crossing = cognitive load explosion
+- When source and target aren't aligned, **move the elements**, not the arrow path
+- Use elbow routing (vertical→horizontal→vertical) if needed, but prefer repositioning
+- Use fan-in widening (rule 4) or T-junction fan-out (rule 5) from Arrow Rules section
+
+#### 4. Semantic Color Uniqueness
+- **One color = one meaning only**. Never reuse a color for different semantic roles
+- Assign colors by **feature type** (compression, indexing, windowing), not by source system
+- `cross` role = removed/deprecated, should feel clearly "disabled" — not just a different active module
+- The "main" or "final" element (e.g., V4) must be visually dominant: deeper border, stronger title, wider padding
+
+#### 5. Information Density Discipline
+- Annotations must align to a **column system** — no floating text
+- Secondary text (source labels, footnotes) must share a baseline
+- Border styles carry meaning: solid = active boundary, dashed = optional/deprecated
+- Every visual element must earn its place — if removing it doesn't lose information, remove it
+
+#### 6. No Formulas in Architecture Diagrams
+- Architecture diagrams are **pure visual** — colors, arrows, and labels speak for themselves
+- Mathematical formulas (`softmax(QK^T/√d)V`, loss functions, etc.) belong in blog text or footnotes, not inside diagram boxes
+- Box labels should name the operation (e.g., "Attention Score", "Softmax"), not spell out the math
+- Exception: dimension annotations like `[H, d]` or shape labels are allowed — they describe data flow, not equations
+
+### Standard Utility Colors
+
+Beyond the semantic palette tokens, these utility colors are used across diagrams for structural elements. Max 5 semantic + 2 utility colors per diagram.
+
+| Name | Fill | Stroke | Use When |
+|------|------|--------|----------|
+| Container (warm) | `#E8E2DA` | `#B0A898` | Grouping box, neutral parent |
+| Container (cool) | `#E0DCD6` | `#B8B4AE` | Annotation box, secondary container |
+| Neutral / Skip | `#D8D4CE` | `#B0ACA6` | Unselected, skipped, unused positions |
+| Warm Sand | `#C8B8B0` | `#9A8E88` | Distinct warm-tone concept |
+| Steel Blue | `#B0B8C8` | `#8088A0` | Distinct cool-tone concept |
+| Dusty Lavender | `#C0B8C8` | `#9088A0` | Query, input elements |
+| Score / Result | `#D0CCD8` | `#A098B0` | Output scores, results |
+| Gathered Subset | `#D8D4CE` | `#A8A49E` | Gathered/filtered data |
+
+**Usage pattern:**
+```javascript
+const containerBg = { fill: '#E0DCD6', stroke: '#B8B4AE' };
+const skipColor   = { fill: '#D8D4CE', stroke: '#B0ACA6' };
+const scoreColor  = { fill: '#D0CCD8', stroke: '#A098B0' };
+```
+
+### autoFix() Safety
+
+- `autoFix()` shifts overlapping elements downward, which can **break intentional alignment** (e.g., legend rows at the same y).
+- **Skip `autoFix()` when `validate()` passes** — only use it to resolve reported overlaps.
+- For legend rows: space items with ≥16px gap to prevent overlap, then skip `autoFix()`.
 
 ### Annotation Protocol
 

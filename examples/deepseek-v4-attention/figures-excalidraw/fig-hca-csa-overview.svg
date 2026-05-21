@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="15.400000000000006 -5 814.0000000000001 522" width="814.0000000000001" height="522">
+<rect x="15.400000000000006" y="-5" width="814.0000000000001" height="522" fill="#F0ECE6" />
+<rect x="150" y="80" width="100" height="38" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="68" y="195" width="120" height="44" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="203" y="195" width="130" height="44" fill="#B4C4B6" stroke="#7E9A84" stroke-width="2" rx="4" />
+<rect x="100" y="290" width="200" height="44" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="150" y="382" width="100" height="38" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="560" y="80" width="100" height="38" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="430" y="195" width="110" height="44" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="555" y="195" width="110" height="44" fill="#C8BFB0" stroke="#9A8E7E" stroke-width="2" rx="4" />
+<rect x="680" y="195" width="110" height="44" fill="#B4C4B6" stroke="#7E9A84" stroke-width="2" rx="4" />
+<rect x="475" y="290" width="270" height="44" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="560" y="382" width="100" height="38" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="130" y="470" width="120" height="22" fill="#B8B4C4" stroke="#887E9A" stroke-width="2" rx="4" />
+<rect x="266" y="470" width="110" height="22" fill="#B8C4C0" stroke="#7A9188" stroke-width="2" rx="4" />
+<rect x="392" y="470" width="110" height="22" fill="#C8BFB0" stroke="#9A8E7E" stroke-width="2" rx="4" />
+<rect x="518" y="470" width="110" height="22" fill="#B4C4B6" stroke="#7E9A84" stroke-width="2" rx="4" />
+<path d="M 200 118 L 200 155" fill="none" stroke="#4A4540" stroke-width="2" />
+<path d="M 128 155 L 268 155" fill="none" stroke="#4A4540" stroke-width="1" />
+<path d="M 128 155 L 128 195" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 268 155 L 268 195" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 128 239 L 128 290" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 268 239 L 268 290" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 200 334 L 200 382" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 610 118 L 610 155" fill="none" stroke="#4A4540" stroke-width="2" />
+<path d="M 485 155 L 735 155" fill="none" stroke="#4A4540" stroke-width="1" />
+<path d="M 485 155 L 485 195" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 610 155 L 610 195" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 735 155 L 735 195" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 485 239 L 485 290" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 610 239 L 610 290" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 735 239 L 735 290" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 610 334 L 610 382" fill="none" stroke="#4A4540" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 396 50 L 396 490" fill="none" stroke="#908A84" stroke-width="2" />
+<text x="400" y="38" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="18" fill="#4A4540" text-anchor="middle">HCA vs CSA — Attention Component Recipe</text>
+<text x="200" y="59" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">(a) HCA — Heavily Compressed Attention</text>
+<text x="610" y="59" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">(b) CSA — Compressed Sparse Attention</text>
+<text x="200" y="99" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4540" text-anchor="middle">Query Q</text>
+<text x="128" y="217" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">SWA Window</text>
+<text x="268" y="217" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4540" text-anchor="middle">Compressed KV</text>
+<text x="200" y="312" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4540" text-anchor="middle">Attention</text>
+<text x="200" y="401" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4540" text-anchor="middle">Output O</text>
+<text x="128" y="254" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#908A84" text-anchor="middle">local bypass</text>
+<text x="268" y="253" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#908A84" text-anchor="middle">w_compress · ratio=128</text>
+<text x="200" y="442" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#908A84" text-anchor="middle">2 paths · local SWA + long-range compressed</text>
+<text x="610" y="99" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4540" text-anchor="middle">Query Q</text>
+<text x="485" y="217" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">SWA Window</text>
+<text x="610" y="217" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">Sparse Top-k</text>
+<text x="735" y="217" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4540" text-anchor="middle">Compressed</text>
+<text x="610" y="312" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4540" text-anchor="middle">sparse_attn</text>
+<text x="610" y="401" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4540" text-anchor="middle">Output O</text>
+<text x="485" y="249" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#908A84" text-anchor="middle">local recent tokens</text>
+<text x="610" y="249" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#908A84" text-anchor="middle">indexer raw tokens</text>
+<text x="735" y="249" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#908A84" text-anchor="middle">long-range cKV blocks</text>
+<text x="610" y="442" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#908A84" text-anchor="middle">3 paths · local + sparse + long-range · unified kernel</text>
+<text x="190" y="481" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">Query / Attn</text>
+<text x="321" y="481" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">SWA window</text>
+<text x="447" y="481" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">Sparse top-k</text>
+<text x="573" y="481" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4540" text-anchor="middle">Compressed KV</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4A4540" /></marker></defs>
+</svg>
