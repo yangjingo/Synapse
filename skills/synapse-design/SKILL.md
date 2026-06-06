@@ -76,9 +76,8 @@ If created during reasoning, collapse them into the final two outputs instead of
 
 Read only what is needed:
 
-1. `references/WHYJ-SLIDES.html` — slides rendering template (Reveal.js + KaTeX + pretext)
-2. `references/SLIDES-STYLE.md` — slides visual style guide
-3. `references/e2e-v6.0-*.html` — E2E evaluation outputs (4 files, reference for slides/blog rendering quality)
+1. **Slides profile** — resolve `{design.slides.profile}` first (see [Slides Design Profile](#slides-design-profile-designmd-placeholder) below)
+2. `references/e2e-v6.0-*.html` — E2E evaluation outputs (4 files, reference for slides/blog rendering quality)
 4. Main `examples/` directory — full forge→render pipeline outputs:
    - `cli-revolution/` — CLI Revolution (slides DSL + blog DSL + slides HTML + blog HTML)
    - `deepseek-v4/` — DeepSeek-V4 (slides DSL + blog DSL + slides HTML + blog HTML)
@@ -224,8 +223,10 @@ Inside `blog.html`, produce:
 
 When the task also includes presentation:
 
+- resolve `{design.slides.profile}` and ask the user if unset (Excalidraw vs Serif)
+- use the matching `design-md/*-slides-design.md` stub as the DESIGN.md source for the deck
 - use DESIGN.md-like language to define visual rules in prose
-- use real `pretext` integration, not hand-wavy imitation, when the page depends on text geometry
+- use real `pretext` integration only when `{design.slides.profile}` is `excalidraw-slides`
 - use image generation planning only after the figure spec is explicit
 - keep remotion-style scene thinking as optional internal planning, not as a final required output
 
@@ -286,6 +287,31 @@ When the HTML artifact needs a specific visual identity:
 4. Map component tokens to HTML/CSS classes in the blog output
 
 The design tokens must serve the technical argument, not override it.
+
+### Slides Design Profile (DESIGN.md Placeholder)
+
+Slides use a **separate** DESIGN.md placeholder from blog HTML. Before rendering or restyling any deck, resolve:
+
+```
+{design.slides.profile}  →  excalidraw-slides  |  serif-slides
+```
+
+**If the user has not chosen a profile, ask:**
+
+> 请选择 Slides 视觉风格：
+> 1. **Excalidraw 手绘剧场** — 白底网格、Gochi Hand、粗黑边框、pretext 动画、Excalidraw 插图
+> 2. **Claude 衬线编辑** — 奶油底、Cormorant + Noto Serif SC、hairline 分割线、blog 式自然排版
+
+Do not guess. Do not mix the two profiles in one deck.
+
+| Placeholder value | DESIGN.md stub | Style spec | HTML template |
+|---|---|---|---|
+| `excalidraw-slides` | `design-md/excalidraw-slides-design.md` | `references/SLIDES-STYLE.md` | `references/WHYJ-SLIDES.html` |
+| `serif-slides` | `design-md/serif-slides-design.md` | `references/SLIDES-STYLE-SERIF.md` | `examples/quant-agent/quant-agent-slides.html` (reference impl.) |
+
+After substitution, load **only** the row that matches `{design.slides.profile}`.
+
+Blog HTML may still use `design-md/claude-design.md` or other blog profiles — slides profile is independent.
 
 ### Reference
 
