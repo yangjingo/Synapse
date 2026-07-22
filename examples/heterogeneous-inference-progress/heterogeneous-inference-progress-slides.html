@@ -1,0 +1,1284 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>异构推理进展 | Synapse v6.1</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&family=JetBrains+Mono&family=Poppins:wght@400;600;800&display=swap"
+        rel="stylesheet"
+      />
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --grid-line: #fafafa;
+        --main-color: #1e1e1e;
+        --accent-claude: #d97757;
+        --accent-blue: #6a9bcc;
+        --accent-green: #788c5d;
+        --item-bg: rgba(217, 119, 87, 0.05);
+        --strong-bg: rgba(217, 119, 87, 0.12);
+        --font-hand: "Gochi Hand", cursive;
+        --font-mono: "JetBrains Mono", monospace;
+        --font-head: "Poppins", sans-serif;
+        --shadow: 12px 12px 0px #1e1e1e;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      .reveal { font-family: var(--font-hand); color: var(--main-color); }
+      .reveal .slides { text-align: left; }
+
+      /* ── pretext animated background ── */
+      .pretext-stage {
+        position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none;
+      }
+      .pretext-stage::after {
+        content: ""; position: absolute; inset: 0;
+        background:
+          linear-gradient(180deg, var(--bg-color), transparent 14%, transparent 86%, var(--bg-color)),
+          linear-gradient(90deg, var(--bg-color), transparent 8%, transparent 92%, var(--bg-color));
+        opacity: 0.88;
+      }
+      .pretext-bg { position: absolute; inset: 0; }
+      .pretext-bg .pt-line {
+        position: absolute; left: 24px; right: 24px; white-space: nowrap;
+        font-family: var(--font-head); font-size: clamp(14px, 1.6vw, 20px);
+        font-weight: 600; letter-spacing: -0.03em;
+        color: rgba(30, 30, 30, 0.06); transform-origin: left center;
+        will-change: transform, opacity; user-select: none;
+      }
+      .pretext-bg .pt-line.pt-orange { color: rgba(217, 119, 87, 0.10); }
+      .pretext-bg .pt-line.pt-blue { color: rgba(106, 155, 204, 0.09); }
+      .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.08); }
+      .slide-content { position: relative; z-index: 1; }
+
+      /* ── slide structure ── */
+      .header-layer {
+        border-bottom: 8px solid var(--main-color); margin-bottom: 40px;
+        padding-bottom: 20px; position: relative;
+      }
+      .header-layer h2 {
+        font-family: var(--font-hand) !important; font-weight: 800;
+        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+        margin: 0 !important; color: var(--main-color) !important;
+        text-transform: none !important;
+      }
+      .ui-label {
+        position: absolute; top: -30px; right: 0; font-size: 1rem;
+        opacity: 0.3; letter-spacing: 2px; text-transform: uppercase;
+      }
+      .canvas-layer {
+        display: grid; grid-template-columns: 65% 35%; gap: 40px;
+        align-items: start; min-height: 500px;
+      }
+      .canvas-layer.push-left {
+        display: flex !important; justify-content: flex-start !important;
+        align-items: center !important; width: 100%; min-height: 500px; padding-left: 5%;
+      }
+      .canvas-footer {
+        display: flex !important; justify-content: flex-start !important;
+        align-items: flex-start !important; width: 100%; min-height: 500px;
+        padding-left: 5%; padding-top: 10px;
+      }
+      .canvas-footer .canvas-text { width: 100%; }
+      .canvas-text { font-size: clamp(1.1rem, 2.2vw, 2rem); line-height: 1.3; }
+      .canvas-text ul { list-style: none; padding: 0; margin: 0; }
+      .canvas-text li {
+        margin-bottom: 20px; position: relative;
+        padding: 10px 10px 10px 45px; border-radius: 6px;
+      }
+      .canvas-text li::before {
+        content: "→"; position: absolute; left: 10px;
+        font-weight: 800; color: var(--accent-claude);
+      }
+      .no-bullet .canvas-text li { padding-left: 20px; }
+      .no-bullet .canvas-text li::before { content: ""; }
+      strong, mark {
+        background: var(--strong-bg); padding: 0 6px; border-radius: 4px;
+        display: inline-block; transform: rotate(-0.5deg); font-weight: 800;
+        color: inherit;
+      }
+      .visual-box {
+        border: 5px solid var(--main-color); background: #fff; min-height: 380px;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        padding: 25px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+        transform: scale(var(--visual-scale, 1)) translateY(var(--visual-y, 0));
+        transform-origin: center;
+      }
+      .visual-box img { width: 100%; max-height: 320px; object-fit: contain; }
+      .visual-box img { cursor: zoom-in; }
+      .visual-caption {
+        display: none;
+      }
+      .visual-lightbox {
+        position: fixed; inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(20, 20, 20, 0.86);
+        z-index: 9999;
+        padding: 24px;
+        backdrop-filter: blur(2px);
+      }
+      .visual-lightbox.open { display: flex; }
+      .visual-lightbox-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: min(96vw, 1600px);
+        max-height: 95vh;
+        gap: 12px;
+      }
+      .visual-lightbox img {
+        max-width: 100%;
+        max-height: min(82vh, 80rem);
+        width: auto; height: auto;
+        object-fit: contain;
+        border: 5px solid #fff;
+        box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+      }
+      .visual-lightbox-caption {
+        width: 100%;
+        color: #f2f2f2;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        text-align: left;
+        white-space: pre-line;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.45);
+        border-radius: 6px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+        max-width: 100%;
+        max-height: 12vh;
+        overflow: auto;
+      }
+      .visual-lightbox-close {
+        position: absolute; top: 20px; right: 24px;
+        width: 44px; height: 44px;
+        border: 4px solid #fff;
+        border-radius: 50%;
+        background: transparent;
+        color: #fff;
+        font-size: 24px;
+        line-height: 36px;
+        cursor: pointer;
+      }
+      .code-container {
+        background: #1e1e1e; padding: 15px; border-radius: 4px;
+        font-family: var(--font-mono); font-size: 0.8rem; color: #d4d4d4;
+        overflow: hidden; width: 100%;
+      }
+      .pulse-layer {
+        position: absolute; bottom: 20px; left: 55px; background: #fff;
+        border: 6px solid var(--main-color); padding: 20px 40px;
+        transform: rotate(var(--pulse-rotate, -1.5deg)) translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1));
+        box-shadow: var(--shadow); font-weight: 800;
+        font-size: clamp(1.2rem, 2vw, 2.2rem); z-index: 10; transform-origin: center;
+      }
+      .pulse-animated {
+        transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease;
+      }
+      .pulse-animated:hover {
+        transform: rotate(0deg) scale(1.06); box-shadow: 14px 14px 0px #1e1e1e;
+      }
+      .ref-list li { margin-bottom: 12px; font-size: 1.1rem; }
+      .ref-list a { color: inherit; text-decoration: none; }
+      .ref-list a:hover { text-decoration: underline; color: var(--accent-claude); }
+      .reference-tag {
+        font-size: 0.8rem; opacity: 0.5; margin-top: 10px; display: block;
+        color: var(--accent-claude) !important; text-decoration: none;
+      }
+      .reference-tag:hover { opacity: 1; text-decoration: underline; }
+      .reveal .slides section .fragment {
+        opacity: 0; transform: translateY(20px);
+        transition: opacity 400ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .reveal .slides section .fragment.visible {
+        opacity: 1; transform: translateY(0);
+      }
+      .footer-watermark {
+        position: absolute; bottom: 30px; right: 30px;
+        font-family: var(--font-hand); font-size: 0.8rem; opacity: 0.1; color: #999; z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-transition="none">
+          <div
+            class="header-layer"
+            style="border-bottom: none; padding-left: 5%; margin-top: 15%"
+          >
+              <div class="ui-label">00 / Cover</div>
+              <h1 style="font-size: 4.5rem; font-weight: 800; line-height: 1">
+                异构推理：从部署范式到 Token 产业
+              </h1>
+              <h2
+                style="margin-top: 24px; color: var(--accent-claude) !important"
+              >
+                不同厂商、不同代际、不同架构、不同计算阶段与不同资源层级
+              </h2>
+              <div
+                style="
+                  margin-top: 48px;
+                  font-family: var(--font-hand);
+                  font-size: 1.2rem;
+                  line-height: 2;
+                  opacity: 0.8;
+                "
+              >
+                Version: <strong>Synapse v6.1</strong> &nbsp;&nbsp; Author:
+                <strong>Why.J</strong> &nbsp;&nbsp; Date:
+                <strong>2026/07/21</strong>
+              </div>
+            </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">01 / Context</div>
+              <h2>现状分析：异构的单位正在从“卡”迁移到“角色”</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>趋势</strong>：从共置执行走向 PD/PDD、动态 PD、AFD
+                    与算子级解耦，部署单元从整卡下沉到阶段、状态与算子。
+                  </li>
+                  <li>
+                    <strong>商业</strong
+                    >：创业公司分据资源控制、编译运行时、系统级协同和 Token
+                    运营；多数“多芯”仍是纳管或副本路由。
+                  </li>
+                  <li>
+                    <strong>开源</strong
+                    >：HAMi、llm-d、Dynamo、vLLM、SGLang、Mooncake、NIXL
+                    已拼出控制面与数据面；跨厂商状态契约仍是缺口。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 控制面已经能看见异构，数据面还在学习怎样承受异构。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-01-context-stack.png" alt="slide 01 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:六层异构推理栈的白板图。最上层为“业务与Token运营”，下三层为“跨集群协同”“跨芯片执行”“推理与训练引擎”“编译器与算子”“资源虚拟化”。用箭头表示从业务到算力池到模型执行层的收敛关系。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">02 / Agenda</div>
+              <h2>三条主线：趋势、商业、技术到落地</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text no-bullet">
+                <ul>
+                  <li class="fragment">
+                    <strong>Q1（Trend）</strong>：PD、PDD、PPD 与 AFD
+                    的新瓶颈是什么？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q2（Commercial）</strong
+                    >：谁在做卡池、运行时、单请求协同与 Token 产能？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q3（Open Source）</strong>：谁在做可组合的
+                    Connector、KV 与通信？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q4（Project）</strong
+                    >：哪条路线可验证、可回退并能逐步走向跨厂商异构？
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="footer-watermark">
+              whyj + heterogeneous-inference-progress + 2026/07/21
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">03 / Trend</div>
+              <h2>解耦演进：从“整机副本”到“算子角色”</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>2023–2024 / 共置阶段</strong>：Continuous
+                    Batching、PagedAttention 提高单副本效率，但 Prefill 干扰
+                    Decode。
+                  </li>
+                  <li>
+                    <strong>2024–2025 / PD=PDD</strong
+                    >：DistServe、Mooncake、分离式系统把 Prefill 与 Decode
+                    拆到独立池。
+                  </li>
+                  <li>
+                    <strong>2025–2026 / 自适应 PD</strong>：semi-PD、PPD、Phasor
+                    让 Prefill/Decode 的比例与扩缩成为在线决策。
+                  </li>
+                  <li>
+                    <strong>2026 / AFD 与 EPD</strong>：Attention/FFN 与
+                    Encode-Prefill-Decode 解耦，算子与阶段成为新调度对象。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 每多拆一层，就多一种硬件匹配机会，也多制造一次通信。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-03-trend-evolution.png" alt="slide 03 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:时间轴从2023到2026，节点标注“共置推理”“PD脱耦”“PDD多阶段”“AFD分离”。每个节点用箭头和短标注连接，突出阶段演进逻辑。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">04 / Trend</div>
+              <h2>PD / PDD：用阶段专用化换取 SLO 隔离</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>Prefill</strong
+                    >：输入并行度高、矩阵计算密集，主要影响
+                    TTFT，适合高吞吐低成本池。
+                  </li>
+                  <li>
+                    <strong>Decode</strong>：逐 Token、KV
+                    常驻、带宽敏感，主要影响 TPOT，适合 HBM 资源强的池。
+                  </li>
+                  <li>
+                    <strong>收益条件</strong>：模型足够大、输入足够长、P:D
+                    配比合理，并且 Prefill 干扰是主要瓶颈时收益最大。
+                  </li>
+                  <li>
+                    <strong>隐藏成本</strong>：KV
+                    传输、排队、尾延迟与故障恢复开销，决定最终净收益。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 PD 不是默认答案，阶段错配成本必须大于交接成本。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-04-pd-mechanism.png" alt="slide 04 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:Prefill 与 Decode 两个阶段模块：左侧高吞吐预填充节点，右侧按需逐Token解码节点，中间桥接KV缓存，标注TTFT与TPOT。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">05 / Trend</div>
+              <h2>Phasor：PD 之后，瓶颈变成动态控制</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>静态分池问题</strong>：长 Prompt 堆积在
+                    Prefill，Decode 可能因 KV 断粮出现假空闲。
+                  </li>
+                  <li>
+                    <strong>P / D / M</strong
+                    >：三池模型把计算与内存余量投影到统一虚拟自由度。
+                  </li>
+                  <li>
+                    <strong>三时间尺度闭环</strong
+                    >：路由（微秒）、去碎片（毫秒）、扩缩（秒）联动。
+                  </li>
+                  <li>
+                    <strong>证据边界</strong
+                    >：多数公开结论来自局部规模；跨厂商异构仍未系统化。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 从“能不能分”到“谁在何时接管”，是控制面的核心。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-05-phasor-control.png" alt="slide 05 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:三池调度图（Prefill、Decode、Memory）。三组小池通过控制环路箭头展示路由、去碎片、扩缩。白底黑线风格。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">06 / Trend</div>
+              <h2>AFD：把 Decode 再拆成 Attention 与 FFN</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>Attention / A</strong>：KV
+                    重、带宽与容量敏感，按上下文阶段变化明显。
+                  </li>
+                  <li>
+                    <strong>FFN / F</strong>：GEMM、MoE Experts
+                    计算密集，适合聚合大 Batch。
+                  </li>
+                  <li>
+                    <strong>新增代价</strong>：A↔F 每层每步传
+                    Activation，通信频率远高于 PD 的一次 KV 交接。
+                  </li>
+                  <li>
+                    <strong>核心结论</strong>：A:F 配比、互连拓扑和 SLO
+                    决定收益；错配会引发同步等待。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 AFD 不只是“拆”，是把资源角色重映射到最适合芯片。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-06-afd-loop.png" alt="slide 06 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:LLM层内AFD拆分示意，Attention和FFN双分支并列处理同一层输入，重拼接后输出至下一层，标注通信代价。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">07 / Trend</div>
+              <h2>下一步：Fully / Operator-level Disaggregation</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>方向</strong>：角色化 Worker 同时建模共置、PDD 与
+                    AFD。
+                  </li>
+                  <li>
+                    <strong>HexGen-3</strong
+                    >：把异构调度、流水线切分和细粒度扩缩统一为运行时可执行方案。
+                  </li>
+                  <li>
+                    <strong>ODS / CAD</strong
+                    >：输入模型+硬件画像+负载+SLO，输出角色→设备布局。
+                  </li>
+                  <li>
+                    <strong>关键瓶颈</strong
+                    >：标准化运行时、跨厂商通信协议、在线重规划仍未成熟。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 未来不再写“8 块卡”，而写“每个角色在何处运行”。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-07-operator-planner.png" alt="slide 07 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:Encode-Prefill-Decode（三阶段）流水图。Encode 节点、Prefill 节点、Decode 节点按顺序连接，调度器按Token长度和SLO动态路由。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">08 / Commercial</div>
+              <h2>创业公司地图：四层能力与四种付费入口</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>资源控制</strong>：Dynamia /
+                    HAMi、OrionX、TensorFusion 强项是共享、切分与远端池化。
+                  </li>
+                  <li>
+                    <strong>编译运行时</strong>：XCoreSigma / Chitu 强项是
+                    IR、算子转译、推理入口统一。
+                  </li>
+                  <li>
+                    <strong>系统级协同</strong
+                    >：无问芯穹、趋境科技主打单任务异构、跨厂商 PD 与 KV 交接。
+                  </li>
+                  <li>
+                    <strong>Token 运营</strong
+                    >：硅基流动、趋境、无问芯穹偏向路由、扩缩与成本闭环。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 支持芯片数量是覆盖面，状态语义才是纵深。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-08-commercial-map.png" alt="slide 08 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:公司能力地图（资源层/编译运行时/系统级异构/Token运营）。每一象限放置公司节点和代表能力，连线表示协同关系。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">09 / Commercial</div>
+              <h2>资源与运行时：先解决“卡怎么管、模型怎么跑”</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>Dynamia / HAMi</strong
+                    >：设备注册、算力切分、隔离与拓扑调度，生态清晰。
+                  </li>
+                  <li>
+                    <strong>OrionX / TensorFusion</strong>：前者偏 GPU over
+                    IP，后者偏开源远程 GPU 与显存池化。
+                  </li>
+                  <li>
+                    <strong>XCoreSigma / Chitu</strong
+                    >：算子转译与国产芯片性能工程；共享 IR 与统一状态仍需验证。
+                  </li>
+                  <li>
+                    <strong>边界</strong>：能否把任务交给“可跑系统”不等于能解决
+                    KV 语义一致性与故障恢复。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 卡池是基础能力，Runtime 才开始定义可执行语义。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-09-control-runtime.png" alt="slide 09 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:跨厂商异构数据平面，CPU、Ascend、NVIDIA、国产卡与KV缓存节点，箭头跨节点流转，突出阶段级交接与connector角色。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">10 / Commercial</div>
+              <h2>系统与 Token：把“单请求协同”变成“可售卖产能”</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>无问芯穹</strong>：M×N 与 HETHUB
+                    在异构通信和性能预测上持续布局。
+                  </li>
+                  <li>
+                    <strong>趋境科技</strong>：从 CPU/GPU MoE
+                    开源经验持续推向跨厂商 PD 与 Token 工厂。
+                  </li>
+                  <li>
+                    <strong>硅基流动</strong>：多芯片副本池 + API 路由 +
+                    成本调度，先实现规模化运营。
+                  </li>
+                  <li>
+                    <strong>验证梯度</strong
+                    >：论文、开源、客户案例、独立基准、生产数据应分层计权。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 商业先奖励副本路由，系统护城河要落到状态交接。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-10-evidence-ladder.png" alt="slide 10 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:从事实到结论的证据阶梯：底层数据，中间机制，中间验证，顶层工程决策。每层用阶梯块和箭头递进。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">11 / Open Source</div>
+              <h2>社区开源栈：控制、调度、执行与传输解耦</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>Resource</strong>：Kubernetes + HAMi
+                    做设备发现、共享、切分与配额。
+                  </li>
+                  <li>
+                    <strong>Serving</strong>：llm-d / Dynamo 负责
+                    Router、前缀与负载感知、P/D 编排。
+                  </li>
+                  <li>
+                    <strong>Runtime</strong>：vLLM / SGLang 负责
+                    Scheduler、Paged KV、并行与后端适配。
+                  </li>
+                  <li>
+                    <strong>Data Plane</strong>：Mooncake / NIXL / LMCache 负责
+                    KV 搬运与多层缓存。
+                  </li>
+                  <li>
+                    <strong>Backend</strong
+                    >：CUDA、ROCm、Ascend、TPU、XPU、Gaudi 等继续下沉硬件差异。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 推理系统正在从单体组件，走向可替换平面。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-11-open-stack.png" alt="slide 11 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:技术生态拼图图。K8s调度、资源纳管、编译器、推理运行时、KV缓存和路由模块围绕统一入口构成环。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">12 / Open Source</div>
+              <h2>Connector 已多样化，Canonical KV 仍未统一</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>SGLang</strong>：提供丰富后端扩展，Connector
+                    已是关键边界。
+                  </li>
+                  <li>
+                    <strong>NIXL</strong>：CPU/GPU
+                    内存、文件、块与对象存储接口统一，网络后端可插拔。
+                  </li>
+                  <li>
+                    <strong>Mooncake</strong>：以 KVCache 为中心拆分
+                    Prefill/Decode 与分布式缓存。
+                  </li>
+                  <li>
+                    <strong>未解决</strong>：搬运能力不足以替代统一
+                    dtype、layout、元数据与错误语义约定。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 传输解决“怎么搬”，状态契约决定“能不能继续算”。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-12-connector-gap.png" alt="slide 12 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:多厂商池与Canonical KV协议连接失败与已连通区域，红色警示框标出布局一致性、数据类型兼容、故障恢复。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">13 / Open Source</div>
+              <h2>成熟度：同构 PD 工程化，跨厂商 AFD 仍在前沿</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>L4 / 规模化</strong>：多后端适配、K8s
+                    纳管、监控与副本路由已成熟。
+                  </li>
+                  <li>
+                    <strong>L3 / 生产候选</strong>：同架构 PD、分层 KV、xPyD
+                    与路由治理已有落地经验。
+                  </li>
+                  <li>
+                    <strong>L2 / Early</strong>：跨厂商 PD 与 Canonical
+                    KV、非对称并行在试点中验证。
+                  </li>
+                  <li>
+                    <strong>L1 / Research</strong>：跨厂商 AFD
+                    与算子级重规划在工程可复现性上仍稀缺。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 成熟度不只看功能表，而要看失败路径是否可退。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-13-maturity.png" alt="slide 13 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:4级成熟度阶梯，标注同构PD生产、跨厂商尝试、开源工程、研究前沿。每级方框不同颜色强调。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">14 / Project</div>
+              <h2>项目主线：逐层增加异构深度的落地路径</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>M1 / Replica</strong>：先建立模型×芯片画像，按
+                    SLO/成本/能耗做副本路由。
+                  </li>
+                  <li>
+                    <strong>M2 / Same-arch PD</strong>：用 vLLM/SGLang +
+                    Mooncake/NIXL 打通 P/D，验证交接成本。
+                  </li>
+                  <li>
+                    <strong>M3 / Cross-vendor PD</strong>：定义 Canonical KV
+                    Contract，加入版本协商与回退策略。
+                  </li>
+                  <li>
+                    <strong>M4 / AFD / Operator</strong>：仅在
+                    P99/Goodput/Cost-per-token 证明净收益后再下沉。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated">
+                  「 第一步是可观测性，第二步是交接正确性，第三步才是拆分。 」
+                </div>
+              </div>
+                            
+                <div class="visual-box" style="--visual-scale: 0.95">
+                  <img src="./figures/figure-14-roadmap.png" alt="slide 14 visual" />
+                  <div class="visual-caption">Codex-imagen2<br/>[Excalidraw hand-drawn style:横向研发路线图：M1副本路由 → M2同构PD → M3跨厂商PD → M4 AFD。每步附SLO/成本/稳定性验收条件。]</div>
+                </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">15 / Takeaways</div>
+              <h2>三条线，收敛成一个研发判断</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text no-bullet">
+                <ul>
+                  <li class="fragment">
+                    <strong>A1（趋势）</strong>：PD/PDD 成为主流，Phasor/PPD
+                    做动态控制，AFD/ODS 推进算子协同。
+                  </li>
+                  <li class="fragment">
+                    <strong>A2（商业）</strong>：资源池化与副本路由已产品化，跨厂商单请求协同仍待更强证据。
+                  </li>
+                  <li class="fragment">
+                    <strong>A3（开源）</strong>：控制面与数据面可组合，统一状态与失败语义仍是核心缺口。
+                  </li>
+                </ul>
+                <div class="pulse-layer pulse-animated fragment">
+                  「 先可观测，再可交接，最后才值得拆得更细。 」
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">16 / Reference</div>
+              <h2>趋势与架构分类</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text ref-list" style="font-size: 1.4rem;">
+                <ul>
+                  <li><strong>PD（Prefill-Decode 分离）</strong>：7 项</li>
+                  <li><strong>AFD（Attention-FFN 分离）</strong>：3 项</li>
+                  <li><strong>EPD（Encode-Prefill-Decode 分离）</strong>：6 项</li>
+                  <li><strong>总计</strong>：16 项论文/系统条目</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">17 / Reference</div>
+              <h2>PD / PDD 论文与系统</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text">
+                <ul class="ref-list">
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2401.09670" target="_blank">DistServe: Disaggregating Prefill and Decoding for Goodput-optimized LLM Serving</a></strong> — https://arxiv.org/abs/2401.09670（OSDI 2024）
+                  </li>
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2311.18677" target="_blank">SplitWise: Efficient Generative LLM Inference Using Phase Splitting</a></strong> — https://arxiv.org/abs/2311.18677
+                  </li>
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2407.00079" target="_blank">Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving</a></strong> — https://arxiv.org/abs/2407.00079（FAST 2025）
+                  </li>
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2604.15039" target="_blank">PrfaaS: Prefill-as-a-Service</a></strong> — https://arxiv.org/abs/2604.15039
+                  </li>
+                  <li>
+                    <strong><a href="https://github.com/infinigence/pdd" target="_blank">PDD: Unleashing Economical and Flexible Heterogeneous LLM Inference via Cross-Datacenter Prefill-Decode Disaggregation</a></strong>（GitHub，含发布与说明） — https://github.com/infinigence/pdd
+                  </li>
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2508.01989" target="_blank">TaiChi: Prefill-Decode Aggregation or Disaggregation</a></strong> — https://arxiv.org/abs/2508.01989
+                  </li>
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2603.13358" target="_blank">PPD: Not All Prefills Are Equal</a></strong> — https://arxiv.org/abs/2603.13358
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">18 / Reference</div>
+              <h2>AFD 论文与实现</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text">
+                <ul class="ref-list">
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2601.21351" target="_blank">Analytical Provisioning for Attention-FFN Disaggregated LLM Serving under Stochastic Workloads</a></strong> — https://arxiv.org/abs/2601.21351（NeurIPS 2026 投稿）
+                  </li>
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2605.28302" target="_blank">How Far Can Disaggregation Go? A Design-Space Exploration of Attention–FFN Disaggregation</a></strong> — https://arxiv.org/abs/2605.28302（NeurIPS 2026）
+                  </li>
+                  <li>
+                    <strong><a href="https://github.com/vllm-project/vllm/issues/22799" target="_blank">vLLM RFC: ATTN-FFN Disaggregation for MoE Models</a></strong> + <strong><a href="https://github.com/vllm-project/vllm/pull/29772" target="_blank">vLLM Feature: AFD basic implementation</a></strong> — https://github.com/vllm-project/vllm/issues/22799 ， https://github.com/vllm-project/vllm/pull/29772
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">19 / Reference</div>
+              <h2>EPD 论文与路线</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text">
+                <ul class="ref-list">
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2505.12658" target="_blank">HydraInfer: Hybrid Disaggregated Scheduling for Multimodal LLM Serving</a></strong> — https://arxiv.org/abs/2505.12658（ICML/投稿）
+                  </li>
+                  <li>
+                    <strong><a
+                      href="https://papers.neurips.cc/paper_files/paper/2025/hash/720e7ebc49c84252abc0754dddf80976-Abstract-Conference.html"
+                      target="_blank"
+                    >SpaceServe: Spatial Multiplexing of Complementary Encoders and Decoders for Multimodal LLMs</a></strong> — https://papers.neurips.cc/paper_files/paper/2025/hash/720e7ebc49c84252abc0754dddf80976-Abstract-Conference.html（NeurIPS 2025）
+                  </li>
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2501.05460" target="_blank">EPDServe: Efficiently Serving Large Multimodal Models Using EPD Disaggregation</a></strong> — https://arxiv.org/abs/2501.05460（ICML 2025）
+                  </li>
+                  <li>
+                    <strong><a href="https://docs.sglang.io/advanced_features/epd_disaggregation.html" target="_blank">SGLang EPD Disaggregation 文档</a></strong> — https://docs.sglang.io/advanced_features/epd_disaggregation.html
+                  </li>
+                  <li>
+                    <strong><a href="https://docs.vllm.ai/projects/ascend/en/latest/user_guide/feature_guide/epd_disaggregation.html" target="_blank">vLLM EPD Disaggregation 文档</a></strong> — https://docs.vllm.ai/projects/ascend/en/latest/user_guide/feature_guide/epd_disaggregation.html
+                  </li>
+                  <li>
+                    <strong><a href="https://arxiv.org/abs/2601.11590" target="_blank">Ascend EPD-Serve on Ascend</a></strong> — https://arxiv.org/abs/2601.11590
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">20 / Reference</div>
+              <h2>商业与开源技术</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text">
+                <ul class="ref-list">
+                  <li>
+                    <strong><a href="https://www.cncf.io/blog/2026/07/15/hami-becomes-a-cncf-incubating-project/" target="_blank">HAMi / CNCF Incubating</a></strong> — https://www.cncf.io/blog/2026/07/15/hami-becomes-a-cncf-incubating-project/
+                  </li>
+                  <li>
+                    <strong><a href="https://github.com/llm-d/llm-d/tree/main/guides/pd-disaggregation" target="_blank">llm-d P/D Disaggregation Guide</a></strong> — https://github.com/llm-d/llm-d/tree/main/guides/pd-disaggregation
+                  </li>
+                  <li>
+                    <strong><a href="https://docs.nvidia.com/dynamo/latest/user-guides/disaggregated-serving" target="_blank">NVIDIA Dynamo Disaggregated Serving</a></strong> — https://docs.nvidia.com/dynamo/latest/user-guides/disaggregated-serving
+                  </li>
+                  <li>
+                    <strong><a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/" target="_blank">vLLM KV Connectors</a></strong> — https://docs.vllm.ai/en/latest/features/disagg_prefill/
+                  </li>
+                  <li>
+                    <strong><a href="https://docs.sglang.ai/advanced_features/pd_disaggregation.html" target="_blank">SGLang PD Disaggregation</a></strong> — https://docs.sglang.ai/advanced_features/pd_disaggregation.html
+                  </li>
+                  <li>
+                    <strong><a href="https://github.com/kvcache-ai/Mooncake" target="_blank">Mooncake Project</a></strong> — https://github.com/kvcache-ai/Mooncake
+                  </li>
+                  <li>
+                    <strong><a href="https://github.com/ai-dynamo/nixl" target="_blank">NIXL</a></strong> — https://github.com/ai-dynamo/nixl
+                  </li>
+                  <li>
+                    <strong><a href="https://dynamia.ai/products" target="_blank">密瓜智能 Dynamia（官方）</a></strong> — https://dynamia.ai/products
+                  </li>
+                  <li>
+                    <strong><a href="https://xcoresigma.com/" target="_blank">中科加禾 XCoreSigma</a></strong> — https://xcoresigma.com/
+                  </li>
+                  <li>
+                    <strong><a href="https://github.com/thu-pacman/chitu" target="_blank">清程极智 Chitu / AICE</a></strong> — https://github.com/thu-pacman/chitu
+                  </li>
+                  <li>
+                    <strong><a href="https://www.siliconflow.cn/token-factory" target="_blank">硅基流动 Token Factory</a></strong> — https://www.siliconflow.cn/token-factory
+                  </li>
+                  <li>
+                    <strong><a href="https://www.vllm.ai/" target="_blank">vLLM 项目主页</a></strong> — https://www.vllm.ai/
+                  </li>
+                  <li>
+                    <strong><a href="https://sglang.ai/" target="_blank">SGLang 项目主页</a></strong> — https://sglang.ai/
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">
+            whyj + heterogeneous-inference-progress + 2026/07/21
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="visual-lightbox" class="visual-lightbox" role="dialog" aria-modal="true" aria-label="放大图片">
+      <button id="visual-lightbox-close" class="visual-lightbox-close" aria-label="关闭">×</button>
+      <div class="visual-lightbox-content">
+        <img id="visual-lightbox-img" src="" alt="放大图预览" />
+        <div id="visual-lightbox-caption" class="visual-lightbox-caption" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script type="module">
+      import { prepareWithSegments, layoutWithLines } from 'https://esm.sh/@chenglou/pretext';
+
+      // ── KaTeX rendering (::math directive) ──
+      document.querySelectorAll('[data-katex]').forEach(el => {
+        if (window.katex) katex.render(el.getAttribute('data-katex'), el, { displayMode: true });
+      });
+
+      // ── visual-box data-scale ──
+      document.querySelectorAll('.visual-box[data-scale]').forEach((box) => {
+        box.style.setProperty('--visual-scale', box.getAttribute('data-scale'));
+      });
+      // ── visual image lightbox ──
+      const lightbox = document.getElementById('visual-lightbox');
+      const lightboxImg = document.getElementById('visual-lightbox-img');
+      const lightboxClose = document.getElementById('visual-lightbox-close');
+      if (lightbox && lightboxImg && lightboxClose) {
+        const lightboxCaption = document.getElementById('visual-lightbox-caption');
+
+        const openLightbox = (img) => {
+          const src = img.src;
+          const alt = img.alt || '放大图预览';
+          const captionEl = img.closest('.visual-box')?.querySelector('.visual-caption');
+          const caption = captionEl ? captionEl.textContent.trim() : '';
+          lightboxImg.src = src;
+          lightboxImg.alt = alt || '放大图预览';
+          if (caption) {
+            lightboxCaption.textContent = caption;
+            lightboxCaption.style.display = 'block';
+          } else {
+            lightboxCaption.style.display = 'none';
+          }
+          lightbox.classList.add('open');
+        };
+        const closeLightbox = () => {
+          lightbox.classList.remove('open');
+          lightboxImg.removeAttribute('src');
+          lightboxCaption.textContent = '';
+          lightboxCaption.style.display = 'none';
+        };
+        document.querySelectorAll('.visual-box img').forEach((img) => {
+          img.addEventListener('click', (e) => {
+            e.preventDefault();
+            openLightbox(img);
+          });
+        });
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+          if (e.target === lightbox) {
+            closeLightbox();
+          }
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+            closeLightbox();
+          }
+        });
+      }
+
+      // ── Reveal.js ──
+      Reveal.initialize({
+        hash: true,
+        center: true,
+        transition: 'none',
+        width: 1400,
+        height: 900,
+        margin: 0.05,
+      });
+
+      // ── pretext sources ──
+      const coverSource = [
+        'Heterogeneous inference inference serving disaggregated architecture',
+      ].join(' ');
+
+      const slideSource = [
+        'PD', 'PDD', 'PPD', 'AFD', 'EPD', 'Token Factory',
+        'Ascend', 'NVIDIA', 'cross-vendor', 'KV connector', 'Canonical KV',
+        'Goodput', 'SLO', 'cost', 'routing',
+      ].join('  /  ');
+
+      // ── pretext layout ──
+      function getLines(text, font, maxWidth, lineHeight) {
+        const prepared = prepareWithSegments(text, font);
+        const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+        return lines.map(l => l.text);
+      }
+
+      function buildStage(stage) {
+        const isCover = stage.classList.contains('cover-stage');
+        const src = isCover
+          ? Array.from({ length: 5 }, () => coverSource).join(' ')
+          : Array.from({ length: 12 }, () => slideSource).join(' ');
+        const bg = stage.querySelector('.pretext-bg');
+        if (!bg) return [];
+        const w = stage.clientWidth || 1400;
+        const h = stage.clientHeight || 900;
+        const padding = isCover ? 28 : 24;
+        const fontSize = isCover
+          ? Math.max(18, Math.min(28, w * 0.02))
+          : Math.max(14, Math.min(20, w * 0.014));
+        const lineHeight = Math.round(fontSize * (isCover ? 1.25 : 1.8));
+        const font = `600 ${fontSize}px Poppins, Arial, sans-serif`;
+        const wrapped = getLines(src, font, (w - padding * 2) * 0.92, lineHeight);
+        const top = Math.max(20, (h - wrapped.length * lineHeight) / 2);
+
+        bg.innerHTML = '';
+        return wrapped.map((text, i) => {
+          const el = document.createElement('div');
+          el.className = 'pt-line';
+          if (i % 9 === 2) el.classList.add('pt-orange');
+          if (i % 11 === 5) el.classList.add('pt-blue');
+          if (i % 13 === 7) el.classList.add('pt-green');
+          el.textContent = text;
+          el.style.top = `${top + i * lineHeight}px`;
+          el.style.left = `${padding}px`;
+          el.style.fontSize = `${fontSize}px`;
+          bg.appendChild(el);
+          return { el, index: i, baseTop: top + i * lineHeight };
+        });
+      }
+
+      const stages = Array.from(document.querySelectorAll('.pretext-stage'));
+      const stageMap = new Map();
+      function rebuildAll() {
+        stageMap.clear();
+        stages.forEach((s) => { stageMap.set(s, buildStage(s)); });
+      }
+      rebuildAll();
+
+      const pointers = new Map();
+      stages.forEach((s) => pointers.set(s, { x: 0.65, y: 0.4 }));
+
+      function animate(time) {
+        stageMap.forEach((rows, stage) => {
+          const w = stage.clientWidth || 1400;
+          const h = stage.clientHeight || 900;
+          const p = pointers.get(stage) || { x: 0.65, y: 0.4 };
+          const isCover = stage.classList.contains('cover-stage');
+          const amp = isCover ? 16 : 8;
+          const driftAmp = isCover ? 8 : 4;
+          const rotAmp = isCover ? 0.35 : 0.15;
+
+          rows.forEach(({ el, index, baseTop }) => {
+            const dx = p.x * w - w * 0.5;
+            const dy = p.y * h - baseTop;
+            const wave = Math.sin(time * 0.0009 + index * 0.5) * amp;
+            const drift = Math.cos(time * 0.0005 + index * 0.3) * driftAmp;
+            const pull = dx * 0.014 * Math.exp(-Math.abs(dy) / 180);
+            const vert = Math.sin(time * 0.0007 + index * 0.4) * 2;
+            const rot = Math.sin(time * 0.0004 + index * 0.16) * rotAmp;
+            const baseOpacity = isCover ? 0.65 : 0.38;
+            const fade = Math.min(Math.abs(dy) / h, isCover ? 0.4 : 0.22);
+            el.style.opacity = String(Math.max(isCover ? 0.10 : 0.04, baseOpacity - fade));
+            el.style.transform = `translate3d(${wave + drift + pull}px, ${vert}px, 0) rotate(${rot}deg)`;
+          });
+        });
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      document.addEventListener('pointermove', (e) => {
+        stages.forEach((stage) => {
+          const rect = stage.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            pointers.set(stage, {
+              x: Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)),
+              y: Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)),
+            });
+          }
+        });
+      });
+
+      Reveal.on('slidechanged', () => { setTimeout(rebuildAll, 120); });
+      window.addEventListener('resize', rebuildAll);
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
