@@ -55,10 +55,13 @@ Version: Synapse v{version} | Author: Why.J | Date: YYYY/MM/DD
 
 ::pulse [「 {high-level abstraction of all facts} 」] ::
 
-::visual {🍌 nano-banana prompt — Excalidraw hand-drawn style} ::
+::visual {Codex-imagen2 prompt (preferred / Codex 内置 imagen2 first) — Excalidraw hand-drawn style} ::
 ```
 
 - Grid layout (65%/35%). Has pulse + visual-box.
+- If `examples/<project>/DESIGN.md` exists, append its `Figure prompt suffix / 风格控制` (verbatim) to this prompt before synthesis (especially labels density, palette, anti-gradient/no-3D constraints). This is mandatory unless it conflicts with claim correctness.
+- The final prompt must include default style clauses if not already present: white paper, rough hand-drawn black ink, sparse labels, `#D97757`, no gradients, no shadows, no 3D, no decorative clutter, no emoji.
+- Do not route `::visual` prompts to alternate engines by default (including nano-banana / other style-only generators).
 - H2 must emphasize "现状分析".
 - Pulse does high-level abstraction.
 - **Context 事实硬上限 3 条**。如果素材超过 3 个关键事实，只保留最重要的 3 个，其余下沉到 Mechanism 页面。如果难以取舍，暂停并请用户确认选择。
@@ -93,11 +96,13 @@ Version: Synapse v{version} | Author: Why.J | Date: YYYY/MM/DD
 
 ::pulse [「 {hammer conclusion} 」] ::
 
-::visual {🍌 nano-banana prompt} ::
+::visual {Codex-imagen2 prompt (preferred / Codex 内置 imagen2 first)} ::
 ```
 
 - Grid layout (65%/35%). Must have pulse + visual-box.
-- Visual-box: nano-banana prompt OR `::code` OR `::math`.
+- Visual-box: Codex-imagen2 prompt (required) OR `::code` OR `::math`.
+- When `examples/<project>/DESIGN.md` exists, enrich the prompt with its `Figure prompt suffix / 风格控制` and `文件落地`.
+- Generation order for any new/recreated visual: call internal `imagen2` first; fallback providers only after `imagen2` failure, and record fallback reason in figure metadata.
 - Max 5 bullet points per slide.
 
 #### Take A Ways
@@ -138,11 +143,13 @@ Version: Synapse v{version} | Author: Why.J | Date: YYYY/MM/DD
 
 | Directive | Syntax | Renders As |
 |-----------|--------|-----------|
-| `::visual` | `::visual {prompt text} ::` | nano-banana prompt in `.visual-box` |
+| `::visual` | `::visual {prompt text} ::` | Codex-imagen2 prompt in `.visual-box` (required Codex 内置 imagen2 backend; fallback only if unavailable) |
 | `::image` | `::image [path] [scale=N y=Npx] ::` | `<img>` in `.visual-box` |
 | `::code` | `::code [lang] [content] ::` | `.code-container` in `.visual-box` |
 | `::math` | `::math [LaTeX] ::` | KaTeX in `.visual-box` |
 | `::pulse` | `::pulse [「 text 」] [fragment] ::` | `.pulse-layer` callout |
+
+For outputs under `examples/<project>/`, merge `examples/<project>/DESIGN.md` style controls into `::visual` prompt text before rendering. `imagen2` is the required primary renderer, and resulting prompts are copied into `figures/index.md` for replay.
 
 ### Inline Formatting
 
@@ -231,15 +238,17 @@ Overall arc follows slides logic: 起(Context) → 承(Mechanism) → 转(Failur
 {
   image: `{relative path to image}`,
   caption: `{Figure N: what this figure teaches, not just what it shows}`,
-  prompt: `{detailed generation prompt — visible in figure area, shown below caption}`
+  prompt: `{detailed generation prompt — attached to figure, exposed in zoom overlay}`
 }
 ```
 
 Figure caption principle: **explain WHY, not just WHAT**. A good caption tells the reader what insight the figure encodes — why the curves have these shapes, what the visual difference means, how it connects to the surrounding argument. Not just labels like "XX vs YY comparison."
 
-Figure prompt principle: **visible generation spec**. The `prompt` field is rendered as visible text below the caption in the figure area (separated by a thin border, smaller lighter font). It serves dual purpose:
-1. **When image exists**: acts as an explicit generation spec visible to readers — describes exactly what the figure should contain, including color codes, layout, labels.
-2. **When image missing**: falls back to placeholder display.
+Figure prompt principle: **stored generation spec**. The `prompt` field is preserved in the data model and available in the zoom overlay for review, while the normal figure card stays clean (image + caption only).
+1. **When image exists**: prompt is attached to the figure and surfaced on click/zoom for reproduction.
+2. **When image missing**: placeholder and prompt are both shown in zoom/click flow, so generation is still recoverable.
+3. **Fallback traceability**: mark in `figures/index.md` if this figure was generated through a non-imagen2 path and why.
+4. **Path rule**: figure image paths in `SECTIONS` and `::image` must use `./figures/...` so the path is portable from example HTML.
 
 Prompt format — must include concrete visual details:
 ```

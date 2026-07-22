@@ -30,7 +30,7 @@ Why.J Engineering Theater — white grid canvas, hand-drawn Excalidraw figures, 
 
 ## Figure prompt suffix
 
-`Hand-drawn, black ink, white background, stick figures, sparse 3–5 word labels, no color, no shadows`
+`Hand-drawn, black ink, white background, stick figures, sparse labels, single accent #D97757, no gradients, no shadows, no 3D, no decorative elements`
 
 ## Placeholder resolution
 

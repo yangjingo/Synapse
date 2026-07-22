@@ -47,6 +47,13 @@ User provides URLs/files
 
 1. **Ingest**: `synapse-forge` — URLs/files → Slides DSL
 2. **Render**: copy `skills/synapse-design/references/WHYJ-SLIDES.html`, replace content per DSL
+   - If target output has `examples/<project>/DESIGN.md`, load it first and treat it as a hard visual rule set.
+   - For any new/recreated figure, **call Codex 内置 `imagen2` first**; fallback generators are only used when `imagen2` is unavailable or fails.
+   - Read both `Figure prompt suffix / 风格控制` and `文件落地` from DESIGN.md first, then merge into generated prompts.
+   - For every `::visual`/prompt:
+     - append or enforce：`white paper background`、`rough black ink`、`sparse labels`、`single accent #D97757`、`no gradients`、`no shadows`、`no 3D`、`no decorative clutter`、`no emoji`；
+     - if prompt uses a different base palette, overwrite to align DESIGN.md（以 DESIGN.md 为准）；
+     - all image assets must be written to `examples/<project>/figures/` and referenced as `./figures/...` in DSL/HTML.
 3. **Post-process**: `npx prettier --write [file]`
 
 ### Structural Sequence
@@ -61,9 +68,9 @@ User provides URLs/files
 ### Visual Rules
 
 - **Cover**: NO image, NO pulse, NO pretext animation. Title + Chinese subtitle (topic thesis) + Version/Author/Date. Subtitle is NOT "Synapse vX.X".
-- **Context (01)**: 事实 1-N list. H2 emphasizes "现状分析". Pulse does high-level abstraction. visual-box with 🍌 nano-banana prompt.
+- **Context (01)**: 事实 1-N list. H2 emphasizes "现状分析". Pulse does high-level abstraction. visual-box with Codex-imagen2 prompt (single source of truth).
 - **Agenda (02)**: Questions grow from Context facts. `push-left` + `fragment`. NO image, NO pulse.
-- **Mechanism (03-N)**: pulse + visual-box + pretext animation. 🍌 nano-banana (Excalidraw: black ink, white bg, stick figures, sparse labels). Max 5 points.
+- **Mechanism (03-N)**: pulse + visual-box + pretext animation. Codex-imagen2 (Excalidraw: white paper background, rough black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter). Generation is **imagen2-first**, with fallback only when imagen2不可达.
 - **Take A Ways**: Q→A strict mapping. `push-left`, NO visual-box. Q4 → pulse with `fragment`.
 - **Reference**: `.canvas-footer`. Bold title wraps `<a href>`, full URL inline. CSS `::before` auto-generates arrows — do NOT hand-write `→`.
 
@@ -74,6 +81,12 @@ User provides URLs/files
 - **mark/strong**: both share `var(--strong-bg)`
 - **DSL Directives**: `::math` → KaTeX, `::code` → `.code-container`, `::pulse` → `.pulse-layer`, `==text==` → `<mark>`
 - **Pretext Animation**: all pages except Cover have `<div class="pretext-stage" data-pretext-src="slide">`
+- **Design Source Override**: when `examples/<project>/DESIGN.md` exists, project visual controls and figure constraints from that file override the default template defaults (white paper, rough ink, sparse labels, `#D97757`, etc.).
+  - Read any `Figure prompt suffix / 风格控制` section and append those constraints to every generated `::visual` prompt unless it conflicts with correctness.
+  - Keep the source of truth in `examples/<project>/figures/index.md` (image name, prompt, usage, and placement).
+  - Figure image assets for example outputs must remain under `examples/<project>/figures` and be referenced as `./figures/...` in DSL/HTML.
+  - All figure insertion in HTML must point to this local path and allow prompt-only recovery when file is missing.
+  - `::image`/`::visual` 默认只展示图像与 Caption，`prompt` 仅在放大/zoom 弹窗内展示。
 
 ### Copy-Not-Create (MANDATORY)
 
@@ -93,10 +106,13 @@ Slides HTML MUST be copied from verified template, never hand-written. Hand-writ
 2. Replace: TITLE, LEAD, SECTIONS, PULSE, meta-tag, meta-date, `<title>`
 3. Backtick template literals for ALL content strings (Chinese `""` breaks JS `"..."`)
 4. bodyHTML uses single quotes (contains HTML tags)
-5. Image paths: relative from output directory
+5. Image paths: relative from output directory, prefer `./figures/...` under target example folder
 6. DO NOT run prettier
 7. Verify: `node -e "new Function(require('fs').readFileSync('file','utf8').match(/<script.*>([\s\S]*)<\/script>/)[1])"`
-8. **Figure sync**: when DSL contains `Type: figure` sections, read reference template first (e.g. `dsv4-blog-opd-en.html`) and copy its complete figure pattern — independent section objects, prompts from slides DSL `::visual`, CSS `figure-prompt-vis`, rendering code. See `synapse-forge` SKILL.md "Figure Sync Rule" for full checklist
+8. **Figure sync**: when DSL contains `Type: figure` sections, read reference template first (e.g. `dsv4-blog-opd-en.html`) and copy its complete figure pattern — independent section objects, prompts from slides DSL `::visual`, CSS `figure-prompt-vis`, zoom overlay prompt reveal logic.
+   - Figure card keeps normal state clean (image + caption).
+   - Prompt text stays in figure metadata and surfaces only when zoomed.
+   - Figure section objects use `image: \`./figures/...\`` paths, and fallback prompt path remains recoverable if image file is missing.
 
 ### Blog Content Principles
 
@@ -126,7 +142,10 @@ Slides HTML MUST be copied from verified template, never hand-written. Hand-writ
 
 1. **No Fluff** — Stripped all social-media hooks and emojis
 2. **Aggressive Pulse** — Conclusion hits like a hammer
-3. **Nano Banano** — Diagram prompts follow FIGURE-STYLE.md
+3. **Imagen2-first** — Diagram prompts prioritize Codex 内置 `imagen2` as the primary renderer; keep fallback only for failure/unreachable cases.
+   Required controls for these prompts: white paper background, rough hand-drawn black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative elements, no emoji.
+   - Do not route figure prompts to Nano-style generators by default (e.g. nano-banana); they are disallowed unless explicitly requested by user.
+4. **DESIGN.md precedence** — If an example-level `DESIGN.md` exists, its image rules dominate all other defaults; generated figure prompts and prompt-only fallbacks must be consistent and verifiable in the corresponding `figures/index.md`.
 
 ## Trigger
 

@@ -74,8 +74,8 @@ All files are self-contained single HTML. Open directly in browser, no web serve
 | Author info + tag badge | `dsv4-blog-layout` | `.meta-tag` accent badge + `.meta-date` author line |
 | Reference section with hyperlinks | `dsv4-blog-layout` | `bodyHTML` with `<div><a>` per reference |
 | Click-spawn stick figure | `dsv4-blog-layout` | Canvas overlay `requestAnimationFrame` bounce + wave |
-| Figure integration + click-to-zoom | `dsv4-blog-layout` | `.figure-block` + `max-height: 70vh` + zoom overlay |
-| Missing image placeholder | `dsv4-blog-layout` | `img.onerror` → "待生成插图" + prompt text |
+| Figure integration + click-to-zoom | `dsv4-blog-layout` | `.figure-block` + `max-height: 70vh` + zoom overlay, prompt revealed only in zoom state |
+| Missing image placeholder | `dsv4-blog-layout` | `img.onerror` → "待生成插图"; prompt text kept in section metadata and only shown in zoom state |
 | SVG figure (Excalidraw) | `opd-blog` | 4 SVG figures via `synapse-excalidraw` |
 
 ## Core API
@@ -202,23 +202,24 @@ The complete pattern has **five pieces** — all must exist:
 |---|-------|----------|----------------|
 | 1 | DSL `Type: figure` section | `.dsl.md` | Independent section with `Image`, `Caption`, `Prompt` fields (NOT inline inside `Type: text`) |
 | 2 | HTML figure section object | SECTIONS array | `{ image: \`...\`, caption: \`...\`, prompt: \`...\` }` — no `heading` or `body` |
-| 3 | Prompt source | slides DSL | Extract verbatim from slides DSL `::visual` nano-banana prompts, never hand-write |
-| 4 | CSS `figure-prompt-vis` class | `<style>` block | Visible prompt display styling |
-| 5 | Rendering code | `<script>` | `promptEl` created and appended to `figBlock` so prompt is always visible |
+| 3 | Prompt source | slides DSL | Extract verbatim from slides DSL `::visual` prompt text (Codex-imagen2-first workflow), never hand-write; prompts must include strict visual controls (`white paper`, `rough ink`, `sparse labels`, `#D97757`, no gradients/shadows/3D/decorative clutter) and align with current example `DESIGN.md`. |
+| 4 | CSS `figure-prompt-vis` class | `<style>` block | Keep prompt element in DOM, hidden by default, visible in zoom |
+| 5 | Rendering code | `<script>` | `promptEl` created and appended to `figBlock` so prompt remains available in zoom interaction |
 
 **What goes wrong when you skip this**: figures end up as inline fields inside text sections, prompts are missing or hand-written, or prompts exist as data but are never rendered. Each has caused multi-round user corrections.
 
 ### 7. Figure → skill delegation
 
-When `s.image` points to a non-existent file, `img.onerror` shows a "待生成插图" placeholder with the prompt. To resolve:
+When `s.image` points to a non-existent file, `img.onerror` shows a "待生成插图" placeholder while the prompt remains in section metadata for traceability and is shown only when clicked/zoomed.
 
 1. **Check `s.prompt`** — describes what the image should contain
 2. **Delegate:**
-   - `synapse-excalidraw` — flow diagrams, architecture diagrams, concept maps (SVG, editable)
-   - `synapse-figure` — technical illustrations, data charts
-   - `synapse-animation` — animated sequences
-3. **Generate → upload → user confirms → export SVG** — see `synapse-excalidraw` SKILL.md for the confirmation workflow
-4. **Save** to `figures/` directory, placeholder auto-resolves on reload
+   - **Primary（默认）**: Codex 内置 `imagen2` — call first for any requested/recreated figure, keep prompt as the single source of truth.
+   - **Fallback 1**: `synapse-excalidraw` — flow diagrams, architecture diagrams, concept maps (SVG, editable).
+   - **Fallback 2**: `synapse-animation` — animated sequences, only when explicitly requested.
+3. **Save** generated image into `examples/<project>/figures/` (or `figures/` during intermediate steps), and placeholder auto-resolves on reload. Final `image` 字段必须是 `./figures/...` 相对路径。
+4. **Traceability**: record fallback reason and generator path in `examples/<project>/figures/index.md` for re-generation.
+5. **Prompt visibility rule**: prompt stays hidden in normal card state and is only revealed when figure is zoomed.
 
 ## Workflow
 
@@ -233,13 +234,12 @@ When `s.image` points to a non-existent file, `img.onerror` shows a "待生成�
 
 `synapse-design` delegates to `synapse-pretext` when the HTML blog needs animated or geometry-sensitive text. Apply `prepareWithSegments` at minimum to animated text fields; extend to title, lead, and caption as needed.
 
-### With synapse-figure (illustrations)
-
-`synapse-figure` delegates for label measurement (`prepareWithSegments`) and text routing around diagram elements (`layoutNextLine`).
-
 ### With synapse-excalidraw (diagrams)
 
-When a figure entry has no image file, delegate to `synapse-excalidraw` with the `s.prompt` and surrounding section context. Follow the upload → confirm → export workflow defined in that skill's SKILL.md.
+When a figure entry has no image file, delegate prompt-driven generation to the Codex 内置 `imagen2` tool first and record the call path.
+If imagen2 is unavailable or fails, fallback to the next generator in the pipeline (synapse-excalidraw/manual source) and keep the prompt in HTML for traceability.
+Generated images must be written into the current example’s `./figures/` directory (or `figures/` during intermediate steps), and HTML `image` fields should reference `./figures/...`.
+This includes examples generated under `examples/<project>/`, i.e. `examples/heterogeneous-inference-progress/figures/...`.
 
 ### With synapse-animation (animation)
 
@@ -247,7 +247,7 @@ When a Remotion composition includes text that must reflow during animation, use
 
 ### Ordering with other skills
 
-1. `synapse-figure` defines what to communicate
+1. figure prompt/spec definitions drive what to communicate
 2. `synapse-pretext` refines typography and line layout
 3. `synapse-design` defines palette and visual tokens
 4. `synapse-design` implements the final web artifact

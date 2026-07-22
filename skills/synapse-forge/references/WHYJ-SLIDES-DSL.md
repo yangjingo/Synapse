@@ -83,9 +83,11 @@
 ## 3. Page Type Rules
 
 - **Cover (00)**: NO image, NO pulse. Title + Chinese subtitle (topic thesis) + metadata only. Subtitle is NOT "Synapse vX.X".
-- **Context (01)**: Collects factual information (事实 1, 事实 2, ...). H2 emphasizes "现状分析". Pulse does high-level abstraction. Must have `::pulse` and visual-box with 🍌 nano-banana prompt.
+- **Context (01)**: Collects factual information (事实 1, 事实 2, ...). H2 emphasizes "现状分析". Pulse does high-level abstraction. Must have `::pulse` and visual-box with Codex-imagen2 prompt (Codex 内置 `imagen2` first).
+  - If `examples/<project>/DESIGN.md` exists, append its Figure style suffix / 风格控制 to the prompt.
 - **Agenda (02)**: Questions grow from Context facts (e.g. "事实 2→3 的压缩逻辑 —— Q1"). NO image, NO pulse. Items rendered with `class="fragment"` for sequential reveal.
-- **Mechanism (03-N)**: Must have `::pulse` and `::image`/`::code`/`::math`. visual-box contains 🍌 nano-banana prompt.
+- **Mechanism (03-N)**: Must have `::pulse` and `::image`/`::code`/`::math`. visual-box contains Codex-imagen2 prompt (Codex 内置 `imagen2` first).
+  - If `examples/<project>/DESIGN.md` exists, enrich the prompt with its `Figure prompt suffix / 风格控制`.
 - **Take Aways**: Strictly answers Agenda questions (Q1→A1, Q2→A2, Q3→A3). NO visual-box, uses push-left. Q4 becomes `::pulse` with fragment animation.
 - **Reference (11)**: Uses `.canvas-footer` layout. Bold title wraps `<a href>` link, full URL text still displayed. Has arrows on items. NO image, NO pulse.
 

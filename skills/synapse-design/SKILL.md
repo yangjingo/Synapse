@@ -46,8 +46,8 @@ The Markdown artifact must:
 - be thesis-first and mechanism-driven
 - be publishable as a technical blog post
 - include a dedicated section for static illustration prompts
-- include prompts suitable for image generation workflows such as Imagen or nano-banana
-- define what each image should teach, not just how it should look
+- include prompts suitable for image generation workflows, prioritizing Codex imagen2; fall back only when internal image service is unavailable
+- define what each image should teach, and bind it to strict Excalidraw controls: white background, rough black ink, sparse labels, accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter
 
 ### HTML artifact requirements
 
@@ -55,10 +55,14 @@ The HTML artifact must:
 
 - implement the same article argument, not a different summary
 - use README-like structure for readability
-- use DESIGN.md-style visual rules for typography, spacing, color roles, borders, captions, and callouts
+- use DESIGN.md-style visual rules for typography, spacing, color roles, borders, captions, and callouts, and enforce the same prompt-level visual constraints for each figure (Excalidraw-style, no gradients/shadows, controlled palette)
 - use pretext-style text layout constraints for title length, lead density, caption compactness, and callout geometry
 - use real `pretext` layout when animated or geometry-sensitive text is part of the page behavior
+- show figure prompts only in zoomed view; normal view keeps prompt hidden to avoid interface clutter
 - be polished enough to function as the publishable blog page
+- use relative figure references like `./figures/figure-XX-*.png`, matching the corresponding example `figures/` directory
+- keep all figure files under the same example's `./figures/` folder and write paths in markdown/HTML as that relative path
+- prioritize internal Codex `imagen2` for any requested/recreated figures; fallback is logged as metadata and kept in `figures/index.md` for traceability.
 
 ### Non-final artifacts
 
@@ -77,7 +81,8 @@ If created during reasoning, collapse them into the final two outputs instead of
 Read only what is needed:
 
 1. **Slides profile** — resolve `{design.slides.profile}` first (see [Slides Design Profile](#slides-design-profile-designmd-placeholder) below)
-2. `references/e2e-v6.0-*.html` — E2E evaluation outputs (4 files, reference for slides/blog rendering quality)
+2. If target output is under `examples/<project>/`, read `examples/<project>/DESIGN.md` first (override source for prompt + style constraints)
+3. `references/e2e-v6.0-*.html` — E2E evaluation outputs (4 files, reference for slides/blog rendering quality)
 4. Main `examples/` directory — full forge→render pipeline outputs:
    - `cli-revolution/` — CLI Revolution (slides DSL + blog DSL + slides HTML + blog HTML)
    - `deepseek-v4/` — DeepSeek-V4 (slides DSL + blog DSL + slides HTML + blog HTML)
@@ -162,6 +167,7 @@ Bad note qualities:
 
 When visuals are needed:
 
+- one image carries one core conclusion
 - specify what the figure teaches
 - keep labels short
 - preserve technical semantics
@@ -200,7 +206,7 @@ Inside `blog.md`, produce:
 1. title
 2. opening thesis paragraph
 3. 4-7 mechanism-driven sections
-4. static illustration prompt section for Imagen or nano-banana
+4. static illustration prompt section for Codex imagen2 (优先)
 5. final `what to remember` section
 
 Inside the static illustration prompt section, when aspect-ratio repair is needed, include:
@@ -209,7 +215,7 @@ Inside the static illustration prompt section, when aspect-ratio repair is neede
 2. target slot type
 3. target aspect ratio
 4. whether the model should extend, recompose, or regenerate
-5. the final prompt
+5. the final prompt (must include: white paper background, rough black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative elements)
 
 Inside `blog.html`, produce:
 
@@ -281,10 +287,11 @@ npx @google/design.md spec
 
 When the HTML artifact needs a specific visual identity:
 
-1. Choose a profile from awesome-design-md or define a custom DESIGN.md
-2. Use the token system (colors, typography, spacing, rounded) as CSS custom properties
-3. Validate with `npx @google/design.md lint`
-4. Map component tokens to HTML/CSS classes in the blog output
+1. If present, prefer `examples/<project>/DESIGN.md` as the highest-priority source for figure and layout constraints.
+2. Otherwise choose a profile from awesome-design-md or define a custom DESIGN.md
+3. Use the token system (colors, typography, spacing, rounded) as CSS custom properties
+4. Validate with `npx @google/design.md lint`
+5. Map component tokens to HTML/CSS classes in the blog output
 
 The design tokens must serve the technical argument, not override it.
 

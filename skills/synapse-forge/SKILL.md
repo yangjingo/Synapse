@@ -13,11 +13,12 @@ URLs → DSL. 给一堆素材，出结构化 DSL 文件。
 ## Read
 
 1. `FORGE.DSL.md` — DSL 语法 + WhyJ 写作规范（合成时唯一参考文件）
-2. `references/WHYJ-SLIDES-DSL.md` — slides DSL 语法规范
-3. `references/BLOG-STYLE-CN.md` — 中文博客写作风格指南
-4. `references/deepseek-v4-validation-note.md` — DSV4 源素材示例（voice 参考）
-5. `references/deepseek-v4-long-validation-note.md` — DSV4 长 WhyJ 风格文章示例
-6. Main `examples/` directory — 完整 forge→render 管线产出：
+2. If target output is under `examples/<project>/`, read `examples/<project>/DESIGN.md` first (higher-priority control for figure style & prompt suffixes)
+3. `references/WHYJ-SLIDES-DSL.md` — slides DSL 语法规范
+4. `references/BLOG-STYLE-CN.md` — 中文博客写作风格指南
+5. `references/deepseek-v4-validation-note.md` — DSV4 源素材示例（voice 参考）
+6. `references/deepseek-v4-long-validation-note.md` — DSV4 长 WhyJ 风格文章示例
+7. Main `examples/` directory — 完整 forge→render 管线产出：
    - `cli-revolution/` — slides DSL + blog DSL
    - `deepseek-v4/` — slides DSL + blog DSL
    - `nano-cc/` — slides DSL + blog DSL
@@ -150,7 +151,7 @@ Only include figures that **compress understanding** — skip decoration, stock 
 #### Step 2: Download & Validate
 
 ```bash
-mkdir -p figures
+mkdir -p figures                # within target example root, e.g. examples/<project>/figures
 curl -sL -o "figures/{source}-{title}.{ext}" "{url}"
 ```
 
@@ -183,18 +184,42 @@ Determine target slot based on source aspect ratio:
 
 #### Step 4: Prompt Generation (when image needs recreation)
 
-If download fails or image needs regeneration, write a prompt following `synapse-figure` prompt template:
+If download fails or image needs regeneration, compose the prompt before calling any renderer:
+
+1. Confirm **one thesis per figure** (single conclusion).
+2. Apply Figure Design System constraints (from DESIGN-style):
+   - white paper background
+   - rough black hand-drawn ink lines
+   - sparse labels
+   - single accent `#D97757`
+   - no gradients / no shadows / no 3D / no decorative clutter / no emoji
+3. Append project design controls when available:
+   - `Figure prompt suffix / 风格控制`（按原文逐条追加）
+   - `文件落地`（路径落盘与引用约束）
+4. If a single panel exceeds density budget, split into 2–4 charts rather than stuffing labels.
+5. If project has `examples/<project>/DESIGN.md`, merge its style controls into the prompt (especially `Figure prompt suffix`, `文件落地`, and display constraints) before generation.
+6. If output has multiple candidate visuals, keep only the one that carries the strongest mechanism claim and discard decoration-heavy variants.
+
+Then render using the internal Codex image tool **first** (`imagen2`) as the mandatory primary path, with explicit fallback note if unavailable:
 
 ```
 Create a dense, clean engineering figure for a hard-core technical article.
-Use white/light neutral background, restrained blue/teal and orange accents,
-compact rounded rectangles, thin arrows, precise labels, explicit subsystem boundaries.
+Use a white paper background, rough hand-drawn black ink look, sparse labels,
+single accent `#D97757`, compact rounded rectangles, thin arrows, precise labels,
+explicit subsystem boundaries.
 Explain [TOPIC] as a [FIGURE TYPE].
 Keep it flat, technical, editorial.
-Avoid: marketing aesthetics, 3D hardware art, decorative gradients, rainbow color coding, oversized icons, vague labels.
+Avoid: marketing aesthetics, 3D hardware art, gradients, decorative clutter, decorative icons, 3D, vague labels.
 ```
 
-Delegate to `synapse-figure` (Imagen) for raster generation or `synapse-excalidraw` for hand-drawn style.
+Delegate to Codex imagen2 first. If no internal imagen2 service is available or it fails, use the next best available generator (SVG/manual/SIMPLIFIED route) and record the fallback reason + replacement path in `figures/index.md`.
+
+### Mandatory output contract (for SKILL-compliant examples)
+
+- Write every generated figure into `./figures/` under the target example root (`./examples/<project>/figures`).
+- File names must be local and HTML-consumable (PNG/JPG/SVG), defaulting to `figure-XX-descriptivename.*`.
+- Keep visual style controls from `examples/<project>/DESIGN.md` intact (white paper + rough ink + sparse labels + `#D97757` + no gradients/shadows/decor).
+- Generated prompts must preserve the final concatenated style block in `figures/index.md` (`figure_style`) and record `generated_by` for traceability.
 
 #### Step 5: DSL Reference
 
@@ -207,6 +232,7 @@ In DSL output, reference figures using **local paths** (not remote URLs):
 | Needs custom figure | (empty) | full prompt spec |
 
 Figure paths in DSL always use relative paths from the output directory.
+- For example outputs under `examples/<project>/`, place generated files in `./figures/` and reference paths as `./figures/...` (so HTML can load them directly).
 
 #### Figure Inventory File
 
@@ -237,6 +263,7 @@ Key requirements:
 - **Group by source**: use `##` headers per source
 - **Separate with `---`**: each figure gets its own visual block
 - **Key Data is critical**: link each figure to a specific quantitative claim so the user can judge which figures matter for synthesis
+- **Generation metadata**: append at least one line in the blockquote with `generated_by` and `figure_style` and note whether fallback occurred
 
 ### Stage 3: Synthesize DSL
 
@@ -341,9 +368,9 @@ When adding figure support to blog or slides HTML, you MUST:
 2. **Copy its complete figure pattern** — do NOT improvise or partially implement. The pattern includes:
    - **DSL**: independent `Type: figure` section (NOT inline inside `Type: text` sections) with `Image`, `Caption`, `Prompt` fields
    - **HTML SECTIONS array**: independent section object with only `image`, `caption`, `prompt` (no `heading` or `body`)
-   - **Prompt source**: extract from slides DSL `::visual` nano-banana prompts verbatim — never hand-write prompt text
-   - **CSS**: `figure-prompt-vis` class for visible prompt display below images
-   - **Rendering logic**: `promptEl` appended to `figBlock` so prompt is always visible, not just on `img.onerror`
+   - **Prompt source**: extract from slides DSL `::visual` prompts verbatim (Codex-imagen2-first workflow) — never hand-write prompt text
+  - **CSS**: `figure-prompt-vis` class exists (prompt is shown in zoom layer / overlay, hidden in normal card)
+  - **Rendering logic**: `promptEl` appended to `figBlock` so prompt is always recoverable, and shown when zoomed
 3. **Verify all five pieces exist** after implementation: DSL `Type: figure` section, HTML figure section object, prompt from slides `::visual`, CSS `figure-prompt-vis`, and rendering code that creates `promptEl`
 
-**What goes wrong when you skip this**: figures end up as inline fields inside text sections, prompts are missing or hand-written instead of extracted from slides DSL, or prompts exist as data but are never rendered visually. Each of these has caused multi-round user corrections.
+**What goes wrong when you skip this**: figures end up as inline fields inside text sections, prompts are missing or hand-written instead of extracted from slides DSL, or prompts exist as data but never surface in zoomed review. Each of these has caused multi-round user corrections.

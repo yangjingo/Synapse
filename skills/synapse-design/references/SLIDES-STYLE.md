@@ -18,7 +18,7 @@
 - Grid layout with visual-box. Has pulse + pretext animation.
 - Collects factual information (事实 1, 事实 2, ...). H2 emphasizes "现状分析".
 - Pulse performs high-level abstraction of all facts.
-- visual-box contains 🍌 nano-banana prompt.
+- visual-box uses Codex-imagen2 prompt by default (fallback only when internal Codex image service is unavailable).
 
 ### Agenda (02)
 - `canvas-layer push-left` + `no-bullet` class.
@@ -28,7 +28,8 @@
 
 ### Mechanism (03-N)
 - Grid layout (`canvas-layer`, 65%/35%).
-- Must have: pretext animation, pulse conclusion, visual-box with 🍌 nano-banana prompt.
+- Must have: pretext animation, pulse conclusion, visual-box with Codex-imagen2 prompt (fallback only when internal Codex image service is unavailable).
+- Prompt constraints for Mechanism visuals: white paper background, rough black ink, sparse labels, accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter.
 - `::math` → KaTeX in visual-box. `::code` → `.code-container` in visual-box.
 - Max 5 points per slide.
 
@@ -64,10 +65,12 @@ visual-box prompts follow this pattern:
 <div class="visual-box">
   <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
     <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Imagen Prompt</div>
-    [Description of what the figure should show, using synapse-figure rules: flat, engineering style, thin borders, orange/teal accents, white background]
+    [Description of what the figure should show with mandatory constraints: white paper background, rough black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter]
   </div>
 </div>
 ```
+
+For clean browsing, keep `visual-caption` hidden in normal card view and show it only inside the lightbox/zoom panel.
 
 ## 5. Engineering Patterns
 
