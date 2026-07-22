@@ -114,7 +114,32 @@
         transform: scale(var(--visual-scale, 1)) translateY(var(--visual-y, 0));
         transform-origin: center;
       }
-      .visual-box img { width: 100%; height: 100%; object-fit: contain; }
+      .visual-box img { width: 100%; max-height: 320px; object-fit: contain; cursor: zoom-in; }
+      .visual-caption { display: none; }
+      .visual-lightbox {
+        position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+        background: rgba(20, 20, 20, 0.86); z-index: 9999; padding: 24px; backdrop-filter: blur(2px);
+      }
+      .visual-lightbox.open { display: flex; }
+      .visual-lightbox-content {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        max-width: min(96vw, 1600px); max-height: 95vh; gap: 12px;
+      }
+      .visual-lightbox img {
+        max-width: 100%; max-height: min(82vh, 80rem);
+        width: auto; height: auto; object-fit: contain;
+        border: 5px solid #fff; box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+      }
+      .visual-lightbox-caption {
+        width: 100%; color: #f2f2f2; font-size: 0.88rem; line-height: 1.45; text-align: left;
+        white-space: pre-line; padding: 10px 12px; background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.45); border-radius: 6px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+        max-width: 100%; max-height: 12vh; overflow: auto; display: none;
+      }
+      .visual-lightbox-close {
+        position: absolute; top: 20px; right: 24px; width: 44px; height: 44px; border: 4px solid #fff;
+        border-radius: 50%; background: transparent; color: #fff; font-size: 24px; line-height: 36px; cursor: pointer;
+      }
       .code-container {
         background: #1e1e1e; padding: 15px; border-radius: 4px;
         font-family: var(--font-mono); font-size: 0.8rem; color: #d4d4d4;
@@ -192,8 +217,8 @@
               </div>
               <div class="visual-box" style="--visual-scale: 0.9">
                 <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">🍌 nano-banana</div>
-                  [Excalidraw hand-drawn style: black ink, white background, stick figures, sparse 3-5 word labels, no color, no shadows]
+                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
+                  [Excalidraw hand-drawn style: white paper background, rough black ink, sparse labels, single accent #D97757, no gradients, no shadows, no 3D, no decorative clutter]
                 </div>
               </div>
             </div>
@@ -270,6 +295,14 @@
       </div>
     </div>
 
+    <div id="visual-lightbox" class="visual-lightbox" role="dialog" aria-modal="true" aria-label="放大图片">
+      <button id="visual-lightbox-close" class="visual-lightbox-close" aria-label="关闭">×</button>
+      <div class="visual-lightbox-content">
+        <img id="visual-lightbox-img" src="" alt="放大图预览" />
+        <div id="visual-lightbox-caption" class="visual-lightbox-caption" aria-live="polite"></div>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
     <script type="module">
       import { prepareWithSegments, layoutWithLines } from 'https://esm.sh/@chenglou/pretext';
@@ -283,6 +316,56 @@
       document.querySelectorAll(".visual-box[data-scale]").forEach((box) => {
         box.style.setProperty("--visual-scale", box.getAttribute("data-scale"));
       });
+
+      // ── visual image lightbox ──
+      const lightbox = document.getElementById("visual-lightbox");
+      const lightboxImg = document.getElementById("visual-lightbox-img");
+      const lightboxClose = document.getElementById("visual-lightbox-close");
+      const lightboxCaption = document.getElementById("visual-lightbox-caption");
+      if (lightbox && lightboxImg && lightboxClose && lightboxCaption) {
+        const openLightbox = (img) => {
+          const src = img.src;
+          const alt = img.alt || "放大图预览";
+          const captionEl = img.closest(".visual-box")?.querySelector(".visual-caption");
+          const caption = captionEl ? captionEl.textContent.trim() : "";
+
+          lightboxImg.src = src;
+          lightboxImg.alt = alt;
+          if (caption) {
+            lightboxCaption.textContent = caption;
+            lightboxCaption.style.display = "block";
+          } else {
+            lightboxCaption.style.display = "none";
+            lightboxCaption.textContent = "";
+          }
+          lightbox.classList.add("open");
+        };
+
+        const closeLightbox = () => {
+          lightbox.classList.remove("open");
+          lightboxImg.removeAttribute("src");
+          lightboxCaption.textContent = "";
+          lightboxCaption.style.display = "none";
+        };
+
+        document.querySelectorAll(".visual-box img").forEach((img) => {
+          img.addEventListener("click", (e) => {
+            e.preventDefault();
+            openLightbox(img);
+          });
+        });
+        lightboxClose.addEventListener("click", closeLightbox);
+        lightbox.addEventListener("click", (e) => {
+          if (e.target === lightbox) {
+            closeLightbox();
+          }
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && lightbox.classList.contains("open")) {
+            closeLightbox();
+          }
+        });
+      }
 
       // ── Reveal.js ──
       Reveal.initialize({
