@@ -1,84 +1,68 @@
 # Synapse
 
 <div align="center">
-  <img src="assets/logo.svg" alt="Synapse logo" width="160">
+  <img src="assets/logo.svg" alt="Synapse logo" width="144">
 
-  **The High-Pressure Logic Forge for AI-native technical publishing**
+  **A logic forge for AI-native technical publishing.**
 
-  把散乱的 URL、文件与笔记，锻造成可验证、可复用、可发布的技术叙事。
+  [中文](README.zh-CN.md) · [Visual tour](docs/slides/index.html) · [Quickstart](docs/QUICKSTART.md)
 
   [![Release](https://img.shields.io/badge/release-v2.0.0-C45A20)](https://github.com/yangjingo/Synapse/releases/tag/v2.0.0)
   [![License: MIT](https://img.shields.io/badge/license-MIT-4A4338)](LICENSE.txt)
 </div>
 
-![Synapse pipeline: input, forge, DSL, compose, publish](docs/assets/diagrams/synapse-pipeline.svg)
+![Research notes, logs, and papers entering the Synapse logic forge and emerging as slides, an article, a diagram, and motion](docs/assets/readme/synapse-hero.png)
 
-Synapse 不是又一个“帮我总结”的提示词。它是一组可组合的 Codex Skills：先追溯证据、提炼论点，再用统一 DSL 生成 Slides、技术博客、Excalidraw 图和动画。输出保留本地素材、验证脚本与可编辑源文件，适合持续迭代，而不是一次性演示。
+Synapse is a set of composable Codex Skills that turns URLs, files, and raw notes into traceable arguments and finished technical artifacts. One DSL drives slides, engineering articles, diagrams, and motion—without leaving image prompts in the final output.
 
-## 为什么使用 Synapse
+## Install
 
-- **先逻辑，后排版**：`synapse-forge` 把素材压成 argument spine，避免内容被模板牵着走。
-- **同源多产物**：一份 DSL 可驱动 Slides、Blog、Diagram 与 Motion，减少跨格式漂移。
-- **交付真实素材**：图片直接嵌入最终页面，同时保留 `.excalidraw` 源文件和自动校验。
-
-## 安装
-
-### 给 Human：交互式选择
+For a human-guided install:
 
 ```bash
 npx --yes skills add https://github.com/yangjingo/Synapse \
   --agent codex --global --full-depth --copy
 ```
 
-在列表中选择需要的 Skills；首次使用建议安装全部 6 个。
+For an unattended agent install:
 
-### 给 Agent：无交互安装
+```bash
+npx --yes skills add https://github.com/yangjingo/Synapse \
+  --agent codex --global --full-depth --copy --skill "*" --yes
+```
 
-把下面这句话直接交给 Codex：
+Restart Codex after installation. See the [Quickstart](docs/QUICKSTART.md) for verification and upgrade instructions.
 
-> Run `npx --yes skills add https://github.com/yangjingo/Synapse --agent codex --global --full-depth --copy --skill "*" --yes`, then verify that `synapse` and all five `synapse-*` skills are installed.
-
-完整说明见 [Quickstart](docs/QUICKSTART.md)。
-
-## 立即使用
-
-安装后重启 Codex，然后直接描述目标：
+## Use
 
 ```text
 Use $synapse to turn these papers and notes into a Why.J-style slide deck
-and engineering blog. Keep claims traceable and embed finished visuals.
+and engineering article. Keep every claim traceable and embed finished visuals.
 ```
 
-也可以单独调用能力：
+The orchestrator delegates to five focused Skills:
 
-- `$synapse-forge`：URL / 文件 / 原始文本 → Slides 或 Blog DSL
-- `$synapse-design`：叙事结构、视觉系统与 HTML Slides
-- `$synapse-pretext`：零 DOM 文本测量与 Blog 排版
-- `$synapse-excalidraw`：可编辑手绘技术图
-- `$synapse-animation`：SVG / GIF / Remotion 技术动画
+| Skill | Job |
+|---|---|
+| `$synapse-forge` | Sources → verified argument DSL |
+| `$synapse-design` | Narrative and slide composition |
+| `$synapse-pretext` | Geometry-aware article rendering |
+| `$synapse-excalidraw` | Editable technical diagrams |
+| `$synapse-animation` | SVG, GIF, and Remotion motion |
 
-## 仓库导航
+## See the output
 
-```text
-SKILL.md                  # 主编排 Skill
-skills/synapse-*/         # 五个独立能力模块
-examples/                 # 可运行的完整交付样例
-scripts/                  # 刷新与验证脚本
-docs/                     # Quickstart 与项目说明
-```
+- [Visual introduction](docs/slides/index.html)
+- [On-Policy Distillation](examples/opd/)
+- [DeepSeek-V4](examples/deepseek-v4/)
+- [CLI Revolution](examples/cli-revolution/)
+- [Nano Claude Code](examples/nano-cc/)
 
-从 [examples](examples/) 看最终效果，从 [项目介绍](docs/PROJECT-INTRO-CN.md) 理解设计原则。README 流程图的可编辑源文件位于 [`docs/assets/diagrams`](docs/assets/diagrams/)。
-
-## 开发与验证
+## Develop
 
 ```bash
 node scripts/refresh-skill-examples.js
 node scripts/validate-slide-visuals.js
-node scripts/generate-readme-diagram.js
 ```
 
-贡献前请阅读 [AGENTS.md](AGENTS.md)。
-
----
-
-<div align="center"><strong>Why.J Engineering · Distill noise into logic.</strong></div>
+Contributor conventions are in [AGENTS.md](AGENTS.md).
