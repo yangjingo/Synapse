@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 700" width="1010" height="700">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#4A4338" /></marker></defs>
+<rect width="1010" height="700" fill="#FAFAF7" />
+<text x="505" y="54" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="28" font-weight="600" fill="#4A4338">Every Post-Training Method Is Three Dial Settings</text>
+<text x="115" y="183" text-anchor="start" font-family="Virgil, Segoe UI, sans-serif" font-size="16" font-weight="400" fill="#4A4338">α · sampling mix</text>
+<line x1="335" y1="175" x2="850" y2="175" stroke="#908878" stroke-width="8" stroke-linecap="round" />
+<rect x="335" y="163" width="370.8" height="24" rx="12" fill="#C8B8B0" stroke="#908878" stroke-width="2" />
+<circle cx="705.8" cy="175" r="15" fill="#FDF0E6" stroke="#C45A20" stroke-width="3" />
+<text x="115" y="273" text-anchor="start" font-family="Virgil, Segoe UI, sans-serif" font-size="16" font-weight="400" fill="#4A4338">λ · advantage blend</text>
+<line x1="335" y1="265" x2="850" y2="265" stroke="#908878" stroke-width="8" stroke-linecap="round" />
+<rect x="335" y="253" width="247.2" height="24" rx="12" fill="#B9C2AE" stroke="#908878" stroke-width="2" />
+<circle cx="582.2" cy="265" r="15" fill="#FDF0E6" stroke="#C45A20" stroke-width="3" />
+<text x="115" y="363" text-anchor="start" font-family="Virgil, Segoe UI, sans-serif" font-size="16" font-weight="400" fill="#4A4338">πT · teacher choice</text>
+<line x1="335" y1="355" x2="850" y2="355" stroke="#908878" stroke-width="8" stroke-linecap="round" />
+<rect x="335" y="343" width="442.9" height="24" rx="12" fill="#C7B0AD" stroke="#908878" stroke-width="2" />
+<circle cx="777.9" cy="355" r="15" fill="#FDF0E6" stroke="#C45A20" stroke-width="3" />
+<rect x="115" y="445" width="780" height="145" rx="8" fill="#E8E2DA" stroke="#908878" stroke-width="2" />
+<text x="155" y="480" text-anchor="start" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="600" fill="#4A4338">Method</text>
+<text x="380" y="480" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">α</text>
+<text x="520" y="480" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">λ</text>
+<text x="735" y="480" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">teacher πT</text>
+<text x="155" y="515" text-anchor="start" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">SFT</text>
+<text x="380" y="515" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">0</text>
+<text x="520" y="515" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">0</text>
+<text x="735" y="515" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">data</text>
+<text x="155" y="545" text-anchor="start" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">RL / GRPO</text>
+<text x="380" y="545" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">1</text>
+<text x="520" y="545" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">0</text>
+<text x="735" y="545" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">—</text>
+<text x="155" y="575" text-anchor="start" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">OPD / OPSD</text>
+<text x="380" y="575" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">1</text>
+<text x="520" y="575" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">1</text>
+<text x="735" y="575" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="14" font-weight="400" fill="#4A4338">same-family / self</text>
+<rect x="260" y="620" width="490" height="52" rx="8" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" />
+<text x="505" y="652" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="15" font-weight="400" fill="#4A4338">Change the dials; the family of algorithms changes</text>
+</svg>

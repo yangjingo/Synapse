@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="110 -1 980 882" width="980" height="882">
+<rect x="110" y="-1" width="980" height="882" fill="#FAFAF7" />
+<rect x="165" y="175" width="250" height="72" fill="#C4B8A8" stroke="#9A8870" stroke-width="2" rx="4" />
+<rect x="165" y="289" width="250" height="72" fill="#E8E2DA" stroke="#B0A898" stroke-width="2" rx="4" />
+<rect x="165" y="403" width="250" height="72" fill="#C0B4B0" stroke="#968078" stroke-width="2" rx="4" />
+<rect x="785" y="175" width="250" height="72" fill="#C0B4B0" stroke="#968078" stroke-width="2" rx="4" />
+<rect x="785" y="289" width="250" height="72" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" rx="4" />
+<rect x="785" y="403" width="250" height="72" fill="#C8B8B0" stroke="#A08880" stroke-width="2" rx="4" />
+<rect x="130" y="620" width="320" height="86" fill="#E8E2DA" stroke="#B0A898" stroke-width="2" rx="4" />
+<rect x="750" y="620" width="320" height="86" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" rx="4" />
+<rect x="300" y="790" width="600" height="70" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" rx="4" />
+<path d="M 290 247 L 290 289" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 290 361 L 290 403" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 910 247 L 910 289" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 910 361 L 910 403" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<text x="600" y="52" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="28" fill="#4A4338" text-anchor="middle">Forward KL vs. Reverse KL</text>
+<text x="290" y="130" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="20" fill="#4A4338" text-anchor="middle">Forward KL · off-policy</text>
+<text x="290" y="211" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Teacher response</text>
+<text x="290" y="325" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Fixed dataset</text>
+<text x="290" y="439" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Student imitates</text>
+<text x="910" y="130" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="20" fill="#4A4338" text-anchor="middle">Reverse KL · on-policy</text>
+<text x="910" y="211" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Student rollout</text>
+<text x="910" y="325" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Teacher scores tokens</text>
+<text x="910" y="439" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Student updates</text>
+<text x="290" y="639" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Sparse supervision</text>
+<text x="290" y="658.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Teacher distribution</text>
+<text x="910" y="639" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Dense supervision</text>
+<text x="910" y="658.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Student distribution</text>
+<text x="600" y="810" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">The direction changes who generates the trajectory—and how</text>
+<text x="600" y="830.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">dense the signal becomes</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4A4540" /></marker></defs>
+</svg>

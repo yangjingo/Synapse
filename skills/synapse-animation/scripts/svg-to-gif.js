@@ -103,15 +103,16 @@ console.log(`Frames: ${frameCount} @ ${fps}fps`);
   </style></head><body>${svgContent}</body></html>`;
   await page.setContent(svgHtml, { waitUntil: 'load' });
 
-  // Apply speed to SMIL animations via setCurrentTime
+  // Shorten the output timeline and seek proportionally farther into the
+  // source animation so --speed 3 captures the complete animation at 3x.
   for (let i = 0; i < frameCount; i++) {
     const t = i * (1000 / fps); // time in ms at this frame
-    await page.evaluate((tMs) => {
+    await page.evaluate(({ tMs, speed }) => {
       const svg = document.querySelector('svg');
       if (svg && svg.setCurrentTime) {
-        svg.setCurrentTime(tMs / 1000);
+        svg.setCurrentTime((tMs / 1000) * speed);
       }
-    }, t);
+    }, { tMs: t, speed });
 
     const frameFile = path.join(frameDir, `frame_${String(i).padStart(5, '0')}.png`);
     await page.screenshot({ path: frameFile, clip: { x: 0, y: 0, width: outW, height: outH } });

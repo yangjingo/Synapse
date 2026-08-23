@@ -3,7 +3,7 @@ name: synapse
 description: "Master skill for Why.J Engineering. Orchestrates forge → DSL → slides/blog HTML pipeline. Delegates to synapse-forge (ingestion), synapse-pretext (blog rendering), synapse-excalidraw (diagrams), and synapse-animation."
 repository: https://github.com/yangjingo/Synapse
 homepage: https://github.com/yangjingo/Synapse
-version: 1.0.0
+version: 2.0.0
 ---
 
 # Synapse
@@ -48,7 +48,8 @@ User provides URLs/files
 1. **Ingest**: `synapse-forge` — URLs/files → Slides DSL
 2. **Render**: copy `skills/synapse-design/references/WHYJ-SLIDES.html`, replace content per DSL
    - If target output has `examples/<project>/DESIGN.md`, load it first and treat it as a hard visual rule set.
-   - For any new/recreated figure, **call Codex 内置 `imagen2` first**; fallback generators are only used when `imagen2` is unavailable or fails.
+   - For any new/recreated raster figure, **invoke the Codex built-in `$imagegen` skill and use its default built-in `image_gen` tool mode**.
+   - Do not route figure generation through Gemini, Imagen APIs, Nano Banana, or another external image provider. If built-in `image_gen` is unavailable or fails, report the failure; use the `$imagegen` CLI/API fallback only after the user explicitly approves it.
    - Read both `Figure prompt suffix / 风格控制` and `文件落地` from DESIGN.md first, then merge into generated prompts.
    - For every `::visual`/prompt:
      - append or enforce：`white paper background`、`rough black ink`、`sparse labels`、`single accent #D97757`、`no gradients`、`no shadows`、`no 3D`、`no decorative clutter`、`no emoji`；
@@ -68,9 +69,9 @@ User provides URLs/files
 ### Visual Rules
 
 - **Cover**: NO image, NO pulse, NO pretext animation. Title + Chinese subtitle (topic thesis) + Version/Author/Date. Subtitle is NOT "Synapse vX.X".
-- **Context (01)**: 事实 1-N list. H2 emphasizes "现状分析". Pulse does high-level abstraction. visual-box with Codex-imagen2 prompt (single source of truth).
+- **Context (01)**: 事实 1-N list. H2 emphasizes "现状分析". Pulse does high-level abstraction. visual-box with Codex `$imagegen` prompt (single source of truth).
 - **Agenda (02)**: Questions grow from Context facts. `push-left` + `fragment`. NO image, NO pulse.
-- **Mechanism (03-N)**: pulse + visual-box + pretext animation. Codex-imagen2 (Excalidraw: white paper background, rough black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter). Generation is **imagen2-first**, with fallback only when imagen2不可达.
+- **Mechanism (03-N)**: pulse + visual-box + pretext animation. Codex `$imagegen` (Excalidraw-inspired: white paper background, rough black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter). Raster generation uses the built-in `image_gen` path.
 - **Take A Ways**: Q→A strict mapping. `push-left`, NO visual-box. Q4 → pulse with `fragment`.
 - **Reference**: `.canvas-footer`. Bold title wraps `<a href>`, full URL inline. CSS `::before` auto-generates arrows — do NOT hand-write `→`.
 
@@ -142,9 +143,9 @@ Slides HTML MUST be copied from verified template, never hand-written. Hand-writ
 
 1. **No Fluff** — Stripped all social-media hooks and emojis
 2. **Aggressive Pulse** — Conclusion hits like a hammer
-3. **Imagen2-first** — Diagram prompts prioritize Codex 内置 `imagen2` as the primary renderer; keep fallback only for failure/unreachable cases.
+3. **Codex imagegen only** — Raster illustration prompts invoke the built-in `$imagegen` skill and its default `image_gen` tool mode.
    Required controls for these prompts: white paper background, rough hand-drawn black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative elements, no emoji.
-   - Do not route figure prompts to Nano-style generators by default (e.g. nano-banana); they are disallowed unless explicitly requested by user.
+   - Do not route figure prompts to Gemini, Imagen APIs, Nano Banana, or other external providers. Do not silently fall back to an API/CLI generator.
 4. **DESIGN.md precedence** — If an example-level `DESIGN.md` exists, its image rules dominate all other defaults; generated figure prompts and prompt-only fallbacks must be consistent and verifiable in the corresponding `figures/index.md`.
 
 ## Trigger

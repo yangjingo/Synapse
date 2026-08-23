@@ -9,10 +9,24 @@
  *   Phase 5: Output
  *   Phase 6: Insight
  */
-const L = require('../skills/synapse-excalidraw/scripts/layout');
+const path = require('path');
+const { execFileSync } = require('child_process');
 
-const T = L.morandi('classic');
+let randomState = 0x0f11dec0;
+Math.random = () => {
+  randomState = (randomState + 0x6d2b79f5) | 0;
+  let value = Math.imul(randomState ^ (randomState >>> 15), 1 | randomState);
+  value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
+  return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+};
+
+const L = require('../scripts/layout');
+
+const T = L.morandi('warm');
 L.configure({ tokens: { ink: T._ink, inkMuted: T._inkMuted } });
+
+const BG = '#FAFAF7';
+const ACCENT = { fill: '#FDF0E6', stroke: '#C45A20' };
 
 let _n = 1000;
 const uid = () => 'pd_' + (_n++).toString(36);
@@ -119,7 +133,7 @@ const NEW_TOK_Y = DIV_Y + 35;
 
 // New token (highlighted)
 const newTokX = CX - TW / 2;
-box(newTokX, NEW_TOK_Y, TW, TH, T.masked.fill, T.masked.stroke);
+box(newTokX, NEW_TOK_Y, TW, TH, ACCENT.fill, ACCENT.stroke);
 L.text(CX, NEW_TOK_Y + TH / 2, 'mat', 11);
 
 // "cached" label on the left
@@ -127,10 +141,10 @@ L.text(CX - TW / 2 - 55, NEW_TOK_Y + TH / 2, 'cached...', 10, T._inkMuted);
 
 // Single arrow from new token to model
 const DEC_MODEL_Y = NEW_TOK_Y + TH + 55;
-L.arrow(CX, NEW_TOK_Y + TH, CX, DEC_MODEL_Y, T.masked.stroke, 2, 'arrow');
+L.arrow(CX, NEW_TOK_Y + TH, CX, DEC_MODEL_Y, ACCENT.stroke, 2, 'arrow');
 
 // "仅新 token" label
-L.text(CX + 50, NEW_TOK_Y + TH + 20, '仅新 token', 10, T.masked.stroke);
+L.text(CX + 50, NEW_TOK_Y + TH + 20, '仅新 token', 10, ACCENT.stroke);
 
 // Model block (decode)
 box(CX - MW / 2, DEC_MODEL_Y, MW, MH, MODEL_FILL, MODEL_STROKE);
@@ -151,14 +165,14 @@ for (let i = 0; i < DEC_CACHE_N; i++) {
   const x = decCacheStart + i * CS;
   const isNew = i === DEC_CACHE_N - 1;
   box(x, DEC_CACHE_Y, CW, CH,
-    isNew ? T.masked.fill : EMPTY.fill,
-    isNew ? T.masked.stroke : EMPTY.stroke,
+    isNew ? ACCENT.fill : EMPTY.fill,
+    isNew ? ACCENT.stroke : EMPTY.stroke,
     isNew ? 100 : 38);
   L.text(x + CW / 2, DEC_CACHE_Y + CH / 2, `KV${i + 1}`, 9,
     isNew ? T._ink : T._inkMuted);
 }
 
-L.text(CX, DEC_CACHE_Y + CH + 16, '逐步追加 →', 12, T.masked.stroke);
+L.text(CX, DEC_CACHE_Y + CH + 16, '逐步追加 →', 12, ACCENT.stroke);
 L.text(CX, DEC_CACHE_Y + CH + 34, 't = 2, 3, 4, ...', 12);
 
 // ══════════════════════════════════════
@@ -180,7 +194,7 @@ const rid = uid(), tid = uid();
 L.elements.push({
   type: 'rectangle', id: rid, x: insX, y: insY,
   width: insW, height: 50,
-  strokeColor: T.attention.stroke, backgroundColor: '#F0EDE6',
+  strokeColor: ACCENT.stroke, backgroundColor: ACCENT.fill,
   fillStyle: 'solid', strokeWidth: 1.5, roughness: 1,
   roundness: { type: 3 }, opacity: 100, angle: 0, seed: rs(),
   groupIds: [], boundElements: [{ id: tid, type: 'text' }],
@@ -210,5 +224,8 @@ if (issues.length > 0) {
   L.autoFix();
 }
 
-L.write('evals/prefill-decode.excalidraw', { bgColor: '#FAF8F4' });
-console.log('Done → evals/prefill-decode.excalidraw');
+const output = path.join(__dirname, '../evals/prefill-decode.excalidraw');
+const svgOutput = path.join(__dirname, '../evals/prefill-decode.svg');
+L.write(output, { bgColor: BG, source: 'synapse-excalidraw-example' });
+execFileSync(process.execPath, [path.join(__dirname, '../scripts/exc-to-svg.js'), output, svgOutput], { stdio: 'inherit' });
+console.log(`Done → ${output}`);

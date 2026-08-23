@@ -18,7 +18,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/04/26
 
 ::pulse [「 CLI 不是复古，是软件交互层正在发生的结构性位移。 」] ::
 
-::visual {Minimalist Excalidraw-style: two stick-figure arrows converging — left from "SaaS → no UI", right from "Agent → code". They meet at a terminal node labeled "CLI = Agent Layer". Black ink, hand-drawn, white background. No color, no shadows.} ::
+::image [./figures/figure-03-agent-layer.svg] [scale=100] ::
 
 ---
 
@@ -43,7 +43,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/04/26
 
 ::pulse [「 简洁是 Token 效率的唯一救赎。 」] ::
 
-::visual {Minimalist Excalidraw-style: a stick-figure LLM node on the left, arrows pointing to three small terminal icons labeled "grep", "pipe", "stdout". Label below: "CLI = mother tongue". Black ink, hand-drawn, white background. No color, no shadows.} ::
+::image [./figures/figure-04-cli-mother-tongue.svg] [scale=100] ::
 
 ---
 
@@ -73,7 +73,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/04/26
 
 ::pulse [「 CLI 是团队与 Agent 的最小共识层。 」] ::
 
-::visual {Minimalist Excalidraw-style: three stick-figure nodes — "Dev", "CI", "Agent" — all pointing to one central CLI node. Label: "same cmd, same result". Hand-drawn arrows, black ink, white background.} ::
+::image [./figures/figure-06-shared-protocol.svg] [scale=100] ::
 
 ---
 

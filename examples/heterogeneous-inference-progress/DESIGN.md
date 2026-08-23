@@ -2,8 +2,8 @@
 
 ## 1) 图片生成优先级
 
-1. **优先使用 Codex imagen2 / 内置 imagen 工具生成**（图形化插图）。
-2. 仅当 Codex imagen2 工具不可用时，才允许退回其他生成方式（并记录退回原因）。
+1. **图形化位图插图必须由 Codex 调用内置 `$imagegen` skill，并使用默认 built-in `image_gen` tool mode 生成**。
+2. 禁止路由到 Gemini、Imagen API、Nano Banana 或其他外部图像提供商。若 built-in `image_gen` 不可用或失败，应报告错误；只有用户明确同意后才可使用 `$imagegen` 的 CLI/API fallback，并记录原因。
 3. 所有提示词需先压缩信息，再进入图形化渲染；每张图优先承载一个核心结论。
 4. 每张图仅描述一个核心论点；禁止在一张图内叠加多个无关主线。
 

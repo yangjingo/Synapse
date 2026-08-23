@@ -321,6 +321,13 @@
         transform-origin: center;
       }
 
+      .visual-box > img {
+        display: block;
+        width: 100%;
+        height: 320px;
+        object-fit: contain;
+      }
+
       .figure-prompt-wrap {
         padding: 20px 22px 22px;
         text-align: left;
@@ -430,6 +437,7 @@
         <!-- 00 / Cover -->
         <section data-transition="none" class="cover-slide">
           <div class="slide-content cover-content">
+            <div class="ui-label" hidden>00 / Cover</div>
             <div class="meta-tag">Research Terminal</div>
             <div class="meta-date">2026年6月6日 · Why.J</div>
             <h1 class="cover-title">whyj-quant</h1>
@@ -480,14 +488,7 @@
                 </div>
               </div>
               <div class="visual-box">
-                <div class="figure-prompt-wrap">
-                  <div class="figure-prompt-label">Figure prompt</div>
-                  <div class="figure-prompt-text">
-                    Center terminal "whyj&gt;" with coral accent. Three labels —
-                    NOT "auto trading", NOT "news sentiment", IS "research REPL +
-                    Agent tools". Hand-drawn, black ink, white background.
-                  </div>
-                </div>
+                <img src="./figures/figure-03-research-repl.svg" alt="figure 03 research repl" />
               </div>
             </div>
           </div>
@@ -678,15 +679,7 @@
                 </div>
               </div>
               <div class="visual-box">
-                <div class="figure-prompt-wrap">
-                  <div class="figure-prompt-label">Figure prompt</div>
-                  <div class="figure-prompt-text">
-                    Input splits: "/slash" → registry → services (straight,
-                    "deterministic"); "natural language" → pi Agent → tools →
-                    services (wavy, "orchestrated"). Both converge at services
-                    layer.
-                  </div>
-                </div>
+                <img src="./figures/figure-04-dual-entry.svg" alt="figure 04 dual entry" />
               </div>
             </div>
           </div>
@@ -783,14 +776,7 @@ return ok(`Factor: momentum_20
                 </div>
               </div>
               <div class="visual-box">
-                <div class="figure-prompt-wrap">
-                  <div class="figure-prompt-label">Figure prompt</div>
-                  <div class="figure-prompt-text">
-                    2×2 grid: "durable" (settings), "cache" (market bars),
-                    "artifact" (benchmark/sessions), "forbidden" (portfolio, red
-                    X). Hand-drawn, black ink, white background.
-                  </div>
-                </div>
+                <img src="./figures/figure-05-storage-policy.svg" alt="figure 05 storage policy" />
               </div>
             </div>
           </div>

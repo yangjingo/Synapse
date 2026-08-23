@@ -59,7 +59,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/04/14
 
 ::pulse [「 Spec 即代码，文档即指令。 」] ::
 
-::visual {Minimalist Excalidraw-style: three boxes connected by arrows — "Spec" → "Agent Boundary" → "Code". Hand-drawn, black ink, white background, stick-figure developer at the start.} ::
+::image [./figures/figure-03-spec-boundary.svg] [scale=100] ::
 
 ---
 
@@ -93,7 +93,7 @@ async with client.messages.stream(
 
 ::pulse [「 逆向源码的文档，而非搬运源码的细节。 」] ::
 
-::visual {Minimalist Excalidraw-style: three tool icons vertically — terminal "zread", node graph "Deepwiki", stick-figure with "/init". Hand-drawn, black ink, white background.} ::
+::image [./figures/figure-04-reverse-toolchain.svg] [scale=100] ::
 
 ---
 
@@ -107,7 +107,7 @@ async with client.messages.stream(
 
 ::pulse [「 最好的测试员是另一个 Agent。 」] ::
 
-::visual {Minimalist Excalidraw-style: two stick-figure agents facing each other across a terminal — left "Dev", right "Tester". Pass/fail badge between them. Hand-drawn, black ink, white background.} ::
+::image [./figures/figure-05-dev-test-loop.svg] [scale=100] ::
 
 ---
 

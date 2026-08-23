@@ -1,7 +1,8 @@
 ---
 name: synapse-excalidraw
-version: 1.0.0
 description: Convert Mermaid flowcharts or Excalidraw screenshots into animated hand-drawn diagrams. Three input modes — Mermaid syntax, screenshot image, or existing .excalidraw file — all produce Excalidraw JSON then animate via excalidraw-animate. Use when users request Mermaid-to-Excalidraw, diagram animation, hand-drawn flowchart animation, or excalidraw-cli workflows.
+metadata:
+  version: 2.0.0
 ---
 
 # Synapse Excalidraw
@@ -323,9 +324,11 @@ Elements without explicit animation order animate in creation order. To control 
 5. `examples/` — Proven layout.js scripts + output samples:
    - `gen-swa-attention.js` — Grid comparison (N×N matrix with banded mask)
    - `gen-prefill-decode.js` — Vertical flow animation (prefill → decode pipeline)
-   - `opd-figures/` — 5 OPD diagram outputs (excalidraw + SVG) — also mirrored in main `examples/opd/figures/`
+   - `opd-figures/` — 7 current OPD diagram outputs (editable `.excalidraw` + SVG), mirrored from main `examples/opd/figure/`
 6. `scripts/exc-to-svg.js` — Pure Node.js .excalidraw → SVG converter (no dependencies)
 7. `evals/` — Source .excalidraw + SVG samples (prefill-decode, swa-attention)
+
+Refresh all example sources, SVG exports, and OPD mirrors from the repository root with `node scripts/refresh-skill-examples.js`.
 
 ### Library Templates
 

@@ -1,7 +1,8 @@
 ---
 name: synapse-pretext
-version: 1.0.0
 description: Zero-DOM text measurement and manual line layout for Synapse outputs. Other skills delegate here when they need text geometry — height prediction, obstacle-aware reflow, shrinkwrap width, justified layout, or proportional character sizing. Use when animated text fields, geometry-sensitive titles, editorial flow, or ASCII-art rendering require precise layout without touching the DOM.
+metadata:
+  version: 2.0.0
 ---
 
 # Synapse Pretext
@@ -44,12 +45,13 @@ Pretext measures and positions multiline text through pure arithmetic. No `getBo
 The blog template demonstrates the complete pretext integration pattern with all sub-features (meta, figures, references, stick figure).
 
 1. `examples/dsv4-blog-layout.html` — **blog rendering template**. Self-contained HTML with inlined pretext engine, adaptive title fitting, stick figure overlay, figure zoom, SECTIONS renderer. Cream background, orange accent, serif body.
+2. `examples/dsv4-blog-opd-en.html` — figure-heavy English example with six generated SVG charts. Both examples resolve assets from `examples/figures/`; refresh them with `node skills/synapse-pretext/examples/generate-figures.js`.
 
 Main `examples/` directory contains 4 fully rendered blog outputs built from this template:
 - `cli-revolution/cli-revolution-blog.html` — CLI Revolution (7 sections, 2 callouts)
 - `deepseek-v4/deepseek-v4-blog.html` — DeepSeek-V4 (12 sections, 2 figures, 3 callouts)
 - `nano-cc/nano-cc-blog.html` — Nano Claude Code (8 sections, 3 callouts)
-- `opd/opd-blog.html` — OPD On-Policy Distillation (12 sections, 4 SVG figures, 3 callouts)
+- `opd/opd-blog.html` — OPD On-Policy Distillation (12 sections, 7 editable SVG figures, 3 callouts)
 
 All files are self-contained single HTML. Open directly in browser, no web server needed.
 
@@ -76,7 +78,7 @@ All files are self-contained single HTML. Open directly in browser, no web serve
 | Click-spawn stick figure | `dsv4-blog-layout` | Canvas overlay `requestAnimationFrame` bounce + wave |
 | Figure integration + click-to-zoom | `dsv4-blog-layout` | `.figure-block` + `max-height: 70vh` + zoom overlay, prompt revealed only in zoom state |
 | Missing image placeholder | `dsv4-blog-layout` | `img.onerror` → "待生成插图"; prompt text kept in section metadata and only shown in zoom state |
-| SVG figure (Excalidraw) | `opd-blog` | 4 SVG figures via `synapse-excalidraw` |
+| SVG figure (Excalidraw) | `opd-blog` | 7 SVG figures via `synapse-excalidraw` |
 
 ## Core API
 
@@ -202,7 +204,7 @@ The complete pattern has **five pieces** — all must exist:
 |---|-------|----------|----------------|
 | 1 | DSL `Type: figure` section | `.dsl.md` | Independent section with `Image`, `Caption`, `Prompt` fields (NOT inline inside `Type: text`) |
 | 2 | HTML figure section object | SECTIONS array | `{ image: \`...\`, caption: \`...\`, prompt: \`...\` }` — no `heading` or `body` |
-| 3 | Prompt source | slides DSL | Extract verbatim from slides DSL `::visual` prompt text (Codex-imagen2-first workflow), never hand-write; prompts must include strict visual controls (`white paper`, `rough ink`, `sparse labels`, `#D97757`, no gradients/shadows/3D/decorative clutter) and align with current example `DESIGN.md`. |
+| 3 | Prompt source | slides DSL | Extract verbatim from slides DSL `::visual` prompt text (Codex `$imagegen` workflow), never hand-write; prompts must include strict visual controls (`#FAFAF7` paper, `#4A4338` ink, sparse labels, one `#C45A20` accent, no gradients/shadows/3D/decorative clutter) and align with current example `DESIGN.md`. |
 | 4 | CSS `figure-prompt-vis` class | `<style>` block | Keep prompt element in DOM, hidden by default, visible in zoom |
 | 5 | Rendering code | `<script>` | `promptEl` created and appended to `figBlock` so prompt remains available in zoom interaction |
 
@@ -214,9 +216,10 @@ When `s.image` points to a non-existent file, `img.onerror` shows a "待生成�
 
 1. **Check `s.prompt`** — describes what the image should contain
 2. **Delegate:**
-   - **Primary（默认）**: Codex 内置 `imagen2` — call first for any requested/recreated figure, keep prompt as the single source of truth.
-   - **Fallback 1**: `synapse-excalidraw` — flow diagrams, architecture diagrams, concept maps (SVG, editable).
-   - **Fallback 2**: `synapse-animation` — animated sequences, only when explicitly requested.
+   - **Raster illustration（默认）**: invoke Codex `$imagegen` and use its built-in `image_gen` tool mode; keep the prompt as the single source of truth.
+   - **Native vector diagram**: use `synapse-excalidraw` for flow diagrams, architecture diagrams, and concept maps that should remain SVG/editable. This is a deliberate output-type choice, not an image-provider fallback.
+   - **Animation**: use `synapse-animation` only when explicitly requested.
+   - Never route raster generation through Gemini, Imagen APIs, or Nano Banana. If built-in `image_gen` fails, tell the user; use `$imagegen` CLI/API mode only with explicit approval.
 3. **Save** generated image into `examples/<project>/figures/` (or `figures/` during intermediate steps), and placeholder auto-resolves on reload. Final `image` 字段必须是 `./figures/...` 相对路径。
 4. **Traceability**: record fallback reason and generator path in `examples/<project>/figures/index.md` for re-generation.
 5. **Prompt visibility rule**: prompt stays hidden in normal card state and is only revealed when figure is zoomed.
@@ -236,8 +239,8 @@ When `s.image` points to a non-existent file, `img.onerror` shows a "待生成�
 
 ### With synapse-excalidraw (diagrams)
 
-When a figure entry has no image file, delegate prompt-driven generation to the Codex 内置 `imagen2` tool first and record the call path.
-If imagen2 is unavailable or fails, fallback to the next generator in the pipeline (synapse-excalidraw/manual source) and keep the prompt in HTML for traceability.
+When a raster figure entry has no image file, invoke the Codex `$imagegen` skill in its default built-in `image_gen` tool mode and record `codex-imagegen` as the call path.
+If built-in `image_gen` is unavailable or fails, report it instead of switching providers silently. The `$imagegen` CLI/API fallback may be used only after explicit user approval. Use `synapse-excalidraw` directly when the intended artifact is an editable vector diagram.
 Generated images must be written into the current example’s `./figures/` directory (or `figures/` during intermediate steps), and HTML `image` fields should reference `./figures/...`.
 This includes examples generated under `examples/<project>/`, i.e. `examples/heterogeneous-inference-progress/figures/...`.
 

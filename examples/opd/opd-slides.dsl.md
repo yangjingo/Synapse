@@ -1,6 +1,6 @@
 # 00 / Cover
 
-## OPD (On-Policy Distillation) 
+## OPD (On-Policy Distillation)
 
 从DeepSeekV4中的后训练方法，学到的心得体会
 
@@ -17,8 +17,8 @@ Version: Synapse v1.0.0(git@github.com:yangjingo/Synapse.git) | Author: YangJing
 - **事实 3**：如今模型的迭代的速度越来越快 ==半年为一个代际的更新， 版本以月度来进行发布 == ，如何借鉴模型的迭代方法和知识更新的速度越来越快；
 
 ::pulse [「 V4 的 OPD 的地位 vs R1 的 GRPO 的地位，可能会把各家后训练的工序添加一个标准件，衍生出各种变体 」] ::
-::image [./figure/figure1.png] [scale=80] ::
-::image [./figure/figure2.png] [scale=80] ::
+::image [./figure/figure1.svg] [scale=80] ::
+::image [./figure/figure2.svg] [scale=80] ::
 
 ---
 
@@ -39,10 +39,11 @@ Version: Synapse v1.0.0(git@github.com:yangjingo/Synapse.git) | Author: YangJing
 
 - **V3 的 off-policy 蒸馏**：老师提前写好标准答案，学生死记硬背。Teacher 生成固定 response，Student 照着拟合——本质是 ==Forward KL==，期望在教师分布上计算
 - **V4 的 On-Policy 蒸馏**：Student 先自己 rollout 推理一次，Teacher 对轨迹上每个 token 给 log-prob 反馈——本质是 ==Reverse KL==，期望在学生分布上计算
+- **训练信号的变化**：监督从整条固定答案转为学生真实轨迹上的 ==token-level dense feedback==，纠错位置更贴近部署时分布
 
 ::pulse [「 传统蒸馏是老师让学生硬背解题思路，OPD 是老师顺着学生的解题思路一步步纠正（token-level  dense reward）。 」] ::
 
-::image [./figure/figure3.png] [scale=120] ::
+::image [./figure/figure3.svg] [scale=120] ::
 
 ---
 
@@ -56,25 +57,35 @@ Version: Synapse v1.0.0(git@github.com:yangjingo/Synapse.git) | Author: YangJing
 
 ::pulse [「 OPD 的优点会在 26 年产生更多衍生工作，尤其是对中小团队——能获得比 SFT 更强、比 RL 更稳定易用的算法。 」] ::
 
-::image [./figure/figure6.png] [scale=120] ::
+::image [./figure/figure4.svg] [scale=120] ::
 
 ---
 
 # 05 / Mechanism II
 
-## OPD 是 SFT 的拓展，也是 RLVR 的补充——Cont
+## Multi-teacher OPD：先练专家，再把能力汇入统一学生
 
+- **专家分工**：Math、Code、Reasoning 等教师分别在窄域达到更高上限，避免一个教师承担所有能力
+- **统一 rollout**：Student 生成自己的轨迹，再由匹配领域的 Teacher 对同一轨迹逐 token 评分
+- **阶段式融合**：按领域依次蒸馏并穿插通用数据，降低多教师梯度互相抵消的风险
 
-::image [./figure/figure5.png] [scale=100] ::
+::image [./figure/figure5.svg] [scale=100] ::
 
+::pulse [「 多教师 OPD 不是把答案混在一起，而是让同一个 Student 在自己的轨迹上轮流接受专家纠偏。 」] ::
+
+---
 
 # 06 / Mechanism II
 
-## OPD 是 SFT 的拓展，也是 RLVR 的补充——Cont
+## 接入 V4：OPD 位于领域专家与最终 RL 之间
 
+- **输入端**：Base Model 经过领域 SFT 与 GRPO，形成十余个能力边界清晰的专家
+- **融合端**：Multi-teacher OPD 把专家反馈压回一个统一策略，同时保持 Student 的 on-policy 分布
+- **输出端**：统一模型再进入综合 RL，集中修正跨领域协同、稳定性与最终行为边界
 
-::image [./figure/figure4.png] [scale=100] ::
+::image [./figure/figure6.svg] [scale=100] ::
 
+::pulse [「 OPD 承上启下：上接领域专家的增量知识，下接最终 RL 的统一目标。 」] ::
 
 
 ---
@@ -98,11 +109,11 @@ OPD成功的经验
 
 ::pulse [「 冷启动的 forward-KL 阶段不是可选的——先拉齐分布再做 on-policy，这个顺序不能反。 」] ::
 
-::image [./figure/figure7.png] [scale=120] ::
+::image [./figure/figure7.svg] [scale=120] ::
 
 ---
 
-# 07 / 心得体会
+# 08 / 心得体会
 
 ## 对于个人和团队的启发
 
@@ -115,24 +126,22 @@ OPD成功的经验
 
 - OPD的一些反直觉的内容，分数越强的老师未必能够教出最好的学习，关键在于有一个好的 thinking pattern consistency（大家有相同的思维模式），如何提高团队的 thinking pattern consistency 就是多分享 （论文/技术解读，甚至书籍和电影）和多交流，分享原始的一手的输入信息；
 
+::pulse [「 先形成自己的推理轨迹，再找匹配的专家逐点纠偏；这比照抄答案更容易沉淀成可迁移能力。 」] ::
+
 ---
 
-# 08 / Take A Ways
+# 09 / Take A Ways
 
 ## Take A Ways
 
 - **Q1 → A1**: 从 V3 到 V4 的变化不在训练算法本身，而在 ==arch 变化（Hybrid Attention + mHC）== 和 Infra。训练算法方面仅引入了 OPD，替代 V3 的 off-policy 蒸馏路线
 - **Q2 → A2**: 26 年各家同时选 OPD 不是巧合——OPD 用 ==1/10 算力追平 RL==（dense per-token signal vs sparse outcome reward），Reverse KL 的 mode-seeking 让多专家融合不互相抹杀，已成为后训练标配
 - **Q3 → A3**: OPD 失败的根因是师生分布 ==overlap 不够==——用 forward-KL cold start 拉齐分布，用 entropy-aware 切换保留高熵位置的多样性，这两个修复都有工程实证
-- **Q4 → A4**: 对个人学习的启发——不要纯 SFT 被动接受，也不要一步到位 RL，可以先==主动 OPD（自己先推理，再找专家指导）==，分领域找不同专家，更加稳定高效
-
-
-
-::pulse [「 26 年 OPD 已经变成后训练的基本标配，我们也要训练LLM/Agent一样来训练自己; 」] [fragment] ::
+::pulse [「 Q4 → A4：像训练 LLM/Agent 一样训练自己——先主动推理，再分领域找专家纠偏。 」] [fragment] ::
 
 ---
 
-# 09 / Reference
+# 10 / Reference
 
 ## Reference
 

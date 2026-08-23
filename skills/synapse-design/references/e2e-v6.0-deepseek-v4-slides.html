@@ -13,8 +13,8 @@
     <style>
       :root {
         --bg-color: #ffffff; --grid-line: #fafafa; --main-color: #1e1e1e;
-        --accent-claude: #d97757; --accent-blue: #6a9bcc; --accent-green: #788c5d;
-        --item-bg: rgba(217, 119, 87, 0.05); --strong-bg: rgba(217, 119, 87, 0.12);
+        --accent-claude: #C45A20; --accent-blue: #6a9bcc; --accent-green: #788c5d;
+        --item-bg: rgba(196, 90, 32, 0.05); --strong-bg: rgba(196, 90, 32, 0.12);
         --font-hand: "Gochi Hand", cursive; --font-mono: "JetBrains Mono", monospace;
         --font-head: "Poppins", sans-serif; --shadow: 12px 12px 0px #1e1e1e;
       }
@@ -26,7 +26,7 @@
       .pretext-stage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--bg-color), transparent 14%, transparent 86%, var(--bg-color)), linear-gradient(90deg, var(--bg-color), transparent 8%, transparent 92%, var(--bg-color)); opacity: 0.88; }
       .pretext-bg { position: absolute; inset: 0; }
       .pretext-bg .pt-line { position: absolute; left: 24px; right: 24px; white-space: nowrap; font-family: var(--font-head); font-size: clamp(14px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.03em; color: rgba(30, 30, 30, 0.06); transform-origin: left center; will-change: transform, opacity; user-select: none; }
-      .pretext-bg .pt-line.pt-orange { color: rgba(217, 119, 87, 0.10); }
+      .pretext-bg .pt-line.pt-orange { color: rgba(196, 90, 32, 0.10); }
       .pretext-bg .pt-line.pt-blue { color: rgba(106, 155, 204, 0.09); }
       .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.08); }
       .slide-content { position: relative; z-index: 1; }
@@ -98,10 +98,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 不是更大的 MoE，是重写了 long-context 的 cost curve。 」</div>
               </div>
               <div class="visual-box" style="--visual-scale: 0.9">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: left side a tall bar "V3.2 cost", right side a short bar "V4 cost". Arrow between labeled "rewrite". Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/deepseek-v4/figure-01-cost-curve.svg" alt="figure 01 cost curve" />
               </div>
             </div>
           </div>
@@ -149,10 +146,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.1">「 不是"又加了一个模块"，是"距离不同，表示不同"。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: three horizontal lanes — top "near field" dense dots, middle "CSA" compressed blocks + sparse arrows, bottom "window" 128 dots. Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/deepseek-v4/figure-02-hybrid-attention.svg" alt="figure 02 hybrid attention" />
               </div>
             </div>
           </div>
@@ -177,10 +171,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.98">「 距离越远，压缩越狠 —— 这是结构分工，不是简单取舍。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: two boxes side by side — left "CSA" balanced scale, right "HCA" compressed arrow. Label "trade precision for cost". Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/deepseek-v4/figure-03-hca-compression.svg" alt="figure 03 hca compression" />
               </div>
             </div>
           </div>
@@ -205,10 +196,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.02">「 没有这个前提，long-context 收益只能停留在图上。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: two hands holding a wobbly line labeled "residual". Left hand "mHC" stabilizing. Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/deepseek-v4/figure-04-mhc-residual.svg" alt="figure 04 mhc residual" />
               </div>
             </div>
           </div>
@@ -233,10 +221,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.95">「 优化器不孤立项，结构铺路，框架配合。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: three nodes in triangle — "Attention" RMSNorm, "Muon" no QK-Clip, "Framework" ZeRO. Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/deepseek-v4/figure-05-muon-stability.svg" alt="figure 05 muon stability" />
               </div>
             </div>
           </div>
@@ -261,10 +246,7 @@
                 <div class="pulse-layer pulse-animated">「 KV cache 是存储系统，不是 tensor 的脚注。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: four stacked layers — top "raw" dense dots, "compressed" sparse, "far index" few marks, bottom "disk" circle. Arrow down "tiered". Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/deepseek-v4/figure-06-kv-tiers.svg" alt="figure 06 kv tiers" />
               </div>
             </div>
           </div>

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="90 0 520 786" width="520" height="786">
+<rect x="90" y="0" width="520" height="786" fill="#FAFAF7" />
+<rect x="177" y="115" width="58" height="28" fill="#EDE9E0" stroke="#8A8578" stroke-width="1.5" rx="4" />
+<rect x="249" y="115" width="58" height="28" fill="#EDE9E0" stroke="#8A8578" stroke-width="1.5" rx="4" />
+<rect x="321" y="115" width="58" height="28" fill="#EDE9E0" stroke="#8A8578" stroke-width="1.5" rx="4" />
+<rect x="393" y="115" width="58" height="28" fill="#EDE9E0" stroke="#8A8578" stroke-width="1.5" rx="4" />
+<rect x="465" y="115" width="58" height="28" fill="#EDE9E0" stroke="#8A8578" stroke-width="1.5" rx="4" />
+<rect x="240" y="210" width="220" height="46" fill="#D4CFC4" stroke="#8A8578" stroke-width="1.5" rx="4" />
+<rect x="243" y="301" width="38" height="24" fill="#C4B8A8" stroke="#9A8870" stroke-width="1.5" rx="4" />
+<rect x="287" y="301" width="38" height="24" fill="#C4B8A8" stroke="#9A8870" stroke-width="1.5" rx="4" />
+<rect x="331" y="301" width="38" height="24" fill="#C4B8A8" stroke="#9A8870" stroke-width="1.5" rx="4" />
+<rect x="375" y="301" width="38" height="24" fill="#C4B8A8" stroke="#9A8870" stroke-width="1.5" rx="4" />
+<rect x="419" y="301" width="38" height="24" fill="#C4B8A8" stroke="#9A8870" stroke-width="1.5" rx="4" />
+<rect x="321" y="418" width="58" height="28" fill="#FDF0E6" stroke="#C45A20" stroke-width="1.5" rx="4" />
+<rect x="240" y="501" width="220" height="46" fill="#D4CFC4" stroke="#8A8578" stroke-width="1.5" rx="4" />
+<rect x="221" y="592" width="38" height="24" fill="#E8E2D8" stroke="#CCC6BA" stroke-width="1.5" rx="4" opacity="0.38" />
+<rect x="265" y="592" width="38" height="24" fill="#E8E2D8" stroke="#CCC6BA" stroke-width="1.5" rx="4" opacity="0.38" />
+<rect x="309" y="592" width="38" height="24" fill="#E8E2D8" stroke="#CCC6BA" stroke-width="1.5" rx="4" opacity="0.38" />
+<rect x="353" y="592" width="38" height="24" fill="#E8E2D8" stroke="#CCC6BA" stroke-width="1.5" rx="4" opacity="0.38" />
+<rect x="397" y="592" width="38" height="24" fill="#E8E2D8" stroke="#CCC6BA" stroke-width="1.5" rx="4" opacity="0.38" />
+<rect x="441" y="592" width="38" height="24" fill="#FDF0E6" stroke="#C45A20" stroke-width="1.5" rx="4" />
+<rect x="110" y="716" width="480" height="50" fill="#FDF0E6" stroke="#C45A20" stroke-width="1.5" rx="4" />
+<path d="M 206 143 L 350 210" fill="none" stroke="#908878" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 278 143 L 350 210" fill="none" stroke="#908878" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 350 143 L 350 210" fill="none" stroke="#908878" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 422 143 L 350 210" fill="none" stroke="#908878" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 494 143 L 350 210" fill="none" stroke="#908878" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 350 256 L 350 291" fill="none" stroke="#908878" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<path d="M 190 383 L 510 383" fill="none" stroke="#CCC6BA" stroke-width="1" opacity="0.6" />
+<path d="M 350 446 L 350 501" fill="none" stroke="#C45A20" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 350 547 L 350 582" fill="none" stroke="#908878" stroke-width="1.5" marker-end="url(#arrowhead)" />
+<text x="350" y="45" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="20" fill="#4A4338" text-anchor="middle">LLM 推理流程: Prefill → Decode</text>
+<text x="350" y="81" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">① Prefill — 并行处理</text>
+<text x="206" y="130" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4338" text-anchor="middle">The</text>
+<text x="278" y="130" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4338" text-anchor="middle">cat</text>
+<text x="350" y="130" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4338" text-anchor="middle">sat</text>
+<text x="422" y="130" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4338" text-anchor="middle">on</text>
+<text x="494" y="130" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4338" text-anchor="middle">the</text>
+<text x="132" y="168" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#9A8870" text-anchor="middle">并行 ×5</text>
+<text x="350" y="236" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">Self-Attention + FFN</text>
+<text x="262" y="312" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4338" text-anchor="middle">KV1</text>
+<text x="306" y="312" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4338" text-anchor="middle">KV2</text>
+<text x="350" y="312" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4338" text-anchor="middle">KV3</text>
+<text x="394" y="312" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4338" text-anchor="middle">KV4</text>
+<text x="438" y="312" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4338" text-anchor="middle">KV5</text>
+<text x="350" y="343" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#9A8870" text-anchor="middle">一次填满 ✓</text>
+<text x="350" y="361" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4338" text-anchor="middle">t = 1</text>
+<text x="350" y="377" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">② Decode</text>
+<text x="350" y="433" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="11" fill="#4A4338" text-anchor="middle">mat</text>
+<text x="266" y="432" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908878" text-anchor="middle">cached...</text>
+<text x="400" y="466" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#C45A20" text-anchor="middle">仅新 token</text>
+<text x="350" y="527" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">Self-Attention + FFN</text>
+<text x="475" y="524" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="10" fill="#908878" text-anchor="middle">↕ 读写</text>
+<text x="240" y="603" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908878" text-anchor="middle">KV1</text>
+<text x="284" y="603" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908878" text-anchor="middle">KV2</text>
+<text x="328" y="603" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908878" text-anchor="middle">KV3</text>
+<text x="372" y="603" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908878" text-anchor="middle">KV4</text>
+<text x="416" y="603" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#908878" text-anchor="middle">KV5</text>
+<text x="460" y="603" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="9" fill="#4A4338" text-anchor="middle">KV6</text>
+<text x="350" y="634" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#C45A20" text-anchor="middle">逐步追加 →</text>
+<text x="350" y="652" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4338" text-anchor="middle">t = 2, 3, 4, ...</text>
+<text x="350" y="684" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">Output: &quot;The cat sat on the mat !&quot;</text>
+<text x="122" y="736" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="12" fill="#4A4338" text-anchor="start">★ KV Cache 是桥梁：Prefill 填满 → Decode 每步读取 + 追加 → 避免重复计算</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4A4540" /></marker></defs>
+</svg>

@@ -18,7 +18,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/06/06
 
 ::pulse [「 让 Agent 盯盘筛选，人只做决策和复盘。 」] ::
 
-::visual {Minimalist Excalidraw-style: center terminal "whyj>" with gold accent. Three labels around it — NOT "auto trading", NOT "news sentiment", IS "research REPL + Agent tools". Hand-drawn, black ink, white background.} ::
+::image [./figures/figure-03-research-repl.svg] [scale=100] ::
 
 ---
 
@@ -83,7 +83,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/06/06
 
 ::pulse [「 Slash 是快路径，Agent 是探索路径。 」] ::
 
-::visual {Minimalist Excalidraw-style: user input splits — top "/slash" → registry → services (straight arrow, labeled "deterministic"), bottom "natural language" → pi Agent → tools → services (wavy arrow, labeled "orchestrated"). Both converge at services layer. Hand-drawn, black ink, white background.} ::
+::image [./figures/figure-04-dual-entry.svg] [scale=100] ::
 
 ---
 
@@ -117,7 +117,7 @@ return ok(`Factor: momentum_20 — ${symbol}  Latest: +0.0432`);] ::
 
 ::pulse [「 公开市场数据可缓存，个人仓位绝不落盘。 」] ::
 
-::visual {Minimalist Excalidraw-style: four boxes in 2x2 grid — "durable" (settings), "cache" (market bars), "artifact" (benchmark/sessions), "forbidden" (portfolio, red X). Hand-drawn, black ink, white background.} ::
+::image [./figures/figure-05-storage-policy.svg] [scale=100] ::
 
 ---
 

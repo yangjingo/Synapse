@@ -10,15 +10,16 @@ const STRUCTURE_ALIASES = {
   agenda: 'outline',
   takeaway: 'takeaway',
   takeaways: 'takeaway',
+  'take a ways': 'takeaway',
   summary: 'takeaway',
   reference: 'reference',
   references: 'reference',
 };
 
 const STRUCTURE_PATTERNS = [
-  /ui-label[^>]*>\s*(\d{2})\s*\/\s*([A-Za-z][A-Za-z-]*)\s*</gi,
-  /^#{1,3}\s*(\d{2})\s*\/\s*([A-Za-z][A-Za-z-]*)\s*$/gim,
-  /<!--\s*(\d{2})\s+([A-Za-z][A-Za-z-]*)\s*-->/gi,
+  /ui-label[^>]*>\s*(\d{2})\s*\/\s*([^<\r\n]+?)\s*</gi,
+  /^#{1,3}\s*(\d{2})\s*\/\s*([^\r\n]+?)\s*$/gim,
+  /<!--\s*(\d{2})\s+([^\r\n]+?)\s*-->/gi,
 ];
 const HTML_SECTION_PATTERN = /<section\b[^>]*>([\s\S]*?)<\/section>/gi;
 const MARKDOWN_SECTION_SPLIT_PATTERN = /^\s*---\s*$/gm;
@@ -37,10 +38,6 @@ const VISUAL_PATTERNS = [
 const PULSE_PATTERNS = [
   /::pulse\b/i,
   /class=["'][^"']*\bpulse-layer\b[^"']*["']/i,
-];
-const REFERENCE_TAG_PATTERNS = [
-  /::reference\b/i,
-  /class=["'][^"']*\breference-tag\b[^"']*["']/i,
 ];
 const VISUAL_REQUIRED_LABELS = new Set([
   'cover',
@@ -163,11 +160,11 @@ function validateCover(content) {
   if (!/Date/i.test(plainText) && !/日期/.test(plainText)) {
     issues.push('Cover needs date metadata.');
   }
-  if (countMatches(VISUAL_PATTERNS, content) < 1) {
-    issues.push('Cover needs one visual element (`::image` or image box).');
+  if (countMatches(VISUAL_PATTERNS, content) > 0) {
+    issues.push('Cover must not include a visual element.');
   }
-  if (countMatches(PULSE_PATTERNS, content) < 1) {
-    issues.push('Cover needs one pulse conclusion (`::pulse`).');
+  if (countMatches(PULSE_PATTERNS, content) > 0) {
+    issues.push('Cover must not include a pulse conclusion.');
   }
 
   return issues;
@@ -188,8 +185,8 @@ function validateOutline(content) {
   if (!/<h2\b/i.test(content) && !/^##\s+/m.test(content)) {
     issues.push('Outline needs a title line (`h2` or `##`).');
   }
-  if (countMatches(PULSE_PATTERNS, content) < 1) {
-    issues.push('Outline needs one pulse conclusion (`::pulse`).');
+  if (countMatches(PULSE_PATTERNS, content) > 0) {
+    issues.push('Outline must not include a pulse conclusion.');
   }
 
   return issues;
@@ -241,37 +238,24 @@ function validateReference(content) {
   if (!/<h2\b/i.test(content) && !/^##\s+/m.test(content)) {
     issues.push('Reference needs a title line (`h2` or `##`).');
   }
-  if (!/class=["'][^"']*\bref-list\b[^"']*["']/i.test(content) && items.length < 4) {
-    issues.push('Reference needs a `ref-list` container or at least 4 list items.');
+  if (items.length < 1) {
+    issues.push('Reference needs at least one list item.');
   }
 
-  let sawBookStyle = false;
-  let sawProjectStyle = false;
   items.forEach((item, index) => {
     const normalized = normalizeText(item);
     if (REFERENCE_BOOK_PATTERN.test(normalized)) {
-      sawBookStyle = true;
       return;
     }
     if (REFERENCE_PROJECT_PATTERN.test(normalized)) {
-      sawProjectStyle = true;
       return;
     }
 
     issues.push(`Reference item ${index + 1} should use \`Title - Source - URL\` or \`Title - URL\`.`);
   });
 
-  if (!sawBookStyle) {
-    issues.push('Reference needs at least one book-style item (`Title - Source - URL`).');
-  }
-  if (!sawProjectStyle) {
-    issues.push('Reference needs at least one project-style item (`Title - URL`).');
-  }
   if (!/https?:\/\//i.test(plainText)) {
     issues.push('Reference needs at least one URL.');
-  }
-  if (countMatches(REFERENCE_TAG_PATTERNS, content) < 1) {
-    issues.push('Reference needs one reference tag (`::reference` or `reference-tag`).');
   }
 
   return issues;
@@ -357,15 +341,18 @@ function validateProjectContent(directory = '.') {
 
   if (checkedFiles === 0) {
     console.log('No slide sections found.');
-    return;
+    return true;
   }
 
   console.log(`\n--- Content Validation Complete: ${checkedFiles} checked, ${failedFiles} failed. ---`);
+  return failedFiles === 0;
 }
 
 function main(argv = process.argv.slice(2)) {
   const directory = argv.find((arg) => !arg.startsWith('-')) ?? '.';
-  validateProjectContent(directory);
+  if (!validateProjectContent(directory)) {
+    process.exitCode = 1;
+  }
 }
 
 if (require.main === module) {

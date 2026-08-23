@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="90 -1 1010 882" width="1010" height="882">
+<rect x="90" y="-1" width="1010" height="882" fill="#FAFAF7" />
+<rect x="110" y="100" width="270" height="62" fill="#E8E2DA" stroke="#B0A898" stroke-width="2" rx="4" />
+<rect x="110" y="187" width="270" height="62" fill="#C4B8A8" stroke="#9A8870" stroke-width="2" rx="4" />
+<rect x="110" y="274" width="270" height="62" fill="#C8B4A4" stroke="#A08068" stroke-width="2" rx="4" />
+<rect x="110" y="361" width="270" height="62" fill="#BCC4AC" stroke="#8A9A70" stroke-width="2" rx="4" />
+<rect x="110" y="448" width="270" height="62" fill="#C4A8A4" stroke="#9A7E78" stroke-width="2" rx="4" />
+<rect x="110" y="535" width="270" height="62" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" rx="4" />
+<rect x="650" y="220" width="430" height="260" fill="#E8E2DA" stroke="#B0A898" stroke-width="2" rx="4" />
+<rect x="300" y="790" width="600" height="70" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" rx="4" />
+<path d="M 245 162 L 245 187" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 245 249 L 245 274" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 245 336 L 245 361" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 245 423 L 245 448" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 245 510 L 245 535" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<text x="600" y="52" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="28" fill="#4A4338" text-anchor="middle">QuantAgent: Fixed Multi-Agent Pipeline</text>
+<text x="245" y="131" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">OHLC Bars</text>
+<text x="245" y="206" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Indicator Agent</text>
+<text x="245" y="225.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">TA-Lib</text>
+<text x="245" y="293" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Pattern Agent</text>
+<text x="245" y="312.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Vision LLM</text>
+<text x="245" y="380" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Trend Agent</text>
+<text x="245" y="399.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">OLS + Vision</text>
+<text x="245" y="467" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Risk Agent</text>
+<text x="245" y="486.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Stop / Take-profit</text>
+<text x="245" y="554" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">Decision</text>
+<text x="245" y="573.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#4A4338" text-anchor="middle">LONG / SHORT</text>
+<text x="865" y="241" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="17" fill="#4A4338" text-anchor="middle">Contrast: oh-my-quant</text>
+<text x="865" y="263.1" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="17" fill="#4A4338" text-anchor="middle"></text>
+<text x="865" y="285.2" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="17" fill="#4A4338" text-anchor="middle">1 Agent + 12 Tools</text>
+<text x="865" y="307.3" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="17" fill="#4A4338" text-anchor="middle">Deterministic calculations</text>
+<text x="865" y="329.4" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="17" fill="#4A4338" text-anchor="middle">Human makes the decision</text>
+<text x="600" y="810" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">QuantAgent automates the decision chain; oh-my-quant keeps</text>
+<text x="600" y="830.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">the human review gate</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4A4540" /></marker></defs>
+</svg>

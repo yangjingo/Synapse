@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-08-23
+
+### Added
+- Finished local visuals for every slide example, with deterministic refresh and missing-image validation scripts.
+- Native Excalidraw sources and SVG exports for the OPD, attention, and README pipeline diagrams.
+- Codex installation paths for both interactive human use and unattended agent setup.
+
+### Changed
+- Reworked the slide, blog, diagram, animation, and Pretext examples into reproducible reference packages.
+- Updated all six Skill manifests to v2.0.0 and aligned their cross-skill handoff rules.
+- Rebuilt the README around the real source → forge → DSL → publish workflow.
+
+### Removed
+- Legacy `CLAUDE.md` guidance and obsolete OPD diagram variants superseded by the refreshed assets.
+
 ## [1.0.0] - 2026-05-02
 
 ### Added

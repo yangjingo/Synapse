@@ -12,6 +12,7 @@ STRUCTURE_ALIASES = {
     "agenda": "outline",
     "takeaway": "takeaway",
     "takeaways": "takeaway",
+    "take a ways": "takeaway",
     "summary": "takeaway",
     "reference": "reference",
     "references": "reference",
@@ -21,9 +22,9 @@ MIN_BODY_PAGES = 5
 
 # Recognize the slot label from HTML slides or markdown DSL.
 STRUCTURE_PATTERNS = [
-    re.compile(r'ui-label[^>]*>\s*(\d{2})\s*/\s*([A-Za-z][A-Za-z-]*)\s*<', re.IGNORECASE),
-    re.compile(r'^#{1,3}\s*(\d{2})\s*/\s*([A-Za-z][A-Za-z-]*)\s*$', re.IGNORECASE | re.MULTILINE),
-    re.compile(r'<!--\s*(\d{2})\s+([A-Za-z][A-Za-z-]*)\s*-->', re.IGNORECASE),
+    re.compile(r'ui-label[^>]*>\s*(\d{2})\s*/\s*([^<\r\n]+?)\s*<', re.IGNORECASE),
+    re.compile(r'^#{1,3}\s*(\d{2})\s*/\s*([^\r\n]+?)\s*$', re.IGNORECASE | re.MULTILINE),
+    re.compile(r'<!--\s*(\d{2})\s+([^\r\n]+?)\s*-->', re.IGNORECASE),
 ]
 
 HTML_SECTION_PATTERN = re.compile(r'<section\b[^>]*>(.*?)</section>', re.IGNORECASE | re.DOTALL)
@@ -171,9 +172,10 @@ def validate_project_structure(directory: str = "."):
 
     if checked_files == 0:
         print("No slide structure markers found.")
-        return
+        return True
 
     print(f"\n--- Structure Validation Complete: {checked_files} checked, {failed_files} failed. ---")
+    return failed_files == 0
 
 
 def main(argv: Iterable[str] | None = None):
@@ -185,8 +187,8 @@ def main(argv: Iterable[str] | None = None):
         help="Directory or file to scan (default: current directory).",
     )
     args = parser.parse_args(list(argv) if argv is not None else None)
-    validate_project_structure(args.directory)
+    return validate_project_structure(args.directory)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(0 if main() else 1)

@@ -1,9 +1,10 @@
 ---
 name: synapse-forge
 description: "Raw material to DSL pipeline. Give it URLs, files, or raw text, and it produces a WhyJ-style DSL file (slides.dsl.md or blog.dsl.md). Handles ingestion, extraction, and DSL synthesis. Use when the user wants to forge source material into structured DSL output."
-repository: https://github.com/yangjingo/Synapse
-homepage: https://github.com/yangjingo/Synapse
-version: 1.0.0
+metadata:
+  version: 2.0.0
+  repository: https://github.com/yangjingo/Synapse
+  homepage: https://github.com/yangjingo/Synapse
 ---
 
 # Synapse Forge (熔炉)
@@ -22,7 +23,8 @@ URLs → DSL. 给一堆素材，出结构化 DSL 文件。
    - `cli-revolution/` — slides DSL + blog DSL
    - `deepseek-v4/` — slides DSL + blog DSL
    - `nano-cc/` — slides DSL + blog DSL
-   - `opd/` — slides DSL + blog DSL + 5 SVG figures
+   - `opd/` — slides DSL + blog DSL + 7 editable SVG figures
+8. `examples/opd-blog.dsl.md` and `examples/opd-slides.dsl.md` — self-contained, refreshed DSL fixtures mirrored from the current OPD example
 
 ## Pipeline
 
@@ -191,7 +193,7 @@ If download fails or image needs regeneration, compose the prompt before calling
    - white paper background
    - rough black hand-drawn ink lines
    - sparse labels
-   - single accent `#D97757`
+   - single accent `#C45A20`
    - no gradients / no shadows / no 3D / no decorative clutter / no emoji
 3. Append project design controls when available:
    - `Figure prompt suffix / 风格控制`（按原文逐条追加）
@@ -200,25 +202,27 @@ If download fails or image needs regeneration, compose the prompt before calling
 5. If project has `examples/<project>/DESIGN.md`, merge its style controls into the prompt (especially `Figure prompt suffix`, `文件落地`, and display constraints) before generation.
 6. If output has multiple candidate visuals, keep only the one that carries the strongest mechanism claim and discard decoration-heavy variants.
 
-Then render using the internal Codex image tool **first** (`imagen2`) as the mandatory primary path, with explicit fallback note if unavailable:
+Then render raster illustrations by invoking the Codex built-in `$imagegen` skill and using its default `image_gen` tool mode:
 
 ```
 Create a dense, clean engineering figure for a hard-core technical article.
 Use a white paper background, rough hand-drawn black ink look, sparse labels,
-single accent `#D97757`, compact rounded rectangles, thin arrows, precise labels,
+single accent `#C45A20`, compact rounded rectangles, thin arrows, precise labels,
 explicit subsystem boundaries.
 Explain [TOPIC] as a [FIGURE TYPE].
 Keep it flat, technical, editorial.
 Avoid: marketing aesthetics, 3D hardware art, gradients, decorative clutter, decorative icons, 3D, vague labels.
 ```
 
-Delegate to Codex imagen2 first. If no internal imagen2 service is available or it fails, use the next best available generator (SVG/manual/SIMPLIFIED route) and record the fallback reason + replacement path in `figures/index.md`.
+Do not route raster generation through Gemini, Imagen APIs, Nano Banana, or another external provider. If built-in `image_gen` is unavailable or fails, report the failure; use the `$imagegen` CLI/API fallback only after explicit user approval. Choose SVG/manual generation directly only when the requested artifact is intentionally vector/code-native, and record that path in `figures/index.md`.
 
 ### Mandatory output contract (for SKILL-compliant examples)
 
+For final slide examples, every planned visual must be rendered and referenced through `::image [./figures/...]`. Do not leave `::visual`, `Codex imagegen`, `Figure prompt`, or another prompt block visible in slides HTML. Preserve reusable prompts in `figures/index.md`, not in the presentation canvas. Validate with `node scripts/validate-slide-visuals.js`.
+
 - Write every generated figure into `./figures/` under the target example root (`./examples/<project>/figures`).
 - File names must be local and HTML-consumable (PNG/JPG/SVG), defaulting to `figure-XX-descriptivename.*`.
-- Keep visual style controls from `examples/<project>/DESIGN.md` intact (white paper + rough ink + sparse labels + `#D97757` + no gradients/shadows/decor).
+- Keep visual style controls from `examples/<project>/DESIGN.md` intact (`#FAFAF7` paper + `#4A4338` rough ink + sparse labels + `#C45A20` accent + no gradients/shadows/decor).
 - Generated prompts must preserve the final concatenated style block in `figures/index.md` (`figure_style`) and record `generated_by` for traceability.
 
 #### Step 5: DSL Reference
@@ -368,9 +372,9 @@ When adding figure support to blog or slides HTML, you MUST:
 2. **Copy its complete figure pattern** — do NOT improvise or partially implement. The pattern includes:
    - **DSL**: independent `Type: figure` section (NOT inline inside `Type: text` sections) with `Image`, `Caption`, `Prompt` fields
    - **HTML SECTIONS array**: independent section object with only `image`, `caption`, `prompt` (no `heading` or `body`)
-   - **Prompt source**: extract from slides DSL `::visual` prompts verbatim (Codex-imagen2-first workflow) — never hand-write prompt text
+   - **Prompt source**: use the recorded generation prompt from `figures/index.md` or the figure specification; final slides DSL contains `::image`, not `::visual`
   - **CSS**: `figure-prompt-vis` class exists (prompt is shown in zoom layer / overlay, hidden in normal card)
   - **Rendering logic**: `promptEl` appended to `figBlock` so prompt is always recoverable, and shown when zoomed
-3. **Verify all five pieces exist** after implementation: DSL `Type: figure` section, HTML figure section object, prompt from slides `::visual`, CSS `figure-prompt-vis`, and rendering code that creates `promptEl`
+3. **Verify all five pieces exist** after implementation: DSL `Type: figure` section, HTML figure section object, recorded generation prompt, CSS `figure-prompt-vis`, and rendering code that creates `promptEl`. Separately verify that final slides contain only finished images.
 
 **What goes wrong when you skip this**: figures end up as inline fields inside text sections, prompts are missing or hand-written instead of extracted from slides DSL, or prompts exist as data but never surface in zoomed review. Each of these has caused multi-round user corrections.

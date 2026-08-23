@@ -55,13 +55,13 @@ Version: Synapse v{version} | Author: Why.J | Date: YYYY/MM/DD
 
 ::pulse [「 {high-level abstraction of all facts} 」] ::
 
-::visual {Codex-imagen2 prompt (preferred / Codex 内置 imagen2 first) — Excalidraw hand-drawn style} ::
+::image [./figures/figure-01-context.svg] [scale=100] ::
 ```
 
 - Grid layout (65%/35%). Has pulse + visual-box.
-- If `examples/<project>/DESIGN.md` exists, append its `Figure prompt suffix / 风格控制` (verbatim) to this prompt before synthesis (especially labels density, palette, anti-gradient/no-3D constraints). This is mandatory unless it conflicts with claim correctness.
-- The final prompt must include default style clauses if not already present: white paper, rough hand-drawn black ink, sparse labels, `#D97757`, no gradients, no shadows, no 3D, no decorative clutter, no emoji.
-- Do not route `::visual` prompts to alternate engines by default (including nano-banana / other style-only generators).
+- Build the figure from a prompt enriched by `examples/<project>/DESIGN.md` when present, then replace the planning prompt with a real `::image` path before finalizing.
+- The generation prompt must include `#FAFAF7` paper, rough `#4A4338` ink, sparse labels, one `#C45A20` accent, no gradients, shadows, 3D, clutter, or emoji.
+- Route raster generation through Codex `$imagegen`; vector/code-native diagrams may be generated as SVG. A final example must never display the prompt itself.
 - H2 must emphasize "现状分析".
 - Pulse does high-level abstraction.
 - **Context 事实硬上限 3 条**。如果素材超过 3 个关键事实，只保留最重要的 3 个，其余下沉到 Mechanism 页面。如果难以取舍，暂停并请用户确认选择。
@@ -96,13 +96,13 @@ Version: Synapse v{version} | Author: Why.J | Date: YYYY/MM/DD
 
 ::pulse [「 {hammer conclusion} 」] ::
 
-::visual {Codex-imagen2 prompt (preferred / Codex 内置 imagen2 first)} ::
+::image [./figures/figure-NN-mechanism.svg] [scale=100] ::
 ```
 
 - Grid layout (65%/35%). Must have pulse + visual-box.
-- Visual-box: Codex-imagen2 prompt (required) OR `::code` OR `::math`.
+- Visual-box: finished `::image` OR `::code` OR `::math`; prompt text is planning metadata, not slide content.
 - When `examples/<project>/DESIGN.md` exists, enrich the prompt with its `Figure prompt suffix / 风格控制` and `文件落地`.
-- Generation order for any new/recreated visual: call internal `imagen2` first; fallback providers only after `imagen2` failure, and record fallback reason in figure metadata.
+- Generation path for any new/recreated raster visual: invoke `$imagegen` and use its default built-in `image_gen` tool mode. If it fails, report the failure; API/CLI fallback requires explicit user approval.
 - Max 5 bullet points per slide.
 
 #### Take A Ways
@@ -143,13 +143,13 @@ Version: Synapse v{version} | Author: Why.J | Date: YYYY/MM/DD
 
 | Directive | Syntax | Renders As |
 |-----------|--------|-----------|
-| `::visual` | `::visual {prompt text} ::` | Codex-imagen2 prompt in `.visual-box` (required Codex 内置 imagen2 backend; fallback only if unavailable) |
+| `::visual` | `::visual {prompt text} ::` | Planning-only directive; must be resolved to `::image` before final output |
 | `::image` | `::image [path] [scale=N y=Npx] ::` | `<img>` in `.visual-box` |
 | `::code` | `::code [lang] [content] ::` | `.code-container` in `.visual-box` |
 | `::math` | `::math [LaTeX] ::` | KaTeX in `.visual-box` |
 | `::pulse` | `::pulse [「 text 」] [fragment] ::` | `.pulse-layer` callout |
 
-For outputs under `examples/<project>/`, merge `examples/<project>/DESIGN.md` style controls into `::visual` prompt text before rendering. `imagen2` is the required primary renderer, and resulting prompts are copied into `figures/index.md` for replay.
+For outputs under `examples/<project>/`, merge `examples/<project>/DESIGN.md` controls into the generation prompt, record that prompt in `figures/index.md`, render the asset, and commit only a concrete `::image` directive to the final slides DSL. Run `node scripts/validate-slide-visuals.js` before completion.
 
 ### Inline Formatting
 
@@ -247,7 +247,7 @@ Figure caption principle: **explain WHY, not just WHAT**. A good caption tells t
 Figure prompt principle: **stored generation spec**. The `prompt` field is preserved in the data model and available in the zoom overlay for review, while the normal figure card stays clean (image + caption only).
 1. **When image exists**: prompt is attached to the figure and surfaced on click/zoom for reproduction.
 2. **When image missing**: placeholder and prompt are both shown in zoom/click flow, so generation is still recoverable.
-3. **Fallback traceability**: mark in `figures/index.md` if this figure was generated through a non-imagen2 path and why.
+3. **Generation traceability**: record `codex-imagegen`, `synapse-excalidraw`, or another explicitly approved path in `figures/index.md`, including the reason for any approved fallback.
 4. **Path rule**: figure image paths in `SECTIONS` and `::image` must use `./figures/...` so the path is portable from example HTML.
 
 Prompt format — must include concrete visual details:

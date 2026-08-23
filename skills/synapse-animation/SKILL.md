@@ -1,7 +1,8 @@
 ---
 name: synapse-animation
-version: 1.0.0
 description: Create animated technical diagrams and code-driven animations. Three modes — Excalidraw animation, direct GIF primitives (PIL/imageio), Remotion rendering. Use when users request diagram animation, GIF creation, Slack/Discord emoji, technical explainer videos, or Remotion rendering.
+metadata:
+  version: 2.0.0
 ---
 
 # Synapse Animation
@@ -194,6 +195,8 @@ npm install -g @excalidraw/excalidraw-cli
 |---------|----------|---------|-------------|
 | Prefill-Decode | 61 | 442 | 垂直流式叙事：输入 → Prefill 并行 → Decode 逐步 → 输出 |
 | SWA Attention | 170 | 2365 | 左右对比：Full Attention (dense) vs Sliding Window (banded) |
+
+Both examples use the shared `#FAFAF7` paper / `#4A4338` ink / `#C45A20` accent palette. Refresh SVG examples with `node scripts/refresh-skill-examples.js`; add `--with-gif` when FFmpeg and Playwright are available and the GIF exports must also be rebuilt.
 
 Reference: `references/exlidraw-gif-toolkit.md`
 

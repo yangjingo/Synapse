@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="460" viewBox="0 0 760 460" role="img" aria-labelledby="title desc">
+  <title id="title">Reverse-engineering toolchain</title>
+  <desc id="desc">Each tool removes a different layer of accidental complexity</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#C45A20"/></marker>
+  </defs>
+  <rect width="760" height="460" fill="#FAFAF7"/>
+  <text x="42" y="47" text-anchor="start" font-family="Arial, sans-serif" font-size="26" font-weight="750" fill="#4A4338">Reverse-engineering toolchain</text>
+  <text x="42" y="75" text-anchor="start" font-family="Arial, sans-serif" font-size="15" font-weight="500" fill="#908878">Each tool removes a different layer of accidental complexity</text>
+  <path d="M42 91 C180 88, 310 94, 452 90" fill="none" stroke="#C45A20" stroke-width="3"/>
+  <rect x="205" y="125" width="350" height="70" rx="16" fill="#E8E2D8" stroke="#4A4338" stroke-width="2.5"/><text x="380" y="157" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">zread</text><text x="380" y="184" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#908878">source retrieval</text><rect x="205" y="219" width="350" height="70" rx="16" fill="#DCE5EA" stroke="#4A4338" stroke-width="2.5"/><text x="380" y="251" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">DeepWiki</text><text x="380" y="278" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#908878">relationship graph</text><rect x="205" y="313" width="350" height="70" rx="16" fill="#FDF0E6" stroke="#4A4338" stroke-width="2.5"/><text x="380" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">/init</text><text x="380" y="372" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#908878">agent-readable map</text>
+</svg>

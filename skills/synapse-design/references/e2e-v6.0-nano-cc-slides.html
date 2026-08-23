@@ -16,9 +16,9 @@
         --bg-color: #ffffff;
         --grid-line: #fafafa;
         --main-color: #1e1e1e;
-        --accent-claude: #d97757;
-        --item-bg: rgba(217, 119, 87, 0.05);
-        --strong-bg: rgba(217, 119, 87, 0.12);
+        --accent-claude: #C45A20;
+        --item-bg: rgba(196, 90, 32, 0.05);
+        --strong-bg: rgba(196, 90, 32, 0.12);
         --font-hand: "Gochi Hand", cursive;
         --font-mono: "JetBrains Mono", monospace;
         --font-head: "Poppins", sans-serif;
@@ -55,11 +55,11 @@
         color: rgba(30, 30, 30, 0.06); transform-origin: left center;
         will-change: transform, opacity; user-select: none;
       }
-      .pretext-bg .pt-line.pt-orange { color: rgba(217, 119, 87, 0.10); }
+      .pretext-bg .pt-line.pt-orange { color: rgba(196, 90, 32, 0.10); }
       .pretext-bg .pt-line.pt-blue { color: rgba(106, 155, 204, 0.09); }
       .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.08); }
       .cover-stage .pretext-bg .pt-line { font-size: clamp(18px, 2.4vw, 28px); color: rgba(30, 30, 30, 0.12); }
-      .cover-stage .pretext-bg .pt-line.pt-orange { color: rgba(217, 119, 87, 0.18); }
+      .cover-stage .pretext-bg .pt-line.pt-orange { color: rgba(196, 90, 32, 0.18); }
       .cover-stage .pretext-bg .pt-line.pt-blue { color: rgba(106, 155, 204, 0.16); }
       .cover-stage .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.14); }
       .slide-content { position: relative; z-index: 1; }
@@ -194,10 +194,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 复刻一个 nano 跑一跑，胜过读万卷源码。 」</div>
               </div>
               <div class="visual-box" style="--visual-scale: 0.9">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: left side a tangled ball labeled "50w lines TS", right side a clean 3-node loop "Input → Agent → Output". Arrow between labeled "compress". Hand-drawn, black ink, white background, no color.
-                </div>
+                <img src="./figures/nano-cc/figure-01-agent-loop.svg" alt="figure 01 agent loop" />
               </div>
             </div>
           </div>
@@ -269,10 +266,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.98">「 Spec 即代码，文档即指令。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: three boxes connected by arrows — "Spec" → "Agent Boundary" → "Code". Hand-drawn, black ink, white background, stick-figure developer at the start.
-                </div>
+                <img src="./figures/nano-cc/figure-03-spec-boundary.svg" alt="figure 03 spec boundary" />
               </div>
             </div>
           </div>
@@ -330,10 +324,7 @@ async with client.messages.stream(
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.95">「 逆向源码的文档，而非搬运源码的细节。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: three tool icons vertically — terminal "zread", node graph "Deepwiki", stick-figure with "/init". Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/nano-cc/figure-04-reverse-toolchain.svg" alt="figure 04 reverse toolchain" />
               </div>
             </div>
           </div>
@@ -358,10 +349,7 @@ async with client.messages.stream(
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 最好的测试员是另一个 Agent。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: two stick-figure agents facing each other across a terminal — left "Dev", right "Tester". Pass/fail badge between them. Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/nano-cc/figure-05-dev-test-loop.svg" alt="figure 05 dev test loop" />
               </div>
             </div>
           </div>
@@ -386,10 +374,7 @@ async with client.messages.stream(
                 <div class="pulse-layer pulse-animated">「 目标是理解，不是搬运。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: left a dense scribble "TS heavy", right clean lines "Py + Docs". Arrow labeled "simplify". Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/nano-cc/figure-06-python-docs.svg" alt="figure 06 python docs" />
               </div>
             </div>
           </div>
@@ -414,10 +399,7 @@ async with client.messages.stream(
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.02">「 觉得好玩、觉得有趣就可以开始。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: three stacked layers — bottom "CLAUDE.md", middle "Git Log", top "Vibe Coding". Hand-drawn, black ink, white background.
-                </div>
+                <img src="./figures/nano-cc/figure-07-practice-stack.svg" alt="figure 07 practice stack" />
               </div>
             </div>
           </div>

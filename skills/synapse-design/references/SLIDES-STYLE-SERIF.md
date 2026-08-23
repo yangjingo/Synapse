@@ -105,7 +105,7 @@ Same page sequence as Theater variant (Cover → Context → Agenda → Mechanis
 <div class="visual-box">
   <div class="figure-prompt-wrap">
     <div class="figure-prompt-label">Figure prompt</div>
-    <div class="figure-prompt-text">[Description for Imagen / Excalidraw]</div>
+    <div class="figure-prompt-text">[Description for Codex imagegen / Excalidraw]</div>
   </div>
 </div>
 ```

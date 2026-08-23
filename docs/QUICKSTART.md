@@ -4,8 +4,46 @@
 
 ## 前提
 
-- Claude Code（或任何支持 SKILL 的 AI 编程助手）
-- 本仓库已安装为 skill：`npx skills add https://github.com/yangjingo/Synapse`
+- 已安装并可以正常启动 Codex
+- 已安装 Node.js 与 npm（用于运行 `npx skills`）
+
+## 安装到 Codex
+
+Synapse 包含 1 个入口 Skill 和 5 个子 Skill。安装时必须使用 `--full-depth`，否则只会发现入口 `synapse`。
+
+### 方式一：给 Human（手动安装）
+
+在终端执行：
+
+```bash
+npx --yes skills add https://github.com/yangjingo/Synapse --agent codex --global --full-depth --copy
+```
+
+在交互列表中选择全部 6 个 Skills：`synapse`、`synapse-forge`、`synapse-design`、`synapse-pretext`、`synapse-excalidraw` 和 `synapse-animation`。`--global` 会安装到 Codex 的用户级 Skill 目录；安装完成后新开一个 Codex 会话。
+
+验证安装：
+
+```bash
+npx --yes skills list --global --agent codex
+```
+
+### 方式二：给 Agent（让 Codex 自动安装）
+
+把下面这段话直接发给 Codex：
+
+```text
+请把 https://github.com/yangjingo/Synapse 完整安装为 Codex 的全局 Skills。
+
+要求：
+1. 先用 `npx --yes skills add https://github.com/yangjingo/Synapse --list --full-depth`
+   确认能够发现 synapse 入口和 5 个子 Skill。
+2. 执行：
+   `npx --yes skills add https://github.com/yangjingo/Synapse --agent codex --global --full-depth --skill "*" --yes --copy`
+3. 不要删除或修改其他已安装的 Skills；如果遇到同名冲突，先报告再处理。
+4. 最后运行 `npx --yes skills list --global --agent codex`，确认 6 个 Synapse Skills 均已安装，并汇报安装结果。
+```
+
+Agent 方式使用 `--skill "*" --yes` 跳过人工选择，适合 Codex 在获得文件写入授权后自动完成安装。
 
 ## 三步走
 
@@ -59,7 +97,7 @@ DSL 修改后，重新渲染即可得到更新后的 HTML。
 |------|---------|
 | **Excalidraw 程序化生成** | 架构图、流程图、对比图 — 由 `layout.js` 生成 Morandi 色系 SVG |
 | **Excalidraw 在线编辑** | 在 excalidraw.com 打开生成的图，手动拖拽微调布局和文字 |
-| **Imagen / Nano-Banana** | 需要写实风格或复杂示意图时，用 AI 图像模型根据文字描述生成 |
+| **Codex `$imagegen`** | 需要写实风格或复杂位图插图时，由 Codex 调用内置 `image_gen` 工具根据文字描述生成；不使用 Gemini / Nano Banana |
 
 生成后的 SVG 插图会自动同步到 Blog 和 Slides 中。如果你在 Excalidraw 在线编辑器中做了修改，导出新的 SVG 覆盖即可。
 
@@ -149,7 +187,7 @@ DSL 修改后，重新渲染即可得到更新后的 HTML。
 - **先确认再生成**：每次生成插图前，Synapse 会用 ASCII mockup 让你选择布局方案（曲线 vs 柱状 vs 循环等），选择后才开始画
 - **指定色系**：可以说 `用暖色系`（warm）、`冷色系`（cool）、`森林系`（forest），默认是经典灰绿系
 - **Excalidraw 在线微调**：生成的图会分享到 excalidraw.com，你可以在浏览器中拖拽调整，确认后再导出 SVG
-- **复杂图用 Imagen**：需要写实风格的数据图表或场景示意图时，可以要求 `用 Imagen 生成这张图`
+- **复杂位图用 Codex `$imagegen`**：需要写实风格或场景示意图时，可以要求 `用 Codex 内置 imagegen 生成这张图`
 
 ### DSL 微调
 
@@ -163,7 +201,7 @@ DSL 修改后，重新渲染即可得到更新后的 HTML。
 
 - **DSL 结构**（slides 页面序列、blog section 划分）主要依赖 skill 本身的约束，对模型敏感度较低
 - **内容质量**（论点深度、技术洞察、pulse 力度）高度依赖模型的推理能力和领域知识
-- **插图**由 Excalidraw 程序化生成或 Imagen 模型生成，与文本模型无关
+- **插图**由 Excalidraw 程序化生成，或由 Codex `$imagegen` 调用内置 `image_gen` 工具生成；不路由到 Gemini
 - **HTML 渲染**是模板复制+变量替换，与模型无关
 
 如果使用能力更强的模型（如 Claude Opus、GPT-4o），内容密度和洞察力可能进一步提升。如果使用较小的模型，建议提供更详细的素材和明确的论点方向。

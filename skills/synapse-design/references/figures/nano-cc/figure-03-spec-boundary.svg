@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="460" viewBox="0 0 760 460" role="img" aria-labelledby="title desc">
+  <title id="title">Read the boundary, not every line</title>
+  <desc id="desc">Architecture becomes legible when intent is separated from implementation</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#C45A20"/></marker>
+  </defs>
+  <rect width="760" height="460" fill="#FAFAF7"/>
+  <text x="42" y="47" text-anchor="start" font-family="Arial, sans-serif" font-size="26" font-weight="750" fill="#4A4338">Read the boundary, not every line</text>
+  <text x="42" y="75" text-anchor="start" font-family="Arial, sans-serif" font-size="15" font-weight="500" fill="#908878">Architecture becomes legible when intent is separated from implementation</text>
+  <path d="M42 91 C180 88, 310 94, 452 90" fill="none" stroke="#C45A20" stroke-width="3"/>
+  <rect x="90" y="205" width="165" height="76" rx="16" fill="#E8E2D8" stroke="#4A4338" stroke-width="2.5"/><text x="172.5" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">Spec</text><path d="M 255 243 L 291 243" fill="none" stroke="#C45A20" stroke-width="3" marker-end="url(#arrow)"/><text x="273" y="233" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#C45A20">intent</text><rect x="297" y="205" width="165" height="76" rx="16" fill="#FDF0E6" stroke="#4A4338" stroke-width="2.5"/><text x="379.5" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">Agent boundary</text><path d="M 462 243 L 498 243" fill="none" stroke="#C45A20" stroke-width="3" marker-end="url(#arrow)"/><text x="480" y="233" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#C45A20">contract</text><rect x="504" y="205" width="165" height="76" rx="16" fill="#DDE5D8" stroke="#4A4338" stroke-width="2.5"/><text x="586.5" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">Code</text>
+</svg>

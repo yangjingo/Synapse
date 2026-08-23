@@ -19,7 +19,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 AI 不制造混乱，它加速混乱。大模型不是问题，治不好的管理病才是。 」] ::
 
-::visual {🍌 nano-banana prompt: An amplifier icon. Left: small bugs labeled "management disease". Right: same bugs 10x larger labeled "amplified dysfunction". Below: three cracked icons "code quality" "team cognition" "knowledge". Hand-drawn, black ink, white background, Morardi palette.} ::
+::image [./figures/slide-01-context.png] [scale=100] ::
 
 ---
 
@@ -45,7 +45,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 不应该用AI替代管理判断，而应该用AI增强管理判断——先定义"效"是什么，再谈"增效"。 」] ::
 
-::visual {🍌 nano-banana prompt: Three arrows from CEO desk. "cut headcount" hitting team. "chase trends" spinning. "AI layoff" hitting resume. Label: "replace judgment". Hand-drawn, Morandi.} ::
+::image [./figures/slide-03-ceo-cto.png] [scale=100] ::
 
 ---
 
@@ -60,7 +60,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 不应该让AI替代用户调研，而应该用AI整理调研结果——AI能帮你写文档，不能帮你理解用户。 」] ::
 
-::visual {🍌 nano-banana prompt: A funnel with 400 items all labeled "P0" crushing a developer. A clock shrinking next to a debt pile growing. Hand-drawn, Morandi.} ::
+::image [./figures/slide-04-pm-project.png] [scale=100] ::
 
 ---
 
@@ -74,7 +74,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 不应该Vibe Coding全盘接受，而应该把AI当副驾驶审查每一行——AI写的代码比人写的更需要Review。 」] ::
 
-::visual {🍌 nano-banana prompt: A brain fading to ghost. Arrow to robot glowing. "cognitive outsourcing". Below brain: "yours — fading". Below robot: "AI's". Hand-drawn, Morandi.} ::
+::image [./figures/slide-05-dev-cognitive-outsourcing.png] [scale=100] ::
 
 ---
 
@@ -88,7 +88,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 不应该消灭知识工程，而应该先建好文档和知识库——没有骨架的AI投喂只是数据泔水。 」] ::
 
-::visual {🍌 nano-banana prompt: A blender labeled "LLM". Trash in: "legacy code" "OneNote" "no docs". Output: same trash smoother. Label: "data swill". Hand-drawn, Morandi.} ::
+::image [./figures/slide-06-dev-knowledge-loss.png] [scale=100] ::
 
 ---
 
@@ -103,7 +103,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 不应该只学AI咒语，而应该先搞懂基础原理——第6个原因藏在你的私域业务规则中。 」] ::
 
-::visual {🍌 nano-banana prompt: Inverted pyramid: "CEO" "PM" "Dev" "QA" "Ops". Each has AI chip. Base cracking. Label: "bypass, don't fix". Hand-drawn, Morandi.} ::
+::image [./figures/slide-07-qa-ops-team.png] [scale=100] ::
 
 ---
 
@@ -133,7 +133,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 团队里 AI 加速混乱，至少混乱是可见的；OPC 里 AI 加速混乱，混乱是隐形的——直到你发现自己在给 AI 打工。 」] ::
 
-::visual {🍌 nano-banana prompt: A single figure at center wearing 7 stacked hats: CEO, PM, Dev, QA, Ops. Each hat has a small crack. The figure stands on thin ice cracking. Label: "one person, seven roles, zero buffer". Hand-drawn, black ink, white background, Morandi palette.} ::
+::image [./figures/slide-09-opc-context.png] [scale=100] ::
 
 ---
 
@@ -149,7 +149,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 团队的死亡螺旋有人能踩刹车；OPC 的死亡螺旋只有一个刹车——你自己的自律。但你正在用 AI 替代那份自律。 」] ::
 
-::visual {🍌 nano-banana prompt: A spiral staircase descending. Each step labeled: "chase trend" "rush" "vibe code" "quality drop" "client loss" "more AI". Bottom: a mirror showing the person as a prompt-only operator. Hand-drawn, Morandi.} ::
+::image [./figures/slide-10-death-spiral.png] [scale=100] ::
 
 ---
 
@@ -168,7 +168,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 AI 是你已有能力的倍增器，不是缺失能力的替代品——如果你不会做，AI 的输出你连判断对错的能力都没有。 」] ::
 
-::visual {🍌 nano-banana prompt: Left: person running with prosthetic "AI" leg, faster. Right: person with no legs asking AI to carry them, stuck. Label: "amplifier vs crutch". Hand-drawn, Morandi.} ::
+::image [./figures/slide-11-principle-amplifier-vs-crutch.png] [scale=100] ::
 
 ---
 
@@ -184,7 +184,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 不应该每周换一个新工具，而应该把一个工具用到极致——DeepSeek 好，Claude 好，但你来回换，每个都用不好的那个才是最贵的。 」] ::
 
-::visual {🍌 nano-banana prompt: A calendar with 12 weeks. 8 weeks crossed out with different tool names. Only 4 weeks actually working. Math: "8 weeks cost / 4 weeks output = negative ROI". Hand-drawn, Morandi.} ::
+::image [./figures/slide-12-principle-tool-lock.png] [scale=100] ::
 
 ---
 
@@ -200,7 +200,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 不应该一个人闷头 Vibe Coding，而应该把关键产出暴露给同行——孤独是 OPC 最大的生产力杀手，也是质量杀手。 」] ::
 
-::visual {🍌 nano-banana prompt: Three separate islands. Each island has one person. Bridges connecting them labeled "review" "feedback" "challenge". Center sign: "shadow team". Hand-drawn, Morandi.} ::
+::image [./figures/slide-13-principle-shadow-team.png] [scale=100] ::
 
 ---
 
@@ -216,7 +216,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/05/12
 
 ::pulse [「 不应该让 AI 替你和用户对话，而应该亲自对话后让 AI 帮你整理——你的一手用户认知，是 AI 永远无法从文档中推导出来的。 」] ::
 
-::visual {🍌 nano-banana prompt: Two paths diverging. Left: person → AI → report → decision (long, filtered). Right: person → user → insight → decision (short, direct). Right path marked with heart. Label: "shortcut vs real path". Hand-drawn, Morandi.} ::
+::image [./figures/slide-14-principle-user-contact.png] [scale=100] ::
 
 ---
 

@@ -1,6 +1,8 @@
 ---
 name: synapse-design
 description: "Turn source material into WhyJ-style engineering blog: one Markdown blog with static-image prompts, one polished HTML blog using DESIGN.md-style rules and pretext text layout. Use when the user wants a publishable technical post, not a neutral summary."
+metadata:
+  version: 2.0.0
 ---
 
 # Synapse Design
@@ -46,8 +48,8 @@ The Markdown artifact must:
 - be thesis-first and mechanism-driven
 - be publishable as a technical blog post
 - include a dedicated section for static illustration prompts
-- include prompts suitable for image generation workflows, prioritizing Codex imagen2; fall back only when internal image service is unavailable
-- define what each image should teach, and bind it to strict Excalidraw controls: white background, rough black ink, sparse labels, accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter
+- include prompts suitable for the Codex built-in `$imagegen` skill and its default `image_gen` tool mode
+- define what each image should teach, and bind it to strict Excalidraw controls: `#FAFAF7` paper, rough `#4A4338` ink, sparse labels, one `#C45A20` accent, no gradients, no shadows, no 3D, no decorative clutter
 
 ### HTML artifact requirements
 
@@ -62,7 +64,7 @@ The HTML artifact must:
 - be polished enough to function as the publishable blog page
 - use relative figure references like `./figures/figure-XX-*.png`, matching the corresponding example `figures/` directory
 - keep all figure files under the same example's `./figures/` folder and write paths in markdown/HTML as that relative path
-- prioritize internal Codex `imagen2` for any requested/recreated figures; fallback is logged as metadata and kept in `figures/index.md` for traceability.
+- invoke Codex `$imagegen` for requested/recreated raster figures; never route them through Gemini, Imagen APIs, or Nano Banana. Record `codex-imagegen` in `figures/index.md`; an API/CLI fallback requires explicit user approval.
 
 ### Non-final artifacts
 
@@ -82,12 +84,12 @@ Read only what is needed:
 
 1. **Slides profile** — resolve `{design.slides.profile}` first (see [Slides Design Profile](#slides-design-profile-designmd-placeholder) below)
 2. If target output is under `examples/<project>/`, read `examples/<project>/DESIGN.md` first (override source for prompt + style constraints)
-3. `references/e2e-v6.0-*.html` — E2E evaluation outputs (4 files, reference for slides/blog rendering quality)
+3. `references/e2e-v6.0-*.html` — E2E evaluation outputs (4 files, reference for slides/blog rendering quality). The DeepSeek blog reference resolves its mirrored assets from `references/figures/`; refresh with `node scripts/refresh-skill-examples.js`.
 4. Main `examples/` directory — full forge→render pipeline outputs:
    - `cli-revolution/` — CLI Revolution (slides DSL + blog DSL + slides HTML + blog HTML)
    - `deepseek-v4/` — DeepSeek-V4 (slides DSL + blog DSL + slides HTML + blog HTML)
    - `nano-cc/` — Nano Claude Code (slides DSL + blog DSL + slides HTML + blog HTML)
-   - `opd/` — OPD On-Policy Distillation (slides DSL + blog DSL + slides HTML + blog HTML + 5 SVG figures)
+   - `opd/` — OPD On-Policy Distillation (slides DSL + blog DSL + slides HTML + blog HTML + 7 editable SVG figures)
 
 ## Trigger
 
@@ -206,7 +208,7 @@ Inside `blog.md`, produce:
 1. title
 2. opening thesis paragraph
 3. 4-7 mechanism-driven sections
-4. static illustration prompt section for Codex imagen2 (优先)
+4. static illustration prompt section for Codex `$imagegen`
 5. final `what to remember` section
 
 Inside the static illustration prompt section, when aspect-ratio repair is needed, include:
@@ -215,7 +217,7 @@ Inside the static illustration prompt section, when aspect-ratio repair is neede
 2. target slot type
 3. target aspect ratio
 4. whether the model should extend, recompose, or regenerate
-5. the final prompt (must include: white paper background, rough black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative elements)
+5. the final prompt (must include: `#FAFAF7` paper, rough `#4A4338` ink, sparse labels, one `#C45A20` accent, no gradients, no shadows, no 3D, no decorative elements)
 
 Inside `blog.html`, produce:
 
@@ -235,6 +237,8 @@ When the task also includes presentation:
 - use real `pretext` integration only when `{design.slides.profile}` is `excalidraw-slides`
 - use image generation planning only after the figure spec is explicit
 - keep remotion-style scene thinking as optional internal planning, not as a final required output
+
+For concrete slide examples, prompts are intermediate planning data only. Render each selected visual, store it under the example's `figures/` directory, replace `::visual` with `::image`, and embed the real asset in HTML. Never ship an E2E slide with `Codex imagegen` or `Figure prompt` visible; run `node scripts/validate-slide-visuals.js` before completion.
 
 When `pretext` is required in HTML output:
 

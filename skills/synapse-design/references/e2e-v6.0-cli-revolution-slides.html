@@ -13,8 +13,8 @@
     <style>
       :root {
         --bg-color: #ffffff; --grid-line: #fafafa; --main-color: #1e1e1e;
-        --accent-claude: #d97757; --accent-blue: #6a9bcc; --accent-green: #788c5d;
-        --item-bg: rgba(217, 119, 87, 0.05); --strong-bg: rgba(217, 119, 87, 0.12);
+        --accent-claude: #C45A20; --accent-blue: #6a9bcc; --accent-green: #788c5d;
+        --item-bg: rgba(196, 90, 32, 0.05); --strong-bg: rgba(196, 90, 32, 0.12);
         --font-hand: "Gochi Hand", cursive; --font-mono: "JetBrains Mono", monospace;
         --font-head: "Poppins", sans-serif; --shadow: 12px 12px 0px #1e1e1e;
       }
@@ -26,7 +26,7 @@
       .pretext-stage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--bg-color), transparent 14%, transparent 86%, var(--bg-color)), linear-gradient(90deg, var(--bg-color), transparent 8%, transparent 92%, var(--bg-color)); opacity: 0.88; }
       .pretext-bg { position: absolute; inset: 0; }
       .pretext-bg .pt-line { position: absolute; left: 24px; right: 24px; white-space: nowrap; font-family: var(--font-head); font-size: clamp(14px, 1.6vw, 20px); font-weight: 600; letter-spacing: -0.03em; color: rgba(30, 30, 30, 0.06); transform-origin: left center; will-change: transform, opacity; user-select: none; }
-      .pretext-bg .pt-line.pt-orange { color: rgba(217, 119, 87, 0.10); }
+      .pretext-bg .pt-line.pt-orange { color: rgba(196, 90, 32, 0.10); }
       .pretext-bg .pt-line.pt-blue { color: rgba(106, 155, 204, 0.09); }
       .pretext-bg .pt-line.pt-green { color: rgba(120, 140, 93, 0.08); }
       .slide-content { position: relative; z-index: 1; }
@@ -98,10 +98,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 CLI 不是复古，是软件交互层正在发生的结构性位移。 」</div>
               </div>
               <div class="visual-box" style="--visual-scale: 0.9">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: two stick-figure arrows converging — left from "SaaS → no UI", right from "Agent → code". They meet at a terminal node labeled "CLI = Agent Layer". Black ink, hand-drawn, white background. No color, no shadows.
-                </div>
+                <img src="./figures/cli-revolution/figure-03-agent-layer.svg" alt="figure 03 agent layer" />
               </div>
             </div>
           </div>
@@ -176,10 +173,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.98">「 交互成本越低，自动化收益越高。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: three hand-drawn bars — top "GUI" with 5 steps (long), middle "Tool-call" with 3 steps (medium), bottom "CLI" with 1 step (short). Arrow down labeled "O(n) → O(1)". Black ink, white background, no color.
-                </div>
+                <img src="./figures/cli-revolution/figure-05-interaction-cost.svg" alt="figure 05 interaction cost" />
               </div>
             </div>
           </div>
@@ -204,10 +198,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.02">「 CLI 是团队与 Agent 的最小共识层。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: three stick-figure nodes — "Dev", "CI", "Agent" — all pointing to one central CLI node. Label: "same cmd, same result". Hand-drawn arrows, black ink, white background.
-                </div>
+                <img src="./figures/cli-revolution/figure-06-shared-protocol.svg" alt="figure 06 shared protocol" />
               </div>
             </div>
           </div>
@@ -232,10 +223,7 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 0.95">「 先做能被调用的系统，再做好看的系统。 」</div>
               </div>
               <div class="visual-box">
-                <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-                  <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex-imagen2</div>
-                  Minimalist Excalidraw-style: three stacked layers — bottom "CLI/API" (thick line), middle "Logic", top "GUI" (dashed). Upward arrow labeled "priority ↑". Black ink, white background, no color.
-                </div>
+                <img src="./figures/cli-revolution/figure-07-product-stack.svg" alt="figure 07 product stack" />
               </div>
             </div>
           </div>

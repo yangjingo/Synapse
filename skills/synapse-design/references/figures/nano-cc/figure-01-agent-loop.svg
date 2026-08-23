@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 40 760 340" width="760" height="340">
+<rect x="40" y="40" width="760" height="340" fill="#ffffff" />
+<rect x="200" y="60" width="180" height="55" fill="#A8C0C4" stroke="#7098A0" stroke-width="2" rx="4" />
+<rect x="60" y="220" width="160" height="50" fill="#A8B8C8" stroke="#748A9E" stroke-width="2" rx="4" />
+<rect x="360" y="220" width="160" height="50" fill="#B8A8C0" stroke="#8878A0" stroke-width="2" rx="4" />
+<rect x="200" y="310" width="180" height="50" fill="#ACBCB8" stroke="#789490" stroke-width="2" rx="4" />
+<rect x="540" y="197" width="240" height="96" fill="#fffbeb" stroke="#d97706" stroke-width="2" rx="4" />
+<path d="M 140 220 L 290 115" fill="none" stroke="#384048" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 290 115 L 440 220" fill="none" stroke="#384048" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 360 245 L 380 335" fill="none" stroke="#384048" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 200 335 L 220 245" fill="none" stroke="#384048" stroke-width="2" marker-end="url(#arrowhead)" />
+<text x="290" y="91.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#384048" text-anchor="middle">Agent (LLM)</text>
+<text x="140" y="248" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#384048" text-anchor="middle">User Input</text>
+<text x="440" y="248" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#384048" text-anchor="middle">Tool Execution</text>
+<text x="290" y="338" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="15" fill="#384048" text-anchor="middle">Result</text>
+<text x="548" y="216" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#384048" text-anchor="start">Agent Loop</text>
+<text x="548" y="232.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#384048" text-anchor="start">用户 → Agent → 工具 → 结果</text>
+<text x="548" y="249.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#384048" text-anchor="start">直到任务完成</text>
+<text x="548" y="266.7" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#384048" text-anchor="start">增强版 REPL</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>
+</svg>

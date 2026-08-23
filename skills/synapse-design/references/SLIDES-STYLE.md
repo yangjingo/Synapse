@@ -2,7 +2,7 @@
 
 ## 1. Visual Constitution (TASET)
 
-- **Palette**: Main #1E1E1E | Accent #d97757 | Blue #6a9bcc | Green #788c5d | Marker rgba(217, 119, 87, 0.12).
+- **Palette**: Main #1E1E1E | Accent #C45A20 | Blue #6a9bcc | Green #788c5d | Marker rgba(196, 90, 32, 0.12).
 - **mark/strong**: Both use `var(--strong-bg)` background — same visual treatment.
 - **Layout**: Push-Left (5% margin) for Agenda/Take Aways. Grid (65%/35%) for Mechanism pages.
 - **Typography**: Gochi Hand (Handwriting) | Caveat (Subtitle) | JetBrains Mono (Code) | Poppins (Pretext).
@@ -18,7 +18,7 @@
 - Grid layout with visual-box. Has pulse + pretext animation.
 - Collects factual information (事实 1, 事实 2, ...). H2 emphasizes "现状分析".
 - Pulse performs high-level abstraction of all facts.
-- visual-box uses Codex-imagen2 prompt by default (fallback only when internal Codex image service is unavailable).
+- visual-box uses a Codex `$imagegen` prompt for raster illustrations. Invoke the built-in `image_gen` tool mode and do not route to Gemini or another external provider.
 
 ### Agenda (02)
 - `canvas-layer push-left` + `no-bullet` class.
@@ -28,8 +28,8 @@
 
 ### Mechanism (03-N)
 - Grid layout (`canvas-layer`, 65%/35%).
-- Must have: pretext animation, pulse conclusion, visual-box with Codex-imagen2 prompt (fallback only when internal Codex image service is unavailable).
-- Prompt constraints for Mechanism visuals: white paper background, rough black ink, sparse labels, accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter.
+- Must have: pretext animation, pulse conclusion, visual-box with Codex `$imagegen` prompt for raster illustrations.
+- Prompt constraints for Mechanism visuals: `#FAFAF7` paper, rough `#4A4338` ink, sparse labels, one `#C45A20` accent, no gradients, no shadows, no 3D, no decorative clutter.
 - `::math` → KaTeX in visual-box. `::code` → `.code-container` in visual-box.
 - Max 5 points per slide.
 
@@ -58,14 +58,14 @@ All pages except Cover must include:
 Uses `@chenglou/pretext` library with `prepareWithSegments` + `layoutWithLines`.
 Mouse-follow parallax effect via pointer events.
 
-## 4. Imagen Prompt Format
+## 4. Codex imagegen Prompt Format
 
 visual-box prompts follow this pattern:
 ```html
 <div class="visual-box">
   <div style="font-size: 0.75rem; line-height: 1.5; color: #666; padding: 10px; text-align: left;">
-    <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Imagen Prompt</div>
-    [Description of what the figure should show with mandatory constraints: white paper background, rough black ink, sparse labels, single accent `#D97757`, no gradients, no shadows, no 3D, no decorative clutter]
+    <div style="font-weight: 800; color: var(--accent-claude); margin-bottom: 8px;">Codex imagegen Prompt</div>
+    [Description of what the figure should show with mandatory constraints: `#FAFAF7` paper, rough `#4A4338` ink, sparse labels, one `#C45A20` accent, no gradients, no shadows, no 3D, no decorative clutter]
   </div>
 </div>
 ```

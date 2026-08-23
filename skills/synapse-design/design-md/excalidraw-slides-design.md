@@ -26,11 +26,11 @@ Why.J Engineering Theater — white grid canvas, hand-drawn Excalidraw figures, 
 
 ## Colors
 
-- Main `#1E1E1E` · Accent `#d97757` · Marker `rgba(217, 119, 87, 0.12)`
+- Main `#1E1E1E` · Accent `#C45A20` · Marker `rgba(196, 90, 32, 0.12)`
 
 ## Figure prompt suffix
 
-`Hand-drawn, black ink, white background, stick figures, sparse labels, single accent #D97757, no gradients, no shadows, no 3D, no decorative elements`
+`Hand-drawn, #4A4338 ink, #FAFAF7 paper background, stick figures, sparse labels, single accent #C45A20, no gradients, no shadows, no 3D, no decorative elements`
 
 ## Placeholder resolution
 

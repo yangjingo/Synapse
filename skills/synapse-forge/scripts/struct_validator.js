@@ -10,6 +10,7 @@ const STRUCTURE_ALIASES = {
   agenda: 'outline',
   takeaway: 'takeaway',
   takeaways: 'takeaway',
+  'take a ways': 'takeaway',
   summary: 'takeaway',
   reference: 'reference',
   references: 'reference',
@@ -17,9 +18,9 @@ const STRUCTURE_ALIASES = {
 const REQUIRED_SLOTS = ['cover', 'outline', 'takeaway', 'reference'];
 const MIN_BODY_PAGES = 5;
 const STRUCTURE_PATTERNS = [
-  /ui-label[^>]*>\s*(\d{2})\s*\/\s*([A-Za-z][A-Za-z-]*)\s*</gi,
-  /^#{1,3}\s*(\d{2})\s*\/\s*([A-Za-z][A-Za-z-]*)\s*$/gim,
-  /<!--\s*(\d{2})\s+([A-Za-z][A-Za-z-]*)\s*-->/gi,
+  /ui-label[^>]*>\s*(\d{2})\s*\/\s*([^<\r\n]+?)\s*</gi,
+  /^#{1,3}\s*(\d{2})\s*\/\s*([^\r\n]+?)\s*$/gim,
+  /<!--\s*(\d{2})\s+([^\r\n]+?)\s*-->/gi,
 ];
 const HTML_SECTION_PATTERN = /<section\b[^>]*>([\s\S]*?)<\/section>/gi;
 const MARKDOWN_SECTION_SPLIT_PATTERN = /^\s*---\s*$/gm;
@@ -194,15 +195,18 @@ function validateProjectStructure(directory = '.') {
 
   if (checkedFiles === 0) {
     console.log('No slide structure markers found.');
-    return;
+    return true;
   }
 
   console.log(`\n--- Structure Validation Complete: ${checkedFiles} checked, ${failedFiles} failed. ---`);
+  return failedFiles === 0;
 }
 
 function main(argv = process.argv.slice(2)) {
   const directory = argv.find((arg) => !arg.startsWith('-')) ?? '.';
-  validateProjectStructure(directory);
+  if (!validateProjectStructure(directory)) {
+    process.exitCode = 1;
+  }
 }
 
 if (require.main === module) {

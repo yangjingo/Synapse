@@ -11,15 +11,16 @@ STRUCTURE_ALIASES = {
     "agenda": "outline",
     "takeaway": "takeaway",
     "takeaways": "takeaway",
+    "take a ways": "takeaway",
     "summary": "takeaway",
     "reference": "reference",
     "references": "reference",
 }
 
 STRUCTURE_PATTERNS = [
-    re.compile(r'ui-label[^>]*>\s*(\d{2})\s*/\s*([A-Za-z][A-Za-z-]*)\s*<', re.IGNORECASE),
-    re.compile(r'^#{1,3}\s*(\d{2})\s*/\s*([A-Za-z][A-Za-z-]*)\s*$', re.IGNORECASE | re.MULTILINE),
-    re.compile(r'<!--\s*(\d{2})\s+([A-Za-z][A-Za-z-]*)\s*-->', re.IGNORECASE),
+    re.compile(r'ui-label[^>]*>\s*(\d{2})\s*/\s*([^<\r\n]+?)\s*<', re.IGNORECASE),
+    re.compile(r'^#{1,3}\s*(\d{2})\s*/\s*([^\r\n]+?)\s*$', re.IGNORECASE | re.MULTILINE),
+    re.compile(r'<!--\s*(\d{2})\s+([^\r\n]+?)\s*-->', re.IGNORECASE),
 ]
 
 HTML_SECTION_PATTERN = re.compile(r'<section\b[^>]*>(.*?)</section>', re.IGNORECASE | re.DOTALL)
@@ -39,10 +40,6 @@ VISUAL_PATTERNS = [
 PULSE_PATTERNS = [
     re.compile(r'::pulse\b', re.IGNORECASE),
     re.compile(r'class=["\'][^"\']*\bpulse-layer\b[^"\']*["\']', re.IGNORECASE),
-]
-REFERENCE_TAG_PATTERNS = [
-    re.compile(r'::reference\b', re.IGNORECASE),
-    re.compile(r'class=["\'][^"\']*\breference-tag\b[^"\']*["\']', re.IGNORECASE),
 ]
 VISUAL_REQUIRED_LABELS = {
     "cover",
@@ -153,10 +150,10 @@ def validate_cover(content: str) -> list[str]:
         issues.append("Cover needs author metadata.")
     if not has_any_pattern(plain_text, [re.compile(r"Date", re.IGNORECASE), re.compile(r"日期")]):
         issues.append("Cover needs date metadata.")
-    if count_matches(VISUAL_PATTERNS, content) < 1:
-        issues.append("Cover needs one visual element (`::image` or image box).")
-    if count_matches(PULSE_PATTERNS, content) < 1:
-        issues.append("Cover needs one pulse conclusion (`::pulse`).")
+    if count_matches(VISUAL_PATTERNS, content) > 0:
+        issues.append("Cover must not include a visual element.")
+    if count_matches(PULSE_PATTERNS, content) > 0:
+        issues.append("Cover must not include a pulse conclusion.")
 
     return issues
 
@@ -174,8 +171,8 @@ def validate_outline(content: str) -> list[str]:
 
     if not re.search(r"<h2\b", content, re.IGNORECASE) and not re.search(r"^##\s+", content, re.MULTILINE):
         issues.append("Outline needs a title line (`h2` or `##`).")
-    if count_matches(PULSE_PATTERNS, content) < 1:
-        issues.append("Outline needs one pulse conclusion (`::pulse`).")
+    if count_matches(PULSE_PATTERNS, content) > 0:
+        issues.append("Outline must not include a pulse conclusion.")
 
     return issues
 
@@ -219,32 +216,22 @@ def validate_reference(content: str) -> list[str]:
 
     if not re.search(r"<h2\b", content, re.IGNORECASE) and not re.search(r"^##\s+", content, re.MULTILINE):
         issues.append("Reference needs a title line (`h2` or `##`).")
-    if not re.search(r'class=["\'][^"\']*\bref-list\b[^"\']*["\']', content, re.IGNORECASE) and len(items) < 4:
-        issues.append("Reference needs a `ref-list` container or at least 4 list items.")
+    if len(items) < 1:
+        issues.append("Reference needs at least one list item.")
 
-    saw_book_style = False
-    saw_project_style = False
     for index, item in enumerate(items, start=1):
         normalized = normalize_text(item)
         if REFERENCE_BOOK_PATTERN.match(normalized):
-            saw_book_style = True
             continue
         if REFERENCE_PROJECT_PATTERN.match(normalized):
-            saw_project_style = True
             continue
 
         issues.append(
             f"Reference item {index} should use `Title - Source - URL` or `Title - URL`."
         )
 
-    if not saw_book_style:
-        issues.append("Reference needs at least one book-style item (`Title - Source - URL`).")
-    if not saw_project_style:
-        issues.append("Reference needs at least one project-style item (`Title - URL`).")
     if not re.search(r'https?://', plain_text, re.IGNORECASE):
         issues.append("Reference needs at least one URL.")
-    if count_matches(REFERENCE_TAG_PATTERNS, content) < 1:
-        issues.append("Reference needs one reference tag (`::reference` or `reference-tag`).")
 
     return issues
 
@@ -306,9 +293,10 @@ def validate_project_content(directory: str = "."):
 
     if checked_files == 0:
         print("No slide sections found.")
-        return
+        return True
 
     print(f"\n--- Content Validation Complete: {checked_files} checked, {failed_files} failed. ---")
+    return failed_files == 0
 
 
 def main(argv: Iterable[str] | None = None):
@@ -320,8 +308,8 @@ def main(argv: Iterable[str] | None = None):
         help="Directory or file to scan (default: current directory).",
     )
     args = parser.parse_args(list(argv) if argv is not None else None)
-    validate_project_content(args.directory)
+    return validate_project_content(args.directory)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(0 if main() else 1)

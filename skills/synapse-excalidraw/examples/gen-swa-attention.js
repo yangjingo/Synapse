@@ -4,10 +4,24 @@
  * Generates .excalidraw for excalidraw-animate testing.
  * Animation order (by creation): titles → headers → full grid → SWA grid → labels → insight
  */
-const L = require('../skills/synapse-excalidraw/scripts/layout');
+const path = require('path');
+const { execFileSync } = require('child_process');
 
-const T = L.morandi('classic');
+let randomState = 0x05a77e17;
+Math.random = () => {
+  randomState = (randomState + 0x6d2b79f5) | 0;
+  let value = Math.imul(randomState ^ (randomState >>> 15), 1 | randomState);
+  value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
+  return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+};
+
+const L = require('../scripts/layout');
+
+const T = L.morandi('warm');
 L.configure({ tokens: { ink: T._ink, inkMuted: T._inkMuted } });
+
+const BG = '#FAFAF7';
+const ACCENT = { fill: '#FDF0E6', stroke: '#C45A20' };
 
 let _n = 1000;
 const uid = () => 'swa_' + (_n++).toString(36);
@@ -31,7 +45,7 @@ function textBlock(x, y, w, h, content, fontSize, color) {
   const rid = uid(), tid = uid();
   L.elements.push({
     type: 'rectangle', id: rid, x, y, width: w, height: h,
-    strokeColor: color, backgroundColor: '#F0EDE6',
+    strokeColor: color, backgroundColor: ACCENT.fill,
     fillStyle: 'solid', strokeWidth: 1.5, roughness: 1,
     roundness: { type: 3 }, opacity: 100, angle: 0, seed: rs(),
     groupIds: [], boundElements: [{ id: tid, type: 'text' }],
@@ -61,7 +75,7 @@ const RX = 620, RY = 140;
 
 L.text(LX + MW / 2, 70, 'Full Attention', 24);
 L.text(RX + MW / 2, 60, 'Sliding Window Attention', 20);
-L.text(RX + MW / 2, 85, 'window size W = 3', 13, T._inkMuted);
+L.text(RX + MW / 2, 98, 'window size W = 3', 13, T._inkMuted);
 
 for (let i = 0; i < N; i++) {
   const t = `t${i + 1}`;
@@ -80,7 +94,7 @@ for (let r = 0; r < N; r++)
     cell(LX + c * S, LY + r * S, T.attention.fill, T.attention.stroke);
 
 L.text(LX + MW / 2, LY + MW + 28, 'O(N²)', 20);
-L.text(LX + MW / 2, LY + MW + 50, '64 active cells', 12, T._inkMuted);
+L.text(LX + MW / 2, LY + MW + 62, '64 active cells', 12, T._inkMuted);
 
 // ── "vs" connector ──
 const midX = LX + MW + (RX - LX - MW) / 2;
@@ -98,14 +112,14 @@ for (let r = 0; r < N; r++)
     const active = band(r, c);
     cell(
       RX + c * S, RY + r * S,
-      active ? T.masked.fill : EMPTY_FILL,
-      active ? T.masked.stroke : EMPTY_STROKE,
+      active ? ACCENT.fill : EMPTY_FILL,
+      active ? ACCENT.stroke : EMPTY_STROKE,
       active ? 100 : 35,
     );
   }
 
 L.text(RX + MW / 2, RY + MW + 28, 'O(N × W)', 20);
-L.text(RX + MW / 2, RY + MW + 50, '34 active cells', 12, T._inkMuted);
+L.text(RX + MW / 2, RY + MW + 62, '34 active cells', 12, T._inkMuted);
 
 // ══════════════════════════════════════
 //  PHASE 4: Insight Box
@@ -127,5 +141,8 @@ if (issues.length > 0) {
   L.autoFix();
 }
 
-L.write('evals/swa-attention.excalidraw', { bgColor: '#FAF8F4' });
-console.log('Done. Next: upload to excalidraw.com, then animate at dai-shi.github.io/excalidraw-animate');
+const output = path.join(__dirname, '../evals/swa-attention.excalidraw');
+const svgOutput = path.join(__dirname, '../evals/swa-attention.svg');
+L.write(output, { bgColor: BG, source: 'synapse-excalidraw-example' });
+execFileSync(process.execPath, [path.join(__dirname, '../scripts/exc-to-svg.js'), output, svgOutput], { stdio: 'inherit' });
+console.log(`Done → ${output}`);

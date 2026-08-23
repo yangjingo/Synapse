@@ -47,9 +47,9 @@ Indicator Agent → Pattern Agent → Trend Agent → Risk Agent → Decision Ag
 
 ### Section 2.5: QuantAgent 架构图
 Type: figure
-Image: ./figures/fig-01-quantagent-pipeline.png
+Image: ./figures/fig-01-quantagent-pipeline.svg
 Caption: Figure 1: QuantAgent 的固定流水线——Indicator 压指标、Pattern/Trend 看图（vision LLM）、Risk 定止损止盈、Decision 二选一 LONG/SHORT。整条链只消费价格，不碰新闻。跟我做的 whyj 最大区别：它是多 Agent 编排，我是单 Agent + 多 Tool。
-Prompt: Create a flat engineering diagram, white background. Left: OHLC input. Center vertical chain: Indicator (TA-Lib) → Pattern (chart→vision LLM) → Trend (OLS→vision LLM) → Risk (ρ=0.0005) → Decision (LONG/SHORT). Right side dashed box labeled "oh-my-quant: 1 Agent + 12 Tools, human-in-loop". Virgil hand-drawn font, no 3D.
+Prompt: Editable Excalidraw engineering diagram on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent. Show OHLC → Indicator → Pattern → Trend → Risk → Decision, beside "oh-my-quant: 1 Agent + 12 Tools, human-in-loop"; no gradients, shadows, 3D, or decoration.
 
 ### Section 3: 分叉 — 我为什么没抄 QuantAgent 的四 Agent 架构
 Type: text
@@ -103,9 +103,9 @@ Callout: 确定性计算下沉到 Tool，LLM 只做编排——这是我从 Quan
 
 ### Section 4.5: oh-my-quant 架构图
 Type: figure
-Image: ./figures/fig-02-whyj-architecture.png
+Image: ./figures/fig-02-whyj-architecture.svg
 Caption: Figure 2: oh-my-quant 的单 Agent 架构——用户输入走 slash command（确定性）或自然语言（Agent 编排）两条路，汇入同一个 pi Agent。Agent 持有 12 个 Tool：7 个 MCP 数据 + 5 个本地计算。计算结果缓存到 .ohquant/，portfolio 信息 live-only 不缓存。跟 QuantAgent 的四 Agent 流水线比，少了一层编排，多了人机之间的审核环节。
-Prompt: Create a flat terminal-style diagram. Top: User input splits to "/slash command" (left, deterministic) and "natural language" (right, Agent). Both feed into single "pi Agent" box. Below Agent: two rows of tool boxes — Row 1 "MCP Data" (tushare_daily, llmquant_price, fd_snapshot x3), Row 2 "Compute" (compute_factor, run_backtest, check_risk, score_benchmark, show_dashboard). Bottom: ".ohquant/ local cache". Monospace font, brutalist black/white, no gradients.
+Prompt: Editable Excalidraw architecture diagram on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent. Split user input into slash commands and natural language feeding one pi Agent, followed by MCP Data, Compute tools, and .ohquant/ cache; no gradients, shadows, 3D, or decoration.
 
 ### Section 5: 跑一遍 — 从论文到终端
 Type: text

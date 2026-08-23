@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 -1 1000 882" width="1000" height="882">
+<rect x="60" y="-1" width="1000" height="882" fill="#FAFAF7" />
+<rect x="80" y="150" width="260" height="70" fill="#C4B8A8" stroke="#9A8870" stroke-width="2" rx="4" />
+<rect x="430" y="150" width="260" height="70" fill="#BCC4AC" stroke="#8A9A70" stroke-width="2" rx="4" />
+<rect x="780" y="150" width="260" height="70" fill="#C0B4B0" stroke="#968078" stroke-width="2" rx="4" />
+<rect x="80" y="350" width="960" height="86" fill="#C8B4A4" stroke="#A08068" stroke-width="2" rx="4" />
+<rect x="80" y="540" width="960" height="86" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" rx="4" />
+<rect x="430" y="680" width="260" height="72" fill="#C8B8B0" stroke="#A08880" stroke-width="2" rx="4" />
+<rect x="300" y="790" width="600" height="70" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" rx="4" />
+<path d="M 210 220 L 210 350" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 560 220 L 560 350" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 910 220 L 910 350" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 560 436 L 560 540" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<path d="M 560 626 L 560 680" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
+<text x="600" y="52" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="28" fill="#4A4338" text-anchor="middle">Multi-Teacher On-Policy Distillation</text>
+<text x="210" y="185" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">Math Expert</text>
+<text x="560" y="185" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">Code Expert</text>
+<text x="910" y="185" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">Reasoning Expert</text>
+<text x="560" y="393" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">Student Rollout · On-policy tokens</text>
+<text x="560" y="583" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">Multi-Teacher OPD · Dense token feedback</text>
+<text x="560" y="716" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">Unified Model</text>
+<text x="600" y="810" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">Experts teach along the student’s own trajectory—not a</text>
+<text x="600" y="830.8" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="16" fill="#4A4338" text-anchor="middle">frozen answer set</text>
+
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4A4540" /></marker></defs>
+</svg>

@@ -20,13 +20,15 @@ Callout: R1 当年让 GRPO 变成后训练标配，V4 现在让 OPD 走了同样
 
 ### Section 2: Context 图表
 Type: figure
-Image: ./figure/figure1.png
+Image: ./figure/figure1.svg
 Caption: Figure 1: R1 的训练流水线——先用 RL 激活推理能力，再用 SFT 稳定输出格式，最后再上 RL 精调。这个 RL→SFT→RL 的三段式，定义了后训练的基本骨架
+Prompt: Editable Excalidraw pipeline diagram on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent; no gradients, shadows, 3D, or decoration.
 
 ### Section 3: Context 图表 II
 Type: figure
-Image: ./figure/figure2.png
+Image: ./figure/figure2.svg
 Caption: Figure 2: R1 系列的演进路线——从 V3 Base 到 R1-Zero（纯 RL，无 SFT），再到 R1（加入冷启动 SFT），最后 Distill 到各个小模型。这个路线图说明：后训练不是一步到位的，是多阶段的接力赛
+Prompt: Editable Excalidraw model-evolution diagram on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent; no gradients, shadows, 3D, or decoration.
 
 ### Section 4: 从传统蒸馏到 OPD：Forward KL → Reverse KL
 Type: text
@@ -37,8 +39,9 @@ Callout: 传统蒸馏是老师让学生硬背解题思路，OPD 是老师顺着�
 
 ### Section 5: Mechanism I 图示
 Type: figure
-Image: ./figure/figure3.png
+Image: ./figure/figure3.svg
 Caption: Figure 3: V4 的多专家 OPD 整合——10+ 领域专家（Prover/Math2/Coder 等）各自练到极致，再通过 multi-teacher OPD 融合成统一模型。32T tokens 的规模，V3 的 off-policy 路线被整个替换
+Prompt: Editable Excalidraw multi-teacher integration diagram on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent; no gradients, shadows, 3D, or decoration.
 
 ### Section 6: OPD 的本质：SFT 的拓展，RLVR 的补充
 Type: text
@@ -51,18 +54,21 @@ Callout: OPD 的优点会在 26 年产生更多衍生工作，尤其是对中小
 
 ### Section 7: OPD 定位图
 Type: figure
-Image: ./figure/figure6.png
+Image: ./figure/figure4.svg
 Caption: Figure 4: Forward KL 和 Reverse KL 的根本区别——Forward KL 是老师出题学生背，期望在教师分布上计算，容易出现 mode collapsing；Reverse KL 是学生先做题老师再逐 token 纠正，期望在学生分布上计算，信号更密、分布匹配更准
+Prompt: Editable Excalidraw KL-divergence comparison on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent; no gradients, shadows, 3D, or decoration.
 
 ### Section 8: Mechanism II 图示
 Type: figure
-Image: ./figure/figure5.png
+Image: ./figure/figure5.svg
 Caption: Figure 5: MiMo-V2-Flash 的三阶段后训练——先 SFT 打底，再分领域训练专家（Search/Code/Math 等），最后用 MOPD 做 token-level + seq-level 的双重复蒸馏。这是各家 SFT→OPD→RL 路线的一个具体实例
+Prompt: Editable Excalidraw three-stage training diagram on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent; no gradients, shadows, 3D, or decoration.
 
 ### Section 9: Mechanism II 图示 II
 Type: figure
-Image: ./figure/figure4.png
+Image: ./figure/figure6.svg
 Caption: Figure 6: V4 多专家 OPD 的完整流程（82T tokens 版本）——Base Model 训练多个领域专家，每个专家独立走 SFT+GRPO 练到极致，最后 multi-teacher OPD 把所有专家的知识融合到一个模型里
+Prompt: Editable Excalidraw multi-expert integration diagram on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent; no gradients, shadows, 3D, or decoration.
 
 ### Section 10: OPD 成功的条件：思维模式一致性 + 增量知识
 Type: text
@@ -85,8 +91,9 @@ Callout: 冷启动的 forward-KL 阶段不是可选的——先拉齐分布再�
 
 ### Section 12: 失败模式图示
 Type: figure
-Image: ./figure/figure7.png
+Image: ./figure/figure7.svg
 Caption: Figure 7: 两种蒸馏范式的优化过程对比——左侧 Forward KL (SFT) 中 Student 被动学习 Teacher 的输出分布，右侧 Reverse KL (OPD) 中 Student 主动 rollout、Teacher 逐 token 评估。方向不同，信号密度差了一个数量级
+Prompt: Editable Excalidraw token-signal comparison on #FAFAF7 paper, warm Morandi blocks, #4A4338 ink, and a single #C45A20 accent; no gradients, shadows, 3D, or decoration.
 
 ### Section 13: 对个人和团队的启发
 Type: text

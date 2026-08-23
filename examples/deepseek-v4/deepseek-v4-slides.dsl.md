@@ -58,7 +58,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/04/24
 
 ::pulse [「 距离越远，压缩越狠 —— 这是结构分工，不是简单取舍。 」] ::
 
-::visual {🍌 nano-banana prompt: two boxes side by side — left "CSA" balanced scale, right "HCA" compressed arrow. Label "trade precision for cost". Hand-drawn, black ink, white background} ::
+::image [./figures/figure-03-hca-compression.svg] [scale=100] ::
 
 ---
 
@@ -72,7 +72,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/04/24
 
 ::pulse [「 没有这个前提，long-context 收益只能停留在图上。 」] ::
 
-::visual {🍌 nano-banana prompt: two hands holding a wobbly line labeled "residual". Left hand "mHC" stabilizing. Hand-drawn, black ink, white background} ::
+::image [./figures/figure-04-mhc-residual.svg] [scale=100] ::
 
 ---
 
@@ -86,7 +86,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/04/24
 
 ::pulse [「 优化器不孤立项，结构铺路，框架配合。 」] ::
 
-::visual {🍌 nano-banana prompt: three nodes in triangle — "Attention" RMSNorm, "Muon" no QK-Clip, "Framework" ZeRO. Hand-drawn, black ink, white background} ::
+::image [./figures/figure-05-muon-stability.svg] [scale=100] ::
 
 ---
 
@@ -100,7 +100,7 @@ Version: Synapse v6.0 | Author: Why.J | Date: 2026/04/24
 
 ::pulse [「 KV cache 是存储系统，不是 tensor 的脚注。 」] ::
 
-::visual {🍌 nano-banana prompt: four stacked layers — top "raw" dense dots, "compressed" sparse, "far index" few marks, bottom "disk" circle. Arrow down "tiered". Hand-drawn, black ink, white background} ::
+::image [./figures/figure-06-kv-tiers.svg] [scale=100] ::
 
 ---
 
