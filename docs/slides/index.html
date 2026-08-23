@@ -3,283 +3,45 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Synapse · Visual Introduction</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reset.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
+    <title>Synapse · Choose a deck style</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=JetBrains+Mono:wght@500;700&family=Poppins:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet" />
     <style>
-      :root {
-        --paper: #fafaf7;
-        --paper-warm: #f0ece6;
-        --ink: #1e1e1e;
-        --muted: #6c7278;
-        --orange: #c45a20;
-        --orange-soft: #f7e5d8;
-        --sage: #c6cdb8;
-        --taupe: #d7ccbd;
-        --shadow: 10px 10px 0 var(--ink);
-      }
-
+      :root { --paper: #fafaf7; --ink: #1e1e1e; --orange: #c45a20; --soft: #f7e5d8; }
       * { box-sizing: border-box; }
-      body {
-        background-color: var(--paper);
-        background-image:
-          linear-gradient(rgba(30, 30, 30, 0.035) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(30, 30, 30, 0.035) 1px, transparent 1px);
-        background-size: 40px 40px;
-      }
-      .reveal { color: var(--ink); font-family: "Gochi Hand", cursive; }
-      .reveal .slides { text-align: left; }
-      .reveal section { height: 100%; padding: 56px 68px 50px; }
-      .reveal h1, .reveal h2, .reveal h3 {
-        color: var(--ink); font-family: "Poppins", sans-serif; text-transform: none;
-        letter-spacing: -0.035em; margin: 0; line-height: 1.06;
-      }
-      .reveal h1 { font-size: 84px; font-weight: 800; }
-      .reveal h2 { font-size: 48px; font-weight: 800; }
-      .reveal h3 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
-      .reveal p, .reveal li { font-size: 29px; line-height: 1.35; }
-      .reveal a { color: inherit; text-decoration: none; }
-      .reveal a:hover { color: var(--orange); }
-      .kicker {
-        color: var(--orange); font-family: "JetBrains Mono", monospace; font-size: 18px;
-        font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-        margin-bottom: 14px;
-      }
-      .rule { width: 100%; height: 8px; margin: 22px 0 34px; background: var(--ink); }
-      .footer {
-        position: absolute; left: 68px; right: 68px; bottom: 24px;
-        display: flex; justify-content: space-between; align-items: center;
-        color: var(--muted); font-family: "JetBrains Mono", monospace; font-size: 16px;
-      }
-      .footer a { border-bottom: 1px solid currentColor; }
-      .accent { color: var(--orange); }
-      mark { background: var(--orange-soft); color: inherit; padding: 0 0.12em; }
-      code {
-        font-family: "JetBrains Mono", monospace; background: var(--paper-warm);
-        border: 2px solid var(--ink); padding: 0.08em 0.28em;
-      }
-      .cover { display: flex !important; flex-direction: column; justify-content: center; }
-      .cover .logo { width: 130px; margin-bottom: 30px; }
-      .cover .subtitle { width: 820px; margin: 26px 0 0; color: var(--muted); font-size: 34px; }
-      .cover .stamp {
-        position: absolute; right: 88px; bottom: 112px; padding: 16px 22px;
-        border: 4px solid var(--orange); color: var(--orange); font-family: "JetBrains Mono", monospace;
-        font-size: 23px; transform: rotate(-3deg);
-      }
-      .hero-grid { display: grid; grid-template-columns: 1.35fr 0.65fr; gap: 42px; align-items: center; }
-      .hero-image, .shot {
-        display: block; width: 100%; border: 4px solid var(--ink); background: white;
-        box-shadow: var(--shadow); object-fit: cover;
-      }
-      .hero-image { aspect-ratio: 16 / 9; }
-      .big-claim { font-family: "Poppins", sans-serif; font-weight: 800; font-size: 47px; line-height: 1.12; }
-      .pulse {
-        margin-top: 26px; border: 4px solid var(--orange); background: white;
-        box-shadow: 8px 8px 0 var(--ink); padding: 18px 22px; font-size: 27px;
-        transform: rotate(-0.5deg);
-      }
-      .skill-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-      .card {
-        display: block; min-height: 150px; padding: 22px; border: 3px solid var(--ink);
-        background: white; box-shadow: 7px 7px 0 var(--ink);
-      }
-      .card:nth-child(2n) { background: var(--paper-warm); transform: rotate(0.35deg); }
-      .card:nth-child(3n) { background: var(--sage); transform: rotate(-0.35deg); }
-      .card strong { display: block; font-family: "JetBrains Mono", monospace; font-size: 22px; margin-bottom: 10px; }
-      .card span { display: block; color: #3f423b; font-size: 24px; line-height: 1.25; }
-      .pipeline { display: grid; grid-template-columns: 1fr 54px 1fr 54px 1fr 54px 1.12fr; align-items: center; }
-      .stage {
-        min-height: 210px; padding: 24px 20px; border: 4px solid var(--ink); background: white;
-        box-shadow: 8px 8px 0 var(--ink); display: flex; flex-direction: column; justify-content: center;
-      }
-      .stage.orange { border-color: var(--orange); background: var(--orange-soft); }
-      .stage small { font-family: "JetBrains Mono", monospace; color: var(--orange); font-size: 18px; }
-      .stage b { font-family: "Poppins", sans-serif; font-size: 31px; margin: 10px 0; }
-      .stage span { font-size: 23px; line-height: 1.25; }
-      .arrow { text-align: center; font-size: 48px; font-family: "JetBrains Mono", monospace; }
-      .evidence { display: grid; grid-template-columns: 1.38fr 0.62fr; gap: 34px; align-items: center; }
-      .shot { aspect-ratio: 16 / 10; }
-      .facts { display: grid; gap: 20px; }
-      .fact { border-left: 8px solid var(--orange); padding: 8px 0 8px 20px; }
-      .fact strong { display: block; font-family: "Poppins", sans-serif; font-size: 32px; }
-      .fact span { color: var(--muted); font-size: 24px; }
-      .two-shots { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-      .shot-card { display: block; }
-      .shot-card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: 4px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); }
-      .shot-card h3 { margin-top: 22px; }
-      .shot-card p { color: var(--muted); font-size: 23px; margin: 8px 0 0; }
-      .install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-      .install-box { border: 4px solid var(--ink); box-shadow: var(--shadow); background: white; padding: 28px; }
-      .install-box.agent { border-color: var(--orange); background: var(--orange-soft); }
-      pre {
-        white-space: pre-wrap; word-break: break-word; font-family: "JetBrains Mono", monospace;
-        font-size: 21px; line-height: 1.45; background: var(--ink); color: white;
-        padding: 20px; border-radius: 0; margin: 22px 0 0;
-      }
-      .final-prompt {
-        margin-top: 54px; width: 1080px; padding: 34px; border: 4px solid var(--ink);
-        background: white; box-shadow: var(--shadow); font-family: "JetBrains Mono", monospace;
-        font-size: 27px; line-height: 1.5;
-      }
-      .final-links { display: flex; gap: 24px; margin-top: 34px; }
-      .button { padding: 15px 21px; border: 3px solid var(--ink); background: white; font-size: 24px; }
-      .button.primary { background: var(--orange); color: white; border-color: var(--orange); }
-      @media (max-width: 900px) {
-        .reveal section { padding: 36px; }
-        .hero-grid, .evidence, .two-shots, .install-grid { grid-template-columns: 1fr; }
-        .skill-grid { grid-template-columns: 1fr 1fr; }
-        .footer { left: 36px; right: 36px; }
-      }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 48px; color: var(--ink); background: var(--paper); font-family: Inter, sans-serif; }
+      main { width: min(1080px, 100%); }
+      .eyebrow { color: var(--orange); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+      h1 { max-width: 760px; margin: 14px 0 12px; font-size: clamp(42px, 7vw, 78px); line-height: 1; letter-spacing: -.055em; }
+      .lead { margin: 0 0 38px; color: #62666a; font-size: 21px; }
+      .choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px; }
+      .choice { display: flex; min-height: 270px; flex-direction: column; justify-content: space-between; padding: 30px; color: inherit; background: white; border: 3px solid var(--ink); text-decoration: none; transition: transform .15s ease, box-shadow .15s ease; }
+      .choice:hover { transform: translate(-4px, -4px); box-shadow: 9px 9px 0 var(--ink); }
+      .choice.excalidraw { background-color: #fffdf8; background-image: radial-gradient(#d9d4ca 1.3px, transparent 1.3px); background-size: 18px 18px; }
+      .choice.sans { border-color: var(--orange); background: var(--soft); }
+      .label { font-size: 15px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+      h2 { margin: 18px 0 10px; font-size: 39px; letter-spacing: -.04em; }
+      p { margin: 0; font-size: 18px; line-height: 1.5; }
+      .font { margin-top: 28px; color: var(--orange); font-weight: 700; }
+      @media (max-width: 760px) { body { padding: 28px; } .choices { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
-    <div class="reveal">
-      <div class="slides">
-        <section class="cover">
-          <img class="logo" src="../../assets/logo.svg" alt="Synapse logo" />
-          <div class="kicker">00 / A visual introduction</div>
-          <h1>Distill noise.<br /><span class="accent">Ship logic.</span></h1>
-          <p class="subtitle">Synapse turns raw technical material into traceable, publishable artifacts.</p>
-          <a class="stamp" href="https://github.com/yangjingo/Synapse" target="_blank" rel="noopener">SYNAPSE v2</a>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse" target="_blank" rel="noopener">github.com/yangjingo/Synapse</a><span>00 / 08</span></div>
-        </section>
-
-        <section>
-          <div class="kicker">01 / The problem</div>
-          <h2>Why does AI output still feel unfinished?</h2>
-          <div class="rule"></div>
-          <div class="hero-grid">
-            <img class="hero-image" src="../assets/readme/synapse-hero.png" alt="Research inputs entering a logic forge and becoming finished artifacts" />
-            <div>
-              <div class="big-claim">Generation is cheap.<br /><span class="accent">Judgment is scarce.</span></div>
-              <div class="pulse">Synapse treats structure, evidence, visuals, and validation as one pipeline.</div>
-            </div>
-          </div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/blob/master/README.md" target="_blank" rel="noopener">README · the product promise</a><span>01 / 08</span></div>
-        </section>
-
-        <section>
-          <div class="kicker">02 / The system</div>
-          <h2>Six Skills, one argument spine.</h2>
-          <div class="rule"></div>
-          <div class="skill-grid">
-            <a class="card" href="https://github.com/yangjingo/Synapse/blob/master/SKILL.md" target="_blank" rel="noopener"><strong>$synapse</strong><span>Orchestrates the complete publishing run.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-forge" target="_blank" rel="noopener"><strong>$synapse-forge</strong><span>Extracts evidence and builds the DSL.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-design" target="_blank" rel="noopener"><strong>$synapse-design</strong><span>Shapes narrative, slides, and visual rules.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-pretext" target="_blank" rel="noopener"><strong>$synapse-pretext</strong><span>Renders geometry-aware engineering articles.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-excalidraw" target="_blank" rel="noopener"><strong>$synapse-excalidraw</strong><span>Produces editable technical diagrams.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-animation" target="_blank" rel="noopener"><strong>$synapse-animation</strong><span>Turns explanations into SVG, GIF, or video.</span></a>
-          </div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/skills" target="_blank" rel="noopener">Inspect every Skill</a><span>02 / 08</span></div>
-        </section>
-
-        <section>
-          <div class="kicker">03 / The pipeline</div>
-          <h2>What happens after you drop in a paper?</h2>
-          <div class="rule"></div>
-          <div class="pipeline">
-            <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/examples" target="_blank" rel="noopener"><small>INPUT</small><b>Sources</b><span>URLs · PDFs · notes · logs</span></a>
-            <div class="arrow">→</div>
-            <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-forge" target="_blank" rel="noopener"><small>FORGE</small><b>Evidence</b><span>extract · verify · synthesize</span></a>
-            <div class="arrow">→</div>
-            <a class="stage orange" href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse-forge/FORGE.DSL.md" target="_blank" rel="noopener"><small>CORE</small><b>DSL</b><span>one argument spine</span></a>
-            <div class="arrow">→</div>
-            <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/examples/opd" target="_blank" rel="noopener"><small>OUTPUT</small><b>Publish</b><span>slides · article · diagram · motion</span></a>
-          </div>
-          <div class="pulse">The format changes. The reasoning does not.</div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse-forge/FORGE.DSL.md" target="_blank" rel="noopener">Read the DSL specification</a><span>03 / 08</span></div>
-        </section>
-
-        <section>
-          <div class="kicker">04 / Example · OPD</div>
-          <h2>Can one paper become a complete teaching package?</h2>
-          <div class="rule"></div>
-          <div class="evidence">
-            <a href="../../examples/opd/opd-slides.html#/3"><img class="shot" src="./assets/opd-slide.png" alt="OPD example slide explaining on-policy distillation" /></a>
-            <div class="facts">
-              <a class="fact" href="https://github.com/yangjingo/Synapse/blob/master/examples/opd/opd-slides.dsl.md" target="_blank" rel="noopener"><strong>Argument DSL</strong><span>Mechanism-first structure</span></a>
-              <a class="fact" href="https://github.com/yangjingo/Synapse/blob/master/examples/opd/opd-blog.html" target="_blank" rel="noopener"><strong>Article + Slides</strong><span>Two formats, shared evidence</span></a>
-              <a class="fact" href="https://github.com/yangjingo/Synapse/tree/master/examples/opd/figure" target="_blank" rel="noopener"><strong>7 diagram pairs</strong><span>Editable source + SVG export</span></a>
-            </div>
-          </div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/examples/opd" target="_blank" rel="noopener">Open the OPD example</a><span>04 / 08</span></div>
-        </section>
-
-        <section>
-          <div class="kicker">05 / Examples · breadth</div>
-          <h2>Does the same system survive different topics?</h2>
-          <div class="rule"></div>
-          <div class="two-shots">
-            <a class="shot-card" href="../../examples/deepseek-v4/deepseek-v4-slides.html#/3"><img src="./assets/deepseek-v4-slide.png" alt="DeepSeek-V4 example slide" /><h3>DeepSeek-V4</h3><p>Architecture compression becomes a visual mechanism.</p></a>
-            <a class="shot-card" href="../../examples/cli-revolution/cli-revolution-slides.html#/4"><img src="./assets/cli-revolution-slide.png" alt="CLI Revolution example slide" /><h3>CLI Revolution</h3><p>Product interaction becomes an auditable argument.</p></a>
-          </div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/examples" target="_blank" rel="noopener">Browse all topic examples</a><span>05 / 08</span></div>
-        </section>
-
-        <section>
-          <div class="kicker">06 / Quality gate</div>
-          <h2>What makes the output reproducible?</h2>
-          <div class="rule"></div>
-          <div class="skill-grid">
-            <a class="card" href="https://github.com/yangjingo/Synapse/blob/master/scripts/refresh-skill-examples.js" target="_blank" rel="noopener"><strong>REFRESH</strong><span>Rebuild mirrored examples deterministically.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/blob/master/scripts/validate-slide-visuals.js" target="_blank" rel="noopener"><strong>VERIFY</strong><span>Reject prompt placeholders and missing images.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-forge/scripts" target="_blank" rel="noopener"><strong>STRUCTURE</strong><span>Check cover, agenda, mechanism, and references.</span></a>
-          </div>
-          <div class="final-prompt" style="margin-top: 40px; width: 100%;">node scripts/refresh-skill-examples.js<br />node scripts/validate-slide-visuals.js</div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/scripts" target="_blank" rel="noopener">Inspect the automation</a><span>06 / 08</span></div>
-        </section>
-
-        <section>
-          <div class="kicker">07 / Install</div>
-          <h2>How do you put Synapse into Codex?</h2>
-          <div class="rule"></div>
-          <div class="install-grid">
-            <a class="install-box" href="https://github.com/yangjingo/Synapse/blob/master/docs/QUICKSTART.md" target="_blank" rel="noopener">
-              <h3>Human · choose Skills</h3>
-              <pre>npx --yes skills add https://github.com/yangjingo/Synapse \
-  --agent codex --global --full-depth --copy</pre>
-            </a>
-            <a class="install-box agent" href="https://github.com/yangjingo/Synapse/blob/master/docs/QUICKSTART.md" target="_blank" rel="noopener">
-              <h3>Agent · install all six</h3>
-              <pre>npx --yes skills add https://github.com/yangjingo/Synapse \
-  --agent codex --global --full-depth --copy \
-  --skill "*" --yes</pre>
-            </a>
-          </div>
-          <div class="pulse">Use <mark>--full-depth</mark>, then restart Codex.</div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/blob/master/docs/QUICKSTART.md" target="_blank" rel="noopener">Open Quickstart</a><span>07 / 08</span></div>
-        </section>
-
-        <section>
-          <div class="kicker">08 / Start here</div>
-          <h2>What should you ask Synapse first?</h2>
-          <div class="final-prompt">Use $synapse to turn these papers and notes into a Why.J-style slide deck and engineering article. Keep every claim traceable and embed finished visuals.</div>
-          <div class="final-links">
-            <a class="button primary" href="https://github.com/yangjingo/Synapse" target="_blank" rel="noopener">Install Synapse</a>
-            <a class="button" href="https://github.com/yangjingo/Synapse/tree/master/examples" target="_blank" rel="noopener">See examples</a>
-            <a class="button" href="https://github.com/yangjingo/Synapse/blob/master/README.zh-CN.md" target="_blank" rel="noopener">中文 README</a>
-          </div>
-          <div class="pulse" style="margin-top: 70px; width: 900px;">The deliverable is not more content. It is a clearer argument.</div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse" target="_blank" rel="noopener">Why.J Engineering · Synapse</a><span>08 / 08</span></div>
-        </section>
+    <main>
+      <div class="eyebrow">Synapse · Visual Introduction</div>
+      <h1>One story. Two distinct voices.</h1>
+      <p class="lead">Choose a complete typography system. Each deck uses one family from cover to code.</p>
+      <div class="choices">
+        <a class="choice excalidraw" href="./excalidraw.html">
+          <div><span class="label">Hand-drawn system</span><h2>Excalidraw</h2><p>Dot grid, hard shadows, rough cards, and a consistent handwritten voice.</p></div>
+          <div class="font">Gochi Hand only →</div>
+        </a>
+        <a class="choice sans" href="./sans.html">
+          <div><span class="label">Clean system</span><h2>Sans Serif</h2><p>Structured geometry, restrained hierarchy, and a consistent modern voice.</p></div>
+          <div class="font">Inter only →</div>
+        </a>
       </div>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
-    <script>
-      Reveal.initialize({
-        hash: true,
-        width: 1440,
-        height: 900,
-        margin: 0,
-        controls: true,
-        progress: true,
-        center: false,
-        transition: 'none',
-        backgroundTransition: 'none',
-      });
-    </script>
+    </main>
   </body>
 </html>

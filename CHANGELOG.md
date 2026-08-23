@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Split the product introduction into separate Excalidraw and sans-serif editions, each locked to one font family.
 - Replaced the SVG-driven README diagram with a built-in imagegen raster hero.
 - Made the default README concise and English-first, with a separate Chinese edition.
 - Replaced the text-heavy project introduction with an example-driven HTML slide deck under `docs/slides/`.
