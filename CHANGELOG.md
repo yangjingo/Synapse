@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Redesigned the Synapse icon as a hand-drawn logic forge and aligned both READMEs with the forge visual narrative.
 - Split the product introduction into separate Excalidraw and sans-serif editions, each locked to one font family.
 - Replaced the SVG-driven README diagram with a built-in imagegen raster hero.
 - Made the default README concise and English-first, with a separate Chinese edition.

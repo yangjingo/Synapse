@@ -1,7 +1,7 @@
 # Synapse
 
 <div align="center">
-  <img src="assets/logo.svg" alt="Synapse logo" width="144">
+  <img src="assets/logo.svg?v=2" alt="Synapse logic forge logo" width="144">
 
   **A logic forge for AI-native technical publishing.**
 
@@ -13,7 +13,9 @@
 
 ![Research notes, logs, and papers entering the Synapse logic forge and emerging as slides, an article, a diagram, and motion](docs/assets/readme/synapse-hero.png)
 
-Synapse is a set of composable Codex Skills that turns URLs, files, and raw notes into traceable arguments and finished technical artifacts. One DSL drives slides, engineering articles, diagrams, and motion—without leaving image prompts in the final output.
+<div align="center"><sub>RAW EVIDENCE → LOGIC FORGE → ONE ARGUMENT SPINE → SLIDES · ARTICLE · DIAGRAM · MOTION</sub></div>
+
+Synapse is a set of composable Codex Skills that turns URLs, files, and raw notes into traceable arguments and finished technical artifacts. Like the forge above, it compresses noisy inputs into one argument spine; that spine drives slides, engineering articles, diagrams, and motion—without leaving image prompts in the final output.
 
 ## Install
 

@@ -1,7 +1,7 @@
 # Synapse
 
 <div align="center">
-  <img src="assets/logo.svg" alt="Synapse logo" width="144">
+  <img src="assets/logo.svg?v=2" alt="Synapse 逻辑锻造炉图标" width="144">
 
   **面向 AI 原生技术出版的逻辑锻造炉。**
 
@@ -10,7 +10,9 @@
 
 ![研究笔记、日志与论文进入 Synapse 逻辑锻造炉，最终产出 Slides、文章、图表和动画](docs/assets/readme/synapse-hero.png)
 
-Synapse 是一组可组合的 Codex Skills：把 URL、文件与原始笔记压缩成可追溯的论证，再从同一份 DSL 生成 Slides、技术文章、可编辑图表与动画。最终交付嵌入真实视觉素材，不把图片 Prompt 当成成品。
+<div align="center"><sub>原始证据 → 逻辑锻造 → 单一论证主干 → SLIDES · 文章 · 图表 · 动画</sub></div>
+
+Synapse 是一组可组合的 Codex Skills：像上图的锻造炉一样，把 URL、文件与原始笔记压缩成可追溯的单一论证主干，再从同一份 DSL 生成 Slides、技术文章、可编辑图表与动画。最终交付嵌入真实视觉素材，不把图片 Prompt 当成成品。
 
 ## 安装
 
