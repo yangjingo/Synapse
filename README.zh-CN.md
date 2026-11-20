@@ -39,10 +39,14 @@ npx --yes skills add https://github.com/yangjingo/Synapse \
 保留论点来源，并在最终页面嵌入真实图片。
 ```
 
+单篇写作选 [技术博客](skills/synapse-tech-blog/SKILL.md) 或 [公众号](skills/synapse-wechat/SKILL.md)。论文、技术复盘、插图和发布格式通过各入口的 reference 按需加载。
+
 | Skill | 职责 |
 |---|---|
+| `$synapse-tech-blog` | 技术博客、论文解读、技术复盘与 Notion/Bearblog 交付 |
+| `$synapse-wechat` | 公众号观点稿、读书笔记与技术长文改编 |
 | `$synapse-forge` | 素材 → 可验证的论证 DSL |
-| `$synapse-design` | 叙事结构与 Slides 设计 |
+| `$synapse-design` | Slides 视觉规则与模板 |
 | `$synapse-pretext` | 几何感知的文章排版 |
 | `$synapse-excalidraw` | 可编辑技术图 |
 | `$synapse-animation` | SVG、GIF 与 Remotion 动画 |

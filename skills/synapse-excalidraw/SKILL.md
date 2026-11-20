@@ -625,7 +625,7 @@ Every technical diagram **must** include annotation blocks.
 
 `synapse-excalidraw` produces the animated SVG; `synapse-animation` can convert to Slack-optimized GIF.
 
-### With synapse-design (blog)
+### With synapse-tech-blog (blog)
 
 `synapse-excalidraw` produces the animated SVG for blog embedding.
 

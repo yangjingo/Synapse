@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-`SKILL.md` is the entry point for the Synapse workflow. Specialized agent instructions live under `skills/`: `synapse-forge` shapes content, `synapse-design` defines visual rules, `synapse-pretext` renders editorial HTML, `synapse-excalidraw` creates diagrams, and `synapse-animation` handles motion exports. Each skill keeps its own `SKILL.md`, references, scripts, and examples where applicable. End-to-end sample outputs belong in `examples/<topic>/`; keep a topic's `*-blog.dsl.md`, `*-blog.html`, `*-slides.dsl.md`, `*-slides.html`, and `figures/` together. Shared documentation and branding live in `docs/` and `assets/`.
+`SKILL.md` is the entry point for the Synapse workflow. Specialized agent instructions live under `skills/`: `synapse-tech-blog` and `synapse-wechat` own article writing, `synapse-forge` extracts evidence and shapes DSL, `synapse-design` defines slide visual rules, `synapse-pretext` renders editorial HTML, `synapse-excalidraw` creates diagrams, and `synapse-animation` handles motion exports. Each skill keeps its own `SKILL.md`, references, scripts, and examples where applicable. End-to-end sample outputs belong in `examples/<topic>/`; keep a topic's `*-blog.dsl.md`, `*-blog.html`, `*-slides.dsl.md`, `*-slides.html`, and `figures/` together. Shared documentation and branding live in `docs/` and `assets/`.
 
 ## Build, Test, and Development Commands
 

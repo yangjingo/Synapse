@@ -271,7 +271,7 @@ Key requirements:
 
 ### Stage 3: Synthesize DSL
 
-This is the core creative step. Read `FORGE-DSL.md` Section C for voice and style rules.
+Use the extracted evidence to build a DSL in the requested format. For article editorial decisions use `synapse-tech-blog` or `synapse-wechat`.
 
 Take the extracted material and produce a DSL file (`*.dsl.md`). The user specifies the target format:
 
@@ -284,27 +284,11 @@ Take the extracted material and produce a DSL file (`*.dsl.md`). The user specif
 5. **Q→A strict mapping** → Take A Ways (Q1→A1, Q2→A2, Q3→A3, Q4→pulse)
 6. **Source list** → Reference page
 
-Follow `FORGE-DSL.md` Section A for exact DSL syntax.
+Follow `FORGE.DSL.md` Section A for exact DSL syntax.
 
 #### Target: Blog DSL
 
-1. **Find the thesis** — one sentence that the whole piece defends
-2. **Rebuild** around: real problem → design move → enabling details → tradeoffs → takeaway
-3. **Do NOT mirror source heading order** — rebuild around what matters
-4. **Add figures** only when they compress understanding — specify what each figure teaches
-5. **End with hammer** — PULSE must reframe, not recap
-
-Follow `FORGE-DSL.md` Section B for exact DSL syntax.
-
-#### Synthesis Rules (from FORGE-DSL.md Section C)
-
-- **Thesis first**, not section-by-section summary
-- **Mechanism over praise** — explain how it works, not how great it is
-- **One section, one hard point** — logically O(1)
-- **End with aggressive pulse**, not soft landing
-- **活人感** — like explaining to a colleague at 2am
-- **祛魅原则** — translate buzzwords to concrete engineering reality
-- **No oily phrases** — avoid "不是X而是X", "X的本质是X"
+Follow `FORGE.DSL.md` Section B for syntax. Encode the verified question, claims, sources, and planned figures given by the article skill. Preserve the evidence boundary and identify any unresolved gaps in the working DSL.
 
 ## Downstream
 
@@ -327,7 +311,7 @@ DSL 文件交给下游 skill 渲染：
 2. **Thesis-clear** — one sentence spine, no fluff
 3. **Structure sound** — Slides: 事实→问题→机制→回答. Blog: problem→move→details→takeaway
 4. **Voice correct** — WhyJ engineering tone, not corporate explainer
-5. **DSL valid** — follows FORGE-DSL.md syntax, can be directly rendered
+5. **DSL valid** — follows FORGE.DSL.md syntax, can be directly rendered
 6. **Context 3-fact limit** — Context page 事实不超过 3 条。超出时只保留最重要的 3 条，其余下沉到 Mechanism 页面。难以取舍时暂停请用户确认
 
 ## Figure Naming Convention
@@ -346,7 +330,7 @@ figure-XX-descriptivename.{svg,png,jpg}
 
 - NO hallucinated content — if source doesn't say it, don't include it
 - NO summary-only output — forge produces DSL with judgment, not vague summaries
-- NO oily marketing phrases — see FORGE.DSL.md Section C 句式红黑榜
+- Keep each claim traceable and use concrete terminology
 - **NO curly quotes as JS string delimiters** — this has caused repeated white-screen failures (3+ incidents). See below
 
 ### Curly Quote Rule (CRITICAL — verified after EVERY file edit)

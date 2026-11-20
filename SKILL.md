@@ -1,6 +1,6 @@
 ---
 name: synapse
-description: "Master skill for Why.J Engineering. Orchestrates forge → DSL → slides/blog HTML pipeline. Delegates to synapse-forge (ingestion), synapse-pretext (blog rendering), synapse-excalidraw (diagrams), and synapse-animation."
+description: "Orchestrate Synapse slides and multi-artifact workflows, from source material through DSL, article, diagrams, and motion. For article-only work use synapse-tech-blog or synapse-wechat."
 repository: https://github.com/yangjingo/Synapse
 homepage: https://github.com/yangjingo/Synapse
 version: 2.0.0
@@ -15,7 +15,9 @@ Master orchestrator for the Synapse skill system.
 | Skill | Directory | Purpose |
 |-------|-----------|---------|
 | `synapse-forge` | `skills/synapse-forge/` | URLs/files → DSL (熔炉): ingestion + synthesis |
-| `synapse-design` | `skills/synapse-design/` | Content creation guidance (voice, structure, slides template) |
+| `synapse-design` | `skills/synapse-design/` | Slides profiles and rendering templates |
+| `synapse-tech-blog` | `skills/synapse-tech-blog/` | Technical articles, paper notes, reviews, figures and publishing handoffs |
+| `synapse-wechat` | `skills/synapse-wechat/` | WeChat essays, reading notes and technical adaptations |
 | `synapse-pretext` | `skills/synapse-pretext/` | Blog DSL → HTML rendering + text layout engine |
 | `synapse-excalidraw` | `skills/synapse-excalidraw/` | Excalidraw diagram generation (Morandi palette, layout.js) |
 | `synapse-animation` | `skills/synapse-animation/` | Animated SVG/GIF + Remotion output |
@@ -93,33 +95,11 @@ User provides URLs/files
 
 Slides HTML MUST be copied from verified template, never hand-written. Hand-writing misses ~100 lines CSS + ~200 lines JS (Reveal.js, pretext, fonts, colors).
 
-## Operation B: Engineering Blog
+## Operation B: Articles
 
-### Full Pipeline
+Use [synapse-tech-blog](skills/synapse-tech-blog/SKILL.md) for a technical article, or [synapse-wechat](skills/synapse-wechat/SKILL.md) when the requested format is a WeChat Official Account article. The selected skill owns the narrative, evidence checks, visuals, and article deliverables.
 
-1. **Ingest**: `synapse-forge` — URLs/files → Blog DSL
-2. **Render**: `synapse-pretext` — copy `skills/synapse-pretext/examples/dsv4-blog-layout.html`, fill DSL content
-3. **Verify**: JS syntax check (no prettier — breaks ~2000-line inlined library)
-
-### Blog Rendering Protocol (synapse-pretext)
-
-1. `cp skills/synapse-pretext/examples/dsv4-blog-layout.html` to target
-2. Replace: TITLE, LEAD, SECTIONS, PULSE, meta-tag, meta-date, `<title>`
-3. Backtick template literals for ALL content strings (Chinese `""` breaks JS `"..."`)
-4. bodyHTML uses single quotes (contains HTML tags)
-5. Image paths: relative from output directory, prefer `./figures/...` under target example folder
-6. DO NOT run prettier
-7. Verify: `node -e "new Function(require('fs').readFileSync('file','utf8').match(/<script.*>([\s\S]*)<\/script>/)[1])"`
-8. **Figure sync**: when DSL contains `Type: figure` sections, read reference template first (e.g. `dsv4-blog-opd-en.html`) and copy its complete figure pattern — independent section objects, prompts from slides DSL `::visual`, CSS `figure-prompt-vis`, zoom overlay prompt reveal logic.
-   - Figure card keeps normal state clean (image + caption).
-   - Prompt text stays in figure metadata and surfaces only when zoomed.
-   - Figure section objects use `image: \`./figures/...\`` paths, and fallback prompt path remains recoverable if image file is missing.
-
-### Blog Content Principles
-
-- Senior-to-senior tone, zero marketing
-- Thesis-first, mechanism-driven
-- Follow `skills/synapse-forge/FORGE-DSL.md` Section C for voice and style
+For a combined deck and blog, keep one evidence spine. Use `synapse-forge` for the DSL when useful, then have the article skill adapt the argument for reading. `synapse-pretext` owns its HTML rendering and verification protocol.
 
 ## Diagram Pipeline (excalidraw → animate → gif)
 
@@ -134,12 +114,12 @@ Slides HTML MUST be copied from verified template, never hand-written. Hand-writ
 
 ## Master Protocols (MANDATORY)
 
-- DSL syntax → `skills/synapse-forge/FORGE.DSL.md` (唯一 DSL + 文风参考)
+- DSL syntax → `skills/synapse-forge/FORGE.DSL.md`
 - Slides template → `skills/synapse-design/references/WHYJ-SLIDES.html`
-- Blog template → `skills/synapse-pretext/examples/dsv4-blog-layout.html`
+- Article writing and format selection → `synapse-tech-blog` or `synapse-wechat`
 - Excalidraw diagrams → `skills/synapse-excalidraw/SKILL.md` (Phase 0 讨论确认 → Phase 1 生成 → Phase 2 上传确认 → Phase 3 同步 blog+slides)
 
-## O(1) Quality Gate
+## Slides Quality Gate
 
 1. **No Fluff** — Stripped all social-media hooks and emojis
 2. **Aggressive Pulse** — Conclusion hits like a hammer
@@ -154,7 +134,7 @@ Use when the user asks for:
 
 - Why.J Theater slide deck or DSL slides
 - full Synapse orchestration (slides + figures + blog)
-- `做PPT`, `演讲稿`, `技术分享`, `做成 slides`, `按 WhyJ 风格整理`
+- `做PPT`, `演讲稿`, `技术分享`, `做成 slides`
 - any request spanning multiple synapse sub-skills
 
 ## Prohibited

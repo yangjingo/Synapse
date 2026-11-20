@@ -233,9 +233,9 @@ When `s.image` points to a non-existent file, `img.onerror` shows a "待生成�
 
 ## Skill Composition
 
-### With synapse-design (blog)
+### With synapse-tech-blog (blog)
 
-`synapse-design` delegates to `synapse-pretext` when the HTML blog needs animated or geometry-sensitive text. Apply `prepareWithSegments` at minimum to animated text fields; extend to title, lead, and caption as needed.
+`synapse-tech-blog` delegates to `synapse-pretext` when the HTML blog needs animated or geometry-sensitive text. Apply `prepareWithSegments` at minimum to animated text fields; extend to title, lead, and caption as needed.
 
 ### With synapse-excalidraw (diagrams)
 

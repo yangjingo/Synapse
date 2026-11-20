@@ -317,10 +317,10 @@ Bad reasons to animate:
 1. `synapse-figure` defines what to communicate (intent, type, layout, colors)
 2. This skill decides: static is clearer? → stop. Simple loop? → Mode 2. Technical reveal? → Mode 3.
 
-### From synapse-design (blog)
+### From synapse-tech-blog (blog)
 
 When a blog needs an embedded animated explainer:
-1. `synapse-design` defines editorial purpose
+1. `synapse-tech-blog` defines editorial purpose
 2. This skill scopes animation to what teaches
 3. Output: `<Player>` embed, rendered video, or animated GIF
 

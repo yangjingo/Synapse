@@ -1,253 +1,13 @@
 ---
 name: synapse-design
-description: "Turn source material into WhyJ-style engineering blog: one Markdown blog with static-image prompts, one polished HTML blog using DESIGN.md-style rules and pretext text layout. Use when the user wants a publishable technical post, not a neutral summary."
+description: Choose a Synapse slide design profile and apply its DESIGN.md, verified template, typography, spacing, and figure placement to a deck.
 metadata:
   version: 2.0.0
 ---
 
-# Synapse Design
+# Synapse Slide Design
 
-Use this skill to turn technical material into a WhyJ-style engineering blog package.
-
-The target is not a neutral summary.  
-The target is a two-artifact delivery that feels like:
-
-- someone read the source carefully
-- extracted the real mechanism
-- decided what actually matters
-- wrote it down in a way other engineers would save
-- compressed the logic until each section carries one hard point
-
-## Input / Output Contract
-
-### Accepted input
-
-This skill accepts one or more of:
-
-- raw information
-- working notes
-- paper PDFs
-- report text
-- benchmark observations
-- architecture notes
-
-### Final output
-
-This skill must end with exactly two final artifacts:
-
-1. a technical blog Markdown file
-2. a polished blog HTML file
-
-Do not treat any other artifact as a final deliverable.
-
-### Markdown artifact requirements
-
-The Markdown artifact must:
-
-- use the WhyJ voice
-- be thesis-first and mechanism-driven
-- be publishable as a technical blog post
-- include a dedicated section for static illustration prompts
-- include prompts suitable for the Codex built-in `$imagegen` skill and its default `image_gen` tool mode
-- define what each image should teach, and bind it to strict Excalidraw controls: `#FAFAF7` paper, rough `#4A4338` ink, sparse labels, one `#C45A20` accent, no gradients, no shadows, no 3D, no decorative clutter
-
-### HTML artifact requirements
-
-The HTML artifact must:
-
-- implement the same article argument, not a different summary
-- use README-like structure for readability
-- use DESIGN.md-style visual rules for typography, spacing, color roles, borders, captions, and callouts, and enforce the same prompt-level visual constraints for each figure (Excalidraw-style, no gradients/shadows, controlled palette)
-- use pretext-style text layout constraints for title length, lead density, caption compactness, and callout geometry
-- use real `pretext` layout when animated or geometry-sensitive text is part of the page behavior
-- show figure prompts only in zoomed view; normal view keeps prompt hidden to avoid interface clutter
-- be polished enough to function as the publishable blog page
-- use relative figure references like `./figures/figure-XX-*.png`, matching the corresponding example `figures/` directory
-- keep all figure files under the same example's `./figures/` folder and write paths in markdown/HTML as that relative path
-- invoke Codex `$imagegen` for requested/recreated raster figures; never route them through Gemini, Imagen APIs, or Nano Banana. Record `codex-imagegen` in `figures/index.md`; an API/CLI fallback requires explicit user approval.
-
-### Non-final artifacts
-
-The following may exist only as intermediate planning material:
-
-- remotion scene notes
-- figure briefs
-- image planning notes
-- scratch summaries
-- technical reports
-
-If created during reasoning, collapse them into the final two outputs instead of presenting them as separate deliverables.
-
-## Read
-
-Read only what is needed:
-
-1. **Slides profile** — resolve `{design.slides.profile}` first (see [Slides Design Profile](#slides-design-profile-designmd-placeholder) below)
-2. If target output is under `examples/<project>/`, read `examples/<project>/DESIGN.md` first (override source for prompt + style constraints)
-3. `references/e2e-v6.0-*.html` — E2E evaluation outputs (4 files, reference for slides/blog rendering quality). The DeepSeek blog reference resolves its mirrored assets from `references/figures/`; refresh with `node scripts/refresh-skill-examples.js`.
-4. Main `examples/` directory — full forge→render pipeline outputs:
-   - `cli-revolution/` — CLI Revolution (slides DSL + blog DSL + slides HTML + blog HTML)
-   - `deepseek-v4/` — DeepSeek-V4 (slides DSL + blog DSL + slides HTML + blog HTML)
-   - `nano-cc/` — Nano Claude Code (slides DSL + blog DSL + slides HTML + blog HTML)
-   - `opd/` — OPD On-Policy Distillation (slides DSL + blog DSL + slides HTML + blog HTML + 7 editable SVG figures)
-
-## Trigger
-
-Use this skill when the user asks for:
-
-- a blog note
-- a paper note
-- a technical note
-- a publishable technical article
-- a Markdown and HTML blog package
-- a report rewritten in a stronger engineering voice
-- a systems or LLM article that should read like a saved engineering notebook
-
-Trigger even if the user does not say `blog`.  
-Nearby requests that should trigger this skill include:
-
-- `整理成笔记`
-- `按我的风格写`
-- `按 WhyJ 风格写`
-- `不要写成流水账`
-- `写成博客笔记`
-- `做成可发布的技术解读`
-
-## Core Style
-
-- Thesis first.
-- Explanation by mechanism, not by praise.
-- Dense, but not padded.
-- Strong judgment is allowed, but it must be earned.
-- Use short labels and concrete technical nouns.
-- Keep each section logically O(1): one section, one hard point.
-- End with an aggressive pulse, not a soft landing.
-- End with what the reader should remember.
-
-## Workflow
-
-### 1. Find the one sentence that matters
-
-Before writing, decide:
-
-- what is actually new
-- what the source pretends is important
-- what is truly important in practice
-
-If you cannot state the spine in one sentence, the note is not ready.
-
-### 2. Throw away section-by-section summary
-
-Do not mirror the source heading order unless the source structure is unusually good.
-
-Rebuild around:
-
-1. the real problem
-2. the design move
-3. the enabling system details
-4. the tradeoffs
-5. the engineering takeaway
-
-### 3. Write as a note worth saving
-
-Good note qualities:
-
-- a clear point of view
-- enough source detail to be trusted
-- enough compression to be reread quickly
-- no dead summary paragraphs
-
-Bad note qualities:
-
-- recap without judgment
-- generic admiration
-- soft claims like `very powerful` without mechanism
-- social-media hooks
-- warm-up paragraphs that delay the thesis
-
-### 4. Add visuals only when they compress understanding
-
-When visuals are needed:
-
-- one image carries one core conclusion
-- specify what the figure teaches
-- keep labels short
-- preserve technical semantics
-- turn figure intent into static-image prompts inside the Markdown artifact
-- use page style only after the figure logic is fixed
-
-When source images have highly inconsistent aspect ratios:
-
-- do not rely on CSS alone to force harmony
-- classify the target figure slot first, for example `hero`, `wide`, `balanced`, `tight`, or `tall`
-- if the source image ratio differs too much from the target slot, create a fill-or-extend image prompt instead of stretching the original
-- require the prompt to preserve the technical structure while matching the target ratio
-- state the target ratio explicitly inside the prompt
-
-### 5. Finish with a real takeaway
-
-The ending should tell the reader what changes in how they think about the system.
-
-### 6. Ship only the two final artifacts
-
-Before finishing, verify:
-
-- the Markdown file contains the full blog text and image prompts
-- the HTML file contains the same argument in a polished page form
-- there is no third artifact presented as a required final result
-
-## Output Format
-
-Unless the user explicitly overrides it, produce:
-
-1. `blog.md`
-2. `blog.html`
-
-Inside `blog.md`, produce:
-
-1. title
-2. opening thesis paragraph
-3. 4-7 mechanism-driven sections
-4. static illustration prompt section for Codex `$imagegen`
-5. final `what to remember` section
-
-Inside the static illustration prompt section, when aspect-ratio repair is needed, include:
-
-1. source image reference
-2. target slot type
-3. target aspect ratio
-4. whether the model should extend, recompose, or regenerate
-5. the final prompt (must include: `#FAFAF7` paper, rough `#4A4338` ink, sparse labels, one `#C45A20` accent, no gradients, no shadows, no 3D, no decorative elements)
-
-Inside `blog.html`, produce:
-
-1. the same title and thesis
-2. the same core sections
-3. polished static figures or figure slots
-4. DESIGN.md-style visual hierarchy
-5. pretext-style text density control
-
-## Tool Fusion
-
-When the task also includes presentation:
-
-- resolve `{design.slides.profile}` and ask the user if unset (Excalidraw vs Serif)
-- use the matching `design-md/*-slides-design.md` stub as the DESIGN.md source for the deck
-- use DESIGN.md-like language to define visual rules in prose
-- use real `pretext` integration only when `{design.slides.profile}` is `excalidraw-slides`
-- use image generation planning only after the figure spec is explicit
-- keep remotion-style scene thinking as optional internal planning, not as a final required output
-
-For concrete slide examples, prompts are intermediate planning data only. Render each selected visual, store it under the example's `figures/` directory, replace `::visual` with `::image`, and embed the real asset in HTML. Never ship an E2E slide with `Codex imagegen` or `Figure prompt` visible; run `node scripts/validate-slide-visuals.js` before completion.
-
-When `pretext` is required in HTML output:
-
-- load it in the browser with a module import when appropriate
-- use `prepareWithSegments(...)`
-- then use `layoutWithLines(...)`
-- use the resulting `lines` to drive text layout
-- apply this at minimum to animated text fields
-- prefer extending it to title, lead, and caption layout when those are part of the reading experience
+Use the slide request, evidence spine, and target audience to choose the layout. The Synapse orchestrator owns the end-to-end deck workflow. This skill supplies slide profiles and visual templates. If a legacy call asks for an article, hand it to `synapse-tech-blog` or `synapse-wechat` before selecting any slide profile.
 
 ## DESIGN.md System
 
@@ -295,7 +55,7 @@ When the HTML artifact needs a specific visual identity:
 2. Otherwise choose a profile from awesome-design-md or define a custom DESIGN.md
 3. Use the token system (colors, typography, spacing, rounded) as CSS custom properties
 4. Validate with `npx @google/design.md lint`
-5. Map component tokens to HTML/CSS classes in the blog output
+5. Map component tokens to classes in the slide output
 
 The design tokens must serve the technical argument, not override it.
 
@@ -322,7 +82,7 @@ Do not guess. Do not mix the two profiles in one deck.
 
 After substitution, load **only** the row that matches `{design.slides.profile}`.
 
-Blog HTML may still use `design-md/claude-design.md` or other blog profiles — slides profile is independent.
+For article writing and HTML format selection, use `synapse-tech-blog` or `synapse-wechat`.
 
 ### Reference
 
@@ -330,14 +90,8 @@ Blog HTML may still use `design-md/claude-design.md` or other blog profiles — 
 - Collection: `github.com/VoltAgent/awesome-design-md`
 - CLI: `npx @google/design.md lint`
 
-## Rules
+## Slide rendering
 
-- Do not sound neutral when the evidence supports a stronger conclusion.
-- Do not oversell.
-- Do not write social-media style hooks.
-- Do not write X-thread style sections.
-- Do not keep dead weight from the source.
-- Do not let page style become more important than the technical argument.
-- Do not return more than the two final artifacts unless the user explicitly asks for extras.
-- Do not claim `pretext` usage unless the page is actually using `pretext` APIs.
-- **All JS content strings in HTML output MUST use backtick template literals** — never `"..."` or `"..."` (Chinese curly quotes). JS only recognizes `"` (U+0022), `'` (U+0027), and `` ` `` (U+0060) as string delimiters. Curly quotes `""` cause `SyntaxError: Invalid or unexpected token` and white-screen rendering failure.
+- Apply only the selected profile. Follow the main Synapse slides workflow for DSL, sources, and verified figures.
+- Use real pretext integration where the selected profile has geometry-sensitive or animated text. Reference the actual figure files and verify the rendered deck.
+- Keep instructions and figure prompts outside the deck's reading view. Run `node scripts/validate-slide-visuals.js` before handoff.
