@@ -9,7 +9,7 @@
 
 ## 安装到 Codex
 
-Synapse 包含 1 个总入口、2 个文章入口和 5 个工具 Skill。安装时使用 `--full-depth`，以便发现 `skills/` 内的入口。
+Synapse 包含 1 个总入口、2 个写作入口和 5 个工具 Skill。安装时使用 `--full-depth`，以便发现 `skills/` 内的入口。
 
 ### 方式一：给 Human（手动安装）
 
@@ -19,7 +19,7 @@ Synapse 包含 1 个总入口、2 个文章入口和 5 个工具 Skill。安装�
 npx --yes skills add https://github.com/yangjingo/Synapse --agent codex --global --full-depth --copy
 ```
 
-在交互列表中选择全部 8 个 Skills：`synapse`、`synapse-tech-blog`、`synapse-wechat`、`synapse-forge`、`synapse-design`、`synapse-pretext`、`synapse-excalidraw` 和 `synapse-animation`。`--global` 会安装到 Codex 的用户级 Skill 目录；安装完成后新开一个 Codex 会话。
+在交互列表中选择全部 8 个 Skills：`synapse`、`synapse-tech-blog`、`synapse-notes`、`synapse-forge`、`synapse-design`、`synapse-pretext`、`synapse-excalidraw` 和 `synapse-animation`。`--global` 会安装到 Codex 的用户级 Skill 目录；安装完成后新开一个 Codex 会话。
 
 验证安装：
 
@@ -36,7 +36,7 @@ npx --yes skills list --global --agent codex
 
 要求：
 1. 先用 `npx --yes skills add https://github.com/yangjingo/Synapse --list --full-depth`
-   确认能够发现 synapse 总入口、2 个文章入口和 5 个工具 Skill。
+   确认能够发现 synapse 总入口、2 个写作入口和 5 个工具 Skill。
 2. 执行：
    `npx --yes skills add https://github.com/yangjingo/Synapse --agent codex --global --full-depth --skill "*" --yes --copy`
 3. 不要删除或修改其他已安装的 Skills；如果遇到同名冲突，先报告再处理。
@@ -49,7 +49,7 @@ Agent 方式使用 `--skill "*" --yes` 跳过人工选择，适合 Codex 在获�
 
 ```
 1. 整理素材         2. 选择输出          3. 微调
-   URL / 文件 / 笔记   ──→  文章或 Slides  ──→  DSL / 插图
+   URL / 文件 / 笔记   ──→  Notes、技术博客或 Slides  ──→  DSL / 插图
 ```
 
 ### Step 1: 准备素材
@@ -72,8 +72,8 @@ Synapse 接受三种输入：
 |-----------|------|
 | `帮我用 Synapse 做一个关于 XX 的 slides 和 blog` | Slides + Blog 全套 |
 | `做成 WhyJ 风格的 slides`、`做PPT`、`技术分享` | 只做 Slides |
-| `按 WhyJ 风格写一篇技术博客`、`整理成研究笔记` | [技术博客](../skills/synapse-tech-blog/SKILL.md) |
-| `把技术稿改成公众号文章`、`写公众号读书笔记` | [公众号](../skills/synapse-wechat/SKILL.md) |
+| `记录这次有什么感触`、`整理这次读书带来的判断变化` | [Notes](../skills/synapse-notes/SKILL.md) |
+| `写一篇技术博客解释这套系统`、`把研究结果整理成技术复盘` | [技术博客](../skills/synapse-tech-blog/SKILL.md) |
 | `熔炼这些素材`、`提炼资料` | 只出 DSL，不渲染 HTML |
 
 ### Step 3: 微调

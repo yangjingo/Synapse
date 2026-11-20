@@ -7,7 +7,7 @@ metadata:
 
 # Synapse Slide Design
 
-Use the slide request, evidence spine, and target audience to choose the layout. The Synapse orchestrator owns the end-to-end deck workflow. This skill supplies slide profiles and visual templates. If a legacy call asks for an article, hand it to `synapse-tech-blog` or `synapse-wechat` before selecting any slide profile.
+Use the slide request, evidence spine, and target audience to choose the layout. The Synapse orchestrator owns the end-to-end deck workflow. This skill supplies slide profiles and visual templates. If a legacy call asks for writing, route notes to `synapse-notes` and technical articles to `synapse-tech-blog` before selecting a slide profile.
 
 ## DESIGN.md System
 
@@ -82,7 +82,7 @@ Do not guess. Do not mix the two profiles in one deck.
 
 After substitution, load **only** the row that matches `{design.slides.profile}`.
 
-For article writing and HTML format selection, use `synapse-tech-blog` or `synapse-wechat`.
+For article writing and HTML format selection, use `synapse-tech-blog` or `synapse-notes`.
 
 ### Reference
 

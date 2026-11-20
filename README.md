@@ -42,12 +42,12 @@ Use $synapse to turn these papers and notes into a Why.J-style slide deck
 and engineering article. Keep every claim traceable and embed finished visuals.
 ```
 
-For article-only work, choose [Technical Blog](skills/synapse-tech-blog/SKILL.md) or [WeChat](skills/synapse-wechat/SKILL.md). Paper, review, illustration, and publishing guidance is loaded by scenario.
+Choose [Notes](skills/synapse-notes/SKILL.md) to record personal reflections and growth, or [Technical Blog](skills/synapse-tech-blog/SKILL.md) to give peers a technical argument they can verify and reuse. Select the publishing format separately.
 
 | Skill | Job |
 |---|---|
 | `$synapse-tech-blog` | Technical articles, paper notes, reviews, and Notion/Bearblog handoff |
-| `$synapse-wechat` | WeChat Official Account essays, reading notes, and technical adaptations |
+| `$synapse-notes` | Personal reflections, changes in understanding, and growth records |
 | `$synapse-forge` | Sources → verified argument DSL |
 | `$synapse-design` | Slide design profiles and templates |
 | `$synapse-pretext` | Geometry-aware article rendering |

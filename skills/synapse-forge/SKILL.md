@@ -271,7 +271,7 @@ Key requirements:
 
 ### Stage 3: Synthesize DSL
 
-Use the extracted evidence to build a DSL in the requested format. For article editorial decisions use `synapse-tech-blog` or `synapse-wechat`.
+Use the extracted evidence to build a DSL in the requested format. Use `synapse-notes` to capture or synthesize working material. Use `synapse-tech-blog` for a full reader-facing technical argument.
 
 Take the extracted material and produce a DSL file (`*.dsl.md`). The user specifies the target format:
 

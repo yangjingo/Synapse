@@ -1,6 +1,6 @@
 ---
 name: synapse
-description: "Orchestrate Synapse slides and multi-artifact workflows, from source material through DSL, article, diagrams, and motion. For article-only work use synapse-tech-blog or synapse-wechat."
+description: "Orchestrate Synapse slides and multi-artifact workflows, from source material through DSL, article, diagrams, and motion. For personal reflections and growth records use synapse-notes. For technical writing aimed at peers use synapse-tech-blog."
 repository: https://github.com/yangjingo/Synapse
 homepage: https://github.com/yangjingo/Synapse
 version: 2.0.0
@@ -17,7 +17,7 @@ Master orchestrator for the Synapse skill system.
 | `synapse-forge` | `skills/synapse-forge/` | URLs/files → DSL (熔炉): ingestion + synthesis |
 | `synapse-design` | `skills/synapse-design/` | Slides profiles and rendering templates |
 | `synapse-tech-blog` | `skills/synapse-tech-blog/` | Technical articles, paper notes, reviews, figures and publishing handoffs |
-| `synapse-wechat` | `skills/synapse-wechat/` | WeChat essays, reading notes and technical adaptations |
+| `synapse-notes` | `skills/synapse-notes/` | Personal reflections, reading notes, research observations, and growth records |
 | `synapse-pretext` | `skills/synapse-pretext/` | Blog DSL → HTML rendering + text layout engine |
 | `synapse-excalidraw` | `skills/synapse-excalidraw/` | Excalidraw diagram generation (Morandi palette, layout.js) |
 | `synapse-animation` | `skills/synapse-animation/` | Animated SVG/GIF + Remotion output |
@@ -95,9 +95,9 @@ User provides URLs/files
 
 Slides HTML MUST be copied from verified template, never hand-written. Hand-writing misses ~100 lines CSS + ~200 lines JS (Reveal.js, pretext, fonts, colors).
 
-## Operation B: Articles
+## Operation B: Notes and Technical Blog
 
-Use [synapse-tech-blog](skills/synapse-tech-blog/SKILL.md) for a technical article, or [synapse-wechat](skills/synapse-wechat/SKILL.md) when the requested format is a WeChat Official Account article. The selected skill owns the narrative, evidence checks, visuals, and article deliverables.
+Use [synapse-notes](skills/synapse-notes/SKILL.md) for personal reflections, observations, and records of changes in understanding. Use [synapse-tech-blog](skills/synapse-tech-blog/SKILL.md) to give peers a technical argument they can verify and reuse. Select a publishing format separately when requested.
 
 For a combined deck and blog, keep one evidence spine. Use `synapse-forge` for the DSL when useful, then have the article skill adapt the argument for reading. `synapse-pretext` owns its HTML rendering and verification protocol.
 
@@ -116,7 +116,7 @@ For a combined deck and blog, keep one evidence spine. Use `synapse-forge` for t
 
 - DSL syntax → `skills/synapse-forge/FORGE.DSL.md`
 - Slides template → `skills/synapse-design/references/WHYJ-SLIDES.html`
-- Article writing and format selection → `synapse-tech-blog` or `synapse-wechat`
+- Writing workflow → `synapse-notes` or `synapse-tech-blog`
 - Excalidraw diagrams → `skills/synapse-excalidraw/SKILL.md` (Phase 0 讨论确认 → Phase 1 生成 → Phase 2 上传确认 → Phase 3 同步 blog+slides)
 
 ## Slides Quality Gate

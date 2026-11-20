@@ -1,26 +1,26 @@
 ---
 name: synapse-tech-blog
 description: >-
-  写作、重构或审阅可追溯的技术博客、研究笔记、论文解读与技术复盘，
+  写作、重构或审阅面向同行的技术博客、论文解读与技术复盘，
   支持独立技术插图、离线 HTML 和 Notion/Bearblog 交付。
-  明确要求公众号稿时使用 synapse-wechat。
+  帮助读者形成可核验、可复用的工程判断。个人感触、理解变化和成长记录使用 synapse-notes。
 ---
 
 # 技术博客
 
-**先让读者看懂问题。** 交代实际场景、约束、失效的旧假设和判断标准，再给出当前结论。篇幅有限时优先保留这些内容。实现细节用于解释机制、支撑主张或帮助复现。
+**以读者的判断变化建立技术影响力。** 先让读者看懂问题。 交代实际场景、约束、失效的旧假设和判断标准，再给出当前结论。篇幅有限时优先保留这些内容。实现细节用于解释机制、支撑主张或帮助复现。
 
 ## 选择场景
 
 | 用户要的内容 | 打开 |
 | --- | --- |
-| 系统、模型或工程机制的长文，或约 10 分钟的独立研究笔记 | [references/blog.md](references/blog.md) |
+| 系统、模型或工程机制的完整技术解释 | [references/blog.md](references/blog.md) |
 | 单篇论文、多论文合成、YJ Paper 连续研究页 | [references/paper.md](references/paper.md) |
 | 作者、团队或项目在反馈中改变判断的复盘 | [references/techreview.md](references/techreview.md) |
 | 软件架构图、证据图、研究草图或可编辑技术图 | [references/image.md](references/image.md) |
 | 已审定文章的 Notion 复制页、Bearblog 或中英文发布稿 | [references/publishing.md](references/publishing.md) |
 
-按当前任务选择一份主 reference。需要独立图示或发布格式时，再读对应的附加 reference。已审定稿的格式转换保留原文章主张和结构。
+按当前任务选择一份主 reference。需要独立图示或发布格式时，再读对应的附加 reference。已审定稿的格式转换保留原文章主张和结构。用户指定公众号版式时，使用 `synapse-notes` 的交付 reference 进行排版。
 
 ## 共用原则
 
