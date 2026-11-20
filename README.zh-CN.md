@@ -39,17 +39,13 @@ npx --yes skills add https://github.com/yangjingo/Synapse \
 保留论点来源，并在最终页面嵌入真实图片。
 ```
 
-[Notes](skills/synapse-notes/SKILL.md) 写感触随笔、记录个人成长。[技术博客](skills/synapse-tech-blog/SKILL.md) 写给同行，用可核验、可复用的工程判断建立技术影响力。公众号、Notion、Bearblog 等交付格式按需选择。
-
 | Skill | 职责 |
 |---|---|
-| `$synapse-tech-blog` | 技术博客、论文解读、技术复盘与 Notion/Bearblog 交付 |
-| `$synapse-notes` | 感触随笔、理解变化、读书观察和个人成长记录 |
-| `$synapse-forge` | 素材 → 可验证的论证 DSL |
-| `$synapse-design` | Slides 视觉规则与模板 |
-| `$synapse-pretext` | 几何感知的文章排版 |
-| `$synapse-excalidraw` | 可编辑技术图 |
-| `$synapse-animation` | SVG、GIF 与 Remotion 动画 |
+| [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | 写感触随笔，记录经历、读书体会和个人判断的变化。 |
+| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | 写技术博客、论文解读和工程复盘，用可验证、可复用的判断建立技术影响力。 |
+| [`$synapse`](skills/synapse/SKILL.md) | 做 Slides 或协调 Slides 与技术博客，按需使用资料提取、绘图与动效。 |
+
+Pretext 随 Slides 使用。公众号、Notion 和 Bearblog 是按需选择的交付格式。
 
 ## 看实际产出
 

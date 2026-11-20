@@ -142,7 +142,7 @@ Refer to `references/SERIF-SLIDES.html` for the complete template.
 - **Reveal.js 4.3.1**
 - **KaTeX 0.16.7** (optional `::math`)
 - **No pretext** in serif variant
-- **Reference implementation**: `examples/quant-agent/quant-agent-slides.html`
+- **Reference implementation**: `references/serif/quant-agent-slides.html`
 
 ## 5. Variant Selection
 

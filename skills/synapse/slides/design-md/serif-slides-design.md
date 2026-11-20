@@ -2,7 +2,7 @@
 profile: serif-slides
 kind: slides
 label: Claude 衬线编辑
-template: examples/quant-agent/quant-agent-slides.html
+template: references/serif/quant-agent-slides.html
 style: references/SLIDES-STYLE-SERIF.md
 ---
 
@@ -41,4 +41,4 @@ Claude editorial slides — warm cream canvas `#faf9f5`, hairline borders, no gr
 
 ## Placeholder resolution
 
-Replace `{design.slides.profile}` with `serif-slides` and load this file + `references/SLIDES-STYLE-SERIF.md`. Reference HTML: `examples/quant-agent/quant-agent-slides.html`.
+Replace `{design.slides.profile}` with `serif-slides` and load this file + `references/SLIDES-STYLE-SERIF.md`. Reference HTML: `references/serif/quant-agent-slides.html`.

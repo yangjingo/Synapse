@@ -315,4 +315,4 @@ Not every article needs all 10. Minimum: thesis → mechanism → takeaway → r
 
 ## C. Article editorial guidance
 
-Use `synapse-notes` to capture working observations and questions, and `synapse-tech-blog` for full technical explanations and retrospectives. This file specifies the article and slide DSL representation. Apply the relevant writing reference before shaping its evidence.
+Use `synapse-life-note` to capture working observations and questions, and `synapse-tech-blog` for full technical explanations and retrospectives. This file specifies the article and slide DSL representation. Apply the relevant writing reference before shaping its evidence.

@@ -36,7 +36,7 @@
       .reveal { font-family: var(--font-hand); color: var(--main-color); }
       .reveal .slides { text-align: left; }
 
-      /* ── pretext animated background (synapse-pretext) ── */
+      /* ── pretext animated background (Pretext) ── */
       .pretext-stage {
         position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none;
       }
@@ -479,7 +479,7 @@ async with client.messages.stream(
         width: 1400, height: 900, margin: 0.05,
       });
 
-      // ── pretext sources (synapse-pretext) ──
+      // ── pretext sources (Pretext) ──
       const coverSource = [
         'Nano-Claude: reverse engineering the agentic loop through minimalist replication.',
         'Deconstruct a 500k-line TypeScript codebase into a minimal Python agent loop.',
@@ -493,7 +493,7 @@ async with client.messages.stream(
         'Vibe Coding', 'CLAUDE.md', 'Deconstruction', 'Minimal Replication',
       ].join('  /  ');
 
-      // ── pretext layout (synapse-pretext API) ──
+      // ── pretext layout (Pretext API) ──
       function getLines(text, font, maxWidth, lineHeight) {
         const prepared = prepareWithSegments(text, font);
         const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);

@@ -42,17 +42,13 @@ Use $synapse to turn these papers and notes into a Why.J-style slide deck
 and engineering article. Keep every claim traceable and embed finished visuals.
 ```
 
-Choose [Notes](skills/synapse-notes/SKILL.md) to record personal reflections and growth, or [Technical Blog](skills/synapse-tech-blog/SKILL.md) to give peers a technical argument they can verify and reuse. Select the publishing format separately.
-
 | Skill | Job |
 |---|---|
-| `$synapse-tech-blog` | Technical articles, paper notes, reviews, and Notion/Bearblog handoff |
-| `$synapse-notes` | Personal reflections, changes in understanding, and growth records |
-| `$synapse-forge` | Sources → verified argument DSL |
-| `$synapse-design` | Slide design profiles and templates |
-| `$synapse-pretext` | Geometry-aware article rendering |
-| `$synapse-excalidraw` | Editable technical diagrams |
-| `$synapse-animation` | SVG, GIF, and Remotion motion |
+| [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | Record personal experiences, reflections, and changes in judgment. |
+| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | Give peers technical explanations, paper analyses, and engineering judgments they can verify and reuse. |
+| [`$synapse`](skills/synapse/SKILL.md) | Build Slides or coordinate a deck and article. Use its workflows for source extraction, editable diagrams, and motion. |
+
+Pretext is part of Slides. Choose a publishing format separately when the draft is ready.
 
 ## See the output
 

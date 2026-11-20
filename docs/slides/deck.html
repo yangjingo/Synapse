@@ -193,17 +193,14 @@
 
         <section>
           <div class="kicker">02 / The system</div>
-          <h2>Six Skills, one argument spine.</h2>
+          <h2>Three Skills, one argument spine.</h2>
           <div class="rule"></div>
           <div class="skill-grid">
-            <a class="card" href="https://github.com/yangjingo/Synapse/blob/master/SKILL.md" target="_blank" rel="noopener"><strong>$synapse</strong><span>Orchestrates the complete publishing run.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-forge" target="_blank" rel="noopener"><strong>$synapse-forge</strong><span>Extracts evidence and builds the DSL.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-design" target="_blank" rel="noopener"><strong>$synapse-design</strong><span>Shapes narrative, slides, and visual rules.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-pretext" target="_blank" rel="noopener"><strong>$synapse-pretext</strong><span>Renders geometry-aware engineering articles.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-excalidraw" target="_blank" rel="noopener"><strong>$synapse-excalidraw</strong><span>Produces editable technical diagrams.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-animation" target="_blank" rel="noopener"><strong>$synapse-animation</strong><span>Turns explanations into SVG, GIF, or video.</span></a>
+            <a class="card" href="../../skills/synapse/SKILL.md"><strong>$synapse</strong><span>Builds Slides and coordinates multi-artifact projects.</span></a>
+            <a class="card" href="../../skills/synapse-life-note/SKILL.md"><strong>$synapse-life-note</strong><span>Captures experience and changes in judgment.</span></a>
+            <a class="card" href="../../skills/synapse-tech-blog/SKILL.md"><strong>$synapse-tech-blog</strong><span>Publishes technical judgments peers can verify and reuse.</span></a>
           </div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/skills" target="_blank" rel="noopener">Inspect every Skill</a><span>02 / 08</span></div>
+          <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/skills" target="_blank" rel="noopener">Browse Synapse workflows</a><span>02 / 08</span></div>
         </section>
 
         <section>
@@ -213,14 +210,14 @@
           <div class="pipeline">
             <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/examples" target="_blank" rel="noopener"><small>INPUT</small><b>Sources</b><span>URLs · PDFs · notes · logs</span></a>
             <div class="arrow">→</div>
-            <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-forge" target="_blank" rel="noopener"><small>FORGE</small><b>Evidence</b><span>extract · verify · synthesize</span></a>
+            <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse/forge" target="_blank" rel="noopener"><small>FORGE</small><b>Evidence</b><span>extract · verify · synthesize</span></a>
             <div class="arrow">→</div>
-            <a class="stage orange" href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse-forge/FORGE.DSL.md" target="_blank" rel="noopener"><small>CORE</small><b>DSL</b><span>one argument spine</span></a>
+            <a class="stage orange" href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse/forge/FORGE.DSL.md" target="_blank" rel="noopener"><small>CORE</small><b>DSL</b><span>one argument spine</span></a>
             <div class="arrow">→</div>
             <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/examples/opd" target="_blank" rel="noopener"><small>OUTPUT</small><b>Publish</b><span>slides · article · diagram · motion</span></a>
           </div>
           <div class="pulse">The format changes. The reasoning does not.</div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse-forge/FORGE.DSL.md" target="_blank" rel="noopener">Read the DSL specification</a><span>03 / 08</span></div>
+          <div class="footer"><a href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse/forge/FORGE.DSL.md" target="_blank" rel="noopener">Read the DSL specification</a><span>03 / 08</span></div>
         </section>
 
         <section>
@@ -256,7 +253,7 @@
           <div class="skill-grid">
             <a class="card" href="https://github.com/yangjingo/Synapse/blob/master/scripts/refresh-skill-examples.js" target="_blank" rel="noopener"><strong>REFRESH</strong><span>Rebuild mirrored examples deterministically.</span></a>
             <a class="card" href="https://github.com/yangjingo/Synapse/blob/master/scripts/validate-slide-visuals.js" target="_blank" rel="noopener"><strong>VERIFY</strong><span>Reject prompt placeholders and missing images.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-forge/scripts" target="_blank" rel="noopener"><strong>STRUCTURE</strong><span>Check cover, agenda, mechanism, and references.</span></a>
+            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse/forge/scripts" target="_blank" rel="noopener"><strong>STRUCTURE</strong><span>Check cover, agenda, mechanism, and references.</span></a>
           </div>
           <div class="final-prompt" style="margin-top: 40px; width: 100%;">node scripts/refresh-skill-examples.js<br />node scripts/validate-slide-visuals.js</div>
           <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/scripts" target="_blank" rel="noopener">Inspect the automation</a><span>06 / 08</span></div>

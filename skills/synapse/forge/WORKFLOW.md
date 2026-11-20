@@ -1,12 +1,3 @@
----
-name: synapse-forge
-description: "Raw material to DSL pipeline. Give it URLs, files, or raw text, and it produces a WhyJ-style DSL file (slides.dsl.md or blog.dsl.md). Handles ingestion, extraction, and DSL synthesis. Use when the user wants to forge source material into structured DSL output."
-metadata:
-  version: 2.0.0
-  repository: https://github.com/yangjingo/Synapse
-  homepage: https://github.com/yangjingo/Synapse
----
-
 # Synapse Forge (熔炉)
 
 URLs → DSL. 给一堆素材，出结构化 DSL 文件。
@@ -34,7 +25,7 @@ Stage 2: Extract    — 原始内容 → 关键摘录 + 数据点
 Stage 3: Synthesize — 摘录 + 数据点 → DSL（.dsl.md）
 ```
 
-最终产出：一个 `.dsl.md` 文件，交给下游 skill（synapse-pretext / synapse slides renderer）渲染为 HTML。
+最终产出：一个 `.dsl.md` 文件，交给Slides 或 Tech Blog 的工作流渲染为 HTML。
 
 ### Stage 1: Fetch & Parse
 
@@ -132,7 +123,7 @@ Produce intermediate extraction (internal, not a deliverable):
 
 ### Figure Handling (between Stage 2 and 3)
 
-Reference: `skills/synapse-figure/SKILL.md` for full figure spec workflow.
+Use the [Slides workflow](../slides/WORKFLOW.md) or [technical illustration guide](../../synapse-tech-blog/references/image.md) for final figure specifications.
 
 Each figure gets a **title** — a short descriptive name derived from its editorial purpose in context, not a numeric index.
 
@@ -271,7 +262,7 @@ Key requirements:
 
 ### Stage 3: Synthesize DSL
 
-Use the extracted evidence to build a DSL in the requested format. Use `synapse-notes` to capture or synthesize working material. Use `synapse-tech-blog` for a full reader-facing technical argument.
+Use the extracted evidence to build a DSL in the requested format. Use `synapse-life-note` to capture or synthesize working material. Use `synapse-tech-blog` for a full reader-facing technical argument.
 
 Take the extracted material and produce a DSL file (`*.dsl.md`). The user specifies the target format:
 
@@ -296,8 +287,8 @@ DSL 文件交给下游 skill 渲染：
 
 | DSL 输出 | 渲染 Skill | 模板 |
 |----------|-----------|------|
-| Slides DSL | synapse (slides renderer) | `skills/synapse-design/references/WHYJ-SLIDES.html` |
-| Blog DSL | synapse-pretext | `skills/synapse-pretext/examples/dsv4-blog-layout.html` |
+| Slides DSL | synapse (slides renderer) | `../slides/WORKFLOW.md` |
+| Blog DSL | synapse-tech-blog | `../../synapse-tech-blog/references/html-layout.md` |
 
 ## Trigger Phrases
 
@@ -352,7 +343,7 @@ Chinese curly quotes “” (U+201C / U+201D) are **never** valid JS string deli
 
 When adding figure support to blog or slides HTML, you MUST:
 
-1. **Read the closest reference template** (e.g. `skills/synapse-pretext/examples/dsv4-blog-opd-en.html`) before writing any code
+1. **Read the closest reference template** (e.g. `../../synapse-tech-blog/examples/dsv4-blog-opd-en.html`) before writing any code
 2. **Copy its complete figure pattern** — do NOT improvise or partially implement. The pattern includes:
    - **DSL**: independent `Type: figure` section (NOT inline inside `Type: text` sections) with `Image`, `Caption`, `Prompt` fields
    - **HTML SECTIONS array**: independent section object with only `image`, `caption`, `prompt` (no `heading` or `body`)

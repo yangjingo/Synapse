@@ -1,5 +1,7 @@
 # Notion、Bearblog 与双语交付
 
+需要公众号排版时，读取 `synapse-life-note` 中的 [公众号排版与复制](../../synapse-life-note/references/wechat-layout.md)。
+
 ## 审定文章到 Notion
 
 使用用户认可的公开稿。先核对标题、正文、来源和各图说明。生成本地富文本复制页：

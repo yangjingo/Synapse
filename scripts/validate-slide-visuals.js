@@ -18,7 +18,7 @@ function report(file, message) {
 }
 
 const exampleFiles = walk(path.join(ROOT, 'examples'));
-const designReferences = walk(path.join(ROOT, 'skills/synapse-design/references'))
+const designReferences = walk(path.join(ROOT, 'skills/synapse/slides/references'))
   .filter((file) => /(?:e2e-.*-slides|WHYJ-SLIDES)\.html$/i.test(file));
 
 for (const file of [...exampleFiles, ...designReferences]) {

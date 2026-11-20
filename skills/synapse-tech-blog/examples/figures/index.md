@@ -3,7 +3,7 @@
 The files in this directory make both HTML examples self-contained. Refresh them from the repository root with:
 
 ```bash
-node skills/synapse-pretext/examples/generate-figures.js
+node skills/synapse-tech-blog/examples/generate-figures.js
 ```
 
 | Figure | Used by | Purpose |
@@ -17,4 +17,4 @@ node skills/synapse-pretext/examples/generate-figures.js
 | `opd-05-three-dials.svg` | `dsv4-blog-opd-en.html` | Unified post-training controls |
 | `opd-06-pareto-frontier.svg` | `dsv4-blog-opd-en.html` | Compute–reward Pareto frontier |
 
-All outputs use `#FAFAF7` paper, `#4A4338` ink, warm Morandi fills, and `#C45A20` as the only strong accent. `generated_by: synapse-pretext/examples/generate-figures.js`.
+All outputs use `#FAFAF7` paper, `#4A4338` ink, warm Morandi fills, and `#C45A20` as the only strong accent. `generated_by: synapse-tech-blog/examples/generate-figures.js`.

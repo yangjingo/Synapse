@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="460" viewBox="0 0 760 460" role="img" aria-labelledby="title desc">
+  <title id="title">Storage policy by lifecycle</title>
+  <desc id="desc">Cache reproducible market data, never silently persist portfolio state</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#C45A20"/></marker>
+  </defs>
+  <rect width="760" height="460" fill="#FAFAF7"/>
+  <text x="42" y="47" text-anchor="start" font-family="Arial, sans-serif" font-size="26" font-weight="750" fill="#4A4338">Storage policy by lifecycle</text>
+  <text x="42" y="75" text-anchor="start" font-family="Arial, sans-serif" font-size="15" font-weight="500" fill="#908878">Cache reproducible market data, never silently persist portfolio state</text>
+  <path d="M42 91 C180 88, 310 94, 452 90" fill="none" stroke="#C45A20" stroke-width="3"/>
+  <rect x="90" y="135" width="265" height="100" rx="16" fill="#DDE5D8" stroke="#4A4338" stroke-width="2.5"/><text x="222.5" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">durable</text><text x="222.5" y="209" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#908878">settings</text><rect x="405" y="135" width="265" height="100" rx="16" fill="#DCE5EA" stroke="#4A4338" stroke-width="2.5"/><text x="537.5" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">cache</text><text x="537.5" y="209" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#908878">market bars</text><rect x="90" y="270" width="265" height="100" rx="16" fill="#E8E2D8" stroke="#4A4338" stroke-width="2.5"/><text x="222.5" y="317" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">artifact</text><text x="222.5" y="344" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#908878">benchmarks · sessions</text><rect x="405" y="270" width="265" height="100" rx="16" fill="#FDF0E6" stroke="#C45A20" stroke-width="2.5"/><text x="537.5" y="317" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="650" fill="#4A4338">forbidden ×</text><text x="537.5" y="344" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#908878">portfolio</text>
+</svg>
