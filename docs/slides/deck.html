@@ -90,7 +90,6 @@
         transform: rotate(-0.5deg);
       }
       .skill-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-      .skill-grid.entry-grid { grid-template-columns: repeat(2, 1fr); }
       .card {
         display: block; min-height: 150px; padding: 22px; border: 3px solid var(--ink);
         background: white; box-shadow: 7px 7px 0 var(--ink);
@@ -194,13 +193,12 @@
 
         <section>
           <div class="kicker">02 / The system</div>
-          <h2>Four Skills for different deliverables.</h2>
+          <h2>Three Skills for different audiences.</h2>
           <div class="rule"></div>
-          <div class="skill-grid entry-grid">
-            <a class="card" href="../../skills/synapse/SKILL.md"><strong>$synapse</strong><span>Coordinates multi-artifact projects.</span></a>
-            <a class="card" href="../../skills/synapse-slides/SKILL.md"><strong>$synapse-slides</strong><span>Creates decks for talks, teaching, and reviews.</span></a>
+          <div class="skill-grid">
             <a class="card" href="../../skills/synapse-life-note/SKILL.md"><strong>$synapse-life-note</strong><span>Captures experience and changes in judgment.</span></a>
             <a class="card" href="../../skills/synapse-tech-blog/SKILL.md"><strong>$synapse-tech-blog</strong><span>Publishes technical judgments peers can verify and reuse.</span></a>
+            <a class="card" href="../../skills/synapse-talk-slides/SKILL.md"><strong>$synapse-talk-slides</strong><span>Explains technical ideas and presents a point of view.</span></a>
           </div>
           <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/skills" target="_blank" rel="noopener">Browse Synapse workflows</a><span>02 / 08</span></div>
         </section>
@@ -212,14 +210,14 @@
           <div class="pipeline">
             <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/examples" target="_blank" rel="noopener"><small>INPUT</small><b>Sources</b><span>URLs · PDFs · notes · logs</span></a>
             <div class="arrow">→</div>
-            <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse/forge" target="_blank" rel="noopener"><small>FORGE</small><b>Evidence</b><span>extract · verify · synthesize</span></a>
+            <a class="stage" href="../../skills/synapse-tech-blog/workflows/forge/WORKFLOW.md" target="_blank" rel="noopener"><small>FORGE</small><b>Evidence</b><span>extract · verify · synthesize</span></a>
             <div class="arrow">→</div>
-            <a class="stage orange" href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse/forge/FORGE.DSL.md" target="_blank" rel="noopener"><small>CORE</small><b>DSL</b><span>one argument spine</span></a>
+            <a class="stage orange" href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse-tech-blog/workflows/forge/FORGE.DSL.md" target="_blank" rel="noopener"><small>CORE</small><b>DSL</b><span>one argument spine</span></a>
             <div class="arrow">→</div>
             <a class="stage" href="https://github.com/yangjingo/Synapse/tree/master/examples/opd" target="_blank" rel="noopener"><small>OUTPUT</small><b>Publish</b><span>slides · article · diagram · motion</span></a>
           </div>
           <div class="pulse">The format changes. The reasoning does not.</div>
-          <div class="footer"><a href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse/forge/FORGE.DSL.md" target="_blank" rel="noopener">Read the DSL specification</a><span>03 / 08</span></div>
+          <div class="footer"><a href="https://github.com/yangjingo/Synapse/blob/master/skills/synapse-tech-blog/workflows/forge/FORGE.DSL.md" target="_blank" rel="noopener">Read the DSL specification</a><span>03 / 08</span></div>
         </section>
 
         <section>
@@ -255,7 +253,7 @@
           <div class="skill-grid">
             <a class="card" href="https://github.com/yangjingo/Synapse/blob/master/scripts/refresh-skill-examples.js" target="_blank" rel="noopener"><strong>REFRESH</strong><span>Rebuild mirrored examples deterministically.</span></a>
             <a class="card" href="https://github.com/yangjingo/Synapse/blob/master/scripts/validate-slide-visuals.js" target="_blank" rel="noopener"><strong>VERIFY</strong><span>Reject prompt placeholders and missing images.</span></a>
-            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse/forge/scripts" target="_blank" rel="noopener"><strong>STRUCTURE</strong><span>Check cover, agenda, mechanism, and references.</span></a>
+            <a class="card" href="https://github.com/yangjingo/Synapse/tree/master/skills/synapse-tech-blog/workflows/forge/scripts" target="_blank" rel="noopener"><strong>STRUCTURE</strong><span>Check cover, agenda, mechanism, and references.</span></a>
           </div>
           <div class="final-prompt" style="margin-top: 40px; width: 100%;">node scripts/refresh-skill-examples.js<br />node scripts/validate-slide-visuals.js</div>
           <div class="footer"><a href="https://github.com/yangjingo/Synapse/tree/master/scripts" target="_blank" rel="noopener">Inspect the automation</a><span>06 / 08</span></div>
@@ -285,7 +283,7 @@
         <section>
           <div class="kicker">08 / Start here</div>
           <h2>What should you ask Synapse first?</h2>
-          <div class="final-prompt">Use $synapse to turn these papers and notes into a Why.J-style slide deck and engineering article. Keep every claim traceable and embed finished visuals.</div>
+          <div class="final-prompt">Use $synapse-talk-slides to turn these papers into a Why.J-style deck for a technical talk. Keep every claim traceable and embed finished visuals.</div>
           <div class="final-links">
             <a class="button primary" href="https://github.com/yangjingo/Synapse" target="_blank" rel="noopener">Install Synapse</a>
             <a class="button" href="https://github.com/yangjingo/Synapse/tree/master/examples" target="_blank" rel="noopener">See examples</a>

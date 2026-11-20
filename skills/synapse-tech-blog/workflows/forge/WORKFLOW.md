@@ -123,7 +123,7 @@ Produce intermediate extraction (internal, not a deliverable):
 
 ### Figure Handling (between Stage 2 and 3)
 
-Use the [Slides workflow](../../synapse-slides/WORKFLOW.md) or [technical illustration guide](../../synapse-tech-blog/references/image.md) for final figure specifications.
+Use the [Slides workflow](../../../synapse-talk-slides/WORKFLOW.md) or [technical illustration guide](../../references/image.md) for final figure specifications.
 
 Each figure gets a **title** — a short descriptive name derived from its editorial purpose in context, not a numeric index.
 
@@ -287,8 +287,8 @@ DSL 文件交给下游 skill 渲染：
 
 | DSL 输出 | 渲染 Skill | 模板 |
 |----------|-----------|------|
-| Slides DSL | synapse-slides | [Slides workflow](../../synapse-slides/WORKFLOW.md) |
-| Blog DSL | synapse-tech-blog | `../../synapse-tech-blog/references/html-layout.md` |
+| Slides DSL | synapse-talk-slides | [Slides workflow](../../../synapse-talk-slides/WORKFLOW.md) |
+| Blog DSL | synapse-tech-blog | `../../references/html-layout.md` |
 
 ## Trigger Phrases
 
@@ -343,7 +343,7 @@ Chinese curly quotes “” (U+201C / U+201D) are **never** valid JS string deli
 
 When adding figure support to blog or slides HTML, you MUST:
 
-1. **Read the closest reference template** (e.g. `../../synapse-tech-blog/examples/dsv4-blog-opd-en.html`) before writing any code
+1. **Read the closest reference template** (e.g. `../../examples/dsv4-blog-opd-en.html`) before writing any code
 2. **Copy its complete figure pattern** — do NOT improvise or partially implement. The pattern includes:
    - **DSL**: independent `Type: figure` section (NOT inline inside `Type: text` sections) with `Image`, `Caption`, `Prompt` fields
    - **HTML SECTIONS array**: independent section object with only `image`, `caption`, `prompt` (no `heading` or `body`)

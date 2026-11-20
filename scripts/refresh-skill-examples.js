@@ -46,36 +46,36 @@ console.log('Refreshing pretext example figures...');
 run('skills/synapse-tech-blog/examples/generate-figures.js');
 
 console.log('Refreshing standalone Excalidraw evals...');
-run('skills/synapse/excalidraw/examples/gen-prefill-decode.js');
-run('skills/synapse/excalidraw/examples/gen-swa-attention.js');
+run('skills/synapse-tech-blog/workflows/excalidraw/examples/gen-prefill-decode.js');
+run('skills/synapse-tech-blog/workflows/excalidraw/examples/gen-swa-attention.js');
 
 console.log('Refreshing self-contained design reference assets...');
 for (const name of ['figure-01-cost-curve.svg', 'figure-02-hybrid-attention.svg']) {
-  copy(`examples/deepseek-v4/figures/${name}`, `skills/synapse-slides/references/figures/${name}`);
+  copy(`examples/deepseek-v4/figures/${name}`, `skills/synapse-talk-slides/references/figures/${name}`);
 }
 
 console.log('Refreshing Forge DSL fixtures...');
-copy('examples/opd/opd-blog.dsl.md', 'skills/synapse/forge/examples/opd-blog.dsl.md');
-copy('examples/opd/opd-slides.dsl.md', 'skills/synapse/forge/examples/opd-slides.dsl.md');
+copy('examples/opd/opd-blog.dsl.md', 'skills/synapse-tech-blog/workflows/forge/examples/opd-blog.dsl.md');
+copy('examples/opd/opd-slides.dsl.md', 'skills/synapse-tech-blog/workflows/forge/examples/opd-slides.dsl.md');
 for (const number of [1, 2, 3, 4, 5, 6, 7]) {
-  copy(`examples/opd/figure/figure${number}.svg`, `skills/synapse/forge/examples/figure/figure${number}.svg`);
+  copy(`examples/opd/figure/figure${number}.svg`, `skills/synapse-tech-blog/workflows/forge/examples/figure/figure${number}.svg`);
 }
 
 console.log('Refreshing animation example palette...');
 for (const name of ['prefill-decode-x3.svg', 'swa-attention-animated.svg']) {
-  recolorAnimatedSvg(`skills/synapse/animation/examples/${name}`);
+  recolorAnimatedSvg(`skills/synapse-talk-slides/workflows/animation/examples/${name}`);
 }
 
 if (withGif) {
-  const converter = path.join(ROOT, 'skills/synapse/animation/scripts/svg-to-gif.js');
+  const converter = path.join(ROOT, 'skills/synapse-talk-slides/workflows/animation/scripts/svg-to-gif.js');
   const jobs = [
     ['prefill-decode-x3.svg', 'prefill-decode-x3.gif', '1'],
     ['swa-attention-animated.svg', 'swa-attention-x3.gif', '3'],
   ];
   for (const [input, output, speed] of jobs) {
     execFileSync(process.execPath, [converter,
-      path.join(ROOT, 'skills/synapse/animation/examples', input),
-      path.join(ROOT, 'skills/synapse/animation/examples', output),
+      path.join(ROOT, 'skills/synapse-talk-slides/workflows/animation/examples', input),
+      path.join(ROOT, 'skills/synapse-talk-slides/workflows/animation/examples', output),
       '--speed', speed,
     ], { cwd: ROOT, stdio: 'inherit' });
   }

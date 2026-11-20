@@ -36,7 +36,7 @@ Three-mode skill for motion in Synapse outputs:
 
 ## Mode 1: Excalidraw Animation
 
-Receive `.excalidraw` files from `synapse-excalidraw`, animate via excalidraw-animate, export.
+Receive editable diagrams from the [Excalidraw workflow](../../../synapse-tech-blog/workflows/excalidraw/WORKFLOW.md), animate via excalidraw-animate, and export.
 
 ### Pipeline
 
@@ -299,9 +299,9 @@ Bad reasons to animate:
 
 ## Integration with Synapse
 
-### From synapse-excalidraw
+### From editable Excalidraw diagrams
 
-1. `synapse-excalidraw` generates `.excalidraw` file, validates, uploads, user confirms
+1. .excalidraw authoring generates `.excalidraw` file, validates, uploads, user confirms
 2. Confirmed `.excalidraw` → excalidraw-animate (Mode 1)
 3. Exported SVG → speed control → GIF conversion (optional)
 

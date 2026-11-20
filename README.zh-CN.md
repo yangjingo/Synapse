@@ -35,18 +35,17 @@ npx --yes skills add https://github.com/yangjingo/Synapse \
 ## 使用
 
 ```text
-使用 $synapse，把这些论文和笔记做成 Why.J 风格的 Slides 与技术文章。
+使用 $synapse-talk-slides，把这些论文和笔记整理成一套 Why.J 风格的讲解幻灯片。
 保留论点来源，并在最终页面嵌入真实图片。
 ```
 
 | Skill | 职责 |
 |---|---|
-| [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | 写感触随笔，记录经历、读书体会和个人判断的变化。 |
-| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | 写技术博客、论文解读和工程复盘，用可验证、可复用的判断建立技术影响力。 |
-| [`$synapse-slides`](skills/synapse-slides/SKILL.md) | 制作技术分享、论文汇报、教学和项目汇报等 Slides，含 Pretext 文字排版。 |
-| [`$synapse`](skills/synapse/SKILL.md) | 协调 Slides、技术博客等组合交付，按需使用资料提取、绘图与动效。 |
+| [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | 写感想随笔、读书体会和成长记录，可适配小红书和微信公众号。 |
+| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | 写可验证、可复用的技术博客、论文解读与工程复盘，交付 Notion 或 Bearblog 阅读稿。 |
+| [`$synapse-talk-slides`](skills/synapse-talk-slides/SKILL.md) | 做技术讲解、观点表达、教学和汇报的 Slides，含 Pretext 文字排版与动效。 |
 
-Pretext 随 Slides 使用。公众号、Notion 和 Bearblog 是按需选择的交付格式。
+同一主题需要文章和 Slides 时，两份作品共用主张、数字与来源，各自按阅读和演讲的节奏展开。
 
 ## 看实际产出
 

@@ -17,8 +17,8 @@ Three-mode pipeline for animated hand-drawn diagrams:
 ## When NOT to Use
 
 - Static diagrams where animation adds no explanatory value → use `synapse-figure` instead
-- Code-driven video with complex sequencing → use `synapse-animation` (Remotion Mode)
-- Photo-to-animated-GIF → use `synapse-animation` (GIF Mode) or `gif-sticker-maker`
+- Code-driven video with complex sequencing → use the [Talk Slides animation workflow](../../../synapse-talk-slides/workflows/animation/WORKFLOW.md) (Remotion Mode)
+- Photo-to-animated-GIF → use the [Talk Slides animation workflow](../../../synapse-talk-slides/workflows/animation/WORKFLOW.md) (GIF Mode) or `gif-sticker-maker`
 
 ---
 
@@ -612,11 +612,11 @@ Every technical diagram **must** include annotation blocks.
 
 ### With synapse-figure
 
-`synapse-figure` defines what to communicate; `synapse-excalidraw` provides hand-drawn animated rendering.
+The [technical illustration guide](../../references/image.md) defines what to communicate. This workflow renders the editable diagram.
 
 ### With synapse-animation
 
-`synapse-excalidraw` produces the animated SVG; `synapse-animation` can convert to Slack-optimized GIF.
+`synapse-excalidraw` produces the animated SVG; the [Talk Slides animation workflow](../../../synapse-talk-slides/workflows/animation/WORKFLOW.md) can convert it to a GIF.
 
 ### With synapse-tech-blog (blog)
 

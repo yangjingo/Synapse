@@ -2,7 +2,7 @@
 name: synapse-tech-blog
 description: >-
   写作、重构或审阅面向同行的技术博客、论文解读和工程复盘。
-  交付可核验、可复用的工程判断，支持技术插图、离线 HTML 和中英文发布稿。
+  交付可核验、可复用的工程判断，支持技术插图、离线 HTML 和 Notion、Bearblog 双语交付。
 ---
 
 # Tech Blog · 技术博客
@@ -27,7 +27,7 @@ description: >-
 | 架构、流程、对照或实验结果图 | [技术插图](references/image.md) |
 | Pretext 版式、Notion、Bearblog 或双语交付 | [HTML 排版](references/html-layout.md) · [发布格式](references/publishing.md) |
 
-先读与写作目的有关的一份参考。需要制图或交付适配时再读对应参考。资料繁杂而且需要 DSL 时，使用 `synapse` 的资料提取流程。
+先读与写作目的有关的一份参考。需要制图或交付适配时再读对应参考。资料繁杂且需要 DSL 时，读[资料提取](workflows/forge/WORKFLOW.md)。与 [Talk Slides](../synapse-talk-slides/SKILL.md) 同题交付时，两份作品沿用同一组主张、数字和来源。
 
 ## 交付前核对
 

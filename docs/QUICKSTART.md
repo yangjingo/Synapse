@@ -9,7 +9,7 @@
 
 ## 安装到 Codex
 
-Synapse 提供四个入口。用 `synapse-life-note` 写成长记录，用 `synapse-tech-blog` 写给技术同行，用 `synapse-slides` 做演示文稿，用 `synapse` 协调组合交付。用 `--full-depth` 发现仓库内的全部入口。
+Synapse 提供三个入口。用 `synapse-life-note` 写感想随笔，用 `synapse-tech-blog` 写技术博客，用 `synapse-talk-slides` 做讲解和观点表达。用 `--full-depth` 发现仓库内的全部入口。
 
 ### 方式一：给 Human（手动安装）
 
@@ -19,7 +19,7 @@ Synapse 提供四个入口。用 `synapse-life-note` 写成长记录，用 `syna
 npx --yes skills add https://github.com/yangjingo/Synapse --agent codex --global --full-depth --copy
 ```
 
-在交互列表中选择四个入口：`synapse`、`synapse-life-note`、`synapse-tech-blog` 和 `synapse-slides`。`--global` 会安装到 Codex 的用户级 Skill 目录；安装完成后新开一个 Codex 会话。
+在交互列表中选择三个入口：`synapse-life-note`、`synapse-tech-blog` 和 `synapse-talk-slides`。`--global` 会安装到 Codex 的用户级 Skill 目录；安装完成后新开一个 Codex 会话。
 
 验证安装：
 
@@ -36,11 +36,11 @@ npx --yes skills list --global --agent codex
 
 要求：
 1. 先用 `npx --yes skills add https://github.com/yangjingo/Synapse --list --full-depth`
-   确认能够发现 synapse、synapse-life-note、synapse-tech-blog 和 synapse-slides。
+   确认能够发现 synapse-life-note、synapse-tech-blog 和 synapse-talk-slides。
 2. 执行：
    `npx --yes skills add https://github.com/yangjingo/Synapse --agent codex --global --full-depth --skill "*" --yes --copy`
 3. 不要删除或修改其他已安装的 Skills；如果遇到同名冲突，先报告再处理。
-4. 最后运行 `npx --yes skills list --global --agent codex`，确认四个 Synapse 入口均已安装，并汇报安装结果。
+4. 最后运行 `npx --yes skills list --global --agent codex`，确认三个 Synapse 入口均已安装，并汇报安装结果。
 ```
 
 Agent 方式使用 `--skill "*" --yes` 跳过人工选择，适合 Codex 在获得文件写入授权后自动完成安装。
@@ -70,10 +70,10 @@ Synapse 接受三种输入：
 
 | 触发词示例 | 产出 |
 |-----------|------|
-| `帮我用 Synapse 做一个关于 XX 的 slides 和 blog` | Slides + Blog 全套 |
-| `做成 Why.J 风格的 Slides`、`做论文汇报 PPT`、`准备教学幻灯片` | [Slides](../skills/synapse-slides/SKILL.md) |
-| `记录这次有什么感触`、`整理这次读书带来的判断变化` | [生活笔记](../skills/synapse-life-note/SKILL.md) |
-| `写一篇技术博客解释这套系统`、`把研究结果整理成技术复盘` | [技术博客](../skills/synapse-tech-blog/SKILL.md) |
+| `同一主题做 Slides 和技术博客` | Talk Slides 与 Tech Blog 共用一套证据 |
+| `做成 Why.J 风格的 Slides`、`做论文汇报 PPT`、`准备教学幻灯片` | [Slides](../skills/synapse-talk-slides/SKILL.md) |
+| `记录这次的感触`、`整理成小红书笔记或公众号随笔` | [生活笔记](../skills/synapse-life-note/SKILL.md) |
+| `写篇技术博客，准备发到 Notion 或 Bearblog` | [技术博客](../skills/synapse-tech-blog/SKILL.md) |
 | `熔炼这些素材`、`提炼资料` | 只出 DSL，不渲染 HTML |
 
 ### Step 3: 微调
@@ -124,8 +124,8 @@ DSL 修改后，重新渲染即可得到更新后的 HTML。
 
 ```
 输入素材：
-- skills/synapse/forge/references/deepseek-v4-validation-note.md — DSV4 核心分析笔记
-- skills/synapse/forge/references/deepseek-v4-long-validation-note.md — DSV4 WhyJ 风格长文
+- skills/synapse-tech-blog/workflows/forge/references/deepseek-v4-validation-note.md — DSV4 核心分析笔记
+- skills/synapse-tech-blog/workflows/forge/references/deepseek-v4-long-validation-note.md — DSV4 WhyJ 风格长文
 - DeepSeek-V4 论文: https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf
 - 中文分析: https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw
 - API 文档: https://api-docs.deepseek.com/zh-cn/news/news260424

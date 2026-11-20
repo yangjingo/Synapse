@@ -38,18 +38,16 @@ Restart Codex after installation. See the [Quickstart](docs/QUICKSTART.md) for v
 ## Use
 
 ```text
-Use $synapse to turn these papers and notes into a Why.J-style slide deck
-and engineering article. Keep every claim traceable and embed finished visuals.
+Use $synapse-talk-slides to turn these papers and notes into a Why.J-style deck. Keep every claim traceable and embed finished visuals.
 ```
 
 | Skill | Job |
 |---|---|
-| [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | Record personal experiences, reflections, and changes in judgment. |
-| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | Give peers technical explanations, paper analyses, and engineering judgments they can verify and reuse. |
-| [`$synapse-slides`](skills/synapse-slides/SKILL.md) | Create decks for technical talks, research, teaching, and project updates. Includes Pretext layout guidance. |
-| [`$synapse`](skills/synapse/SKILL.md) | Coordinate a deck and article. Use its workflows for source extraction, editable diagrams, and motion. |
+| [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | Write personal reflections and prepare Xiaohongshu or WeChat versions. |
+| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | Write verifiable engineering analyses for Notion and Bearblog. |
+| [`$synapse-talk-slides`](skills/synapse-talk-slides/SKILL.md) | Explain technical topics or present a point of view with a slide deck. Includes Pretext and motion workflows. |
 
-Pretext is part of Slides. Choose a publishing format separately when the draft is ready.
+For a deck and an article on the same topic, run Talk Slides and Tech Blog with the same evidence and source links.
 
 ## See the output
 

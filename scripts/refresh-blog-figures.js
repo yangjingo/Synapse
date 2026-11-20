@@ -12,10 +12,10 @@ Math.random = () => {
   return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
 };
 
-const L = require('../skills/synapse/excalidraw/scripts/layout');
+const L = require('../skills/synapse-tech-blog/workflows/excalidraw/scripts/layout');
 
 const ROOT = path.resolve(__dirname, '..');
-const SVG_CONVERTER = path.join(ROOT, 'skills/synapse/excalidraw/scripts/exc-to-svg.js');
+const SVG_CONVERTER = path.join(ROOT, 'skills/synapse-tech-blog/workflows/excalidraw/scripts/exc-to-svg.js');
 const BG = '#FAFAF7';
 const INK = '#4A4338';
 const MUTED = '#908878';
@@ -137,7 +137,7 @@ save('examples/opd/figure/figure1', (p) => {
   horizontalFlow(['V3 Base', 'Reasoning RL\nGRPO', 'Cold-start SFT', 'Alignment RL', 'DeepSeek-R1'], 300,
     [p.embedding, p.attention, p.masked, p.cross, ACCENT], 35, 185, 46);
   insight('RL discovers reasoning → SFT stabilizes format → RL aligns behavior');
-}, 'skills/synapse/excalidraw/examples/opd-figures/figure-01-r1-pipeline');
+}, 'skills/synapse-tech-blog/workflows/excalidraw/examples/opd-figures/figure-01-r1-pipeline');
 
 save('examples/opd/figure/figure2', (p) => {
   title('R1 Family Evolution');
@@ -146,7 +146,7 @@ save('examples/opd/figure/figure2', (p) => {
     300, [p.embedding, p.attention, ACCENT, p.output], 45, 240, 50,
   );
   insight('Capability is staged: explore first, stabilize next, then compress');
-}, 'skills/synapse/excalidraw/examples/opd-figures/figure-02-r1-family');
+}, 'skills/synapse-tech-blog/workflows/excalidraw/examples/opd-figures/figure-02-r1-family');
 
 save('examples/opd/figure/figure3', (p) => {
   title('Multi-Teacher On-Policy Distillation');
@@ -160,7 +160,7 @@ save('examples/opd/figure/figure3', (p) => {
   boundArrow(student, opd, student.cx, student.bot, opd.cx, opd.y);
   boundArrow(opd, unified, opd.cx, opd.bot, unified.cx, unified.y);
   insight('Experts teach along the student’s own trajectory—not a frozen answer set');
-}, 'skills/synapse/excalidraw/examples/opd-figures/figure-03-multi-teacher-opd');
+}, 'skills/synapse-tech-blog/workflows/excalidraw/examples/opd-figures/figure-03-multi-teacher-opd');
 
 save('examples/opd/figure/figure4', (p) => {
   title('Forward KL vs. Reverse KL');
@@ -173,14 +173,14 @@ save('examples/opd/figure/figure4', (p) => {
   L.place(130, 620, 320, 86, 'rectangle', NEUTRAL, 'Sparse supervision\nTeacher distribution', 15);
   L.place(750, 620, 320, 86, 'rectangle', ACCENT, 'Dense supervision\nStudent distribution', 15);
   insight('The direction changes who generates the trajectory—and how dense the signal becomes');
-}, 'skills/synapse/excalidraw/examples/opd-figures/figure-04-forward-reverse-kl');
+}, 'skills/synapse-tech-blog/workflows/excalidraw/examples/opd-figures/figure-04-forward-reverse-kl');
 
 save('examples/opd/figure/figure5', (p) => {
   title('MiMo-V2-Flash: Three Post-Training Stages');
   horizontalFlow(['Stage 1\nGeneral SFT', 'Stage 2\nDomain Experts', 'Search · Code\nMath · Reasoning', 'Stage 3\nMOPD', 'Unified Model'], 310,
     [p.embedding, p.attention, p.feedforward, ACCENT, p.output], 35, 185, 45);
   insight('SFT builds the floor; experts specialize; MOPD transfers token- and sequence-level signal');
-}, 'skills/synapse/excalidraw/examples/opd-figures/figure-05-mimo-pipeline');
+}, 'skills/synapse-tech-blog/workflows/excalidraw/examples/opd-figures/figure-05-mimo-pipeline');
 
 save('examples/opd/figure/figure6', (p) => {
   title('DeepSeek-V4 Expert Integration');
@@ -196,7 +196,7 @@ save('examples/opd/figure/figure6', (p) => {
   });
   boundArrow(opd, model, opd.cx, opd.bot, model.cx, model.y);
   insight('Train specialists to the limit, then fuse their incremental knowledge into one policy');
-}, 'skills/synapse/excalidraw/examples/opd-figures/figure-06-v4-expert-integration');
+}, 'skills/synapse-tech-blog/workflows/excalidraw/examples/opd-figures/figure-06-v4-expert-integration');
 
 save('examples/opd/figure/figure7', (p) => {
   title('Why On-Policy Distillation Carries More Signal');
@@ -209,7 +209,7 @@ save('examples/opd/figure/figure7', (p) => {
   L.place(130, 470, 340, 100, 'rectangle', NEUTRAL, 'O(1) response-level signal\nMode-covering imitation', 16);
   L.place(730, 470, 340, 100, 'rectangle', ACCENT, 'O(N) token-level signal\nMode-seeking correction', 16);
   insight('Compatibility + new teacher knowledge determine whether the dense signal helps');
-}, 'skills/synapse/excalidraw/examples/opd-figures/figure-07-token-signal');
+}, 'skills/synapse-tech-blog/workflows/excalidraw/examples/opd-figures/figure-07-token-signal');
 
 save('examples/quant-agent/figures/fig-01-quantagent-pipeline', (p) => {
   title('QuantAgent: Fixed Multi-Agent Pipeline');
