@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-`skills/synapse/SKILL.md` is the entry point for the Synapse workflow. The two writing entry points are `skills/synapse-life-note/SKILL.md` and `skills/synapse-tech-blog/SKILL.md`. The root entry point loads the Forge, Slides, Excalidraw, and Animation workflows as needed. Slides owns deck templates and Pretext layout references. Tech Blog owns article templates and HTML delivery guidance. Keep module instructions in `WORKFLOW.md` and supporting files next to their owner. End-to-end sample outputs belong in `examples/<topic>/`; keep a topic's `*-blog.dsl.md`, `*-blog.html`, `*-slides.dsl.md`, `*-slides.html`, and `figures/` together. Shared documentation and branding live in `docs/` and `assets/`.
+`skills/synapse/SKILL.md` is the entry point for the Synapse workflow. The two writing entry points are `skills/synapse-life-note/SKILL.md` and `skills/synapse-tech-blog/SKILL.md`. The root entry point loads the Forge, Excalidraw, and Animation workflows as needed and delegates deck production to `skills/synapse-slides/SKILL.md`. Slides owns deck templates and Pretext layout references. Tech Blog owns article templates and HTML delivery guidance. Keep module instructions in `WORKFLOW.md` and supporting files next to their owner. End-to-end sample outputs belong in `examples/<topic>/`; keep a topic's `*-blog.dsl.md`, `*-blog.html`, `*-slides.dsl.md`, `*-slides.html`, and `figures/` together. Shared documentation and branding live in `docs/` and `assets/`.
 
 ## Build, Test, and Development Commands
 

@@ -43,7 +43,8 @@ npx --yes skills add https://github.com/yangjingo/Synapse \
 |---|---|
 | [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | 写感触随笔，记录经历、读书体会和个人判断的变化。 |
 | [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | 写技术博客、论文解读和工程复盘，用可验证、可复用的判断建立技术影响力。 |
-| [`$synapse`](skills/synapse/SKILL.md) | 做 Slides 或协调 Slides 与技术博客，按需使用资料提取、绘图与动效。 |
+| [`$synapse-slides`](skills/synapse-slides/SKILL.md) | 制作技术分享、论文汇报、教学和项目汇报等 Slides，含 Pretext 文字排版。 |
+| [`$synapse`](skills/synapse/SKILL.md) | 协调 Slides、技术博客等组合交付，按需使用资料提取、绘图与动效。 |
 
 Pretext 随 Slides 使用。公众号、Notion 和 Bearblog 是按需选择的交付格式。
 

@@ -51,7 +51,7 @@ run('skills/synapse/excalidraw/examples/gen-swa-attention.js');
 
 console.log('Refreshing self-contained design reference assets...');
 for (const name of ['figure-01-cost-curve.svg', 'figure-02-hybrid-attention.svg']) {
-  copy(`examples/deepseek-v4/figures/${name}`, `skills/synapse/slides/references/figures/${name}`);
+  copy(`examples/deepseek-v4/figures/${name}`, `skills/synapse-slides/references/figures/${name}`);
 }
 
 console.log('Refreshing Forge DSL fixtures...');

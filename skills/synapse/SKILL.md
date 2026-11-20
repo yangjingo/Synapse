@@ -1,7 +1,7 @@
 ---
 name: synapse
 description: >-
-  Build Why.J slides or coordinate a Synapse deck, article, diagram, and animation from shared evidence.
+  Coordinate a Synapse deck, article, diagram, and animation from shared evidence.
   Also use for source extraction into DSL, editable diagrams, or motion exports.
 metadata:
   repository: https://github.com/yangjingo/Synapse
@@ -11,12 +11,12 @@ metadata:
 
 # Synapse
 
-For standalone writing, use [Life Note](../synapse-life-note/SKILL.md) to record personal growth or [Tech Blog](../synapse-tech-blog/SKILL.md) to explain a technical judgment that peers can verify. Start here for Slides, combined deliverables, or tooling tasks.
+For standalone writing, use [Life Note](../synapse-life-note/SKILL.md) to record personal growth or [Tech Blog](../synapse-tech-blog/SKILL.md) to explain a technical judgment that peers can verify. For a standalone deck, use [Slides](../synapse-slides/SKILL.md). Start here for combined deliverables or tooling tasks.
 
 | Task | Open |
 | --- | --- |
 | Extract evidence from URLs or files and shape a Slides or Blog DSL | [Forge](forge/WORKFLOW.md) · [DSL specification](forge/FORGE.DSL.md) |
-| Build or revise a Slides deck, including typography, layout, and Pretext | [Slides](slides/WORKFLOW.md) |
+| Build or revise a Slides deck, including typography, layout, and Pretext | [Slides](../synapse-slides/SKILL.md) |
 | Create or revise an editable technical diagram | [Excalidraw](excalidraw/WORKFLOW.md) |
 | Export SVG, GIF, or video motion | [Animation](animation/WORKFLOW.md) |
 

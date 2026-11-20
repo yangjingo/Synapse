@@ -123,7 +123,7 @@ Produce intermediate extraction (internal, not a deliverable):
 
 ### Figure Handling (between Stage 2 and 3)
 
-Use the [Slides workflow](../slides/WORKFLOW.md) or [technical illustration guide](../../synapse-tech-blog/references/image.md) for final figure specifications.
+Use the [Slides workflow](../../synapse-slides/WORKFLOW.md) or [technical illustration guide](../../synapse-tech-blog/references/image.md) for final figure specifications.
 
 Each figure gets a **title** — a short descriptive name derived from its editorial purpose in context, not a numeric index.
 
@@ -287,7 +287,7 @@ DSL 文件交给下游 skill 渲染：
 
 | DSL 输出 | 渲染 Skill | 模板 |
 |----------|-----------|------|
-| Slides DSL | synapse (slides renderer) | `../slides/WORKFLOW.md` |
+| Slides DSL | synapse-slides | [Slides workflow](../../synapse-slides/WORKFLOW.md) |
 | Blog DSL | synapse-tech-blog | `../../synapse-tech-blog/references/html-layout.md` |
 
 ## Trigger Phrases

@@ -46,7 +46,8 @@ and engineering article. Keep every claim traceable and embed finished visuals.
 |---|---|
 | [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | Record personal experiences, reflections, and changes in judgment. |
 | [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | Give peers technical explanations, paper analyses, and engineering judgments they can verify and reuse. |
-| [`$synapse`](skills/synapse/SKILL.md) | Build Slides or coordinate a deck and article. Use its workflows for source extraction, editable diagrams, and motion. |
+| [`$synapse-slides`](skills/synapse-slides/SKILL.md) | Create decks for technical talks, research, teaching, and project updates. Includes Pretext layout guidance. |
+| [`$synapse`](skills/synapse/SKILL.md) | Coordinate a deck and article. Use its workflows for source extraction, editable diagrams, and motion. |
 
 Pretext is part of Slides. Choose a publishing format separately when the draft is ready.
 
