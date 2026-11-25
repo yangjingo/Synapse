@@ -23,7 +23,36 @@ python scripts/validate-bearblog-figures.py <article-dir>/draft-<slug>.md
 
 保持标题、段落、图序、表格、公式、链接和源语。文件头用 `title: <title>` 与 `___`。图保留实际图片链接与紧随其后的可见描述。Notion 附件用公开图片代理并验证免登录重定向后的 `image/*`，签名直链会过期。遇到无法公开读取的块或图片，记录缺口。
 
-图检查通过后再将草稿定为 `bearlog-<slug>.md`。编辑主题可用 [图注 CSS](../assets/figure-caption.css)。用户明确要求后再执行外部同步或发布。
+图检查通过后再将草稿定为 `bearlog-<slug>.md`。如果图注在 Bearblog 主题中显示为行内文字，可将以下样式加到主题 CSS。用户明确要求后再执行外部同步或发布。
+
+```css
+.post .notion-figure-desc {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 0.55rem;
+  font-size: 0.9em;
+  line-height: 1.55;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.post .notion-figure-desc a {
+  overflow-wrap: anywhere;
+}
+
+.post p:has(> img + .notion-figure-desc) {
+  margin-block: 1.6rem;
+}
+
+.post p:has(> img + .notion-figure-desc) > img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+}
+```
 
 ## 英文版
 

@@ -1,24 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 700" width="1010" height="700">
-<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#4A4338" /></marker></defs>
-<rect width="1010" height="700" fill="#FAFAF7" />
-<text x="505" y="54" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="28" font-weight="600" fill="#4A4338">SFT: Constructive Interference Preserves Bias</text>
-<text x="505" y="108" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="17" font-weight="400" fill="#4A4338">dense token gradients all lean toward the data distribution</text>
-<line x1="120" y1="155" x2="520" y2="170" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="193" x2="545" y2="205" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="231" x2="570" y2="240" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="269" x2="520" y2="275" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="307" x2="545" y2="310" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="345" x2="570" y2="345" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="383" x2="520" y2="380" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="421" x2="545" y2="415" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="459" x2="570" y2="450" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="120" y1="497" x2="520" y2="485" stroke="#7F8C70" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)" />
-<line x1="535" y1="335" x2="885" y2="335" stroke="#C45A20" stroke-width="8" stroke-linecap="round" marker-end="url(#arrow)" />
-<text x="710" y="305" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#C45A20">large resultant</text>
-<rect x="610" y="395" width="290" height="120" rx="8" fill="#FDF0E6" stroke="#C45A20" stroke-width="2" />
-<text x="755" y="435" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#4A4338">Fast movement</text>
-<text x="755" y="468" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="15" font-weight="400" fill="#4A4338">but toward a fixed teacher</text>
-<text x="755" y="494" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="15" font-weight="400" fill="#4A4338">distribution and ceiling</text>
-<rect x="220" y="575" width="570" height="62" rx="8" fill="#E8E2DA" stroke="#908878" stroke-width="2" />
-<text x="505" y="613" text-anchor="middle" font-family="Virgil, Segoe UI, sans-serif" font-size="15" font-weight="400" fill="#4A4338">Dense signal is efficient; constructive interference also preserves bias</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+<title id="title">SFT updates can reinforce a shared bias</title>
+<desc id="description">Illustrative token gradients are aligned on the left. Their mean on the same scale retains a consistent direction.</desc>
+<defs>
+<marker id="warm-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#99998F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="accent-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#62756A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<rect x="0" y="0" width="1200" height="675" fill="#EEEDE4" stroke="none" stroke-width="2" rx="0"/>
+<rect x="48" y="48" width="1104" height="579" fill="#F9F8F3" stroke="none" stroke-width="2" rx="20"/>
+<rect x="76" y="94" width="468" height="469" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="100" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" fill="#41413B" text-anchor="start">Token gradients</text>
+<rect x="656" y="94" width="468" height="469" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="680" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" fill="#41413B" text-anchor="start">Mean update</text>
+<line x1="134" y1="342" x2="486" y2="342" stroke="#99998F" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 7"/>
+<line x1="714" y1="342" x2="1066" y2="342" stroke="#99998F" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 7"/>
+<polyline points="310,342 405,280" fill="none" stroke="#99998F" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="310,342 421,300" fill="none" stroke="#99998F" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="310,342 431,318" fill="none" stroke="#99998F" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="310,342 434,342" fill="none" stroke="#99998F" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="310,342 431,364" fill="none" stroke="#99998F" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="310,342 420,386" fill="none" stroke="#99998F" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="310,342 404,408" fill="none" stroke="#99998F" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="310,342 394,422" fill="none" stroke="#99998F" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<circle cx="310" cy="342" r="5" fill="#41413B" stroke="none" stroke-width="2"/>
+<circle cx="890" cy="342" r="5" fill="#41413B" stroke="none" stroke-width="2"/>
+<polyline points="890,342 997.5,352.5" fill="none" stroke="#62756A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#accent-arrow)"/>
 </svg>

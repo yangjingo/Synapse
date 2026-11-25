@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&family=JetBrains+Mono&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&amp;family=Poppins:wght@400;600&amp;display=swap" rel="stylesheet" />
 
     <style>
       :root {
@@ -21,9 +21,8 @@
         --accent-green: #788c5d;
         --item-bg: rgba(196, 90, 32, 0.05);
         --strong-bg: rgba(196, 90, 32, 0.12);
-        --font-hand: "Gochi Hand", cursive;
+        --font-sans: "Poppins", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
         --font-mono: "JetBrains Mono", monospace;
-        --font-head: "Poppins", sans-serif;
         --shadow: 12px 12px 0px #1e1e1e;
       }
 
@@ -34,7 +33,7 @@
         background-size: 40px 40px;
       }
 
-      .reveal { font-family: var(--font-hand); color: var(--main-color); }
+      .reveal { font-family: var(--font-sans); color: var(--main-color); }
       .reveal .slides { text-align: left; }
 
       /* ── pretext animated background ── */
@@ -51,7 +50,7 @@
       .pretext-bg { position: absolute; inset: 0; }
       .pretext-bg .pt-line {
         position: absolute; left: 24px; right: 24px; white-space: nowrap;
-        font-family: var(--font-head); font-size: clamp(14px, 1.6vw, 20px);
+        font-family: var(--font-sans); font-size: clamp(14px, 1.6vw, 20px);
         font-weight: 600; letter-spacing: -0.03em;
         color: rgba(30, 30, 30, 0.06); transform-origin: left center;
         will-change: transform, opacity; user-select: none;
@@ -67,7 +66,7 @@
         padding-bottom: 20px; position: relative;
       }
       .header-layer h2 {
-        font-family: var(--font-hand) !important; font-weight: 800;
+        font-family: var(--font-sans) !important; font-weight: 600;
         font-size: clamp(2.2rem, 5vw, 4rem) !important;
         margin: 0 !important; color: var(--main-color) !important;
         text-transform: none !important;
@@ -98,13 +97,13 @@
       }
       .canvas-text li::before {
         content: "→"; position: absolute; left: 10px;
-        font-weight: 800; color: var(--accent-claude);
+        font-weight: 600; color: var(--accent-claude);
       }
       .no-bullet .canvas-text li { padding-left: 20px; }
       .no-bullet .canvas-text li::before { content: ""; }
       strong, mark {
         background: var(--strong-bg); padding: 0 6px; border-radius: 4px;
-        display: inline-block; transform: rotate(-0.5deg); font-weight: 800;
+        display: inline-block; transform: rotate(-0.5deg); font-weight: 600;
         color: inherit;
       }
       .visual-box {
@@ -149,7 +148,7 @@
         position: absolute; bottom: 20px; left: 55px; background: #fff;
         border: 6px solid var(--main-color); padding: 20px 40px;
         transform: rotate(var(--pulse-rotate, -1.5deg)) translateY(var(--pulse-y, 0)) scale(var(--pulse-scale, 1));
-        box-shadow: var(--shadow); font-weight: 800;
+        box-shadow: var(--shadow); font-weight: 600;
         font-size: clamp(1.2rem, 2vw, 2.2rem); z-index: 10; transform-origin: center;
       }
       .pulse-animated {
@@ -175,10 +174,122 @@
       }
       .footer-watermark {
         position: absolute; bottom: 30px; right: 30px;
-        font-family: var(--font-hand); font-size: 0.8rem; opacity: 0.1; color: #999; z-index: 1;
+        font-family: var(--font-sans); font-size: 0.8rem; opacity: 0.1; color: #999; z-index: 1;
+      }
+      .reveal .slides section[data-layout="text-led"] .canvas-layer {
+        width: 100%;
+        grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+      }
+      .reveal .slides section[data-layout="text-led"] .visual-box img {
+        max-height: 360px;
+      }
+
+      /* A figure can carry the main argument within the same Theater frame. */
+      .reveal .slides section[data-layout="image-led"] .canvas-layer {
+        width: 100%;
+        min-height: 0;
+        grid-template-columns: minmax(0, 13fr) minmax(0, 7fr);
+        grid-template-areas: "figure text";
+        gap: 30px;
+        align-items: center;
+      }
+      .reveal .slides section[data-layout="image-led"] .visual-box {
+        grid-area: figure;
+        min-height: 0;
+        padding: 16px;
+      }
+      .reveal .slides section[data-layout="image-led"] .visual-box img {
+        max-height: 430px;
+      }
+      .reveal .slides section[data-layout="image-led"] .canvas-text {
+        grid-area: text;
+        min-width: 0;
+      }
+      .reveal .slides section[data-layout="image-led"] .canvas-text li {
+        margin-bottom: 10px;
+      }
+      .reveal .slides section[data-layout="image-led"] .canvas-text > .pulse-layer {
+        position: relative;
+        inset: auto;
+        box-sizing: border-box;
+        margin: 20px 12px 0 5px;
+        width: fit-content;
+        max-width: calc(100% - 17px);
+        padding: 11px 16px;
+        font-size: 1.45rem;
+        line-height: 1.34;
+        line-break: strict;
+        text-wrap: balance;
+      }
+      .reveal .slides section[data-layout="image-led"] .footer-watermark {
+        position: static;
+        margin: 16px 8px 0;
+        text-align: right;
       }
     </style>
-  </head>
+  <style>
+
+      :root {
+        --diagram-paper: #faf9f5;
+        --diagram-ink: #292823;
+        --diagram-line: #b4ada1;
+        --diagram-tint: #eeece3;
+        --diagram-accent: #a34b31;
+        --diagram-focus: #f6e3da;
+      }
+      .reveal .visual-box:has(.native-diagram) {
+        padding: 13px;
+        background: var(--diagram-paper);
+        border: 1px solid var(--diagram-line);
+        border-radius: 10px;
+        box-shadow: none;
+      }
+      .native-diagram {
+        font: 400 18px/1.26 var(--font-sans);
+        width: 100%;
+        color: var(--diagram-ink);
+        background: var(--diagram-paper);
+        text-align: center;
+        padding: .35em;
+      }
+      .native-diagram strong { font-weight: 600; background: none !important; }
+      .native-diagram small { display: block; margin-top: .24em; font-size: .82em; }
+      .diagram-label { display: block; color: #62574d; font-size: .81em; margin-bottom: .44em; }
+      .diagram-node { display: grid; align-content: center; border: 1px solid var(--diagram-line); border-radius: .45em; padding: .58em .38em; background: #fffdf8; }
+      .diagram-focus { background: var(--diagram-focus); border-color: #bd7962; }
+      .diagram-neutral { background: var(--diagram-tint); }
+      .diagram-flow { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); gap: .32em; align-items: stretch; }
+      .diagram-group + .diagram-group { margin-top: .78em; padding-top: .7em; border-top: 1px solid #dbd6ca; }
+      .diagram-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .5em; }
+      .diagram-arrow { align-self: center; color: var(--diagram-accent); font-size: 1.18em; line-height: 1.18; }
+      .diagram-return { display: block; color: #62574d; margin-top: .55em; font-size: .8em; }
+      .diagram-routing { display: grid; gap: .38em; max-width: 38em; margin: auto; }
+      .diagram-timeline { display: grid; grid-template-columns: 5.2em minmax(0,1fr); gap: .5em; align-items: center; text-align: left; }
+      .diagram-timeline + .diagram-timeline { margin-top: .52em; }
+      .diagram-track { position: relative; display: flex; align-items: center; height: 2em; border: 1px solid var(--diagram-line); border-radius: .3em; background: #fffdf8; }
+      .diagram-span { display: grid; align-items: center; height: 100%; width: var(--extent); padding: 0 .4em; background: var(--diagram-tint); font-size: .82em; }
+      .diagram-span.diagram-focus { background: var(--diagram-focus); }
+      .diagram-point { position: absolute; left: var(--point); transform: translateX(-50%); padding: .15em .33em; border-radius: .3em; font-size: .76em; background: var(--diagram-tint); white-space: nowrap; }
+      .diagram-point.diagram-focus { background: var(--diagram-focus); border: 1px solid #bd7962; }
+      .diagram-replay { flex: 1; font-size: .73em; padding-left: .35em; color: #62574d; }
+      .diagram-metrics { display: grid; gap: .52em; text-align: left; }
+      .diagram-metric { border-bottom: 1px solid #dbd6ca; padding-bottom: .32em; }
+      .diagram-bar { position: relative; isolation: isolate; padding: .13em .36em; font-size: .77em; min-height: 1.25em; }
+      .diagram-bar + .diagram-bar { margin-top: .14em; }
+      .diagram-bar::before { content: ""; position: absolute; inset: 0 auto 0 0; z-index: -1; width: var(--bar); background: #e8e5dc; border-radius: .2em; }
+      .diagram-bar.diagram-after::before { background: #f0d4c8; }
+      .zoomed-diagram { width: min(82vw, 950px); }
+      .zoomed-diagram:empty, .visual-lightbox img[hidden] { display: none; }
+      .zoomed-diagram .native-diagram { padding: 1.4em; font-size: clamp(13px, 2vw, 25px); border-radius: .5em; }
+
+</style>
+<style>
+      .visual-box .native-diagram { cursor: zoom-in; }
+      .visual-box :is(img, .native-diagram):focus-visible {
+        outline: 2px solid var(--accent-claude,#C45A20); outline-offset: -2px;
+      }
+</style>
+</head>
   <body>
     <div class="reveal">
       <div class="slides">
@@ -187,17 +298,17 @@
         <section data-transition="none">
           <div class="header-layer" style="border-bottom: none; padding-left: 5%; margin-top: 15%">
             <div class="ui-label">00 / Cover</div>
-            <h1 style="font-size: 5rem; font-weight: 800; margin: 0; line-height: 1;">Project Name</h1>
+            <h1 style="font-size: 5rem; font-weight: 600; margin: 0; line-height: 1;">Project Name</h1>
             <h2 style="margin-top: 30px; color: var(--accent-claude) !important;">{Chinese subtitle — topic thesis, NOT "Synapse vX.X"}</h2>
-            <div style="margin-top: 60px; font-family: var(--font-hand); font-size: 1.2rem; line-height: 2; opacity: 0.8">
+            <div style="margin-top: 60px; font-family: var(--font-sans); font-size: 1.2rem; line-height: 2; opacity: 0.8">
               Version: <strong>Synapse v{version}</strong> &nbsp;&nbsp; Author: <strong>Why.J</strong> &nbsp;&nbsp; Date: <strong>YYYY/MM/DD</strong>
             </div>
           </div>
           <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
         </section>
 
-        <!-- 01 / Context (grid + pulse + visual-box + pretext) -->
-        <section data-transition="none">
+        <!-- 01 / Context (text-led grid) -->
+        <section data-transition="none" data-layout="text-led">
           <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
           <div class="slide-content">
             <div class="header-layer">
@@ -216,7 +327,9 @@
                 <div class="pulse-layer pulse-animated" style="--pulse-scale: 1.05">「 Pulse: high-level abstraction of all facts. 」</div>
               </div>
               <div class="visual-box" style="--visual-scale: 0.9">
-                <img src="./figures/cli-revolution/figure-03-agent-layer.svg" alt="figure 03 agent layer" />
+                <div class="native-diagram" role="group" aria-label="One cached prefix follows two request paths." lang="en">
+<div class="diagram-group"><span class="diagram-label">First request</span><div class="diagram-flow"><div class="diagram-node"><strong>Input</strong><small>Shared prefix</small></div><span class="diagram-arrow" aria-hidden="true">→</span><div class="diagram-node diagram-focus"><strong>Prefill</strong><small>Build KV</small></div><span class="diagram-arrow" aria-hidden="true">→</span><div class="diagram-node"><strong>Decode</strong><small>Generate</small></div></div></div><div class="diagram-group"><span class="diagram-label">Next request</span><div class="diagram-flow"><div class="diagram-node"><strong>Input</strong><small>Prefix + suffix</small></div><span class="diagram-arrow" aria-hidden="true">→</span><div class="diagram-node diagram-focus"><strong>Prefill</strong><small>Reuse KV</small></div><span class="diagram-arrow" aria-hidden="true">→</span><div class="diagram-node"><strong>Decode</strong><small>Continue</small></div></div></div>
+</div>
               </div>
             </div>
           </div>
@@ -245,8 +358,33 @@
           <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
         </section>
 
-        <!-- 03-N / Mechanism (grid + pulse + visual-box + pretext) -->
-        <!-- Copy this section for each mechanism page -->
+        <!-- 03 / Mechanism (image-led grid) -->
+        <section data-transition="none" data-layout="image-led">
+          <div class="pretext-stage" data-pretext-src="slide"><div class="pretext-bg"></div></div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">03 / Mechanism</div>
+              <h2>混合注意力怎样处理远近上下文？</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="visual-box">
+                <div class="native-diagram" role="group" aria-label="DeepSeek V4 separates local and historical attention paths." lang="en">
+<div class="diagram-routing"><div class="diagram-node"><strong>Input tokens</strong><small>Recent and historical context</small></div><span class="diagram-arrow" aria-hidden="true">↓</span><div class="diagram-flow" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="diagram-node"><strong>SWA</strong><small>Recent window</small></div><div class="diagram-node diagram-focus"><strong>CSA</strong><small>Compressed selection</small></div><div class="diagram-node"><strong>HCA</strong><small>Coarser history</small></div></div></div>
+</div>
+                <div class="visual-caption">Hybrid attention paths in DeepSeek-V4</div>
+              </div>
+              <div class="canvas-text">
+                <ul>
+                  <li><strong>SWA</strong> 保留滑动窗口内的细节。</li>
+                  <li><strong>CSA</strong> 压缩后选择需要访问的状态。</li>
+                  <li><strong>HCA</strong> 用更高压缩倍率处理更长的历史。</li>
+                </ul>
+                <div class="pulse-layer pulse-animated">「远近上下文使用不同的表示。」</div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + {project_id} + YYYY/MM/DD</div>
+        </section>
 
         <!-- 10 / Take Aways (push-left + fragment, NO visual-box, Q→A mapping) -->
         <section data-transition="none" class="no-bullet">
@@ -296,6 +434,7 @@
       <button id="visual-lightbox-close" class="visual-lightbox-close" aria-label="关闭">×</button>
       <div class="visual-lightbox-content">
         <img id="visual-lightbox-img" src="" alt="放大图预览" />
+        <div id="zoomed-diagram" class="zoomed-diagram"></div>
         <div id="visual-lightbox-caption" class="visual-lightbox-caption" aria-live="polite"></div>
       </div>
     </div>
@@ -314,55 +453,82 @@
         box.style.setProperty("--visual-scale", box.getAttribute("data-scale"));
       });
 
-      // ── visual image lightbox ──
+
+      // ── Click a slide figure to open its lightbox ──
       const lightbox = document.getElementById("visual-lightbox");
       const lightboxImg = document.getElementById("visual-lightbox-img");
+      const zoomedDiagram = document.getElementById("zoomed-diagram");
       const lightboxClose = document.getElementById("visual-lightbox-close");
       const lightboxCaption = document.getElementById("visual-lightbox-caption");
-      if (lightbox && lightboxImg && lightboxClose && lightboxCaption) {
-        const openLightbox = (img) => {
-          const src = img.src;
-          const alt = img.alt || "放大图预览";
-          const captionEl = img.closest(".visual-box")?.querySelector(".visual-caption");
-          const caption = captionEl ? captionEl.textContent.trim() : "";
+      let activeFigure = null;
 
-          lightboxImg.src = src;
-          lightboxImg.alt = alt;
-          if (caption) {
-            lightboxCaption.textContent = caption;
-            lightboxCaption.style.display = "block";
-          } else {
-            lightboxCaption.style.display = "none";
-            lightboxCaption.textContent = "";
-          }
-          lightbox.classList.add("open");
-        };
-
-        const closeLightbox = () => {
-          lightbox.classList.remove("open");
-          lightboxImg.removeAttribute("src");
-          lightboxCaption.textContent = "";
-          lightboxCaption.style.display = "none";
-        };
-
-        document.querySelectorAll(".visual-box img").forEach((img) => {
-          img.addEventListener("click", (e) => {
-            e.preventDefault();
-            openLightbox(img);
-          });
-        });
-        lightboxClose.addEventListener("click", closeLightbox);
-        lightbox.addEventListener("click", (e) => {
-          if (e.target === lightbox) {
-            closeLightbox();
-          }
-        });
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape" && lightbox.classList.contains("open")) {
-            closeLightbox();
-          }
-        });
+      function openLightbox(figure) {
+        const isImage = figure instanceof HTMLImageElement;
+        lightboxImg.hidden = !isImage;
+        if (isImage) {
+          lightboxImg.src = figure.currentSrc || figure.src;
+          lightboxImg.alt = figure.alt;
+        } else {
+          const copy = figure.cloneNode(true);
+          copy.removeAttribute("tabindex");
+          copy.setAttribute("role", "group");
+          copy.setAttribute("aria-label", figure.dataset.description);
+          copy.removeAttribute("aria-haspopup");
+          zoomedDiagram.replaceChildren(copy);
+        }
+        const caption = figure.closest(".visual-box").querySelector(".visual-caption")?.textContent.trim() || "";
+        lightboxCaption.textContent = caption;
+        lightboxCaption.style.display = caption ? "block" : "none";
+        activeFigure = figure;
+        lightbox.classList.add("open");
+        lightboxClose.focus();
       }
+
+      function closeLightbox() {
+        lightbox.classList.remove("open");
+        zoomedDiagram.replaceChildren();
+        lightboxImg.removeAttribute("src");
+        lightboxImg.hidden = true;
+        lightboxCaption.textContent = "";
+        lightboxCaption.style.display = "none";
+        activeFigure?.focus({preventScroll: true});
+        activeFigure = null;
+      }
+
+      document.querySelectorAll(".visual-box img, .visual-box .native-diagram").forEach(figure => {
+        const description = figure.getAttribute("aria-label") || figure.alt || "";
+        figure.dataset.description = description;
+        figure.tabIndex = 0;
+        figure.setAttribute("role", "button");
+        figure.setAttribute("aria-haspopup", "dialog");
+        figure.setAttribute("aria-label", ["放大图片", description].filter(Boolean).join(" · "));
+        figure.addEventListener("click", event => {
+          const selection = window.getSelection();
+          if (event.target.closest("a, button, input, select, textarea, summary") ||
+              (selection && !selection.isCollapsed && figure.contains(selection.anchorNode))) return;
+          event.preventDefault();
+          event.stopPropagation();
+          openLightbox(figure);
+        });
+        figure.addEventListener("keydown", event => {
+          if (event.target === figure && (event.key === "Enter" || event.key === " ")) {
+            event.preventDefault();
+            event.stopPropagation();
+            openLightbox(figure);
+          }
+        });
+      });
+      lightboxClose.addEventListener("click", closeLightbox);
+      lightbox.addEventListener("click", event => {
+        if (event.target === lightbox) closeLightbox();
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && activeFigure) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          closeLightbox();
+        }
+      }, true);
 
       // ── Reveal.js ──
       Reveal.initialize({
@@ -380,6 +546,7 @@
       ].join('  /  ');
 
       // ── pretext layout ──
+      const pretextFontFamily = getComputedStyle(document.documentElement).getPropertyValue('--font-sans').trim();
       function getLines(text, font, maxWidth, lineHeight) {
         const prepared = prepareWithSegments(text, font);
         const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
@@ -399,7 +566,7 @@
         const usable = Math.max(200, w - padding * 2);
         const fontSize = isCover ? Math.max(18, Math.min(28, w * 0.02)) : Math.max(14, Math.min(20, w * 0.014));
         const lineHeight = Math.round(fontSize * (isCover ? 1.25 : 1.8));
-        const font = `600 ${fontSize}px Poppins, Arial, sans-serif`;
+        const font = `600 ${fontSize}px ${pretextFontFamily}`;
         const wrapped = getLines(src, font, usable * 0.92, lineHeight);
         const top = Math.max(20, (h - wrapped.length * lineHeight) / 2);
         bg.innerHTML = '';
@@ -421,6 +588,7 @@
       const stages = Array.from(document.querySelectorAll('.pretext-stage'));
       const stageMap = new Map();
       function rebuildAll() { stageMap.clear(); stages.forEach(s => { stageMap.set(s, buildStage(s)); }); }
+      await document.fonts.load(`600 16px ${pretextFontFamily}`);
       rebuildAll();
 
       const pointers = new Map();

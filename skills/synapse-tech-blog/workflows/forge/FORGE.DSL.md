@@ -250,16 +250,7 @@ Figure prompt principle: **stored generation spec**. The `prompt` field is prese
 3. **Generation traceability**: record `codex-imagegen`, `synapse-excalidraw`, or another explicitly approved path in `figures/index.md`, including the reason for any approved fallback.
 4. **Path rule**: figure image paths in `SECTIONS` and `::image` must use `./figures/...` so the path is portable from example HTML.
 
-Prompt format — must include concrete visual details:
-```
-"Create a dense, clean engineering figure for a hard-core technical article.
-Use {background color} background, {specific hex colors for each element}.
-{Describe the precise visual layout: axes, curves, bars, annotations, labels}.
-{Include specific data points or labels that appear in the figure}.
-All fonts in Virgil/hand-drawn style.
-Keep it flat, technical, editorial.
-Avoid: marketing aesthetics, 3D hardware art, decorative gradients, rainbow color coding, oversized icons, vague labels."
-```
+For `prompt`, fill in the [shared figure prompt](../../references/image.md#通用提示词) and append the chosen composition. Record the actual labels, values, units and visual mappings so the figure can be regenerated.
 
 Examples:
 - Weak: "Figure 3: Forward KL vs Reverse KL 数据流对比"

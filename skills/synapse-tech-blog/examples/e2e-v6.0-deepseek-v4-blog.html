@@ -154,12 +154,6 @@
       margin: 0 auto;
       white-space: pre-wrap;
     }
-    .pulse {
-      margin-top: 48px;
-      font: 600 17px/28px var(--sans);
-      color: var(--accent);
-    }
-
     .meta-tag {
       display: inline-block;
       background: var(--accent);
@@ -190,15 +184,48 @@
     }
     .stats .v { color: var(--accent); font-weight: 700; }
 
-    /* stick figure overlay */
-    #stick-canvas {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 50;
+    #reading-ripple {
+      position: fixed;
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--accent, #C45A20);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 50;
     }
   </style>
+<style>
+    .figure-zoom-target { cursor: zoom-in; }
+    .figure-block.zoomed .figure-zoom-target { cursor: zoom-out; }
+    .figure-zoom-target:focus-visible { outline: 2px solid var(--accent,#C45A20); outline-offset: -2px; }
+
+    .figure-block[data-native].zoomed { flex-direction: column; padding: 14px; }
+    .figure-block[data-native].zoomed .figure-content { width: min(92vw,980px); }
+    .figure-block[data-native].zoomed .figure-caption { position: static; transform: none; margin: 6px auto 0; }
+    .figure-block { background: transparent; }
+    .figure-block img { background: #EEEDE4; border-radius: 6px; }
+    .figure-caption { padding: 9px 0 0; font: 400 14px/1.55 var(--sans); color: #5C584F; }
+    .figure-caption strong { display: block; font-weight: 600; }
+    .figure-caption p { margin-top: 3px; }
+    .figure-caption a { color: inherit; text-underline-offset: .17em; }
+    .figure-block.zoomed { z-index: 110; overscroll-behavior: contain; }
+    .figure-block.zoomed .figure-caption { width: min(92vw, 760px); }
+    .figure-prompt-vis, .stats[hidden] { display: none; }
+    @media (max-width: 700px) {
+      .figure-block.zoomed { display: block; overflow: auto; padding: 14px; }
+      .figure-block.zoomed img { width: 700px; max-width: none; max-height: none; }
+      .figure-block.zoomed .figure-caption {
+        position: static;
+        transform: none;
+        width: auto;
+        margin-top: 10px;
+        padding: 4px 0;
+      }
+    }
+</style>
 </head>
 <body>
-<canvas id="stick-canvas"></canvas>
+<span id="reading-ripple" aria-hidden="true" hidden></span>
 <div class="page">
   <div class="meta-tag">DeepSeek-V4</div>
   <div class="meta-date">2026/04/24 &middot; yangjing</div>
@@ -215,10 +242,9 @@
   <div id="sections-wrap"></div>
 
   <!-- ④ Aggressive Pulse -->
-  <div id="pulse-wrap" class="pulse"></div>
 </div>
 
-<div class="stats">
+<div class="stats" hidden>
   <span>Title: <span class="v" id="sTitle">—</span></span>
   <span>Lead: <span class="v" id="sLead">—</span></span>
   <span>Body lines: <span class="v" id="sBody">—</span></span>
@@ -2388,14 +2414,16 @@ var SECTIONS = [
     body: `DeepSeek-V4 的关键不在于参数继续做大，也不在于引入一个孤立的新注意力模块。它真正改变的是 long-context 的问题定义：问题不再只是模型能不能看到更长的上下文，而是模型结构、残差路径、KV cache、专家并行和运行时能不能一起把成本压到可部署区间。`
   },
   {
+    image: `./figures/figure-01-cost-curve.svg`,
+    caption: "Figure 1: DeepSeek-V4 cost at 1M context",
+    description: "同一量尺对照单 token 的等效 FP8 FLOPs 与累计 KV Cache。DeepSeek-V3.2 为 100%，数值是报告中的估算。",
+    source: "https://arxiv.org/html/2606.19348v1#S0.F1",
+    sourceLabel: "DeepSeek-V4 技术报告图 1",
+  },
+  {
     heading: `mHC：把残差稳定性从训练技巧提升为架构基础设施`,
     body: `长上下文压缩、MoE、混合精度和定制 kernel 一旦叠加，残差路径本身就会变成训练稳定性的关键变量。mHC 的作用不是单纯增加结构复杂度，而是把残差稳定性显式写进架构。如果没有这个约束，attention 路径越混合，残差统计就越容易漂。`,
     callout: `mHC 的意义不是结构更花，而是它把残差稳定性提升成了基础设施。没有这个前提，前面的 long-context 收益很可能只能停留在图上。`
-  },
-  {
-    image: `./figures/figure-01-cost-curve.svg`,
-    caption: `Figure 1: mHC 结构——残差稳定性作为基础设施`,
-    prompt: `mHC manifold constrained hyper-connection architecture diagram`
   },
   {
     heading: `混合注意力：不同距离的上下文不应共享同一种表示`,
@@ -2404,8 +2432,10 @@ var SECTIONS = [
   },
   {
     image: `./figures/figure-02-hybrid-attention.svg`,
-    caption: `Figure 2: DeepSeek-V4 模型架构——按哪些路径被一起重写来读`,
-    prompt: `DeepSeek-V4 full model architecture showing hybrid attention, MoE, mHC`
+    caption: "Figure 2: How CSA and HCA use local KV",
+    description: "沿每行读压缩历史与本地滑窗如何汇合。CSA 选择 Top-k 压缩条目，HCA 使用全部重度压缩条目。",
+    source: "https://arxiv.org/html/2606.19348v1#S2.SS3",
+    sourceLabel: "DeepSeek-V4 技术报告 §2.3",
   },
   {
     heading: `CSA 压缩稀疏注意力：压缩 + 选择 + 窗口的平衡`,
@@ -2418,6 +2448,7 @@ var SECTIONS = [
   {
     heading: `效率数据：FLOPs 和 KV cache 的大幅降低`,
     body: `按照论文表述，相比 DeepSeek-V3.2：DeepSeek-V4-Pro 在 1M context 下，single-token inference FLOPs 只需 27%，KV cache 只需 10%。DeepSeek-V4-Flash 更激进——FLOPs 仅 10%，KV cache 仅 7%。`,
+    bodyHTML: `<p>按照论文表述，相比 DeepSeek-V3.2：DeepSeek-V4-Pro 在 1M context 下，single-token inference FLOPs 只需 27%，KV cache 只需 10%。DeepSeek-V4-Flash 更激进——FLOPs 仅 10%，KV cache 仅 7%。</p><p>除了对 Infra 团队不太友好以外，这仍然是一个非常不错的工作——它在算力和 KV cache 开销上都做了大幅降低，不仅让长上下文推理更接近可运营区间，也会利好在国产卡平台上构建更低成本的推理系统。</p>`,
     callout: `V4-Pro 在 1M context: FLOPs 27%, KV cache 10%。V4-Flash: FLOPs 10%, KV cache 7%。混合 CSA/HCA 负责压远场成本，精度优化进一步压推理 FLOPs。`
   },
   {
@@ -2435,10 +2466,9 @@ var SECTIONS = [
   {
     heading: `Reference`,
     body: `[1] DeepSeek-V4 Technical Report\n[2] DeepSeek-V4详细分析(1)\n[3] DeepSeek-V4 预览版\n[4] DeepSeek-V4-Pro inference\n[5] DeepSeek V4 预览版本上线 - kaiyuan`,
-    bodyHTML: '<div><a href=”https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf” target=”_blank”>[1] DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence</a></div><div><a href=”https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw” target=”_blank”>[2] DeepSeek-V4详细分析(1): 算法和模型结构</a></div><div><a href=”https://api-docs.deepseek.com/zh-cn/news/news260424” target=”_blank”>[3] DeepSeek-V4 预览版：迈入百万上下文普惠时代</a></div><div><a href=”https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/tree/main/inference” target=”_blank”>[4] deepseek-ai/DeepSeek-V4-Pro / inference</a></div><div><a href=”https://www.zhihu.com/question/2030963929510310856/answer/2031734018199270833” target=”_blank”>[5] DeepSeek V4 预览版本上线并同步开源 - kaiyuan</a></div>'
+    bodyHTML: '<div><a href="https://arxiv.org/html/2606.19348v1" target="_blank">[1] DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence</a></div><div><a href="https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw" target="_blank">[2] DeepSeek-V4详细分析(1): 算法和模型结构</a></div><div><a href="https://api-docs.deepseek.com/zh-cn/news/news260424" target="_blank">[3] DeepSeek-V4 预览版：迈入百万上下文普惠时代</a></div><div><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/tree/main/inference" target="_blank">[4] deepseek-ai/DeepSeek-V4-Pro / inference</a></div><div><a href="https://www.zhihu.com/question/2030963929510310856/answer/2031734018199270833" target="_blank">[5] DeepSeek V4 预览版本上线并同步开源 - kaiyuan</a></div>'
   }
 ];
-var PULSE = `除了对 Infra 团队不太友好以外，这仍然是一个非常不错的工作——它在算力和 KV cache 开销上都做了大幅降低，不仅让长上下文推理更接近可运营区间，也会利好在国产卡平台上构建更低成本的推理系统。`;
 
 // ═══════════════════════════════════════
 // ③ 排版
@@ -2448,7 +2478,9 @@ var SANS = "'Inter', 'Helvetica Neue', sans-serif";
 
 // 标题自适应：二分搜索最大字号，限制在 maxLines 行内
 function fitTitle(text, maxWidth, maxLines) {
-  var lo = 24, hi = 56, best = lo, bestLines = [];
+  var lo = 24, hi = 56, best = lo;
+  var minTitle = prepareWithSegments(text, '700 ' + lo + 'px ' + SERIF);
+  var bestLines = layoutWithLines(minTitle, maxWidth, Math.round(lo * 1.15)).lines;
   while (lo <= hi) {
     var size = Math.floor((lo + hi) / 2);
     var font = '700 ' + size + 'px ' + SERIF;
@@ -2472,7 +2504,52 @@ function fitTitle(text, maxWidth, maxLines) {
 var titleWrap = document.getElementById('title-wrap');
 var leadWrap = document.getElementById('lead-wrap');
 var sectionsWrap = document.getElementById('sections-wrap');
-var pulseWrap = document.getElementById('pulse-wrap');
+
+
+function figureZoom(figure, trigger) {
+  const label = figure.lang === 'en' || document.documentElement.lang.startsWith('en')
+    ? ['Zoom figure', 'Close figure']
+    : ['放大图片', '关闭图片'];
+  const description = trigger.getAttribute('aria-label') ||
+    trigger.querySelector('[aria-label]')?.getAttribute('aria-label') || trigger.alt || '';
+
+  function toggle(visible) {
+    figure.classList.toggle('zoomed', visible);
+    trigger.setAttribute('aria-expanded', String(visible));
+    trigger.setAttribute('aria-label', [label[Number(visible)], description].filter(Boolean).join(' · '));
+  }
+
+  trigger.classList.add('figure-zoom-target');
+  trigger.tabIndex = 0;
+  trigger.setAttribute('role', 'button');
+  toggle(false);
+  trigger.addEventListener('click', event => {
+    const selection = window.getSelection();
+    if (event.target.closest('a, button, input, select, textarea, summary') ||
+        (selection && !selection.isCollapsed && trigger.contains(selection.anchorNode))) return;
+    event.stopPropagation();
+    document.querySelectorAll('.figure-block.zoomed').forEach(other => {
+      if (other !== figure) other.dispatchEvent(new Event('close-figure'));
+    });
+    toggle(!figure.classList.contains('zoomed'));
+  });
+  trigger.addEventListener('keydown', event => {
+    if (event.target === trigger && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      window.getSelection()?.removeAllRanges();
+      trigger.click();
+    }
+  });
+  figure.addEventListener('close-figure', () => toggle(false));
+  figure.addEventListener('click', event => {
+    if (event.target === figure) toggle(false);
+  });
+}
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    document.querySelectorAll('.figure-block.zoomed').forEach(figure => figure.dispatchEvent(new Event('close-figure')));
+  }
+});
 
 function render() {
   var t0 = performance.now();
@@ -2517,47 +2594,64 @@ function render() {
     var s = SECTIONS[si];
 
     // figure section
-    if (s.image) {
+    if (s.diagram || s.image) {
       var figSec = document.createElement('div');
       figSec.className = 'section';
-      var figBlock = document.createElement('div');
+      if (s.id) figSec.id = s.id;
+      var figBlock = document.createElement('figure');
       figBlock.className = 'figure-block';
-      var img = document.createElement('img');
-      img.src = s.image;
-      img.alt = s.caption || '';
-      (function(block, imgEl, promptText, captionText) {
-        imgEl.onerror = function() {
-          imgEl.style.display = 'none';
-          var ph = document.createElement('div');
-          ph.className = 'figure-placeholder';
-          ph.innerHTML = '<div class="figure-placeholder-icon">&#9634;</div>' +
-            '<div class="figure-placeholder-label">待生成插图</div>' +
-            (promptText ? '<div class="figure-placeholder-prompt">' + promptText.replace(/</g,'&lt;') + '</div>' : '');
-          block.insertBefore(ph, block.firstChild);
-        };
-      })(figBlock, img, s.prompt, s.caption);
-      figBlock.appendChild(img);
+      var zoomTarget;
+      if (s.diagram) {
+        figBlock.setAttribute('data-native', '');
+        zoomTarget = document.createElement('div');
+        zoomTarget.className = 'figure-content';
+        zoomTarget.innerHTML = s.diagram;
+        figBlock.appendChild(zoomTarget);
+      } else {
+        var img = document.createElement('img');
+        img.src = s.image;
+        img.alt = s.alt || s.description || s.caption || '';
+        (function(block, imgEl, promptText, captionText) {
+          imgEl.onerror = function() {
+            imgEl.style.display = 'none';
+            var ph = document.createElement('div');
+            ph.className = 'figure-placeholder';
+            ph.innerHTML = '<div class="figure-placeholder-icon">&#9634;</div>' +
+              '<div class="figure-placeholder-label">待生成插图</div>' +
+              (promptText ? '<div class="figure-placeholder-prompt">' + promptText.replace(/</g,'&lt;') + '</div>' : '');
+            block.insertBefore(ph, block.firstChild);
+          };
+        })(figBlock, img, s.prompt, s.caption);
+        figBlock.appendChild(img);
+        zoomTarget = img;
+      }
       if (s.caption) {
-        var cap = document.createElement('div');
-        cap.className = 'figure-caption';
-        cap.textContent = s.caption;
-        figBlock.appendChild(cap);
+        const caption = document.createElement('figcaption');
+        caption.className = 'figure-caption';
+        const title = document.createElement('strong');
+        title.lang = 'en';
+        title.textContent = s.caption;
+        caption.appendChild(title);
+        if (s.description || s.source) {
+          const detail = document.createElement('p');
+          detail.textContent = s.description || '';
+          if (s.source) {
+            if (s.description) detail.append(' ');
+            const source = document.createElement('a');
+            source.href = s.source;
+            source.textContent = s.sourceLabel || 'Source';
+            detail.appendChild(source);
+          }
+          caption.appendChild(detail);
+        }
+        figBlock.appendChild(caption);
       }
       if (s.prompt) {
         figBlock.setAttribute('data-prompt', s.prompt);
       }
       figSec.appendChild(figBlock);
       sectionsWrap.appendChild(figSec);
-      (function(block) {
-        block.addEventListener('click', function() {
-          if (block.classList.contains('zoomed')) {
-            block.classList.remove('zoomed');
-          } else {
-            document.querySelectorAll('.figure-block.zoomed').forEach(function(b) { b.classList.remove('zoomed'); });
-            block.classList.add('zoomed');
-          }
-        });
-      })(figBlock);
+      figureZoom(figBlock, zoomTarget);
       continue;
     }
 
@@ -2607,14 +2701,6 @@ function render() {
     sectionsWrap.appendChild(sec);
   }
 
-  // ---- Pulse ----
-  var pFont = '600 17px ' + SANS;
-  var pP = prepareWithSegments(PULSE, pFont);
-  var pResult = layoutWithLines(pP, pageW, 28);
-  totalBodyLines += pResult.lineCount;
-  pulseWrap.textContent = PULSE;
-  pulseWrap.style.height = pResult.lineCount * 28 + 'px';
-
   var ms = performance.now() - t0;
 
   // Stats
@@ -2629,6 +2715,7 @@ function render() {
 // ⑤ 启动
 // ═══════════════════════════════════════
 await document.fonts.ready;
+document.querySelector('.stats').hidden = new URLSearchParams(location.search).get('debug') !== 'layout';
 render();
 
 var resizeTimer = 0;
@@ -2637,205 +2724,31 @@ window.addEventListener('resize', function() {
   resizeTimer = setTimeout(render, 100);
 });
 
-// ═══════════════════════════════════════════════════
-// ⑥ 火柴人 — 点击位置出现，挥手提示
-// ═══════════════════════════════════════════════════
-var stickCanvas = document.getElementById('stick-canvas');
-var sctx = stickCanvas.getContext('2d');
-var ACCENT = '#C45A20';
-var ACCENT_LIGHT = '#FDF0E6';
+// A brief ripple acknowledges a click on the reading surface.
+{
+  const ripple = document.getElementById('reading-ripple');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const interactive = 'a, button, input, select, textarea, label, summary, [role="button"], [contenteditable], .figure-block, .stats';
+  let animation;
 
-var stick = {
-  active: false,
-  opacity: 0,
-  cx: 0, cy: 0,       // 点击位置（锚点）
-  jumpY: 0,
-  jumpVY: 0,
-  bouncePhase: 0,
-  age: 0,              // 出现后经过的秒数
-  blinkTimer: 2,
-  blinking: false,
-  exiting: false
-};
+  document.addEventListener('click', (event) => {
+    if (reducedMotion.matches || !event.detail || event.defaultPrevented ||
+        event.target.closest(interactive) || getSelection()?.isCollapsed === false) return;
 
-function resizeStick() {
-  stickCanvas.width = window.innerWidth;
-  stickCanvas.height = window.innerHeight;
+    animation?.cancel();
+    ripple.style.left = event.clientX + 'px';
+    ripple.style.top = event.clientY + 'px';
+    ripple.hidden = false;
+    const current = ripple.animate([
+      { transform: 'translate(-50%, -50%) scale(.2)', opacity: .48 },
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 0 },
+    ], { duration: 340, easing: 'ease-out' });
+    animation = current;
+    current.onfinish = () => {
+      if (animation === current) ripple.hidden = true;
+    };
+  });
 }
-resizeStick();
-window.addEventListener('resize', resizeStick);
-
-// 点击任意位置 → 生成火柴人
-document.addEventListener('click', function(e) {
-  if (e.target === stickCanvas) return;
-
-  // 如果已经显示 → 淡出消失（取消）
-  if (stick.active && !stick.exiting) {
-    stick.exiting = true;
-    return;
-  }
-
-  // 否则在新位置生成
-  stick.active = true;
-  stick.exiting = false;
-  stick.cx = e.clientX;
-  stick.cy = e.clientY;
-  stick.opacity = 0;
-  stick.jumpY = -20;
-  stick.jumpVY = 0;
-  stick.bouncePhase = 0;
-  stick.blinkTimer = 2;
-  stick.blinking = false;
-});
-
-function drawStick(t) {
-  if (!stick.active) return;
-
-  var dt = 1 / 60;
-  stick.age += dt;
-
-  // 淡入
-  if (stick.exiting) {
-    stick.opacity -= 0.07;
-    if (stick.opacity <= 0) {
-      stick.active = false;
-      stick.exiting = false;
-      sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
-      return;
-    }
-  } else {
-    stick.opacity = Math.min(1, stick.opacity + 0.1);
-  }
-
-  // 弹跳物理
-  stick.jumpVY += 0.55;
-  stick.jumpY += stick.jumpVY;
-  if (stick.jumpY >= 0) {
-    stick.jumpY = 0;
-    if (stick.bouncePhase < 3 && Math.abs(stick.jumpVY) > 0.5) {
-      stick.jumpVY = -stick.jumpVY * 0.45;
-      stick.bouncePhase++;
-    } else {
-      stick.jumpVY = 0;
-    }
-  }
-
-  // 站稳后微微呼吸
-  var bob = stick.jumpY === 0 ? Math.sin(t * 3.5) * 1.5 : 0;
-
-  // 眨眼
-  stick.blinkTimer -= dt;
-  if (stick.blinkTimer <= 0) {
-    if (stick.blinking) {
-      stick.blinking = false;
-      stick.blinkTimer = 1.5 + Math.random() * 3;
-    } else {
-      stick.blinking = true;
-      stick.blinkTimer = 0.1;
-    }
-  }
-
-  sctx.clearRect(0, 0, stickCanvas.width, stickCanvas.height);
-  sctx.save();
-  sctx.globalAlpha = stick.opacity;
-
-  var x = stick.cx;
-  var y = stick.cy + stick.jumpY + bob;
-  var sc = 0.65;
-
-  sctx.translate(x, y);
-  sctx.scale(sc, sc);
-
-  // 柔和发光
-  var glow = sctx.createRadialGradient(0, -24, 4, 0, -24, 55);
-  glow.addColorStop(0, 'rgba(196,90,32,0.1)');
-  glow.addColorStop(1, 'rgba(196,90,32,0)');
-  sctx.fillStyle = glow;
-  sctx.fillRect(-55, -80, 110, 110);
-
-  var headR = 10;
-  var bodyTop = -headR * 2 - 22;
-  var bodyBot = -headR * 2;
-  var legLen = 18;
-  var armLen = 16;
-
-  sctx.lineCap = 'round';
-  sctx.lineJoin = 'round';
-
-  // 腿
-  sctx.strokeStyle = ACCENT;
-  sctx.lineWidth = 2;
-  sctx.beginPath(); sctx.moveTo(-4, bodyBot); sctx.lineTo(-6, bodyBot + legLen); sctx.stroke();
-  sctx.beginPath(); sctx.moveTo(4, bodyBot);  sctx.lineTo(6, bodyBot + legLen); sctx.stroke();
-
-  // 身体
-  sctx.lineWidth = 2.2;
-  sctx.beginPath(); sctx.moveTo(0, bodyTop); sctx.lineTo(0, bodyBot); sctx.stroke();
-
-  var armBase = bodyTop + 6;
-
-  // 右手臂 — 挥手（举起 + 左右摇摆）
-  var waveAngle = Math.sin(t * 7) * 0.45;              // 手掌左右摆
-  var raiseAngle = -Math.PI / 2 + waveAngle;            // 基础朝上 + 摆动
-  var rwx = Math.cos(raiseAngle) * armLen;
-  var rwy = Math.sin(raiseAngle) * armLen;
-  sctx.lineWidth = 2;
-  sctx.strokeStyle = ACCENT;
-  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(rwx, armBase + rwy); sctx.stroke();
-
-  // 挥手手掌（小圆）
-  var handR = 3 + Math.sin(t * 7) * 0.5;
-  sctx.beginPath();
-  sctx.arc(rwx, armBase + rwy, handR, 0, Math.PI * 2);
-  sctx.fillStyle = ACCENT;
-  sctx.fill();
-
-  // 左手臂 — 自然下垂
-  sctx.beginPath(); sctx.moveTo(0, armBase); sctx.lineTo(-12, armBase + 10); sctx.stroke();
-
-  // 头
-  var headY = bodyTop - headR;
-  sctx.beginPath();
-  sctx.arc(0, headY, headR, 0, Math.PI * 2);
-  sctx.fillStyle = ACCENT;
-  sctx.fill();
-
-  // 眼睛
-  var eyeOff = 3.5;
-  var eyeY = headY - 1;
-  if (stick.blinking) {
-    sctx.strokeStyle = ACCENT_LIGHT;
-    sctx.lineWidth = 1;
-    sctx.beginPath(); sctx.moveTo(-eyeOff - 1.5, eyeY); sctx.lineTo(-eyeOff + 1.5, eyeY); sctx.stroke();
-    sctx.beginPath(); sctx.moveTo(eyeOff - 1.5, eyeY); sctx.lineTo(eyeOff + 1.5, eyeY); sctx.stroke();
-  } else {
-    sctx.fillStyle = ACCENT_LIGHT;
-    sctx.beginPath(); sctx.arc(-eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
-    sctx.beginPath(); sctx.arc(eyeOff, eyeY, 2, 0, Math.PI * 2); sctx.fill();
-    // 高光
-    sctx.fillStyle = '#fff';
-    sctx.beginPath(); sctx.arc(-eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
-    sctx.beginPath(); sctx.arc(eyeOff + 0.7, eyeY - 0.7, 0.7, 0, Math.PI * 2); sctx.fill();
-  }
-
-  // 嘴巴 — 微笑
-  sctx.strokeStyle = ACCENT_LIGHT;
-  sctx.lineWidth = 1;
-  sctx.beginPath();
-  sctx.arc(0, headY + 3.5, 3, 0.2, Math.PI - 0.2);
-  sctx.stroke();
-
-  sctx.restore();
-}
-
-// 动画循环
-function animateStick(now) {
-  requestAnimationFrame(animateStick);
-  var t = now / 1000;
-  if (!stick.active) return;
-  drawStick(t);
-}
-requestAnimationFrame(animateStick);
 </script>
 </body>
 </html>

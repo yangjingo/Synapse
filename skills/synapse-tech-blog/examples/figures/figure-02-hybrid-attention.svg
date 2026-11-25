@@ -1,27 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-125 27 955 218" width="955" height="218">
-<rect x="-125" y="27" width="955" height="218" fill="#ffffff" />
-<rect x="60" y="60" width="150" height="70" fill="#C4B8A8" stroke="#9A8870" stroke-width="2" rx="4" />
-<rect x="230" y="60" width="150" height="70" fill="#BCC4AC" stroke="#8A9A70" stroke-width="2" rx="4" />
-<rect x="400" y="60" width="150" height="70" fill="#C4A8A4" stroke="#9A7E78" stroke-width="2" rx="4" />
-<rect x="-105" y="170" width="480" height="55" fill="#C0BCA8" stroke="#948E74" stroke-width="2" rx="4" />
-<rect x="570" y="47" width="240" height="96" fill="#fffbeb" stroke="#d97706" stroke-width="2" rx="4" />
-<path d="M 135 130 L 135 170" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
-<path d="M 230 95 L 375 197.5" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
-<path d="M 400 95 L 375 197.5" fill="none" stroke="#4A4338" stroke-width="2" marker-end="url(#arrowhead)" />
-<text x="135" y="77" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">SWA</text>
-<text x="135" y="93.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">近场全精度</text>
-<text x="135" y="110.80000000000001" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">(sliding window)</text>
-<text x="305" y="77" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">CSA</text>
-<text x="305" y="93.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">中远场</text>
-<text x="305" y="110.80000000000001" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">压缩+选择</text>
-<text x="475" y="77" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">HCA</text>
-<text x="475" y="93.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">极远场</text>
-<text x="475" y="110.80000000000001" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="middle">高倍率压缩</text>
-<text x="135" y="199.5" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="14" fill="#4A4338" text-anchor="middle">异构 KV Cache — 分层存储系统</text>
-<text x="578" y="66" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="start">混合注意力</text>
-<text x="578" y="82.9" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="start">三条路径，两个旋钮</text>
-<text x="578" y="99.80000000000001" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="start">不同距离的上下文</text>
-<text x="578" y="116.7" font-family="Virgil, Segoe UI Emoji, sans-serif" font-size="13" fill="#4A4338" text-anchor="start">不应共享同一种表示</text>
-
-<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e2e" /></marker></defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+<title id="title">Hybrid attention within a CSA or HCA layer</title>
+<desc id="description">CSA selects top-k compressed KV entries. HCA attends densely over more heavily compressed KV. Each layer brings its own uncompressed sliding-window KV into attention.</desc>
+<defs>
+<marker id="warm-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#99998F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="accent-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#62756A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<rect x="0" y="0" width="1200" height="675" fill="#EEEDE4" stroke="none" stroke-width="2" rx="0"/>
+<rect x="48" y="48" width="1104" height="579" fill="#F9F8F3" stroke="none" stroke-width="2" rx="20"/>
+<rect x="76" y="93" width="1048" height="221" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="102" y="135" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" fill="#41413B" text-anchor="start">CSA</text>
+<rect x="178" y="156" width="243" height="60" fill="#F9F8F3" stroke="#99998F" stroke-width="2" rx="12"/>
+<text x="299.5" y="195" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="middle">4:1 compression</text>
+<rect x="511" y="156" width="250" height="60" fill="#F9F8F3" stroke="#99998F" stroke-width="2" rx="12"/>
+<text x="636" y="195" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="middle">Top-k compressed KV</text>
+<rect x="511" y="237" width="250" height="60" fill="#F9F8F3" stroke="#99998F" stroke-width="2" rx="12"/>
+<text x="636" y="276" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="middle">Local KV</text>
+<rect x="890" y="196" width="195" height="60" fill="#DBD9CF" stroke="#99998F" stroke-width="2" rx="12"/>
+<text x="987.5" y="235" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="middle">Attention</text>
+<polyline points="421,186 511,186" fill="none" stroke="#99998F" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="761,186 824,186 824,213 890,213" fill="none" stroke="#99998F" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="761,267 824,267 824,239 890,239" fill="none" stroke="#99998F" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<rect x="76" y="348" width="1048" height="221" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="102" y="390" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" fill="#41413B" text-anchor="start">HCA</text>
+<rect x="178" y="411" width="243" height="60" fill="#F9F8F3" stroke="#99998F" stroke-width="2" rx="12"/>
+<text x="299.5" y="450" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="middle">128:1 compression</text>
+<rect x="511" y="411" width="250" height="60" fill="#F9F8F3" stroke="#99998F" stroke-width="2" rx="12"/>
+<text x="636" y="450" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="middle">All compressed KV</text>
+<rect x="511" y="492" width="250" height="60" fill="#F9F8F3" stroke="#99998F" stroke-width="2" rx="12"/>
+<text x="636" y="531" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="middle">Local KV</text>
+<rect x="890" y="451" width="195" height="60" fill="#DBD9CF" stroke="#99998F" stroke-width="2" rx="12"/>
+<text x="987.5" y="490" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="middle">Attention</text>
+<polyline points="421,441 511,441" fill="none" stroke="#99998F" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="761,441 824,441 824,468 890,468" fill="none" stroke="#99998F" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="761,522 824,522 824,494 890,494" fill="none" stroke="#99998F" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
 </svg>

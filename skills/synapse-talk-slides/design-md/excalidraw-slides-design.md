@@ -8,29 +8,28 @@ style: references/SLIDES-STYLE.md
 
 ## Overview
 
-Why.J Engineering Theater — white grid canvas, hand-drawn Excalidraw figures, pretext animated background, hard black borders and offset shadows.
+Why.J Engineering Theater — white grid canvas, editable technical diagrams, Pretext animated background, hard black borders and offset shadows.
 
 ## When to use
 
 - User asks for Why.J slides / 工程剧场 / 手绘风
-- Deck tone is playful engineering theater, not editorial blog
-- Figures should read as Excalidraw: black ink, white background, stick figures, sparse labels
+- The talk needs a diagram-led or text-led layout with a short takeaway.
 
 ## Typography
 
 | Role | Font |
 |---|---|
-| Body / titles | Gochi Hand |
-| Pretext bg | Poppins |
+| English titles / body / Pretext | Poppins |
+| Chinese | Noto Sans SC, Microsoft YaHei fallback |
 | Code | JetBrains Mono |
 
 ## Colors
 
 - Main `#1E1E1E` · Accent `#C45A20` · Marker `rgba(196, 90, 32, 0.12)`
 
-## Figure prompt suffix
+## Technical figures
 
-`Hand-drawn, #4A4338 ink, #FAFAF7 paper background, stick figures, sparse labels, single accent #C45A20, no gradients, no shadows, no 3D, no decorative elements`
+Use warm paper, dark ink, thin directional lines and a restrained terracotta highlight. Keep related processes aligned and encode the same meaning with the same color. See the [technical figures reference](../references/SLIDES-STYLE.md#4-technical-figures).
 
 ## Placeholder resolution
 

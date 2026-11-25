@@ -430,7 +430,23 @@
         z-index: 1;
       }
     </style>
-  </head>
+  <style>
+    .figure-zoom-target { cursor: zoom-in; }
+    .figure-zoom-target:focus-visible { outline: 2px solid #C45A20; outline-offset: -2px; }
+    .inline-figure-zoom {
+      position: fixed; inset: 0; margin: auto; padding: 12px; max-width: 94vw; max-height: 92vh;
+      border: 0; border-radius: 6px; color: #1A1A1A; background: #FAFAF7;
+    }
+    .inline-figure-zoom::backdrop { background: rgba(0,0,0,.82); }
+    .inline-figure-zoom .zoom-controls { display: flex; justify-content: flex-end; }
+    .inline-figure-zoom .zoom-controls button { font: 500 14px/1.3 system-ui,sans-serif; padding: 5px 9px; cursor: pointer; }
+    .inline-figure-zoom .zoom-media :is(img,svg) {
+      display: block; width: auto; height: auto; max-width: 88vw; max-height: 78vh;
+      margin: 8px auto 0; object-fit: contain;
+    }
+    .inline-figure-zoom .zoom-media > svg { width: 88vw; }
+</style>
+</head>
   <body>
     <div class="reveal">
       <div class="slides">
@@ -969,5 +985,65 @@ new Agent({
         margin: 0.08,
       });
     </script>
-  </body>
+
+  <dialog class="inline-figure-zoom" aria-label="放大图片">
+    <form method="dialog" class="zoom-controls"><button type="submit">关闭</button></form>
+    <div class="zoom-media"></div>
+  </dialog>
+  <script>
+    (() => {
+      const modal = document.querySelector('.inline-figure-zoom');
+      const media = modal.querySelector('.zoom-media');
+      let trigger;
+      function open(target) {
+        const copy = target.cloneNode(true);
+        if (target instanceof HTMLImageElement) copy.src = target.currentSrc || target.src;
+        copy.classList.remove('figure-zoom-target');
+        copy.removeAttribute('tabindex');
+        copy.removeAttribute('role');
+        if (target.dataset.label) copy.setAttribute('aria-label', target.dataset.label);
+        else copy.removeAttribute('aria-label');
+        copy.removeAttribute('aria-haspopup');
+        media.replaceChildren(copy);
+        trigger = target;
+        modal.showModal();
+      }
+      document.querySelectorAll('.visual-box img').forEach(target => {
+        const label = target.getAttribute('aria-label') || target.alt || target.querySelector('title')?.textContent || '';
+        target.dataset.label = label;
+        target.classList.add('figure-zoom-target');
+        target.tabIndex = 0;
+        target.setAttribute('role','button');
+        target.setAttribute('aria-haspopup','dialog');
+        target.setAttribute('aria-label',['放大图片', label].filter(Boolean).join(' · '));
+        target.addEventListener('click', event => {
+          if (event.target.closest('a, button')) return;
+          open(target);
+        });
+        target.addEventListener('keydown', event => {
+          if (event.target === target && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            event.stopPropagation();
+            open(target);
+          }
+        });
+      });
+      modal.addEventListener('click', event => {
+        if (event.target === modal) modal.close();
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && modal.open) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          modal.close();
+        }
+      }, true);
+      modal.addEventListener('close', () => {
+        media.replaceChildren();
+        trigger?.focus({preventScroll: true});
+      });
+    })();
+  </script>
+
+</body>
 </html>

@@ -179,31 +179,12 @@ Determine target slot based on source aspect ratio:
 
 If download fails or image needs regeneration, compose the prompt before calling any renderer:
 
-1. Confirm **one thesis per figure** (single conclusion).
-2. Apply Figure Design System constraints (from DESIGN-style):
-   - white paper background
-   - rough black hand-drawn ink lines
-   - sparse labels
-   - single accent `#C45A20`
-   - no gradients / no shadows / no 3D / no decorative clutter / no emoji
-3. Append project design controls when available:
-   - `Figure prompt suffix / 风格控制`（按原文逐条追加）
-   - `文件落地`（路径落盘与引用约束）
-4. If a single panel exceeds density budget, split into 2–4 charts rather than stuffing labels.
-5. If project has `examples/<project>/DESIGN.md`, merge its style controls into the prompt (especially `Figure prompt suffix`, `文件落地`, and display constraints) before generation.
-6. If output has multiple candidate visuals, keep only the one that carries the strongest mechanism claim and discard decoration-heavy variants.
+1. Fill in the [shared figure prompt](../../references/image.md#通用提示词) and append the fragment for the chosen composition. For an architecture diagram, use the [architecture prompt](../../references/image.md#架构图提示词) to specify boundaries and the attachment points for each arrow.
+2. Apply any `examples/<project>/DESIGN.md` controls before generation. Append the `Figure prompt suffix / 风格控制` and include `文件落地` and display constraints.
+3. Move explanatory sentences into the caption or article. When the remaining elements crowd the panel, use a separate detail view or split the comparison into aligned panels.
+4. Inspect the rendered figure at its embedded size. Confirm that the main relationship is legible from the geometry and short labels and that arrows, labels, and axes stay distinct.
 
-Then render raster illustrations by invoking the Codex built-in `$imagegen` skill and using its default `image_gen` tool mode:
-
-```
-Create a dense, clean engineering figure for a hard-core technical article.
-Use a white paper background, rough hand-drawn black ink look, sparse labels,
-single accent `#C45A20`, compact rounded rectangles, thin arrows, precise labels,
-explicit subsystem boundaries.
-Explain [TOPIC] as a [FIGURE TYPE].
-Keep it flat, technical, editorial.
-Avoid: marketing aesthetics, 3D hardware art, gradients, decorative clutter, decorative icons, 3D, vague labels.
-```
+Render raster illustrations from the filled-in prompt using the Codex built-in `$imagegen` skill and its default `image_gen` tool mode.
 
 Do not route raster generation through Gemini, Imagen APIs, Nano Banana, or another external provider. If built-in `image_gen` is unavailable or fails, report the failure; use the `$imagegen` CLI/API fallback only after explicit user approval. Choose SVG/manual generation directly only when the requested artifact is intentionally vector/code-native, and record that path in `figures/index.md`.
 
@@ -213,7 +194,7 @@ For final slide examples, every planned visual must be rendered and referenced t
 
 - Write every generated figure into `./figures/` under the target example root (`./examples/<project>/figures`).
 - File names must be local and HTML-consumable (PNG/JPG/SVG), defaulting to `figure-XX-descriptivename.*`.
-- Keep visual style controls from `examples/<project>/DESIGN.md` intact (`#FAFAF7` paper + `#4A4338` rough ink + sparse labels + `#C45A20` accent + no gradients/shadows/decor).
+- Keep visual style controls from `examples/<project>/DESIGN.md` intact. When the project has no override, use the palette and line semantics in the [shared figure prompt](../../references/image.md#通用提示词).
 - Generated prompts must preserve the final concatenated style block in `figures/index.md` (`figure_style`) and record `generated_by` for traceability.
 
 #### Step 5: DSL Reference

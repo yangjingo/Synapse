@@ -25,7 +25,8 @@ description: >-
 | 单篇论文、多论文合成或 YJ Paper | [论文解读](references/paper.md) |
 | 团队、项目与工程决策 | [技术复盘](references/techreview.md) |
 | 架构、流程、对照或实验结果图 | [技术插图](references/image.md) |
-| Pretext 版式、Notion、Bearblog 或双语交付 | [HTML 排版](references/html-layout.md) · [发布格式](references/publishing.md) |
+| 博客总目录、Pretext 正文版式 | [HTML 排版](references/html-layout.md) |
+| Notion、Bearblog 或双语交付 | [发布格式](references/publishing.md) |
 
 先读与写作目的有关的一份参考。需要制图或交付适配时再读对应参考。资料繁杂且需要 DSL 时，读[资料提取](workflows/forge/WORKFLOW.md)。与 [Talk Slides](../synapse-talk-slides/SKILL.md) 同题交付时，两份作品沿用同一组主张、数字和来源。
 

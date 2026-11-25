@@ -2,13 +2,6 @@
 
 Use this reference for precise line fitting and animated text in Slides. Keep the deck template’s integration and measure only the fields that depend on text geometry.
 
-1. `pretext-examples/the-editorial-engine.html` — the definitive reference. Multi-column flow, obstacle-aware reflow, drop caps, pull quotes, adaptive headline sizing, 60fps animated text.
-2. `pretext-examples/shrinkwrap-showdown.html` — binary search for tightest width.
-3. `pretext-examples/justification-comparison.html` — Knuth-Plass optimal line breaking with hyphenation and river detection.
-4. `pretext-examples/fluid-smoke.html` — full-screen fluid ASCII animation with per-character width measurement.
-5. `pretext-examples/variable-typographic-ascii.html` — particle system mapped to characters by brightness and width.
-6. `pretext-examples/index.html` — landing page linking to all demos.
-
 ## Core API
 
 
