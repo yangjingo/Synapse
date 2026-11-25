@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+<title id="title">DeepSeek-V4 cost at 1M context</title>
+<desc id="description">Two equal-scale bar charts compare single-token inference FLOPs and KV cache. DeepSeek-V3.2 is the 100 percent baseline.</desc>
+<defs>
+<marker id="warm-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#99998F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="accent-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#62756A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<rect x="0" y="0" width="1200" height="675" fill="#EEEDE4" stroke="none" stroke-width="2" rx="0"/>
+<rect x="48" y="48" width="1104" height="579" fill="#F9F8F3" stroke="none" stroke-width="2" rx="20"/>
+<rect x="68" y="94" width="511" height="469" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="92" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" fill="#41413B" text-anchor="start">Single-token FLOPs</text>
+<line x1="205" y1="196" x2="205" y2="475" stroke="#99998F" stroke-width="1.5" stroke-linecap="round"/>
+<text x="205" y="513" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="400" fill="#41413B" text-anchor="middle">0%</text>
+<line x1="337.5" y1="196" x2="337.5" y2="475" stroke="#99998F" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 6"/>
+<text x="337.5" y="513" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="400" fill="#41413B" text-anchor="middle">50%</text>
+<line x1="470" y1="196" x2="470" y2="475" stroke="#99998F" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 6"/>
+<text x="470" y="513" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="400" fill="#41413B" text-anchor="middle">100%</text>
+<text x="92" y="265" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">V3.2</text>
+<rect x="205" y="238" width="265" height="37" fill="#DBD9CF" stroke="none" stroke-width="2" rx="3"/>
+<text x="481" y="265" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">100%</text>
+<text x="92" y="348" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">V4-Pro</text>
+<rect x="205" y="321" width="71.55" height="37" fill="#62756A" stroke="none" stroke-width="2" rx="3"/>
+<text x="287.55" y="348" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">27%</text>
+<text x="92" y="431" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">V4-Flash</text>
+<rect x="205" y="404" width="26.5" height="37" fill="#62756A" stroke="none" stroke-width="2" rx="3"/>
+<text x="242.5" y="431" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">10%</text>
+<rect x="621" y="94" width="511" height="469" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="645" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" fill="#41413B" text-anchor="start">KV Cache size</text>
+<line x1="758" y1="196" x2="758" y2="475" stroke="#99998F" stroke-width="1.5" stroke-linecap="round"/>
+<text x="758" y="513" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="400" fill="#41413B" text-anchor="middle">0%</text>
+<line x1="890.5" y1="196" x2="890.5" y2="475" stroke="#99998F" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 6"/>
+<text x="890.5" y="513" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="400" fill="#41413B" text-anchor="middle">50%</text>
+<line x1="1023" y1="196" x2="1023" y2="475" stroke="#99998F" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 6"/>
+<text x="1023" y="513" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="400" fill="#41413B" text-anchor="middle">100%</text>
+<text x="645" y="265" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">V3.2</text>
+<rect x="758" y="238" width="265" height="37" fill="#DBD9CF" stroke="none" stroke-width="2" rx="3"/>
+<text x="1034" y="265" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">100%</text>
+<text x="645" y="348" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">V4-Pro</text>
+<rect x="758" y="321" width="26.5" height="37" fill="#62756A" stroke="none" stroke-width="2" rx="3"/>
+<text x="795.5" y="348" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">10%</text>
+<text x="645" y="431" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">V4-Flash</text>
+<rect x="758" y="404" width="18.55" height="37" fill="#62756A" stroke="none" stroke-width="2" rx="3"/>
+<text x="787.55" y="431" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#41413B" text-anchor="start">7%</text>
+<text x="600" y="602" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="400" fill="#41413B" text-anchor="middle">1M-token context · DeepSeek-V3.2 = 100%</text>
+</svg>

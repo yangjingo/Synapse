@@ -35,17 +35,17 @@ npx --yes skills add https://github.com/yangjingo/Synapse \
 ## 使用
 
 ```text
-使用 $synapse，把这些论文和笔记做成 Why.J 风格的 Slides 与技术文章。
+使用 $synapse-talk-slides，把这些论文和笔记整理成一套 Why.J 风格的讲解幻灯片。
 保留论点来源，并在最终页面嵌入真实图片。
 ```
 
 | Skill | 职责 |
 |---|---|
-| `$synapse-forge` | 素材 → 可验证的论证 DSL |
-| `$synapse-design` | 叙事结构与 Slides 设计 |
-| `$synapse-pretext` | 几何感知的文章排版 |
-| `$synapse-excalidraw` | 可编辑技术图 |
-| `$synapse-animation` | SVG、GIF 与 Remotion 动画 |
+| [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | 写感想随笔、读书体会和成长记录，可适配小红书和微信公众号。 |
+| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | 写可验证、可复用的技术博客、论文解读与工程复盘，交付 Notion 或 Bearblog 阅读稿。 |
+| [`$synapse-talk-slides`](skills/synapse-talk-slides/SKILL.md) | 做技术讲解、观点表达、教学和汇报的 Slides，含 Pretext 文字排版与动效。 |
+
+同一主题需要文章和 Slides 时，两份作品共用主张、数字与来源，各自按阅读和演讲的节奏展开。
 
 ## 看实际产出
 

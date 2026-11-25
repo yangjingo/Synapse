@@ -2,17 +2,17 @@
 
 ## Project Structure & Module Organization
 
-`SKILL.md` is the entry point for the Synapse workflow. Specialized agent instructions live under `skills/`: `synapse-forge` shapes content, `synapse-design` defines visual rules, `synapse-pretext` renders editorial HTML, `synapse-excalidraw` creates diagrams, and `synapse-animation` handles motion exports. Each skill keeps its own `SKILL.md`, references, scripts, and examples where applicable. End-to-end sample outputs belong in `examples/<topic>/`; keep a topic's `*-blog.dsl.md`, `*-blog.html`, `*-slides.dsl.md`, `*-slides.html`, and `figures/` together. Shared documentation and branding live in `docs/` and `assets/`.
+Each authoring category owns one entry point under `skills/`. Life Note covers reflection and social publishing formats. Tech Blog owns articles, source extraction, and editable technical diagrams. Talk Slides owns decks, Pretext, and motion. Keep optional workflow instructions and supporting files inside their owning skill. End-to-end sample outputs belong in `examples/<topic>/`; keep a topic's `*-blog.dsl.md`, `*-blog.html`, `*-slides.dsl.md`, `*-slides.html`, and `figures/` together. Shared documentation and branding live in `docs/` and `assets/`.
 
 ## Build, Test, and Development Commands
 
 There is no package manifest or compiled build. Work directly with the Markdown, HTML, JavaScript, and Python sources.
 
 - `npx prettier --write path/to/file.html` formats generated HTML.
-- `python skills/synapse-forge/scripts/struct_validator.py examples/<topic>` checks slide ordering and required structural sections.
-- `python skills/synapse-forge/scripts/content_validator.py examples/<topic>` checks cover, outline, takeaway, reference, and visual-content rules.
-- `node skills/synapse-forge/scripts/url_validator.js --urls examples/<topic>` verifies external links; this requires network access.
-- `node skills/synapse-excalidraw/scripts/validate.js --strict path/to/file.excalidraw` detects diagram collisions and arrow crossings.
+- `python skills/synapse-tech-blog/workflows/forge/scripts/struct_validator.py examples/<topic>` checks slide ordering and required structural sections.
+- `python skills/synapse-tech-blog/workflows/forge/scripts/content_validator.py examples/<topic>` checks cover, outline, takeaway, reference, and visual-content rules.
+- `node skills/synapse-tech-blog/workflows/forge/scripts/url_validator.js --urls examples/<topic>` verifies external links; this requires network access.
+- `node skills/synapse-tech-blog/workflows/excalidraw/scripts/validate.js --strict path/to/file.excalidraw` detects diagram collisions and arrow crossings.
 
 Open generated HTML in a browser to confirm typography, overflow, images, and slide navigation.
 

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+<title id="title">Performance versus post-training compute</title>
+<desc id="description">Schematic curves illustrate SFT and SFT with rejection sampling, on-policy distillation approaching a teacher reference, and RL crossing the reference in the example.</desc>
+<defs>
+<marker id="warm-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#99998F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="accent-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#62756A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<rect x="0" y="0" width="1200" height="675" fill="#EEEDE4" stroke="none" stroke-width="2" rx="0"/>
+<rect x="48" y="48" width="1104" height="579" fill="#F9F8F3" stroke="none" stroke-width="2" rx="20"/>
+<polyline points="123,533 1070,533" fill="none" stroke="#99998F" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<polyline points="123,533 123,118" fill="none" stroke="#99998F" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#warm-arrow)"/>
+<text x="123" y="101" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="start">Performance</text>
+<text x="1070" y="574" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="400" fill="#41413B" text-anchor="end">Post-training compute</text>
+<line x1="123" y1="241" x2="889" y2="241" stroke="#99998F" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 7"/>
+<text x="145" y="219" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="400" fill="#41413B" text-anchor="start">Teacher reference</text>
+<polyline points="130,486 239,401 408,363 618,350 906,347" fill="none" stroke="#99998F" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="130,493 254,434 448,370 684,327 906,317" fill="none" stroke="#41413B" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 6"/>
+<polyline points="130,499 280,467 464,399 718,275 906,244" fill="none" stroke="#62756A" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="130,503 285,482 477,426 709,300 906,184" fill="none" stroke="#41413B" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="927" y="355" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="start">SFT</text>
+<text x="927" y="325" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="start">SFT-RS</text>
+<text x="927" y="252" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#62756A" text-anchor="start">OPD</text>
+<text x="927" y="192" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#41413B" text-anchor="start">RL</text>
+</svg>

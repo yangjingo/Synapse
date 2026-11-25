@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Warm Minimal Technical Diagrams · Synapse</title>
+  <style>
+    :root {
+      --paper: #EEEDE4;
+      --surface: #F9F8F3;
+      --muted: #58584F;
+      --ink: #41413B;
+      --rule: #D0CFC4;
+      font: 16px/1.65 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--surface);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(700px, calc(100% - 36px)); margin: 0 auto; padding: 55px 0 64px; }
+    h1 { margin: 0; font-size: clamp(2rem, 5.2vw, 3rem); line-height: 1.15; letter-spacing: -.025em; }
+    header p { margin: 12px 0 0; color: var(--muted); }
+    figure { margin: 32px 0 0; padding-top: 24px; border-top: 1px solid var(--rule); }
+    .diagram {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: var(--paper);
+      cursor: zoom-in;
+    }
+    canvas { display: block; width: 100%; height: auto; }
+    figcaption { margin-top: 11px; }
+    figcaption strong { display: block; }
+    figcaption p { margin: 3px 0 7px; color: var(--muted); line-height: 1.6; }
+    a, .close { color: var(--ink); text-underline-offset: .2em; }
+    a:hover, .close:hover { color: #26382E; }
+    a:focus-visible, button:focus-visible { outline: 2px solid #52655A; outline-offset: 4px; }
+    .download { font-size: .84rem; }
+    dialog { width: min(96vw, 1160px); max-width: none; max-height: 92dvh; padding: 12px; border: 1px solid var(--rule); background: var(--surface); }
+    dialog::backdrop { background: rgb(41 40 34 / .58); }
+    dialog form { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    .close { padding: 6px 12px; border: 1px solid var(--rule); background: var(--surface); cursor: pointer; font: inherit; }
+    .zoom { overflow: auto; }
+    .zoom canvas { min-width: 700px; }
+    @media (max-width: 560px) { main { padding-top: 32px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1 lang="en">Warm Minimal Technical Diagrams</h1>
+      <p>用 P/D 交接和 KV 复用演示五种构图。点击图面可放大，也可以单独保存每张 PNG。</p>
+    </header>
+
+    <figure id="architecture">
+      <button class="diagram" type="button" aria-label="放大架构图" aria-haspopup="dialog">
+        <canvas role="img" aria-label="左侧 Decode Worker 发起 NIXL READ，右侧 Prefill 实例的注册 KV 块把数据返回给 Decode。Prefill Worker 注册这些块。"></canvas>
+      </button>
+      <figcaption>
+        <strong lang="en">Figure 1: KV read architecture</strong>
+        <p>Decode Worker 发起 NIXL READ，KV 字节从 Prefill 的已注册块流回 Decode。</p>
+        <a class="download" download="warm-minimal-kv-architecture.png">下载 PNG</a>
+      </figcaption>
+    </figure>
+
+    <figure id="flow">
+      <button class="diagram" type="button" aria-label="放大流程图" aria-haspopup="dialog">
+        <canvas role="img" aria-label="查找共享缓存后作判断。可用时加载 KV，另一分支重算前缀，两条路径汇合到后缀 Prefill。"></canvas>
+      </button>
+      <figcaption>
+        <strong lang="en">Figure 2: Load or recompute the prefix</strong>
+        <p>示意决策。共享 KV 可用且值得读取时走主路径，否则先重算前缀，两条路径都要处理后缀。</p>
+        <a class="download" download="warm-minimal-kv-flow.png">下载 PNG</a>
+      </figcaption>
+    </figure>
+
+    <figure id="comparison">
+      <button class="diagram" type="button" aria-label="放大对照图" aria-haspopup="dialog">
+        <canvas role="img" aria-label="同一个 33K 请求分到两个等宽方案。左侧在整个区间计算 KV，右侧先加载 32K 的 KV，再计算末尾 1K。两侧共用同一 token 量尺。"></canvas>
+      </button>
+      <figcaption>
+        <strong lang="en">Figure 3: Compute and reuse across the same token range</strong>
+        <p>示例请求包含 32K 前缀和 1K 后缀。右侧加载已有 KV，只计算末尾 1K。条带按 token 数绘制，用来定位计算区间。</p>
+        <a class="download" download="warm-minimal-kv-comparison.png">下载 PNG</a>
+      </figcaption>
+    </figure>
+
+    <figure id="sequence">
+      <button class="diagram" type="button" aria-label="放大时序图" aria-haspopup="dialog">
+        <canvas role="img" aria-label="Client、Router、Prefill 和 Decode 四条泳道。请求经 Router 发到 Prefill，KV 元数据返回 Router。Decode 请求发出后，Decode 从 Prefill 读回 KV，再经 Router 返回 SSE。"></canvas>
+      </button>
+      <figcaption>
+        <strong lang="en">Figure 4: One P/D request in sequence</strong>
+        <p>先转交 KV 元数据，再由 Decode 读取 KV，最后沿 Router 返回 SSE。纵向位置表示事件先后。</p>
+        <a class="download" download="warm-minimal-kv-sequence.png">下载 PNG</a>
+      </figcaption>
+    </figure>
+
+    <figure id="boundary">
+      <button class="diagram" type="button" aria-label="放大边界图" aria-haspopup="dialog">
+        <canvas role="img" aria-label="MLA KV 覆盖到 8K，KDA 在 6K 和 10K 有 checkpoint。纵向高亮线标出两类状态共同支持的 6K 恢复点。"></canvas>
+      </button>
+      <figcaption>
+        <strong lang="en">Figure 5: The common resume point</strong>
+        <p>假想示例中，MLA KV 覆盖到 8K，KDA 在 6K 和 10K 有 checkpoint。两类状态共同支持从 6K 恢复。</p>
+        <a class="download" download="warm-minimal-kv-boundary.png">下载 PNG</a>
+      </figcaption>
+    </figure>
+  </main>
+
+  <dialog aria-label="放大技术插图">
+    <form method="dialog"><button class="close">关闭</button></form>
+    <div class="zoom" tabindex="0" role="region" aria-label="插图内容，可横向滚动"></div>
+  </dialog>
+  <script>
+    const size = { width: 1200, height: 675, scale: 2 };
+    const palette = {
+      paper: '#EEEDE4',
+      surface: '#F9F8F3',
+      node: '#EDEDE4',
+      core: '#DBD9CF',
+      line: '#99998F',
+      ink: '#41413B',
+      accent: '#62756A',
+    };
+
+    function painter(ctx) {
+      const font = "'Segoe UI', Arial, sans-serif";
+
+      function box(x, y, width, height, fill, border = null, dash = []) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, height, 12);
+        ctx.fillStyle = fill;
+        ctx.fill();
+        if (border) {
+          ctx.strokeStyle = border;
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash(dash);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function label(text, x, y, { bold = false, fontSize = 24, align = 'center', color = palette.ink } = {}) {
+        ctx.fillStyle = color;
+        ctx.font = `${bold ? 600 : 400} ${fontSize}px ${font}`;
+        ctx.textAlign = align;
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y);
+      }
+
+      function line(points, { arrow = false, secondary = false, color = palette.line, dashed = false } = {}) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = secondary ? .68 : 1;
+        ctx.lineWidth = secondary ? 2.6 : 3.3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.setLineDash(dashed ? [8, 7] : []);
+        ctx.beginPath();
+        ctx.moveTo(...points[0]);
+        for (const point of points.slice(1)) ctx.lineTo(...point);
+        ctx.stroke();
+        if (arrow) {
+          const [x, y] = points.at(-1);
+          const [previousX, previousY] = points.at(-2);
+          const angle = Math.atan2(y - previousY, x - previousX);
+          const arm = 15;
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.moveTo(x - arm * Math.cos(angle - .48), y - arm * Math.sin(angle - .48));
+          ctx.lineTo(x, y);
+          ctx.lineTo(x - arm * Math.cos(angle + .48), y - arm * Math.sin(angle + .48));
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function node(text, x, y, width, height, core = false) {
+        box(x, y, width, height, core ? palette.core : palette.node, palette.line);
+        label(text, x + width / 2, y + height / 2 + 1, { bold: true, fontSize: 28 });
+      }
+
+      function dot(x, y, radius, fill, stroke) {
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 3.3;
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = palette.paper;
+      ctx.fillRect(0, 0, size.width, size.height);
+      box(48, 48, 1104, 579, palette.surface);
+      return { ctx, box, label, line, node, dot };
+    }
+
+    const diagrams = {
+      architecture({ box, label, line, node }) {
+        box(82, 175, 266, 316, palette.node, palette.line, [8, 7]);
+        box(527, 175, 610, 316, palette.node, palette.line, [8, 7]);
+        label('Decode instance', 108, 220, { bold: true, fontSize: 26, align: 'left' });
+        label('Prefill instance', 553, 220, { bold: true, fontSize: 26, align: 'left' });
+        node('Decode Worker', 106, 290, 218, 100, true);
+        node('Registered KV', 552, 290, 220, 100, true);
+        node('Prefill Worker', 892, 290, 220, 100);
+        line([[324, 316], [552, 316]], { arrow: true });
+        line([[552, 363], [324, 363]], { arrow: true });
+        line([[892, 340], [772, 340]], { arrow: true, secondary: true });
+        label('NIXL READ', 438, 290);
+        label('KV bytes', 438, 389);
+        label('Register', 832, 313, { fontSize: 22 });
+      },
+
+      flow({ ctx, label, line, node }) {
+        node('Store lookup', 86, 244, 198, 86);
+        node('Load KV', 588, 244, 194, 86, true);
+        node('Prefill suffix', 890, 244, 222, 86);
+        node('Recompute', 327, 459, 218, 84);
+        ctx.beginPath();
+        ctx.moveTo(431, 220);
+        ctx.lineTo(530, 287);
+        ctx.lineTo(431, 354);
+        ctx.lineTo(332, 287);
+        ctx.closePath();
+        ctx.fillStyle = palette.node;
+        ctx.fill();
+        ctx.strokeStyle = palette.line;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        label('Use cache?', 431, 288, { bold: true, fontSize: 26 });
+        line([[284, 287], [332, 287]], { arrow: true });
+        line([[530, 287], [588, 287]], { arrow: true });
+        line([[782, 287], [890, 287]], { arrow: true });
+        line([[431, 354], [431, 459]], { arrow: true, secondary: true });
+        line([[545, 501], [1001, 501], [1001, 330]], { arrow: true, secondary: true });
+        label('Yes', 559, 262, { fontSize: 22 });
+        label('No', 452, 405, { fontSize: 22, align: 'left' });
+      },
+
+      comparison({ ctx, box, label, line, node }) {
+        node('33K request', 470, 84, 260, 74);
+        const panels = [
+          { x: 88, name: 'Full prefill', action: 'Compute KV', prefixFill: palette.core },
+          { x: 642, name: 'Prefix reuse', action: 'Load KV', prefixFill: palette.surface },
+        ];
+        const panelWidth = 470;
+        const trackInset = 27;
+        const trackWidth = panelWidth - 2 * trackInset;
+        const prefixWidth = trackWidth * 32 / 33;
+        line([[600, 158], [600, 179]]);
+
+        for (const { x, name, action, prefixFill } of panels) {
+          const center = x + panelWidth / 2;
+          box(x, 211, panelWidth, 270, palette.node);
+          line([[600, 179], [center, 179], [center, 211]], { arrow: true });
+          label(name, x + 25, 255, { bold: true, fontSize: 28, align: 'left' });
+          const start = x + trackInset;
+          const split = start + prefixWidth;
+          const end = start + trackWidth;
+          ctx.fillStyle = prefixFill;
+          ctx.fillRect(start, 312, prefixWidth, 58);
+          ctx.fillStyle = palette.core;
+          ctx.fillRect(split, 312, end - split, 58);
+          ctx.strokeStyle = palette.line;
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(start, 312, trackWidth, 58);
+          line([[split, 298], [split, 385]], { secondary: true });
+          label(action, start + (split - start) / 2, 342, { bold: true, fontSize: 26 });
+          label('0', start, 412, { align: 'left', fontSize: 22 });
+          label('32K', split - 7, 412, { align: 'right', fontSize: 22 });
+        }
+        const suffixCenter = panels[1].x + trackInset + (prefixWidth + trackWidth) / 2;
+        line([[suffixCenter, 370], [suffixCenter, 504]], { secondary: true });
+        label('Suffix · 1K', suffixCenter, 533);
+      },
+
+      sequence({ label, line, node }) {
+        const actors = ['Client', 'Router', 'Prefill', 'Decode'];
+        const lanes = [155, 447, 743, 1045];
+        actors.forEach((name, i) => {
+          node(name, lanes[i] - 87, 82, 174, 71, i === 3);
+          line([[lanes[i], 153], [lanes[i], 601]], { secondary: true });
+        });
+        const messages = [
+          [0, 1, 'Chat request'], [1, 2, 'Prefill'], [2, 1, 'KV metadata'],
+          [1, 3, 'Decode request', 628], [3, 2, 'NIXL READ'],
+          [2, 3, 'KV bytes'], [3, 1, 'SSE', 853], [1, 0, 'SSE'],
+        ];
+        const eventRows = [202, 255, 308, 361, 420, 464, 521, 575];
+        messages.forEach(([from, to, text, labelX], i) => {
+          const y = eventRows[i];
+          line([[lanes[from], y], [lanes[to], y]], { arrow: true });
+          label(text, labelX ?? (lanes[from] + lanes[to]) / 2, y - 16);
+        });
+      },
+
+      boundary({ ctx, box, label, line, dot }) {
+        const x = tokenCount => 300 + tokenCount * 75;
+        const resume = x(6);
+        ctx.fillStyle = 'rgb(98 117 106 / .13)';
+        ctx.fillRect(resume - 17, 172, 34, 353);
+        box(x(0), 230, x(10) - x(0), 54, palette.node);
+        box(x(0), 230, x(8) - x(0), 54, palette.core);
+        label('MLA KV', 113, 257, { bold: true, align: 'left', fontSize: 28 });
+        label('KDA checkpoints', 113, 371, { bold: true, align: 'left', fontSize: 28 });
+        line([[resume, 174], [resume, 525]], { color: palette.accent });
+        dot(resume, 371, 13, palette.accent, palette.accent);
+        dot(x(10), 371, 13, palette.surface, palette.line);
+        label('Resume', resume, 148, { bold: true, fontSize: 28, color: palette.accent });
+        line([[x(0), 525], [x(10) + 34, 525]], { arrow: true });
+        for (const tick of [0, 6, 8, 10]) {
+          line([[x(tick), 514], [x(tick), 536]]);
+          label(tick ? tick + 'K' : '0', x(tick), 563, {
+            bold: tick === 6,
+            color: tick === 6 ? palette.accent : palette.ink,
+          });
+        }
+        label('Token position', x(0) - 33, 564, { align: 'right', fontSize: 22 });
+      },
+    };
+
+    const dialog = document.querySelector('dialog');
+    const zoom = dialog.querySelector('.zoom');
+
+    for (const [id, draw] of Object.entries(diagrams)) {
+      const figure = document.getElementById(id);
+      const button = figure.querySelector('button');
+      const canvas = button.querySelector('canvas');
+      canvas.width = size.width * size.scale;
+      canvas.height = size.height * size.scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(size.scale, size.scale);
+      draw(painter(ctx));
+      figure.querySelector('.download').href = canvas.toDataURL('image/png');
+      button.addEventListener('click', () => {
+        const enlarged = canvas.cloneNode();
+        enlarged.getContext('2d').drawImage(canvas, 0, 0);
+        zoom.replaceChildren(enlarged);
+        zoom.scrollLeft = 0;
+        dialog.showModal();
+      });
+    }
+
+    dialog.addEventListener('close', () => zoom.replaceChildren());
+  </script>
+</body>
+</html>

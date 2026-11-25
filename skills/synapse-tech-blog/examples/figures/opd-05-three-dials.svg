@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+<title id="title">Three controls distinguish post-training methods</title>
+<desc id="description">A comparison table aligns sampling mix, advantage blend, and teacher choice across SFT, RL or GRPO, OPD, OPSD, and SDFT.</desc>
+<defs>
+<marker id="warm-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#99998F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="accent-arrow" markerWidth="19" markerHeight="18" refX="17" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L17 9 L2 16" fill="none" stroke="#62756A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<rect x="0" y="0" width="1200" height="675" fill="#EEEDE4" stroke="none" stroke-width="2" rx="0"/>
+<rect x="48" y="48" width="1104" height="579" fill="#F9F8F3" stroke="none" stroke-width="2" rx="20"/>
+<rect x="76" y="119" width="1048" height="62" fill="#DBD9CF" stroke="none" stroke-width="2" rx="12"/>
+<text x="103" y="159" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">Method</text>
+<text x="343" y="159" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">Sampling α</text>
+<text x="584" y="159" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">Advantage blend λ</text>
+<text x="868" y="159" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">Teacher</text>
+<rect x="76" y="192" width="1048" height="61" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="103" y="231" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">SFT</text>
+<text x="343" y="231" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">0</text>
+<text x="584" y="231" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">0</text>
+<text x="868" y="231" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">Data</text>
+<rect x="76" y="264" width="1048" height="61" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="103" y="303" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">RL / GRPO</text>
+<text x="343" y="303" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">1</text>
+<text x="584" y="303" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">0</text>
+<text x="868" y="303" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">—</text>
+<rect x="76" y="336" width="1048" height="61" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="103" y="375" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">OPD</text>
+<text x="343" y="375" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">1</text>
+<text x="584" y="375" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">1</text>
+<text x="868" y="375" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">Same-family</text>
+<rect x="76" y="408" width="1048" height="61" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="103" y="447" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">OPSD</text>
+<text x="343" y="447" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">1</text>
+<text x="584" y="447" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">1</text>
+<text x="868" y="447" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">Self + answer</text>
+<rect x="76" y="480" width="1048" height="61" fill="#EDEDE4" stroke="none" stroke-width="2" rx="12"/>
+<text x="103" y="519" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#41413B" text-anchor="start">SDFT</text>
+<text x="343" y="519" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">1</text>
+<text x="584" y="519" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">1</text>
+<text x="868" y="519" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="400" fill="#41413B" text-anchor="start">Self + demo</text>
+</svg>

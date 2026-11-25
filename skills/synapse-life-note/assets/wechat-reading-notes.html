@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[书名]｜读书笔记</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f4f3ef; color: #292929; }
+    .tools { max-width: 632px; margin: 32px auto 20px; padding: 0 24px; font: 12px/1.8 system-ui, sans-serif; }
+    .tools-label { margin: 0 0 12px; color: #77756e; letter-spacing: 2px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    button { border: 1px solid #d6d4cc; border-radius: 3px; padding: 9px 15px; background: transparent; color: #444; font: inherit; cursor: pointer; }
+    #copy { background: #292929; border-color: #292929; color: #fff; }
+    button:focus-visible { outline: 2px solid #77756e; outline-offset: 3px; }
+    button[aria-pressed="true"] { background: #e8e6df; }
+    #status { min-height: 22px; margin: 12px 0 0; color: #77756e; }
+    .paper { max-width: 632px; margin: 0 auto 56px; padding: 44px 24px; background: #fff; }
+    #essay[contenteditable="true"] { outline: 1px dashed #bdb9ad; outline-offset: 10px; }
+    @media (max-width: 640px) {
+      body { background: #fff; }
+      .tools { margin-top: 20px; padding-bottom: 20px; border-bottom: 1px solid #ecebe7; }
+      .paper { margin-bottom: 24px; padding-top: 24px; }
+    }
+    @media print { .tools { display: none; } .paper { margin: 0 auto; padding-top: 0; } }
+  </style>
+</head>
+<body>
+  <div class="tools">
+    <p class="tools-label">YJ / READING NOTES</p>
+    <div class="actions">
+      <button id="edit" type="button" aria-pressed="false">编辑文字</button>
+      <button id="copy" type="button">复制正文</button>
+      <button id="save" type="button">保存 HTML</button>
+    </div>
+    <p id="status" role="status" aria-live="polite">替换占位内容与图片后，可直接复制到公众号编辑器。</p>
+  </div>
+
+  <main class="paper">
+    <section id="essay" aria-label="公众号读书笔记正文" style="margin:0;padding:0;background-color:#ffffff;color:#292929;font-family:Georgia,'Songti SC',STSong,SimSun,serif;font-size:12px;line-height:1.95;letter-spacing:0.3px;text-align:left;word-wrap:break-word;">
+      <p style="margin:0 0 12px;padding:0;font-family:Georgia,serif;font-size:11px;line-height:1.6;letter-spacing:2px;color:#9d5a43;">[SERIES NAME]</p>
+      <p style="margin:0 0 16px;padding:0;font-size:28px;line-height:1.4;font-weight:700;letter-spacing:1px;color:#222222;">[整篇标题]</p>
+      <p style="margin:0 0 36px;padding:0;font-size:12px;line-height:1.95;color:#888888;">《[书名]》读书笔记 · 文 / yj</p>
+      <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[引言第一段，交代阅读触发与具体场景。]</p>
+      <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[引言第二段，说明为什么这本书现在值得写。]</p>
+
+      <!-- 按 Rule 数量复制整个 data-rule 区块。 -->
+      <section data-rule="01" style="margin:0;padding:0;">
+        <p style="margin:42px 0 8px;padding:0;font-size:11px;line-height:1.6;letter-spacing:2px;color:#9d5a43;">RULE 01</p>
+        <p style="margin:0 0 6px;padding:0;font-family:Georgia,serif;font-size:14px;line-height:1.7;font-style:italic;color:#9d5a43;">[English Source Rule]</p>
+        <p style="margin:0 0 18px;padding:0;font-size:18px;line-height:1.55;font-weight:700;color:#222222;">[中文观点]</p>
+        <p style="margin:0 0 24px;padding:0;font-size:12px;line-height:1.95;font-weight:700;color:#222222;">[一句核心判断，15–30 个中文字符。]</p>
+        <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[我的理解第一段：具体工作场景。]</p>
+        <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[第二段：原书观点在现实中是什么样。]</p>
+        <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[第三段：它可能怎样被误用或失效。]</p>
+        <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[第四段：推进到个人判断。可以用 <strong style="font-size:12px;line-height:1.95;font-weight:700;color:#222222;">一处加粗</strong> 收住重点。]</p>
+        <p style="margin:24px 0 10px;padding:0;font-family:Georgia,'Songti SC',serif;font-size:11px;line-height:1.7;letter-spacing:1.5px;color:#9d5a43;">NOTE</p>
+        <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[一段现实边界或可执行提醒。]</p>
+        <p style="margin:24px 0 44px;padding:0;text-align:center;line-height:0;">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' viewBox='0 0 1600 900'%3E%3Crect width='1600' height='900' fill='%23f4efe5'/%3E%3Ctext x='800' y='430' text-anchor='middle' font-family='serif' font-size='54' fill='%239d5a43'%3E16:9 MAIN ILLUSTRATION%3C/text%3E%3Ctext x='800' y='500' text-anchor='middle' font-family='serif' font-size='30' fill='%23888888'%3EReplace with a base64-embedded image%3C/text%3E%3C/svg%3E" alt="[只描述插图隐喻与主体]" style="display:block;width:100%;max-width:100%;height:auto;aspect-ratio:16 / 9;object-fit:cover;margin:0 auto;">
+        </p>
+      </section>
+
+      <p style="margin:44px 0 18px;padding:0;font-family:Georgia,serif;font-size:16px;line-height:1.6;letter-spacing:2px;color:#9d5a43;">[CLOSING WORD.]</p>
+      <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[收束第一段：把各条 Rule 串成一条成长路径。]</p>
+      <p style="margin:0 0 16px;padding:0;font-size:12px;line-height:1.95;color:#292929;">[收束第二段：回到一个克制、可执行的判断。]</p>
+      <p style="margin:36px 0 0;padding:0;font-family:Georgia,serif;font-size:12px;line-height:1.95;letter-spacing:1px;color:#aaaaaa;">yj</p>
+    </section>
+  </main>
+
+  <script>
+    const essay = document.getElementById('essay');
+    const statusLine = document.getElementById('status');
+    const editButton = document.getElementById('edit');
+    const copyButton = document.getElementById('copy');
+    let edited = false;
+
+    function articleMarkup() {
+      const clone = essay.cloneNode(true);
+      ['id', 'aria-label', 'contenteditable', 'spellcheck'].forEach(name => clone.removeAttribute(name));
+      return clone.outerHTML;
+    }
+
+    function selectArticle() {
+      const range = document.createRange();
+      range.selectNode(essay);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    function copyRenderedArticle() {
+      selectArticle();
+      try { return document.execCommand('copy'); } catch { return false; }
+    }
+
+    function writeCopyEvent(event) {
+      if (!event.clipboardData) return;
+      event.clipboardData.setData('text/html', articleMarkup());
+      event.clipboardData.setData('text/plain', essay.innerText);
+      event.preventDefault();
+    }
+
+    function fallbackCopy() {
+      selectArticle();
+      document.addEventListener('copy', writeCopyEvent, { once: true });
+      let copied = false;
+      try { copied = document.execCommand('copy'); } catch { copied = false; }
+      document.removeEventListener('copy', writeCopyEvent);
+      return copied;
+    }
+
+    async function copyArticle() {
+      if (copyRenderedArticle()) return true;
+      try {
+        const html = new Blob([articleMarkup()], { type: 'text/html' });
+        const text = new Blob([essay.innerText], { type: 'text/plain' });
+        await navigator.clipboard.write([new ClipboardItem({ 'text/html': html, 'text/plain': text })]);
+        return true;
+      } catch { return fallbackCopy(); }
+    }
+
+    copyButton.addEventListener('click', async () => {
+      copyButton.disabled = true;
+      const copied = await copyArticle();
+      statusLine.textContent = copied ? '已复制正文与内嵌图片，请粘贴后用手机预览。' : '正文已选中，请按 Ctrl+C（Mac 按 ⌘C）复制。';
+      copyButton.disabled = false;
+    });
+
+    editButton.addEventListener('click', () => {
+      const editing = editButton.getAttribute('aria-pressed') !== 'true';
+      essay.contentEditable = String(editing);
+      essay.spellcheck = false;
+      editButton.setAttribute('aria-pressed', String(editing));
+      editButton.textContent = editing ? '完成编辑' : '编辑文字';
+      statusLine.textContent = editing ? '点击正文修改；粘贴时仅保留纯文本。' : '可以继续复制正文或保存 HTML。';
+      if (editing) essay.focus();
+    });
+
+    essay.addEventListener('paste', event => {
+      if (!essay.isContentEditable || !event.clipboardData) return;
+      event.preventDefault();
+      document.execCommand('insertText', false, event.clipboardData.getData('text/plain'));
+    });
+    essay.addEventListener('input', () => { edited = true; });
+
+    document.getElementById('save').addEventListener('click', () => {
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelector('#essay').removeAttribute('contenteditable');
+      clone.querySelector('#edit').setAttribute('aria-pressed', 'false');
+      clone.querySelector('#edit').textContent = '编辑文字';
+      const file = new Blob(['<!doctype html>\n', clone.outerHTML], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(file);
+      const link = Object.assign(document.createElement('a'), { href: url, download: '公众号读书笔记.html' });
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      edited = false;
+      statusLine.textContent = '已生成 HTML 下载文件。';
+    });
+  </script>
+</body>
+</html>

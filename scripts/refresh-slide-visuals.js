@@ -266,7 +266,7 @@ function mirrorDesignAssets() {
   const topics = ['cli-revolution', 'deepseek-v4', 'nano-cc'];
   for (const topic of topics) {
     const sourceDir = path.join(ROOT, 'examples', topic, 'figures');
-    const targetDir = path.join(ROOT, 'skills/synapse-design/references/figures', topic);
+    const targetDir = path.join(ROOT, 'skills/synapse-talk-slides/references/figures', topic);
     fs.mkdirSync(targetDir, { recursive: true });
     for (const file of fs.readdirSync(sourceDir).filter((name) => name.endsWith('.svg'))) {
       fs.copyFileSync(path.join(sourceDir, file), path.join(targetDir, file));
@@ -320,20 +320,20 @@ stripPromptCaptions('examples/heterogeneous-inference-progress/heterogeneous-inf
 
 mirrorDesignAssets();
 
-replacePromptBoxes('skills/synapse-design/references/WHYJ-SLIDES.html', [
+replacePromptBoxes('skills/synapse-talk-slides/references/WHYJ-SLIDES.html', [
   './figures/cli-revolution/figure-03-agent-layer.svg',
 ]);
 
-replacePromptBoxes('skills/synapse-design/references/e2e-v6.0-cli-revolution-slides.html', [
+replacePromptBoxes('skills/synapse-talk-slides/references/e2e-v6.0-cli-revolution-slides.html', [
   './figures/cli-revolution/figure-03-agent-layer.svg', './figures/cli-revolution/figure-05-interaction-cost.svg',
   './figures/cli-revolution/figure-06-shared-protocol.svg', './figures/cli-revolution/figure-07-product-stack.svg',
 ]);
-replacePromptBoxes('skills/synapse-design/references/e2e-v6.0-deepseek-v4-slides.html', [
+replacePromptBoxes('skills/synapse-talk-slides/references/e2e-v6.0-deepseek-v4-slides.html', [
   './figures/deepseek-v4/figure-01-cost-curve.svg', './figures/deepseek-v4/figure-02-hybrid-attention.svg',
   './figures/deepseek-v4/figure-03-hca-compression.svg', './figures/deepseek-v4/figure-04-mhc-residual.svg',
   './figures/deepseek-v4/figure-05-muon-stability.svg', './figures/deepseek-v4/figure-06-kv-tiers.svg',
 ]);
-replacePromptBoxes('skills/synapse-design/references/e2e-v6.0-nano-cc-slides.html', [
+replacePromptBoxes('skills/synapse-talk-slides/references/e2e-v6.0-nano-cc-slides.html', [
   './figures/nano-cc/figure-01-agent-loop.svg', './figures/nano-cc/figure-03-spec-boundary.svg',
   './figures/nano-cc/figure-04-reverse-toolchain.svg', './figures/nano-cc/figure-05-dev-test-loop.svg',
   './figures/nano-cc/figure-06-python-docs.svg', './figures/nano-cc/figure-07-practice-stack.svg',

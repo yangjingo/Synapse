@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>whyj-quant | Synapse v6.0</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --canvas: #faf9f5;
+        --ink: #141413;
+        --body: #3d3d3a;
+        --muted: #6c6a64;
+        --muted-soft: #8e8b82;
+        --primary: #cc785c;
+        --primary-light: #fdf0e6;
+        --hairline: #e6dfd8;
+        --surface-card: #efe9de;
+        --surface-soft: #f5f3ee;
+        --surface-dark: #181715;
+        --surface-dark-soft: #1f1e1b;
+        --on-dark: #faf9f5;
+        --on-dark-soft: #a09d96;
+        --highlight: rgba(204, 120, 92, 0.12);
+        --font-display:
+          "Cormorant Garamond", "EB Garamond", Garamond, "Noto Serif SC",
+          "Songti SC", "Times New Roman", serif;
+        --font-mono: "JetBrains Mono", ui-monospace, monospace;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body,
+      .reveal {
+        background: var(--canvas);
+      }
+
+      .reveal {
+        font-family: var(--font-display);
+        font-weight: 400;
+        color: var(--body);
+      }
+
+      .reveal h1,
+      .reveal h2,
+      .reveal p,
+      .reveal li,
+      .reveal strong,
+      .reveal mark {
+        font-family: inherit;
+      }
+
+      .reveal .slides {
+        text-align: left;
+      }
+
+      .reveal .slides > section {
+        background: var(--canvas);
+      }
+
+      .pretext-stage {
+        display: none;
+      }
+
+      .slide-content {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 56px 72px 48px;
+      }
+
+      /* ── cover (blog hero) ── */
+      .cover-content {
+        max-width: 760px;
+        padding-top: 88px;
+      }
+
+      .meta-tag {
+        display: inline-block;
+        background: var(--primary);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+
+      .meta-date {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--muted);
+        margin-bottom: 28px;
+      }
+
+      .cover-title {
+        font-size: clamp(3.5rem, 7vw, 5.5rem);
+        font-weight: 400;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+        margin: 0;
+      }
+
+      .cover-lead {
+        margin: 24px 0 0;
+        font-size: clamp(1.1rem, 2vw, 1.35rem);
+        font-weight: 400;
+        line-height: 1.55;
+        color: var(--primary);
+        letter-spacing: -0.01em;
+      }
+
+      .cover-hr {
+        height: 1px;
+        background: var(--hairline);
+        margin: 40px 0 24px;
+      }
+
+      .cover-meta {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      .cover-meta strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      /* ── section header ── */
+      .header-layer {
+        border-bottom: 1px solid var(--hairline);
+        margin-bottom: 36px;
+        padding-bottom: 24px;
+        position: relative;
+      }
+
+      .ui-label {
+        position: static;
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--primary);
+        opacity: 1;
+        margin-bottom: 10px;
+      }
+
+      .header-layer h2 {
+        font-weight: 500 !important;
+        font-size: clamp(1.75rem, 3.2vw, 2.4rem) !important;
+        line-height: 1.25 !important;
+        letter-spacing: -0.02em !important;
+        margin: 0 !important;
+        color: var(--ink) !important;
+        text-transform: none !important;
+      }
+
+      /* ── two-column editorial layout ── */
+      .canvas-layer {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        gap: 48px;
+        align-items: start;
+      }
+
+      .canvas-layer.push-left,
+      .canvas-footer {
+        display: block !important;
+        max-width: 720px;
+      }
+
+      .canvas-text {
+        font-size: clamp(1rem, 1.5vw, 1.12rem);
+        line-height: 1.6;
+        color: var(--body);
+        letter-spacing: -0.01em;
+      }
+
+      .canvas-text ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .canvas-text li {
+        margin-bottom: 18px;
+        padding-left: 18px;
+        position: relative;
+      }
+
+      .canvas-text li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.72em;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--primary);
+        transform: none;
+        font-weight: 400;
+      }
+
+      .no-bullet .canvas-text li {
+        padding-left: 0;
+        margin-bottom: 22px;
+      }
+
+      .no-bullet .canvas-text li::before {
+        content: none;
+      }
+
+      .canvas-text code {
+        font-family: var(--font-mono);
+        font-size: 0.88em;
+        background: var(--surface-soft);
+        border: 1px solid var(--hairline);
+        border-radius: 4px;
+        padding: 1px 6px;
+        color: var(--ink);
+      }
+
+      strong {
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      mark {
+        background: var(--highlight);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+
+      /* ── pull quote / callout ── */
+      .pulse-layer {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        margin-top: 28px;
+        padding: 16px 20px 16px 24px;
+        background: var(--primary-light);
+        border: none;
+        border-radius: var(--radius-md);
+        box-shadow: none;
+        transform: none !important;
+        font-size: clamp(1rem, 1.45vw, 1.1rem);
+        font-weight: 500;
+        line-height: 1.55;
+        color: #6b3a12;
+        letter-spacing: -0.01em;
+        z-index: 1;
+      }
+
+      .pulse-layer::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--primary);
+        border-radius: var(--radius-md) 0 0 var(--radius-md);
+      }
+
+      .pulse-animated {
+        transition: background 200ms ease;
+      }
+
+      .pulse-animated:hover {
+        background: #fae8dc;
+        box-shadow: none;
+        transform: none !important;
+      }
+
+      /* ── figure / code cards ── */
+      .visual-box {
+        border: 1px solid var(--hairline);
+        background: var(--surface-card);
+        min-height: 320px;
+        border-radius: var(--radius-lg);
+        padding: 0;
+        box-shadow: none;
+        overflow: hidden;
+        transform: scale(var(--visual-scale, 1))
+          translateY(var(--visual-y, 0));
+        transform-origin: center;
+      }
+
+      .visual-box > img {
+        display: block;
+        width: 100%;
+        height: 320px;
+        object-fit: contain;
+      }
+
+      .figure-prompt-wrap {
+        padding: 20px 22px 22px;
+        text-align: left;
+      }
+
+      .figure-prompt-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--primary);
+        margin-bottom: 10px;
+      }
+
+      .figure-prompt-text {
+        font-size: 12px;
+        line-height: 1.65;
+        color: var(--muted-soft);
+      }
+
+      .code-container {
+        background: var(--surface-dark);
+        padding: 22px 24px;
+        border-radius: var(--radius-lg);
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--on-dark-soft);
+        overflow: auto;
+        width: 100%;
+        line-height: 1.6;
+        border: 1px solid #2a2926;
+      }
+
+      .code-container pre {
+        margin: 0;
+        white-space: pre-wrap;
+      }
+
+      .code-container code {
+        color: var(--on-dark);
+      }
+
+      .visual-box:has(.code-container) {
+        background: transparent;
+        border: none;
+        padding: 0;
+        min-height: auto;
+      }
+
+      .visual-box .code-container {
+        border-radius: var(--radius-lg);
+        min-height: 320px;
+      }
+
+      /* ── reference ── */
+      .ref-list li {
+        margin-bottom: 16px;
+        font-size: 0.95rem;
+        line-height: 1.55;
+        padding-left: 0 !important;
+      }
+
+      .ref-list li::before {
+        content: none !important;
+      }
+
+      .ref-list a {
+        color: var(--primary);
+        text-decoration: underline;
+        text-decoration-color: rgba(204, 120, 92, 0.35);
+        text-underline-offset: 2px;
+      }
+
+      .ref-list a:hover {
+        text-decoration-color: var(--primary);
+      }
+
+      /* ── fragments & footer ── */
+      .reveal .slides section .fragment {
+        opacity: 0;
+        transform: translateY(12px);
+        transition:
+          opacity 350ms ease,
+          transform 350ms ease;
+      }
+
+      .reveal .slides section .fragment.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .footer-watermark {
+        position: absolute;
+        bottom: 28px;
+        right: 48px;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--muted-soft);
+        opacity: 0.32;
+        z-index: 1;
+      }
+    </style>
+  <style>
+    .figure-zoom-target { cursor: zoom-in; }
+    .figure-zoom-target:focus-visible { outline: 2px solid #C45A20; outline-offset: -2px; }
+    .inline-figure-zoom {
+      position: fixed; inset: 0; margin: auto; padding: 12px; max-width: 94vw; max-height: 92vh;
+      border: 0; border-radius: 6px; color: #1A1A1A; background: #FAFAF7;
+    }
+    .inline-figure-zoom::backdrop { background: rgba(0,0,0,.82); }
+    .inline-figure-zoom .zoom-controls { display: flex; justify-content: flex-end; }
+    .inline-figure-zoom .zoom-controls button { font: 500 14px/1.3 system-ui,sans-serif; padding: 5px 9px; cursor: pointer; }
+    .inline-figure-zoom .zoom-media :is(img,svg) {
+      display: block; width: auto; height: auto; max-width: 88vw; max-height: 78vh;
+      margin: 8px auto 0; object-fit: contain;
+    }
+    .inline-figure-zoom .zoom-media > svg { width: 88vw; }
+</style>
+</head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- 00 / Cover -->
+        <section data-transition="none" class="cover-slide">
+          <div class="slide-content cover-content">
+            <div class="ui-label" hidden>00 / Cover</div>
+            <div class="meta-tag">Research Terminal</div>
+            <div class="meta-date">2026年6月6日 · Why.J</div>
+            <h1 class="cover-title">whyj-quant</h1>
+            <p class="cover-lead">
+              个人量化研究终端 — Agent 编排，人做决策
+            </p>
+            <div class="cover-hr"></div>
+            <div class="cover-meta">
+              Synapse <strong>v6.0</strong> · whyj CLI · Bun + Ink TUI
+            </div>
+          </div>
+          <div class="footer-watermark">whyj-quant</div>
+        </section>
+
+        <!-- 01 / Context -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">01 / Context</div>
+              <h2>现状：缺的不是又一个"AI 炒股" Demo</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>事实 1</strong>: 大多数 LLM 金融 Agent 做
+                    <mark>投研/舆情/自动下单</mark
+                    >，跟个人投资者的日频研究节奏对不上。
+                  </li>
+                  <li>
+                    <strong>事实 2</strong>: 传统量化工具（JQ/聚宽）是
+                    <mark>Web 回测平台</mark>，没有终端级的 Agent 编排体验。
+                  </li>
+                  <li>
+                    <strong>事实 3</strong>: oh-my-quant 的定位是
+                    <mark>交互式研究终端</mark>：whyj CLI，Bun + Ink
+                    TUI，人审结论。
+                  </li>
+                </ul>
+                <div
+                  class="pulse-layer pulse-animated"
+                  style="--pulse-scale: 1.05"
+                >
+                  「 让 Agent 盯盘筛选，人只做决策和复盘。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/figure-03-research-repl.svg" alt="figure 03 research repl" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 02 / Agenda -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">02 / Agenda</div>
+              <h2>whyj-quant 怎么设计的</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment">
+                    <strong>Q1</strong>: 事实 3 的产品定位 —— whyj-quant
+                    <mark>是什么、不是什么</mark>？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q2</strong>: 代码里
+                    <mark>四层架构</mark> 怎么拆？各层职责边界在哪？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q3</strong>: <mark>Slash Command</mark> 和
+                    <mark>AI Agent</mark> 两条入口怎么共存？
+                  </li>
+                  <li class="fragment">
+                    <strong>Q4</strong>: Tool / 存储 / Agent 三层
+                    <mark>工程约束</mark> 是什么？
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 03 / Mechanism I -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">03 / Mechanism I</div>
+              <h2>产品定位：研究终端，不是交易引擎</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>目标用户</strong>: 追 5–10%
+                    年化、<mark>长期持有</mark>、不频繁交易的个人投资者。
+                  </li>
+                  <li>
+                    <strong>核心场景</strong>: 拉行情 → 算因子 → 回测 → 看风险 →
+                    跑分，<mark>Agent 串流程，人看报告</mark>。
+                  </li>
+                  <li>
+                    <strong>不是什么</strong>: 不是 HFT
+                    方向预测，不是自动下单，不是舆情分析。
+                  </li>
+                  <li>
+                    <strong>是什么</strong>: Claude Code 式的
+                    <mark>量化研究 REPL</mark>——slash + 自然语言双通道。
+                  </li>
+                </ul>
+                <div
+                  class="pulse-layer pulse-animated"
+                  style="--pulse-scale: 1.1"
+                >
+                  「 Agent 辅助分析，人审结论。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <div class="code-container">
+                  <pre><code>npm i -g whyj-quant && whyj
+
+/data info --symbol 000001.SZ
+# 离线可跑，bundle 示例数据
+
+分析平安银行的动量因子和风险指标
+# 需 API key，Agent 编排</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 04 / Mechanism II -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">04 / Mechanism II</div>
+              <h2>代码架构：四层分离，单向依赖</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>TUI 层</strong>: app.tsx + Ink —— 只负责
+                    <mark>渲染和事件</mark>，不碰计算。
+                  </li>
+                  <li>
+                    <strong>Command 层</strong>: commands/registry.ts —— slash
+                    解析 + 分发，<mark>确定性快路径</mark>。
+                  </li>
+                  <li>
+                    <strong>Agent 层</strong>: agent/session.ts + context.ts ——
+                    pi core 包装，12 Tool，prompt 组装。
+                  </li>
+                  <li>
+                    <strong>Service 层</strong>: services/*.ts ——
+                    <mark>纯函数，零 I/O</mark>，factor / backtest / risk /
+                    benchmark。
+                  </li>
+                </ul>
+                <div
+                  class="pulse-layer pulse-animated"
+                  style="--pulse-scale: 0.98"
+                >
+                  「 计算逻辑碰不到 LLM，LLM 碰不到文件系统。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <div class="code-container">
+                  <pre><code>src/
+  index.ts       # REPL / one-shot / doctor
+  app.tsx        # Ink 根组件
+  commands/      # slash 解析 + handler
+  agent/         # pi Agent wrapper
+  tools/         # MCP(7) + COMPUTE(5)
+  services/      # 纯计算函数
+  data/ storage/ # MCP + .ohquant/</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 05 / Mechanism III -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">05 / Mechanism III</div>
+              <h2>双通道入口：同内核，不同确定性</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>Slash</strong>:
+                    <code>/factor analyze --symbol 000001.SZ</code> → registry →
+                    service，<mark>结果可复现</mark>。
+                  </li>
+                  <li>
+                    <strong>自然语言</strong>: 无 <code>/</code> 前缀 →
+                    Agent.prompt() → LLM 选 Tool，<mark>灵活但需 key</mark>。
+                  </li>
+                  <li>
+                    <strong>One-shot</strong>:
+                    <code>whyj -c "/backtest run"</code> 或
+                    <code>whyj --json doctor</code>，<mark>CI/脚本友好</mark>。
+                  </li>
+                  <li>
+                    <strong>原则</strong>: slash 是 Agent 的
+                    <mark>子集</mark>——确定性路径永远可用。
+                  </li>
+                </ul>
+                <div
+                  class="pulse-layer pulse-animated"
+                  style="--pulse-scale: 1.02"
+                >
+                  「 Slash 是快路径，Agent 是探索路径。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/figure-04-dual-entry.svg" alt="figure 04 dual entry" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 06 / Mechanism IV -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">06 / Mechanism IV</div>
+              <h2>Tool 设计：数据拉取与计算严格分层</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>MCP_TOOLS × 7</strong>: tushare / llmquant / fd ——
+                    调 MCP → 规范化 → <mark>saveBars() 缓存</mark>。
+                  </li>
+                  <li>
+                    <strong>COMPUTE_TOOLS × 5</strong>: factor / backtest / risk
+                    / benchmark / dashboard —— 只读缓存。
+                  </li>
+                  <li>
+                    <strong>硬约束</strong>: 缓存为空返回
+                    <mark>DATA_NO_CACHE</mark>，强制 Agent 先拉数据。
+                  </li>
+                  <li>
+                    <strong>Schema</strong>: 每个 Tool 用
+                    <mark>TypeBox</mark> 定义参数，pi core 做校验。
+                  </li>
+                </ul>
+                <div
+                  class="pulse-layer pulse-animated"
+                  style="--pulse-scale: 0.95"
+                >
+                  「 data → factor → backtest → risk → benchmark 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <div class="code-container">
+                  <pre><code>// quant-tools.ts
+const cached = await loadCachedBars(symbol);
+if (!cached) return err("DATA_NO_CACHE", ...);
+const values = compute(factor, close, volume);
+return ok(`Factor: momentum_20
+  Latest: +0.0432  Percentile: 78%`);</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 07 / Mechanism V -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">07 / Mechanism V</div>
+              <h2>存储策略：四类目录，portfolio 禁止缓存</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>durable</strong>: settings.json / watchlist.json ——
+                    用户配置，<mark>不可当缓存删</mark>。
+                  </li>
+                  <li>
+                    <strong>cache</strong>: data/{source}/{symbol}/ ——
+                    公开行情，<mark>可重取可覆盖</mark>。
+                  </li>
+                  <li>
+                    <strong>artifact</strong>: benchmark/results/ / sessions/ ——
+                    跑分和对话，<mark>显式产出</mark>。
+                  </li>
+                  <li>
+                    <strong>forbidden</strong>: portfolio/ —— 持仓净值
+                    <mark>live-only</mark>，绝不落盘。
+                  </li>
+                </ul>
+                <div
+                  class="pulse-layer pulse-animated"
+                  style="--pulse-scale: 1.05"
+                >
+                  「 公开市场数据可缓存，个人仓位绝不落盘。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <img src="./figures/figure-05-storage-policy.svg" alt="figure 05 storage policy" />
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 08 / Mechanism VI -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">08 / Mechanism VI</div>
+              <h2>Agent 层：pi core 包装，不做多余的事</h2>
+            </div>
+            <div class="canvas-layer">
+              <div class="canvas-text">
+                <ul>
+                  <li>
+                    <strong>createAgent()</strong>: 12 Tool，<mark
+                      >toolExecution: sequential</mark
+                    >，一次一个。
+                  </li>
+                  <li>
+                    <strong>Prompt</strong>: 列清 Tool + 工作流 +
+                    输出约束（<mark>NO markdown, NO emoji</mark>）。
+                  </li>
+                  <li>
+                    <strong>压缩</strong>: token 超 111k 启发式 compact，<mark
+                      >不调 LLM 做摘要</mark
+                    >。
+                  </li>
+                  <li>
+                    <strong>审计</strong>: agent_end → sessions/*.md；12 个
+                    ErrorCode 带 problem/cause/fix。
+                  </li>
+                </ul>
+                <div
+                  class="pulse-layer pulse-animated"
+                  style="--pulse-scale: 1"
+                >
+                  「 Agent 是编排器，不是计算器，也不是交易员。 」
+                </div>
+              </div>
+              <div class="visual-box">
+                <div class="code-container">
+                  <pre><code>// session.ts
+new Agent({
+  tools: [...MCP_TOOLS, ...COMPUTE_TOOLS],
+  toolExecution: "sequential",
+  transformContext: (msgs) =>
+    estimateTokens(msgs) >= 111616
+      ? compactMessages(msgs) : msgs,
+});</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 09 / Take A Ways -->
+        <section data-transition="none" class="no-bullet">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">09 / Take A Ways</div>
+              <h2>Take A Ways</h2>
+            </div>
+            <div class="canvas-layer push-left">
+              <div class="canvas-text">
+                <ul>
+                  <li class="fragment">
+                    <strong>Q1 → A1</strong>: 定位 ——
+                    <mark>个人日频量化研究终端</mark>，Agent 编排 + 人审结论。
+                  </li>
+                  <li class="fragment">
+                    <strong>Q2 → A2</strong>: 四层架构 —— TUI / Command / Agent
+                    / Service <mark>单向依赖</mark>，计算全是纯函数。
+                  </li>
+                  <li class="fragment">
+                    <strong>Q3 → A3</strong>: 双通道 —— slash
+                    确定性快路径，自然语言探索路径，<mark>同一套 Tool 内核</mark
+                    >。
+                  </li>
+                  <li class="fragment">
+                    <strong>Q4 → A4</strong>: 工程约束 ——
+                    TypeBox、cache-first、portfolio live-only、session 审计。
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="pulse-layer pulse-animated fragment">
+              「 LLM 在 whyj 里的位置：编排计算、解释计算、让人审核计算。 」
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+
+        <!-- 10 / Reference -->
+        <section data-transition="none">
+          <div class="pretext-stage" data-pretext-src="slide">
+            <div class="pretext-bg"></div>
+          </div>
+          <div class="slide-content">
+            <div class="header-layer">
+              <div class="ui-label">10 / Reference</div>
+              <h2>Reference</h2>
+            </div>
+            <div class="canvas-footer">
+              <div class="canvas-text" style="font-size: 1.1rem">
+                <ul class="ref-list">
+                  <li>
+                    <strong
+                      ><a
+                        href="https://github.com/yangjing/oh-my-quant"
+                        target="_blank"
+                        >oh-my-quant (whyj-quant)</a
+                      ></strong
+                    >
+                    - yangjing - https://github.com/yangjing/oh-my-quant
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://www.npmjs.com/package/whyj-quant"
+                        target="_blank"
+                        >whyj-quant on npm</a
+                      ></strong
+                    >
+                    - https://www.npmjs.com/package/whyj-quant
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://github.com/yangjing/oh-my-quant/blob/main/docs/agent-system-spec.md"
+                        target="_blank"
+                        >Agent System Spec</a
+                      ></strong
+                    >
+                    - docs/agent-system-spec.md
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://github.com/yangjing/oh-my-quant/blob/main/docs/ohquant-storage-policy.md"
+                        target="_blank"
+                        >Storage Policy</a
+                      ></strong
+                    >
+                    - docs/ohquant-storage-policy.md
+                  </li>
+                  <li>
+                    <strong
+                      ><a
+                        href="https://arxiv.org/abs/2509.09995"
+                        target="_blank"
+                        >QuantAgent Paper</a
+                      ></strong
+                    >
+                    - Fei Xiong et al. - https://arxiv.org/abs/2509.09995
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="footer-watermark">whyj + whyj-quant + 2026/06/06</div>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script>
+      document.querySelectorAll("[data-katex]").forEach((el) => {
+        if (window.katex)
+          katex.render(el.getAttribute("data-katex"), el, {
+            displayMode: true,
+          });
+      });
+
+      Reveal.initialize({
+        hash: true,
+        center: false,
+        transition: "none",
+        width: 1280,
+        height: 800,
+        margin: 0.08,
+      });
+    </script>
+
+  <dialog class="inline-figure-zoom" aria-label="放大图片">
+    <form method="dialog" class="zoom-controls"><button type="submit">关闭</button></form>
+    <div class="zoom-media"></div>
+  </dialog>
+  <script>
+    (() => {
+      const modal = document.querySelector('.inline-figure-zoom');
+      const media = modal.querySelector('.zoom-media');
+      let trigger;
+      function open(target) {
+        const copy = target.cloneNode(true);
+        if (target instanceof HTMLImageElement) copy.src = target.currentSrc || target.src;
+        copy.classList.remove('figure-zoom-target');
+        copy.removeAttribute('tabindex');
+        copy.removeAttribute('role');
+        if (target.dataset.label) copy.setAttribute('aria-label', target.dataset.label);
+        else copy.removeAttribute('aria-label');
+        copy.removeAttribute('aria-haspopup');
+        media.replaceChildren(copy);
+        trigger = target;
+        modal.showModal();
+      }
+      document.querySelectorAll('.visual-box img').forEach(target => {
+        const label = target.getAttribute('aria-label') || target.alt || target.querySelector('title')?.textContent || '';
+        target.dataset.label = label;
+        target.classList.add('figure-zoom-target');
+        target.tabIndex = 0;
+        target.setAttribute('role','button');
+        target.setAttribute('aria-haspopup','dialog');
+        target.setAttribute('aria-label',['放大图片', label].filter(Boolean).join(' · '));
+        target.addEventListener('click', event => {
+          if (event.target.closest('a, button')) return;
+          open(target);
+        });
+        target.addEventListener('keydown', event => {
+          if (event.target === target && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            event.stopPropagation();
+            open(target);
+          }
+        });
+      });
+      modal.addEventListener('click', event => {
+        if (event.target === modal) modal.close();
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && modal.open) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          modal.close();
+        }
+      }, true);
+      modal.addEventListener('close', () => {
+        media.replaceChildren();
+        trigger?.focus({preventScroll: true});
+      });
+    })();
+  </script>
+
+</body>
+</html>
