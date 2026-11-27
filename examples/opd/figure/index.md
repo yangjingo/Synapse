@@ -1,6 +1,6 @@
 # OPD Blog Figures
 
-These blog figures are reproducible, editable Excalidraw diagrams. Run `node scripts/refresh-blog-figures.js` from the repository root to refresh both `.excalidraw` sources and `.svg` exports.
+These blog figures are reproducible, editable Excalidraw diagrams. Run `node skills/synapse-tech-blog/workflows/excalidraw/scripts/refresh-blog-figures.js` from the repository root to refresh both `.excalidraw` sources and `.svg` exports.
 
 | File | Purpose |
 | --- | --- |

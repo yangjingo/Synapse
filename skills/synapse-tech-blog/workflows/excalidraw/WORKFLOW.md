@@ -17,8 +17,8 @@ Three-mode pipeline for animated hand-drawn diagrams:
 ## When NOT to Use
 
 - Static diagrams where animation adds no explanatory value → use `synapse-figure` instead
-- Code-driven video with complex sequencing → use the [Talk Slides animation workflow](../../../synapse-talk-slides/workflows/animation/WORKFLOW.md) (Remotion Mode)
-- Photo-to-animated-GIF → use the [Talk Slides animation workflow](../../../synapse-talk-slides/workflows/animation/WORKFLOW.md) (GIF Mode) or `gif-sticker-maker`
+- Code-driven video with complex sequencing → use a dedicated video workflow such as Remotion
+- Photo-to-animated-GIF → use a dedicated GIF tool
 
 ---
 
@@ -308,81 +308,10 @@ Elements without explicit animation order animate in creation order. To control 
 
 ---
 
-## Read
+## Examples and export
 
-1. `references/excalidraw-cli-reference.md` — Element format, commands, dark mode defaults, label shorthand, arrow bindings (always read)
-2. `references/excalidraw-animate-api.md` — Animation API, order control, export options (read when animating)
-3. `references/data-viz.excalidrawlib` — 32 chart templates (bar, column, pie, donut, scatter, heatmap, radar, etc.)
-4. `references/stick-figures.excalidrawlib` — 9 stick figure poses (pointing, waving, holding objects)
-5. `examples/` — Proven layout.js scripts + output samples:
-   - `gen-swa-attention.js` — Grid comparison (N×N matrix with banded mask)
-   - `gen-prefill-decode.js` — Vertical flow animation (prefill → decode pipeline)
-   - `opd-figures/` — 7 current OPD diagram outputs (editable `.excalidraw` + SVG), mirrored from main `examples/opd/figure/`
-6. `scripts/exc-to-svg.js` — Pure Node.js .excalidraw → SVG converter (no dependencies)
-7. `evals/` — Source .excalidraw + SVG samples (prefill-decode, swa-attention)
-
-Refresh all example sources, SVG exports, and OPD mirrors from the repository root with `node scripts/refresh-skill-examples.js`.
-
-### Library Templates
-
-Pre-made `.excalidrawlib` files with chart and figure templates. Load with `loadLib()` and recolor with Morandi palette — no need to build from scratch.
-
-**data-viz.excalidrawlib** (32 items):
-
-| Index | Type | Description |
-|-------|------|-------------|
-| 0 | Bar | Horizontal bar chart |
-| 1 | Stacked Bar | Stacked horizontal bars |
-| 2 | 100% Stacked Bar | Percentage stacked horizontal |
-| 3 | Grouped Bar | Grouped horizontal bars |
-| 4 | Column | Vertical column chart |
-| 5 | Stacked Column | Stacked vertical columns |
-| 6 | 100% Stacked Column | Percentage stacked vertical |
-| 7 | Grouped Column | Grouped vertical columns |
-| 8-9 | Line / Line+Dots | Line chart variants |
-| 10-13 | Area | Area, stacked, 100%, theme river |
-| 14 | Scatter | Scatter plot |
-| 15 | Bubble | Bubble chart |
-| 16-17 | Heatmap | Cartesian / Calendar heatmap |
-| 18 | Tree Map | Treemap |
-| 19 | Waterfall | Waterfall chart |
-| 20-22 | Dot Strip | Dot strip plots |
-| 23 | Histogram | Column histogram |
-| 24 | Population Pyramid | Demographic pyramid |
-| 25 | Density | Density plot |
-| 26 | Box & Whisker | Box plot |
-| 27 | Violin | Violin plot |
-| 28 | Pie | Pie chart |
-| 29 | Donut | Donut chart |
-| 30 | Polar / Coxcomb | Nightingale chart |
-| 31 | Radar / Spider | Radar chart |
-
-**stick-figures.excalidrawlib** (9 items):
-Standing, pointing, waving, holding sign boards, presenting.
-
-**Usage:**
-
-```javascript
-const L = require('./layout');
-const T = L.morandi();
-
-// Load bar chart from library
-L.loadLib('references/data-viz.excalidrawlib', 0, 100, 80, {
-  stroke: T._inkMuted, fill: T.attention.fill,
-});
-
-// Load donut chart
-L.loadLib('references/data-viz.excalidrawlib', 29, 300, 60, {
-  stroke: T._inkMuted, fill: T.masked.fill, ink: T._ink,
-});
-
-// Load stick figure
-L.loadLib('references/stick-figures.excalidrawlib', 0, 50, 200, {
-  stroke: T._ink, fill: T.cross.fill,
-});
-```
-
----
+- [OPD figures](../../../../examples/opd/figure/) contain the editable sources and SVG exports used by the repository examples.
+- [exc-to-svg.js](scripts/exc-to-svg.js) renders Excalidraw sources to SVG.
 
 ## Workflow
 
@@ -414,7 +343,7 @@ Only proceed to Phase 1 after all diagrams are confirmed.
 ### Phase 1: Build
 
 1. **Identify input mode** — Mermaid syntax, screenshot, `.excalidraw` file, or library template
-2. **Write layout.js script** — use `loadLib()` for charts/figures, `place()`/`arrowBetween()` for architecture, or CLI label shorthand for tables
+2. **Write layout.js script** — use `place()` and `arrowBetween()` for architecture, or CLI label shorthand for tables
 3. **Apply styling** — pick Morandi palette (from user choice), hand-drawn defaults, camera framing
 4. **Validate structure** — check arrow bindings, label placement, camera aspect ratio (4:3)
 
@@ -465,7 +394,7 @@ When using `layout.js` to generate `.excalidraw` files programmatically:
 1. **Logical connections via `arrowBetween()` or `arrow()`** — use `arrowBetween()` when source and target centers are aligned. Use `arrow()` with exact coordinates for fan-in/fan-out patterns or when centers differ.
 2. **`validate()` must pass** — zero overlaps, zero text occlusion. If `autoFix()` is needed, re-run `validate()` to confirm clean.
 3. **Annotations must have complete content** — every `annotate()` call must have a real title and body with substantive text, not placeholder or empty strings.
-4. **Follow proven patterns** — reference `examples/gen-swa-attention.js` and `examples/gen-prefill-decode.js` as the canonical examples of working layout.js scripts.
+4. **Follow proven patterns** — use the repository’s [figure-generation script](scripts/refresh-blog-figures.js) for editable architecture examples.
 5. **Avoid raw `L.elements.push()`** unless building grid cells (like swa-attention's matrix). Use the `place()`/`below()`/`rightOf()` API for proper layout tracking and collision detection.
 6. **Min gap 8px between regions** — `layout.js validate()` uses minGap=4, but leave ≥8px between independent regions to avoid overlap warnings and ensure visual breathing room.
 
@@ -610,13 +539,9 @@ Every technical diagram **must** include annotation blocks.
 
 ## Skill Composition
 
-### With synapse-figure
-
-The [technical illustration guide](../../references/image.md) defines what to communicate. This workflow renders the editable diagram.
-
 ### With synapse-animation
 
-`synapse-excalidraw` produces the animated SVG; the [Talk Slides animation workflow](../../../synapse-talk-slides/workflows/animation/WORKFLOW.md) can convert it to a GIF.
+`synapse-excalidraw` produces the animated SVG; use a separate GIF converter when that format is required.
 
 ### With synapse-tech-blog (blog)
 

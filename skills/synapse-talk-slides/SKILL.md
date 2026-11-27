@@ -2,7 +2,7 @@
 name: synapse-talk-slides
 description: >-
   制作、修改或重排用于技术讲解、论文分享、教学、演示、项目汇报或观点表达的 Slides 和 PPT。
-  提供 Why.J Theater 与衬线风格 HTML 模板、Pretext 文字排版和动效参考。
+  提供无衬线 Why.J Theater HTML 模板。
 ---
 
 # Talk Slides · 演讲幻灯片
@@ -21,12 +21,17 @@ description: >-
 
 | 任务 | 参考 |
 | --- | --- |
-| 制作 HTML 或 PowerPoint，选择模板并验收 | [演示文稿流程](WORKFLOW.md) |
-| HTML 标题适配、文字测量与动画 | [Pretext 排版](PRETEXT.md) |
-| SVG、GIF 和视频动效 | [动画导出](workflows/animation/WORKFLOW.md) |
+| 规划、制作与验收 | [流程](references/workflow.md) |
+| 观点标题、页底结语和正文加粗 | [标题、结语与强调](references/titles-and-takeaways.md) |
+| 字体、布局、逐页规则和技术图 | [设计规范](references/design.md) |
+| 新建 HTML 幻灯片 | [Why.J Theater 模板](templates/whyj-slides.html) |
+
+从本入口按任务选读规则。每份参考只说明自己的主题。
+
+多份来源需要先整理成 DSL，或要交付独立的 Excalidraw 源文件时，从 [Tech Blog 入口](../synapse-tech-blog/SKILL.md)选择对应流程。
 
 ## 交付前核对
 
-- 标题、图和口播支持同一个判断。证据的范围和假设清楚，听众能复述结论及其适用条件。
-- 检查实际播放顺序、字图可读性、链接和备注。用户已有模板或指定格式时沿用其要求。
+- 观点标题与页底结语都用完整句。主语写明角色、组件或对象的名称，谓语说清它的动作或判断。标题、图和口播支持同一个判断。证据的范围和假设清楚，听众能复述结论及其适用条件。
+- 检查实际播放顺序、字图可读性、链接和备注。页底观点的字号大于正文，小于顶部标题。用户已有模板或指定格式时沿用其要求。
 - 同题还有技术博客时，由 [Tech Blog](../synapse-tech-blog/SKILL.md) 复用同一组数据与来源，按阅读顺序展开机制和验证细节。

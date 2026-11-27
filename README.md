@@ -5,17 +5,17 @@
 
   **A logic forge for AI-native technical publishing.**
 
-  [中文](README.zh-CN.md) · [Visual tour](docs/slides/index.html) · [Quickstart](docs/QUICKSTART.md)
+  [中文](README.zh-CN.md) · [Why.J Theater deck](docs/slides/synapse-skills-slides.html) · [Quickstart](docs/QUICKSTART.md)
 
-  [![Release](https://img.shields.io/badge/release-v2.0.0-C45A20)](https://github.com/yangjingo/Synapse/releases/tag/v2.0.0)
+  [![Skill version](https://img.shields.io/badge/skills-v3.0.0-C45A20)](CHANGELOG.md#300---2026-11-28)
   [![License: MIT](https://img.shields.io/badge/license-MIT-4A4338)](LICENSE.txt)
 </div>
 
 ![Research notes, logs, and papers entering the Synapse logic forge and emerging as slides, an article, a diagram, and motion](docs/assets/readme/synapse-hero.png)
 
-<div align="center"><sub>RAW EVIDENCE → LOGIC FORGE → ONE ARGUMENT SPINE → SLIDES · ARTICLE · DIAGRAM · MOTION</sub></div>
+<div align="center"><sub>RAW EVIDENCE → LOGIC FORGE → ONE ARGUMENT SPINE → SLIDES · ARTICLE · DIAGRAM</sub></div>
 
-Synapse is a set of composable Codex Skills that turns URLs, files, and raw notes into traceable arguments and finished technical artifacts. Like the forge above, it compresses noisy inputs into one argument spine; that spine drives slides, engineering articles, diagrams, and motion—without leaving image prompts in the final output.
+Synapse is a set of composable Codex Skills that turns URLs, files, and raw notes into traceable arguments and finished technical artifacts. Like the forge above, it compresses noisy inputs into one argument spine; that spine drives slides, engineering articles, and editable diagrams with finished visuals.
 
 ## Install
 
@@ -44,14 +44,14 @@ Use $synapse-talk-slides to turn these papers and notes into a Why.J-style deck.
 | Skill | Job |
 |---|---|
 | [`$synapse-life-note`](skills/synapse-life-note/SKILL.md) | Write personal reflections and prepare Xiaohongshu or WeChat versions. |
-| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | Write verifiable engineering analyses for Notion and Bearblog. |
-| [`$synapse-talk-slides`](skills/synapse-talk-slides/SKILL.md) | Explain technical topics or present a point of view with a slide deck. Includes Pretext and motion workflows. |
+| [`$synapse-tech-blog`](skills/synapse-tech-blog/SKILL.md) | Write verifiable technical articles, paper explainers, and engineering retrospectives. |
+| [`$synapse-talk-slides`](skills/synapse-talk-slides/SKILL.md) | Explain technical topics or present a point of view with a slide deck. Includes the Why.J Theater HTML template. |
 
 For a deck and an article on the same topic, run Talk Slides and Tech Blog with the same evidence and source links.
 
 ## See the output
 
-- [Visual introduction](docs/slides/index.html)
+- [Three writing workflows in Why.J Theater](docs/slides/synapse-skills-slides.html)
 - [On-Policy Distillation](examples/opd/)
 - [DeepSeek-V4](examples/deepseek-v4/)
 - [CLI Revolution](examples/cli-revolution/)
@@ -60,8 +60,8 @@ For a deck and an article on the same topic, run Talk Slides and Tech Blog with 
 ## Develop
 
 ```bash
-node scripts/refresh-skill-examples.js
-node scripts/validate-slide-visuals.js
+node skills/synapse-talk-slides/scripts/refresh-skill-examples.js
+node skills/synapse-talk-slides/scripts/validate-slide-visuals.js
 ```
 
 Contributor conventions are in [AGENTS.md](AGENTS.md).

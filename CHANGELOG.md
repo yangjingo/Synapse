@@ -7,12 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-11-28
+
+### Added
+- Canonical HTML templates for Life Note, Tech Blog, and Why.J Theater slides.
+- Paired blog and slide examples for all ten topics, including the new SFT/RL/OPD deck, DeepSeek-V4 Ascend deck, and Quant Agent article.
+
 ### Changed
-- Redesigned the Synapse icon as a hand-drawn logic forge and aligned both READMEs with the forge visual narrative.
-- Split the product introduction into separate Excalidraw and sans-serif editions, each locked to one font family.
-- Replaced the SVG-driven README diagram with a built-in imagegen raster hero.
-- Made the default README concise and English-first, with a separate Chinese edition.
-- Replaced the text-heavy project introduction with an example-driven HTML slide deck under `docs/slides/`.
+- Consolidated the public Skill entry points into `synapse-life-note`, `synapse-tech-blog`, and `synapse-talk-slides`. Tech Blog owns the source-to-DSL and Excalidraw workflows.
+- Organized rules under each Skill and moved maintenance scripts to their owning workflow.
+- Standardized Why.J Theater slide layouts, animated takeaways, and click-to-enlarge figures. Blog templates also support click-to-enlarge figures.
+- Updated both READMEs and replaced the introduction with one example-driven HTML deck.
+
+### Removed
+- Platform-specific publishing and conversion workflows from Tech Blog.
+- Retired slide styles, animated-figure workflows, duplicate HTML examples, and unused assets.
 
 ## [2.0.0] - 2026-08-23
 

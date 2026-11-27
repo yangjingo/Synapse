@@ -73,7 +73,7 @@ Synapse 接受三种输入：
 | `同一主题做 Slides 和技术博客` | Talk Slides 与 Tech Blog 共用一套证据 |
 | `做成 Why.J 风格的 Slides`、`做论文汇报 PPT`、`准备教学幻灯片` | [Slides](../skills/synapse-talk-slides/SKILL.md) |
 | `记录这次的感触`、`整理成小红书笔记或公众号随笔` | [生活笔记](../skills/synapse-life-note/SKILL.md) |
-| `写篇技术博客，准备发到 Notion 或 Bearblog` | [技术博客](../skills/synapse-tech-blog/SKILL.md) |
+| `把这次源码走读写成技术博客，附架构图和离线 HTML` | [技术博客](../skills/synapse-tech-blog/SKILL.md) |
 | `熔炼这些素材`、`提炼资料` | 只出 DSL，不渲染 HTML |
 
 ### Step 3: 微调
@@ -124,8 +124,8 @@ DSL 修改后，重新渲染即可得到更新后的 HTML。
 
 ```
 输入素材：
-- skills/synapse-tech-blog/workflows/forge/references/deepseek-v4-validation-note.md — DSV4 核心分析笔记
-- skills/synapse-tech-blog/workflows/forge/references/deepseek-v4-long-validation-note.md — DSV4 WhyJ 风格长文
+- examples/deepseek-v4/materials/deepseek-v4-validation-note.md — DSV4 核心分析笔记
+- examples/deepseek-v4/materials/deepseek-v4-long-validation-note.md — DSV4 WhyJ 风格长文
 - DeepSeek-V4 论文: https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf
 - 中文分析: https://mp.weixin.qq.com/s/F-0_bbwvQjlYaHVFW_uPNw
 - API 文档: https://api-docs.deepseek.com/zh-cn/news/news260424

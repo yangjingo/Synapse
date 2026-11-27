@@ -430,8 +430,15 @@
         z-index: 1;
       }
     </style>
+
+    <style>
+      .companion-article { position: fixed; top: 12px; right: 16px; z-index: 90; padding: 4px 8px; border: 1px solid #e2dbd1; border-radius: 4px; color: #552e21; background: #fff; font: 500 13px/1.4 'Segoe UI', 'Microsoft YaHei', sans-serif; text-decoration: none; }
+      .companion-article:is(:hover,:focus-visible) { text-decoration: underline; }
+      @media print { .companion-article { display: none; } }
+    </style>
   </head>
   <body>
+    <a class="companion-article" href="quant-agent-blog.html">同题技术博客</a>
     <div class="reveal">
       <div class="slides">
         <!-- 00 / Cover -->
@@ -935,12 +942,12 @@ new Agent({
                   <li>
                     <strong
                       ><a
-                        href="https://arxiv.org/abs/2509.09995"
+                        href="https://arxiv.org/abs/2509.09995v1"
                         target="_blank"
                         >QuantAgent Paper</a
                       ></strong
                     >
-                    - Fei Xiong et al. - https://arxiv.org/abs/2509.09995
+                    - Fei Xiong et al. - https://arxiv.org/abs/2509.09995v1
                   </li>
                 </ul>
               </div>

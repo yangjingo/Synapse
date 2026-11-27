@@ -2,20 +2,9 @@
 
 URLs → DSL. 给一堆素材，出结构化 DSL 文件。
 
-## Read
+## 产出示例
 
-1. `FORGE.DSL.md` — DSL 语法 + WhyJ 写作规范（合成时唯一参考文件）
-2. If target output is under `examples/<project>/`, read `examples/<project>/DESIGN.md` first (higher-priority control for figure style & prompt suffixes)
-3. `references/WHYJ-SLIDES-DSL.md` — slides DSL 语法规范
-4. `references/BLOG-STYLE-CN.md` — 中文博客写作风格指南
-5. `references/deepseek-v4-validation-note.md` — DSV4 源素材示例（voice 参考）
-6. `references/deepseek-v4-long-validation-note.md` — DSV4 长 WhyJ 风格文章示例
-7. Main `examples/` directory — 完整 forge→render 管线产出：
-   - `cli-revolution/` — slides DSL + blog DSL
-   - `deepseek-v4/` — slides DSL + blog DSL
-   - `nano-cc/` — slides DSL + blog DSL
-   - `opd/` — slides DSL + blog DSL + 7 editable SVG figures
-8. `examples/opd-blog.dsl.md` and `examples/opd-slides.dsl.md` — self-contained, refreshed DSL fixtures mirrored from the current OPD example
+- For complete repository examples, see the [OPD article](../../../../examples/opd/opd-blog.dsl.md) and [matching deck](../../../../examples/opd/opd-slides.dsl.md).
 
 ## Pipeline
 
@@ -123,8 +112,6 @@ Produce intermediate extraction (internal, not a deliverable):
 
 ### Figure Handling (between Stage 2 and 3)
 
-Use the [Slides workflow](../../../synapse-talk-slides/WORKFLOW.md) or [technical illustration guide](../../references/image.md) for final figure specifications.
-
 Each figure gets a **title** — a short descriptive name derived from its editorial purpose in context, not a numeric index.
 
 #### Step 1: Figure Inventory
@@ -179,7 +166,7 @@ Determine target slot based on source aspect ratio:
 
 If download fails or image needs regeneration, compose the prompt before calling any renderer:
 
-1. Fill in the [shared figure prompt](../../references/image.md#通用提示词) and append the fragment for the chosen composition. For an architecture diagram, use the [architecture prompt](../../references/image.md#架构图提示词) to specify boundaries and the attachment points for each arrow.
+1. State the point the figure needs to show, its composition, and the actual labels, values, and units. For an architecture diagram, include component boundaries, the main path, and the attachment points for each arrow.
 2. Apply any `examples/<project>/DESIGN.md` controls before generation. Append the `Figure prompt suffix / 风格控制` and include `文件落地` and display constraints.
 3. Move explanatory sentences into the caption or article. When the remaining elements crowd the panel, use a separate detail view or split the comparison into aligned panels.
 4. Inspect the rendered figure at its embedded size. Confirm that the main relationship is legible from the geometry and short labels and that arrows, labels, and axes stay distinct.
@@ -190,11 +177,11 @@ Do not route raster generation through Gemini, Imagen APIs, Nano Banana, or anot
 
 ### Mandatory output contract (for SKILL-compliant examples)
 
-For final slide examples, every planned visual must be rendered and referenced through `::image [./figures/...]`. Do not leave `::visual`, `Codex imagegen`, `Figure prompt`, or another prompt block visible in slides HTML. Preserve reusable prompts in `figures/index.md`, not in the presentation canvas. Validate with `node scripts/validate-slide-visuals.js`.
+For final slide examples, every planned visual must be rendered and referenced through `::image [./figures/...]`. Do not leave `::visual`, `Codex imagegen`, `Figure prompt`, or another prompt block visible in slides HTML. Preserve reusable prompts in `figures/index.md`, not in the presentation canvas. Validate with `node skills/synapse-talk-slides/scripts/validate-slide-visuals.js`.
 
 - Write every generated figure into `./figures/` under the target example root (`./examples/<project>/figures`).
 - File names must be local and HTML-consumable (PNG/JPG/SVG), defaulting to `figure-XX-descriptivename.*`.
-- Keep visual style controls from `examples/<project>/DESIGN.md` intact. When the project has no override, use the palette and line semantics in the [shared figure prompt](../../references/image.md#通用提示词).
+- Keep the project's visual style controls intact. Use consistent color and line semantics across figures in the same artifact.
 - Generated prompts must preserve the final concatenated style block in `figures/index.md` (`figure_style`) and record `generated_by` for traceability.
 
 #### Step 5: DSL Reference
@@ -256,11 +243,9 @@ Take the extracted material and produce a DSL file (`*.dsl.md`). The user specif
 5. **Q→A strict mapping** → Take A Ways (Q1→A1, Q2→A2, Q3→A3, Q4→pulse)
 6. **Source list** → Reference page
 
-Follow `FORGE.DSL.md` Section A for exact DSL syntax.
-
 #### Target: Blog DSL
 
-Follow `FORGE.DSL.md` Section B for syntax. Encode the verified question, claims, sources, and planned figures given by the article skill. Preserve the evidence boundary and identify any unresolved gaps in the working DSL.
+Encode the verified question, claims, sources, and planned figures in the working DSL. Preserve the evidence boundary and identify unresolved gaps.
 
 ## Downstream
 
@@ -268,8 +253,8 @@ DSL 文件交给下游 skill 渲染：
 
 | DSL 输出 | 渲染 Skill | 模板 |
 |----------|-----------|------|
-| Slides DSL | synapse-talk-slides | [Slides workflow](../../../synapse-talk-slides/WORKFLOW.md) |
-| Blog DSL | synapse-tech-blog | `../../references/html-layout.md` |
+| Slides DSL | synapse-talk-slides | [Why.J Theater Slides](../../../synapse-talk-slides/templates/whyj-slides.html) |
+| Blog DSL | synapse-tech-blog | [Why.J Theater 博客](../../templates/whyj-theater-blog.html) |
 
 ## Trigger Phrases
 
@@ -298,39 +283,8 @@ figure-XX-descriptivename.{svg,png,jpg}
 - 所有 figure 放在 `figures/` 目录
 - HTML 引用使用 `./figures/figure-XX-name.svg` 相对路径
 
-## Prohibited
+## Check the rendered output
 
-- NO hallucinated content — if source doesn't say it, don't include it
-- NO summary-only output — forge produces DSL with judgment, not vague summaries
-- Keep each claim traceable and use concrete terminology
-- **NO curly quotes as JS string delimiters** — this has caused repeated white-screen failures (3+ incidents). See below
-
-### Curly Quote Rule (CRITICAL — verified after EVERY file edit)
-
-Chinese curly quotes “” (U+201C / U+201D) are **never** valid JS string delimiters. They look like quotes but JavaScript treats them as regular characters, causing  that silently kills the entire .
-
-**Allowed delimiters**: backtick \ for body/heading/callout/caption/prompt, single quote  for bodyHTML
-
-**Allowed content**: curly quotes are fine INSIDE strings (e.g. “质量保持” in body text)
-
-**What goes wrong**: when using node scripts or the Edit tool to modify HTML files containing Chinese curly quotes as text content, the script may accidentally:
-1. Replace the string's backtick/straight-quote **delimiter** with a curly quote
-2. Replace HTML attribute straight double quotes \href=...\ with curly quotes href=“...”
-
-**Mandatory verification after ANY edit to .html template files**:
-\If this fails → there are curly-quote delimiters or other syntax errors. Fix before reporting done.
-
-### Figure Sync Rule (CRITICAL — read reference template FIRST, copy its pattern EXACTLY)
-
-When adding figure support to blog or slides HTML, you MUST:
-
-1. **Read the closest reference template** (e.g. `../../examples/dsv4-blog-opd-en.html`) before writing any code
-2. **Copy its complete figure pattern** — do NOT improvise or partially implement. The pattern includes:
-   - **DSL**: independent `Type: figure` section (NOT inline inside `Type: text` sections) with `Image`, `Caption`, `Prompt` fields
-   - **HTML SECTIONS array**: independent section object with only `image`, `caption`, `prompt` (no `heading` or `body`)
-   - **Prompt source**: use the recorded generation prompt from `figures/index.md` or the figure specification; final slides DSL contains `::image`, not `::visual`
-  - **CSS**: `figure-prompt-vis` class exists (prompt is shown in zoom layer / overlay, hidden in normal card)
-  - **Rendering logic**: `promptEl` appended to `figBlock` so prompt is always recoverable, and shown when zoomed
-3. **Verify all five pieces exist** after implementation: DSL `Type: figure` section, HTML figure section object, recorded generation prompt, CSS `figure-prompt-vis`, and rendering code that creates `promptEl`. Separately verify that final slides contain only finished images.
-
-**What goes wrong when you skip this**: figures end up as inline fields inside text sections, prompts are missing or hand-written instead of extracted from slides DSL, or prompts exist as data but never surface in zoomed review. Each of these has caused multi-round user corrections.
+- Trace each claim to its evidence and mark inferences or missing evidence.
+- Resolve figure placeholders before delivery. Keep generation prompts with the source material. Verify that figure placement and zoom match the selected template.
+- Enable the browser console when opening the result. Use valid JavaScript delimiters in code and preserve the source punctuation inside strings.

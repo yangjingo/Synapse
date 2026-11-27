@@ -1,6 +1,6 @@
 # Quant Agent Blog Figures
 
-The first two figures support `quant-agent-blog.dsl.md`; the remaining three replace slide prompt placeholders. Run `node scripts/refresh-skill-examples.js` to refresh both sets.
+The first two figures support `quant-agent-blog.dsl.md`; the remaining three replace slide prompt placeholders. Run `node skills/synapse-talk-slides/scripts/refresh-skill-examples.js` to refresh both sets.
 
 | File | Purpose |
 | --- | --- |

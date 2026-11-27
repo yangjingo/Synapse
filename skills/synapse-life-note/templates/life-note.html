@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[笔记标题]</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #faf5e9;
+      --ink: #2e3936;
+      --muted: #53675c;
+      --link: #865643;
+      --line: #d4cbbb;
+      --serif: "Noto Serif CJK SC", "Songti SC", SimSun, Georgia, serif;
+      --sans: "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: clamp(1rem, 2.2vw, 1.1875rem)/1.95 var(--serif);
+    }
+    main { max-width: 740px; margin: 0 auto; padding: clamp(40px, 8vw, 88px) clamp(22px, 6vw, 62px) 64px; }
+    article { overflow-wrap: anywhere; }
+    header { padding-bottom: 23px; margin-bottom: 32px; border-bottom: 1px solid var(--line); }
+    .meta { margin: 0 0 10px; color: var(--muted); font: .875rem/1.5 var(--sans); }
+    h1 { margin: 0; font-size: clamp(2rem, 7.4vw, 3.625rem); line-height: 1.2; text-wrap: balance; }
+    h2 { margin: 1.6em 0 .55em; font-size: 1.25em; line-height: 1.45; }
+    p, ul, ol { margin: 0 0 1.1em; }
+    blockquote { margin: 1.3em 0; padding: 0 0 0 1em; border-left: 2px solid var(--line); color: var(--muted); }
+    blockquote > :last-child { margin-bottom: 0; }
+    a { color: var(--link); text-underline-offset: .22em; }
+    a:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; }
+    figure { margin: 1.6em 0; }
+    figure img { display: block; width: 100%; height: auto; }
+    figcaption { margin-top: .6em; color: var(--muted); font: .875rem/1.6 var(--sans); }
+    table { width: 100%; margin: 1.3em 0; border-collapse: collapse; text-align: left; }
+    th, td { padding: .45em .65em; border-bottom: 1px solid var(--line); vertical-align: top; }
+    pre { overflow: auto; padding: .8em 1em; border: 1px solid var(--line); }
+    @media print {
+      body { color: #222; background: white; }
+      main { max-width: none; padding: 0; }
+      h1, h2 { break-after: avoid; }
+      blockquote, figure { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article aria-labelledby="note-title">
+      <header>
+        <p class="meta">[记录日期] · [场景]</p>
+        <h1 id="note-title">[笔记标题]</h1>
+      </header>
+      <p>[从当时的一个具体瞬间写起。我看到了什么，当时是怎样想的？]</p>
+      <p>[写下改变判断的那条反馈。它和我原来的理解有什么出入，现在我怎么看？]</p>
+      <p>[留下一件下次想试的事，或一个仍想弄清楚的问题。]</p>
+    </article>
+  </main>
+</body>
+</html>
