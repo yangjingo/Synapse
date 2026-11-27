@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-Each authoring category owns one entry point under `skills/`. Life Note covers reflection and social publishing formats. Tech Blog owns articles, source extraction, and editable technical diagrams. Talk Slides owns decks, Pretext, and motion. Keep optional workflow instructions and supporting files inside their owning skill. End-to-end sample outputs belong in `examples/<topic>/`; keep a topic's `*-blog.dsl.md`, `*-blog.html`, `*-slides.dsl.md`, `*-slides.html`, and `figures/` together. Shared documentation and branding live in `docs/` and `assets/`.
+Each authoring category owns one entry point under `skills/`. Life Note covers reflection and social publishing formats. Tech Blog owns articles, source extraction, and editable technical diagrams. Talk Slides owns decks and the Why.J Theater template. Only `SKILL.md` files link to skill rule documents. Write each rule document so it stands on its own, with direct links to templates, tools, or evidence where needed. End-to-end sample outputs belong in `examples/<topic>/` alongside their source material and figures. Shared documentation and branding live in `docs/` and `assets/`. Keep maintenance scripts inside the skill that owns their workflow.
 
 ## Build, Test, and Development Commands
 

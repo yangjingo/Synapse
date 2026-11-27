@@ -149,7 +149,7 @@ Version: Synapse v{version} | Author: Why.J | Date: YYYY/MM/DD
 | `::math` | `::math [LaTeX] ::` | KaTeX in `.visual-box` |
 | `::pulse` | `::pulse [「 text 」] [fragment] ::` | `.pulse-layer` callout |
 
-For outputs under `examples/<project>/`, merge `examples/<project>/DESIGN.md` controls into the generation prompt, record that prompt in `figures/index.md`, render the asset, and commit only a concrete `::image` directive to the final slides DSL. Run `node scripts/validate-slide-visuals.js` before completion.
+For outputs under `examples/<project>/`, merge `examples/<project>/DESIGN.md` controls into the generation prompt, record that prompt in `figures/index.md`, render the asset, and commit only a concrete `::image` directive to the final slides DSL. Run `node skills/synapse-talk-slides/scripts/validate-slide-visuals.js` before completion.
 
 ### Inline Formatting
 
@@ -250,7 +250,7 @@ Figure prompt principle: **stored generation spec**. The `prompt` field is prese
 3. **Generation traceability**: record `codex-imagegen`, `synapse-excalidraw`, or another explicitly approved path in `figures/index.md`, including the reason for any approved fallback.
 4. **Path rule**: figure image paths in `SECTIONS` and `::image` must use `./figures/...` so the path is portable from example HTML.
 
-For `prompt`, fill in the [shared figure prompt](../../references/image.md#通用提示词) and append the chosen composition. Record the actual labels, values, units and visual mappings so the figure can be regenerated.
+For `prompt`, record the main relationship, composition, actual labels, values, units, and visual mappings so the figure can be regenerated.
 
 Examples:
 - Weak: "Figure 3: Forward KL vs Reverse KL 数据流对比"
@@ -298,7 +298,7 @@ Not every article needs all 10. Minimum: thesis → mechanism → takeaway → r
   ```
 - Image paths: relative from output directory
 - `callout` renders as highlighted blockquote
-- `prompt` shown as placeholder when image file is missing
+- Resolve image placeholders before delivering the article, and keep generation prompts with the source material.
 - Inline references: embed source links directly in prose, not as `[N]` footnotes
 - Reference section uses item list format: `- **Title** - URL`
 
