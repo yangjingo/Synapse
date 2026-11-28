@@ -1,0 +1,3043 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电脑关机后，Agent 仍能沿着看板交付</title>
+  <style>
+    :root {
+      --bg: #FAFAF7;
+      --ink: #1A1A1A;
+      --muted: #8A7F70;
+      --accent: #C45A20;
+      --accent-light: #FDF0E6;
+      --border: #E8E2D8;
+      --section-rule-space: 40px;
+      --serif: 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+      --sans: 'Inter', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); color: var(--ink); }
+    body { min-height: 100vh; padding-bottom: 48px; }
+
+    .page { max-width: 700px; margin: 0 auto; padding: 72px 24px 0; }
+
+
+    .article-header, .article-body { min-width: 0; }
+    .article-toc {
+      --toc-ink: #635749;
+      --toc-active: #843C18;
+      color: var(--toc-ink);
+      font: 400 13px/1.45 var(--sans);
+    }
+    .toc-heading {
+      padding: 0 12px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+      font: 700 20px/1.25 var(--serif);
+    }
+    .toc-toggle { display: none; }
+    .toc-list {
+      list-style: none;
+      padding: 7px 3px 5px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+      overscroll-behavior-y: contain;
+    }
+    .toc-list li + li { margin-top: 2px; }
+    .toc-list li.toc-break {
+      border-top: 1px solid var(--border);
+      margin-top: 10px;
+      padding-top: 9px;
+    }
+    .toc-list a {
+      position: relative;
+      display: block;
+      padding: 8px 10px 8px 13px;
+      border-radius: 0 3px 3px 0;
+      color: inherit;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }
+    .toc-list a:hover { background: #F3EFE8; color: var(--ink); }
+    .toc-list a[aria-current='location'] {
+      background: var(--accent-light);
+      color: var(--toc-active);
+      font-weight: 650;
+    }
+    .toc-list a[aria-current='location']::before {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 2px;
+      background: var(--accent);
+      content: '';
+    }
+    .toc-list a:focus-visible, .toc-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+    #sections-wrap > .section[id] { scroll-margin-top: 30px; }
+
+    @media (min-width: 1100px) {
+      .page {
+        display: grid;
+        max-width: none;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 652px) minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+      }
+      .article-header { grid-area: 1 / 2; }
+      .article-body { grid-area: 2 / 2; }
+      .article-toc {
+        grid-area: 2 / 1;
+        position: sticky;
+        top: 32px;
+        align-self: start;
+        justify-self: end;
+        width: min(220px, calc(100% - 28px));
+        margin-top: var(--section-rule-space);
+        margin-right: 28px;
+        border-top: 1px solid var(--border);
+      }
+      .toc-heading { padding: 12px 12px 7px; border-bottom: 0; }
+      .toc-list { max-height: calc(100vh - 110px); }
+    }
+    @media (max-width: 1099px) {
+      .article-toc {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        margin-top: 23px;
+        border-block: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .toc-heading { display: none; }
+      .toc-toggle {
+        display: flex;
+        width: 100%;
+        min-height: 45px;
+        gap: 12px;
+        align-items: center;
+        padding: 0 12px;
+        border: 0;
+        background: transparent;
+        color: var(--ink);
+        font: 700 15px/1.3 var(--serif);
+        text-align: left;
+        cursor: pointer;
+      }
+      .toc-toggle::after {
+        flex: 0 0 auto;
+        width: 7px;
+        height: 7px;
+        margin: -4px 2px 0 auto;
+        border: solid currentColor;
+        border-width: 0 1.5px 1.5px 0;
+        transform: rotate(45deg);
+        content: '';
+      }
+      .toc-toggle[aria-expanded='true']::after { margin-top: 3px; transform: rotate(225deg); }
+      .toc-preview {
+        overflow: hidden;
+        color: var(--toc-ink);
+        font: 400 12px/1.35 var(--sans);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .toc-toggle[aria-expanded='false'] + .toc-list { display: none; }
+      .toc-list { max-height: min(52vh, 403px); border-top: 1px solid var(--border); }
+      .toc-list a { display: flex; min-height: 44px; align-items: center; }
+      #sections-wrap > .section[id] { scroll-margin-top: 66px; }
+    }
+
+    .title-line {
+      font-family: var(--serif);
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }
+    .lead-block {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 26px;
+      color: var(--muted);
+      margin: 16px 0 0;
+    }
+    .hr { height: 1px; background: var(--border); margin: var(--section-rule-space) 0; }
+
+    .section { margin-top: 40px; }
+    .section-h {
+      font: 700 15px/1.3 var(--sans);
+      color: var(--accent);
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .section-body {
+      font: 400 17px/30px var(--serif);
+      color: var(--ink);
+    }
+    .section-body a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(196,90,32,0.3);
+      text-underline-offset: 2px;
+      transition: text-decoration-color 0.2s;
+    }
+    .section-body a:hover {
+      text-decoration-color: var(--accent);
+    }
+    .callout {
+      position: relative;
+      margin: 20px 0;
+      padding: 16px 20px 16px 24px;
+      background: var(--accent-light);
+      border-radius: 4px;
+      font: 500 15px/25px var(--sans);
+      color: #6B3A12;
+    }
+    .callout::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      border-radius: 4px 0 0 4px;
+    }
+    .figure-block {
+      margin: 32px auto;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #F5F3EE;
+      max-width: 100%;
+    }
+    .figure-block img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+      object-position: center;
+      background: #fff;
+      cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .figure-block.zoomed {
+      position: fixed;
+      inset: 0;
+      max-width: none;
+      margin: 0;
+      border-radius: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .figure-block.zoomed img {
+      max-height: none;
+      width: auto;
+      max-width: 95vw;
+      max-height: 95vh;
+      cursor: zoom-out;
+    }
+    .figure-block.zoomed .figure-caption {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: #eee;
+      border-radius: 4px;
+      padding: 6px 14px;
+    }
+    .figure-caption {
+      padding: 10px 16px 4px;
+      font: 500 13px/20px var(--sans);
+      color: var(--muted);
+    }
+    .figure-prompt-vis {
+      padding: 4px 16px 12px;
+      font: 400 11.5px/17px var(--sans);
+      color: #B0A898;
+      border-top: 1px solid #E8E2D8;
+      margin-top: 2px;
+    }
+    .figure-placeholder {
+      padding: 32px 20px;
+      text-align: center;
+      background: #EDEBE6;
+    }
+    .figure-placeholder-icon {
+      font: 700 28px/1 var(--sans);
+      color: var(--border);
+      margin-bottom: 8px;
+    }
+    .figure-placeholder-label {
+      font: 600 13px/1 var(--sans);
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .figure-placeholder-prompt {
+      font: 400 12px/18px var(--sans);
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+      white-space: pre-wrap;
+    }
+    .meta-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font: 700 11px/1 var(--sans);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .meta-date {
+      font: 500 13px/1 var(--sans);
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+
+    #reading-ripple {
+      position: fixed;
+      width: 92px;
+      height: 92px;
+      border: 2px solid var(--accent, #C45A20);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 50;
+    }
+    #reading-ripple::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border: 1px solid rgba(196, 90, 32, .58);
+      border-radius: 50%;
+    }
+    #reading-ripple[hidden] { display: none; }
+  </style>
+<style>
+    .figure-zoom-target { cursor: zoom-in; }
+    .figure-block.zoomed .figure-zoom-target { cursor: zoom-out; }
+    .figure-zoom-target:focus-visible { outline: 2px solid var(--accent,#C45A20); outline-offset: -2px; }
+
+    .figure-block[data-native].zoomed { flex-direction: column; padding: 14px; }
+    .figure-block[data-native].zoomed .figure-content { width: min(92vw,980px); }
+    .figure-block[data-native].zoomed .figure-caption { position: static; transform: none; margin: 6px auto 0; }
+    .figure-block { background: transparent; }
+    .figure-block img { background: #EEEDE4; border-radius: 6px; }
+    .figure-caption { padding: 9px 0 0; font: 400 14px/1.55 var(--sans); color: #5C584F; }
+    .figure-caption strong { display: block; font-weight: 600; }
+    .figure-caption p { margin-top: 3px; }
+    .figure-caption a { color: inherit; text-underline-offset: .17em; }
+    .figure-block.zoomed { z-index: 110; overscroll-behavior: contain; }
+    .figure-block.zoomed .figure-caption { width: min(92vw, 760px); }
+    .figure-prompt-vis { display: none; }
+    @media (max-width: 700px) {
+      .figure-block.zoomed { display: block; overflow: auto; padding: 14px; }
+      .figure-block.zoomed img { width: 700px; max-width: none; max-height: none; }
+      .figure-block.zoomed .figure-caption {
+        position: static;
+        transform: none;
+        width: auto;
+        margin-top: 10px;
+        padding: 4px 0;
+      }
+    }
+</style>
+
+<style>
+  .title-line { display: block; }
+  .lead-block { line-height: 26px; color: #5C584F; }
+  .article-scope { margin-top: 12px; color: #5C584F; font: 400 14px/1.7 var(--sans); }
+  .section-h { font: 700 21px/1.45 var(--serif); }
+  .section-continuation { margin-top: 20px; }
+  .section-body > * + * { margin-top: 13px; }
+  .section-body ol, .section-body ul { padding-left: 1.5em; }
+  .section-body li + li { margin-top: 12px; }
+  .section-body strong { font-weight: 700; }
+  .section-body pre { padding: 14px; overflow: auto; border: 1px solid var(--border); background: #F4F1EA; font: 13px/1.55 Consolas, monospace; }
+  .section-body :not(pre) > code { font: .86em Consolas, monospace; overflow-wrap: anywhere; }
+  .table-wrap { max-width: 100%; overflow: auto; border: 1px solid var(--border); }
+  .section-body table { width: 100%; min-width: 485px; border-collapse: collapse; font: 400 14px/1.55 var(--sans); }
+  .section-body th, .section-body td { padding: 9px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+  .section-body th { background: #F4F1EA; font-weight: 700; }
+  .section-body tr:last-child td { border-bottom: 0; }
+  .section-body th:first-child { width: 25%; }
+  .diagram { display: grid; align-items: stretch; gap: 7px 5px; border: 1px solid var(--border); border-radius: 4px; background: #EEEDE4; color: #41413B; padding: clamp(10px, 3.4vw, 22px); font: 600 clamp(10px, 2.25vw, 15px)/1.3 var(--sans); }
+  .diagram-handoff { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); }
+  .diagram-recovery { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); }
+  .diagram-node { display: grid; place-items: center; min-height: 52px; border: 1px solid #99998F; border-radius: 3px; padding: 7px 3px; background: #F9F8F3; text-align: center; }
+  .diagram-focus { background: #DBD9CF; }
+  .diagram-arrow { display: grid; place-items: center; color: #625C50; padding: 0 2px; }
+  .diagram-return { grid-column: 3 / -1; margin-top: 4px; border-bottom: 1px dashed #99998F; border-left: 1px dashed #99998F; padding: 5px 7px; color: #625C50; text-align: center; }
+  @media (max-width: 480px) {
+    .page { padding-top: 38px; }
+    .section-h { font-size: 19px; }
+    .section-body { font-size: 16px; line-height: 1.75; }
+    .section { margin-top: 32px; }
+    .diagram { column-gap: 2px; }
+    .diagram-arrow { padding: 0; }
+  }
+</style>
+
+</head>
+<body>
+<span id="reading-ripple" aria-hidden="true" hidden></span>
+<div class="page">
+  <header class="article-header">
+    <div class="meta-date" id="article-meta"></div>
+
+    <!-- ① pretext 自适应标题 -->
+    <h1 id="title-wrap" aria-label="电脑关机后，Agent 仍能沿着看板交付"></h1>
+
+    <!-- ② pretext 测量 lead，CSS 正常渲染 -->
+    <div id="lead-wrap"></div>
+
+    <p class="article-scope">我把这个设想称为 24 小时 SuperAgent。GitHub 看板保存需求和验收条件，云端 Worker 按任务记录接力，PR 和 Actions 保存可复查的交付证据。本文从 WhyJ-Quant 已有的看板与 CI 出发，设计云端接力、故障恢复和关机验收。这三项还待部署验证。</p>
+  </header>
+  <nav class="article-toc" aria-label="目录" hidden>
+    <div class="toc-heading" aria-hidden="true">目录</div>
+    <button type="button" class="toc-toggle" aria-controls="article-toc-list" aria-expanded="false">
+      <span class="toc-toggle-label">目录</span><span class="toc-preview" aria-hidden="true"></span>
+    </button>
+    <ol class="toc-list" id="article-toc-list"></ol>
+  </nav>
+  <div class="article-body">
+    <div class="hr"></div>
+
+    <!-- ③ 正文（pretext 测量高度，CSS 正常渲染） -->
+    <main id="sections-wrap"></main>
+  </div>
+
+</div>
+
+
+<script type="module">
+// ═══════════════════════════════════════
+// ① pretext.js 完整内联
+// ═══════════════════════════════════════
+// src/bidi.ts
+var baseTypes = [
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "S",
+  "B",
+  "S",
+  "WS",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "B",
+  "B",
+  "S",
+  "WS",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "CS",
+  "ON",
+  "CS",
+  "ON",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "EN",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "B",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "BN",
+  "CS",
+  "ON",
+  "ET",
+  "ET",
+  "ET",
+  "ET",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ET",
+  "ET",
+  "EN",
+  "EN",
+  "ON",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "EN",
+  "L",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "ON",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L",
+  "L"
+];
+var arabicTypes = [
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "CS",
+  "AL",
+  "ON",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "AN",
+  "ET",
+  "AN",
+  "AN",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "ON",
+  "NSM",
+  "NSM",
+  "NSM",
+  "NSM",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL",
+  "AL"
+];
+function classifyChar(charCode) {
+  if (charCode <= 255)
+    return baseTypes[charCode];
+  if (1424 <= charCode && charCode <= 1524)
+    return "R";
+  if (1536 <= charCode && charCode <= 1791)
+    return arabicTypes[charCode & 255];
+  if (1792 <= charCode && charCode <= 2220)
+    return "AL";
+  return "L";
+}
+function computeBidiLevels(str) {
+  const len = str.length;
+  if (len === 0)
+    return null;
+  const types = new Array(len);
+  let numBidi = 0;
+  for (let i = 0;i < len; i++) {
+    const t = classifyChar(str.charCodeAt(i));
+    if (t === "R" || t === "AL" || t === "AN")
+      numBidi++;
+    types[i] = t;
+  }
+  if (numBidi === 0)
+    return null;
+  const startLevel = len / numBidi < 0.3 ? 0 : 1;
+  const levels = new Int8Array(len);
+  for (let i = 0;i < len; i++)
+    levels[i] = startLevel;
+  const e = startLevel & 1 ? "R" : "L";
+  const sor = e;
+  let lastType = sor;
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "NSM")
+      types[i] = lastType;
+    else
+      lastType = types[i];
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "AL" ? "AN" : "EN";
+    else if (t === "R" || t === "L" || t === "AL")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "AL")
+      types[i] = "R";
+  }
+  for (let i = 1;i < len - 1; i++) {
+    if (types[i] === "ES" && types[i - 1] === "EN" && types[i + 1] === "EN") {
+      types[i] = "EN";
+    }
+    if (types[i] === "CS" && (types[i - 1] === "EN" || types[i - 1] === "AN") && types[i + 1] === types[i - 1]) {
+      types[i] = types[i - 1];
+    }
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "EN")
+      continue;
+    let j;
+    for (j = i - 1;j >= 0 && types[j] === "ET"; j--)
+      types[j] = "EN";
+    for (j = i + 1;j < len && types[j] === "ET"; j++)
+      types[j] = "EN";
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "WS" || t === "ES" || t === "ET" || t === "CS")
+      types[i] = "ON";
+  }
+  lastType = sor;
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if (t === "EN")
+      types[i] = lastType === "L" ? "L" : "EN";
+    else if (t === "R" || t === "L")
+      lastType = t;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] !== "ON")
+      continue;
+    let end = i + 1;
+    while (end < len && types[end] === "ON")
+      end++;
+    const before = i > 0 ? types[i - 1] : sor;
+    const after = end < len ? types[end] : sor;
+    const bDir = before !== "L" ? "R" : "L";
+    const aDir = after !== "L" ? "R" : "L";
+    if (bDir === aDir) {
+      for (let j = i;j < end; j++)
+        types[j] = bDir;
+    }
+    i = end - 1;
+  }
+  for (let i = 0;i < len; i++) {
+    if (types[i] === "ON")
+      types[i] = e;
+  }
+  for (let i = 0;i < len; i++) {
+    const t = types[i];
+    if ((levels[i] & 1) === 0) {
+      if (t === "R")
+        levels[i]++;
+      else if (t === "AN" || t === "EN")
+        levels[i] += 2;
+    } else if (t === "L" || t === "AN" || t === "EN") {
+      levels[i]++;
+    }
+  }
+  return levels;
+}
+function computeSegmentLevels(normalized, segStarts) {
+  const bidiLevels = computeBidiLevels(normalized);
+  if (bidiLevels === null)
+    return null;
+  const segLevels = new Int8Array(segStarts.length);
+  for (let i = 0;i < segStarts.length; i++) {
+    segLevels[i] = bidiLevels[segStarts[i]];
+  }
+  return segLevels;
+}
+
+// src/analysis.ts
+var collapsibleWhitespaceRunRe = /[ \t\n\r\f]+/g;
+var needsWhitespaceNormalizationRe = /[\t\n\r\f]| {2,}|^ | $/;
+function normalizeWhitespaceNormal(text) {
+  if (!needsWhitespaceNormalizationRe.test(text))
+    return text;
+  let normalized = text.replace(collapsibleWhitespaceRunRe, " ");
+  if (normalized.charCodeAt(0) === 32) {
+    normalized = normalized.slice(1);
+  }
+  if (normalized.length > 0 && normalized.charCodeAt(normalized.length - 1) === 32) {
+    normalized = normalized.slice(0, -1);
+  }
+  return normalized;
+}
+var sharedWordSegmenter = null;
+var segmenterLocale;
+function getSharedWordSegmenter() {
+  if (sharedWordSegmenter === null) {
+    sharedWordSegmenter = new Intl.Segmenter(segmenterLocale, { granularity: "word" });
+  }
+  return sharedWordSegmenter;
+}
+function clearAnalysisCaches() {
+  sharedWordSegmenter = null;
+}
+function setAnalysisLocale(locale) {
+  const nextLocale = locale && locale.length > 0 ? locale : undefined;
+  if (segmenterLocale === nextLocale)
+    return;
+  segmenterLocale = nextLocale;
+  sharedWordSegmenter = null;
+}
+var arabicScriptRe = /\p{Script=Arabic}/u;
+var combiningMarkRe = /\p{M}/u;
+var decimalDigitRe = /\p{Nd}/u;
+function containsArabicScript(text) {
+  return arabicScriptRe.test(text);
+}
+function isCJK(s) {
+  for (const ch of s) {
+    const c = ch.codePointAt(0);
+    if (c >= 19968 && c <= 40959 || c >= 13312 && c <= 19903 || c >= 131072 && c <= 173791 || c >= 173824 && c <= 177983 || c >= 177984 && c <= 178207 || c >= 178208 && c <= 183983 || c >= 183984 && c <= 191471 || c >= 196608 && c <= 201551 || c >= 63744 && c <= 64255 || c >= 194560 && c <= 195103 || c >= 12288 && c <= 12351 || c >= 12352 && c <= 12447 || c >= 12448 && c <= 12543 || c >= 44032 && c <= 55215 || c >= 65280 && c <= 65519) {
+      return true;
+    }
+  }
+  return false;
+}
+var kinsokuStart = new Set([
+  "，",
+  "．",
+  "！",
+  "：",
+  "；",
+  "？",
+  "、",
+  "。",
+  "・",
+  "）",
+  "〕",
+  "〉",
+  "》",
+  "」",
+  "』",
+  "】",
+  "〗",
+  "〙",
+  "〛",
+  "ー",
+  "々",
+  "〻",
+  "ゝ",
+  "ゞ",
+  "ヽ",
+  "ヾ"
+]);
+var kinsokuEnd = new Set([
+  '"',
+  "(",
+  "[",
+  "{",
+  "“",
+  "‘",
+  "«",
+  "‹",
+  "（",
+  "〔",
+  "〈",
+  "《",
+  "「",
+  "『",
+  "【",
+  "〖",
+  "〘",
+  "〚"
+]);
+var forwardStickyGlue = new Set([
+  "'",
+  "’"
+]);
+var leftStickyPunctuation = new Set([
+  ".",
+  ",",
+  "!",
+  "?",
+  ":",
+  ";",
+  "،",
+  "؛",
+  "؟",
+  "।",
+  "॥",
+  "၊",
+  "။",
+  "၌",
+  "၍",
+  "၏",
+  ")",
+  "]",
+  "}",
+  "%",
+  '"',
+  "”",
+  "’",
+  "»",
+  "›",
+  "…"
+]);
+var arabicNoSpaceTrailingPunctuation = new Set([
+  ":",
+  ".",
+  "،",
+  "؛"
+]);
+var myanmarMedialGlue = new Set([
+  "၏"
+]);
+var closingQuoteChars = new Set([
+  "”",
+  "’",
+  "»",
+  "›",
+  "」",
+  "』",
+  "】",
+  "》",
+  "〉",
+  "〕",
+  "）"
+]);
+function isLeftStickyPunctuationSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  let sawPunctuation = false;
+  for (const ch of segment) {
+    if (leftStickyPunctuation.has(ch)) {
+      sawPunctuation = true;
+      continue;
+    }
+    if (sawPunctuation && combiningMarkRe.test(ch))
+      continue;
+    return false;
+  }
+  return sawPunctuation;
+}
+function isCJKLineStartProhibitedSegment(segment) {
+  for (const ch of segment) {
+    if (!kinsokuStart.has(ch) && !leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isForwardStickyClusterSegment(segment) {
+  if (isEscapedQuoteClusterSegment(segment))
+    return true;
+  for (const ch of segment) {
+    if (!kinsokuEnd.has(ch) && !forwardStickyGlue.has(ch) && !combiningMarkRe.test(ch))
+      return false;
+  }
+  return segment.length > 0;
+}
+function isEscapedQuoteClusterSegment(segment) {
+  let sawQuote = false;
+  for (const ch of segment) {
+    if (ch === "\\" || combiningMarkRe.test(ch))
+      continue;
+    if (kinsokuEnd.has(ch) || leftStickyPunctuation.has(ch) || forwardStickyGlue.has(ch)) {
+      sawQuote = true;
+      continue;
+    }
+    return false;
+  }
+  return sawQuote;
+}
+function splitTrailingForwardStickyCluster(text) {
+  const chars = Array.from(text);
+  let splitIndex = chars.length;
+  while (splitIndex > 0) {
+    const ch = chars[splitIndex - 1];
+    if (combiningMarkRe.test(ch)) {
+      splitIndex--;
+      continue;
+    }
+    if (kinsokuEnd.has(ch) || forwardStickyGlue.has(ch)) {
+      splitIndex--;
+      continue;
+    }
+    break;
+  }
+  if (splitIndex <= 0 || splitIndex === chars.length)
+    return null;
+  return {
+    head: chars.slice(0, splitIndex).join(""),
+    tail: chars.slice(splitIndex).join("")
+  };
+}
+function isRepeatedSingleCharRun(segment, ch) {
+  if (segment.length === 0)
+    return false;
+  for (const part of segment) {
+    if (part !== ch)
+      return false;
+  }
+  return true;
+}
+function endsWithArabicNoSpacePunctuation(segment) {
+  if (!containsArabicScript(segment) || segment.length === 0)
+    return false;
+  return arabicNoSpaceTrailingPunctuation.has(segment[segment.length - 1]);
+}
+function endsWithMyanmarMedialGlue(segment) {
+  if (segment.length === 0)
+    return false;
+  return myanmarMedialGlue.has(segment[segment.length - 1]);
+}
+function splitLeadingSpaceAndMarks(segment) {
+  if (segment.length < 2 || segment[0] !== " ")
+    return null;
+  const marks = segment.slice(1);
+  if (/^\p{M}+$/u.test(marks)) {
+    return { space: " ", marks };
+  }
+  return null;
+}
+function endsWithClosingQuote(text) {
+  for (let i = text.length - 1;i >= 0; i--) {
+    const ch = text[i];
+    if (closingQuoteChars.has(ch))
+      return true;
+    if (!leftStickyPunctuation.has(ch))
+      return false;
+  }
+  return false;
+}
+function classifySegmentBreakChar(ch) {
+  if (ch === " ")
+    return "space";
+  if (ch === " " || ch === " " || ch === "⁠" || ch === "\uFEFF") {
+    return "glue";
+  }
+  if (ch === "​")
+    return "zero-width-break";
+  if (ch === "­")
+    return "soft-hyphen";
+  return "text";
+}
+function splitSegmentByBreakKind(segment, isWordLike, start) {
+  const pieces = [];
+  let currentKind = null;
+  let currentText = "";
+  let currentStart = start;
+  let currentWordLike = false;
+  let offset = 0;
+  for (const ch of segment) {
+    const kind = classifySegmentBreakChar(ch);
+    const wordLike = kind === "text" && isWordLike;
+    if (currentKind !== null && kind === currentKind && wordLike === currentWordLike) {
+      currentText += ch;
+      offset += ch.length;
+      continue;
+    }
+    if (currentKind !== null) {
+      pieces.push({
+        text: currentText,
+        isWordLike: currentWordLike,
+        kind: currentKind,
+        start: currentStart
+      });
+    }
+    currentKind = kind;
+    currentText = ch;
+    currentStart = start + offset;
+    currentWordLike = wordLike;
+    offset += ch.length;
+  }
+  if (currentKind !== null) {
+    pieces.push({
+      text: currentText,
+      isWordLike: currentWordLike,
+      kind: currentKind,
+      start: currentStart
+    });
+  }
+  return pieces;
+}
+var urlSchemeSegmentRe = /^[A-Za-z][A-Za-z0-9+.-]*:$/;
+function isUrlLikeRunStart(segmentation, index) {
+  const text = segmentation.texts[index];
+  if (text.startsWith("www."))
+    return true;
+  return urlSchemeSegmentRe.test(text) && index + 1 < segmentation.len && segmentation.kinds[index + 1] === "text" && segmentation.texts[index + 1] === "//";
+}
+function isUrlQueryBoundarySegment(text) {
+  return text.includes("?") && (text.includes("://") || text.startsWith("www."));
+}
+function mergeUrlLikeRuns(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < segmentation.len; i++) {
+    if (kinds[i] !== "text" || !isUrlLikeRunStart(segmentation, i))
+      continue;
+    let j = i + 1;
+    while (j < segmentation.len && kinds[j] !== "space" && kinds[j] !== "zero-width-break") {
+      texts[i] += texts[j];
+      isWordLike[i] = true;
+      const endsQueryPrefix = texts[j].includes("?");
+      kinds[j] = "text";
+      texts[j] = "";
+      j++;
+      if (endsQueryPrefix)
+        break;
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < texts.length; read++) {
+    const text = texts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      texts[compactLen] = text;
+      isWordLike[compactLen] = isWordLike[read];
+      kinds[compactLen] = kinds[read];
+      starts[compactLen] = starts[read];
+    }
+    compactLen++;
+  }
+  texts.length = compactLen;
+  isWordLike.length = compactLen;
+  kinds.length = compactLen;
+  starts.length = compactLen;
+  return {
+    len: compactLen,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeUrlQueryRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+    if (!isUrlQueryBoundarySegment(text))
+      continue;
+    const nextIndex = i + 1;
+    if (nextIndex >= segmentation.len || segmentation.kinds[nextIndex] === "space" || segmentation.kinds[nextIndex] === "zero-width-break") {
+      continue;
+    }
+    let queryText = "";
+    const queryStart = segmentation.starts[nextIndex];
+    let j = nextIndex;
+    while (j < segmentation.len && segmentation.kinds[j] !== "space" && segmentation.kinds[j] !== "zero-width-break") {
+      queryText += segmentation.texts[j];
+      j++;
+    }
+    if (queryText.length > 0) {
+      texts.push(queryText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(queryStart);
+      i = j - 1;
+    }
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+var numericJoinerChars = new Set([
+  ":",
+  "-",
+  "/",
+  "×",
+  ",",
+  ".",
+  "+",
+  "–",
+  "—"
+]);
+function segmentContainsDecimalDigit(text) {
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch))
+      return true;
+  }
+  return false;
+}
+function isNumericRunSegment(text) {
+  if (text.length === 0)
+    return false;
+  for (const ch of text) {
+    if (decimalDigitRe.test(ch) || numericJoinerChars.has(ch))
+      continue;
+    return false;
+  }
+  return true;
+}
+function mergeNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    const kind = segmentation.kinds[i];
+    if (kind === "text" && isNumericRunSegment(text) && segmentContainsDecimalDigit(text)) {
+      let mergedText = text;
+      let j = i + 1;
+      while (j < segmentation.len && segmentation.kinds[j] === "text" && isNumericRunSegment(segmentation.texts[j])) {
+        mergedText += segmentation.texts[j];
+        j++;
+      }
+      texts.push(mergedText);
+      isWordLike.push(true);
+      kinds.push("text");
+      starts.push(segmentation.starts[i]);
+      i = j - 1;
+      continue;
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(kind);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function splitHyphenatedNumericRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  for (let i = 0;i < segmentation.len; i++) {
+    const text = segmentation.texts[i];
+    if (segmentation.kinds[i] === "text" && text.includes("-")) {
+      const parts = text.split("-");
+      let shouldSplit = parts.length > 1;
+      for (let j = 0;j < parts.length; j++) {
+        const part = parts[j];
+        if (!shouldSplit)
+          break;
+        if (part.length === 0 || !segmentContainsDecimalDigit(part) || !isNumericRunSegment(part)) {
+          shouldSplit = false;
+        }
+      }
+      if (shouldSplit) {
+        let offset = 0;
+        for (let j = 0;j < parts.length; j++) {
+          const part = parts[j];
+          const splitText = j < parts.length - 1 ? `${part}-` : part;
+          texts.push(splitText);
+          isWordLike.push(true);
+          kinds.push("text");
+          starts.push(segmentation.starts[i] + offset);
+          offset += splitText.length;
+        }
+        continue;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(segmentation.isWordLike[i]);
+    kinds.push(segmentation.kinds[i]);
+    starts.push(segmentation.starts[i]);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function mergeGlueConnectedTextRuns(segmentation) {
+  const texts = [];
+  const isWordLike = [];
+  const kinds = [];
+  const starts = [];
+  let read = 0;
+  while (read < segmentation.len) {
+    let text = segmentation.texts[read];
+    let wordLike = segmentation.isWordLike[read];
+    let kind = segmentation.kinds[read];
+    let start = segmentation.starts[read];
+    if (kind === "glue") {
+      let glueText = text;
+      const glueStart = start;
+      read++;
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        glueText += segmentation.texts[read];
+        read++;
+      }
+      if (read < segmentation.len && segmentation.kinds[read] === "text") {
+        text = glueText + segmentation.texts[read];
+        wordLike = segmentation.isWordLike[read];
+        kind = "text";
+        start = glueStart;
+        read++;
+      } else {
+        texts.push(glueText);
+        isWordLike.push(false);
+        kinds.push("glue");
+        starts.push(glueStart);
+        continue;
+      }
+    } else {
+      read++;
+    }
+    if (kind === "text") {
+      while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+        let glueText = "";
+        while (read < segmentation.len && segmentation.kinds[read] === "glue") {
+          glueText += segmentation.texts[read];
+          read++;
+        }
+        if (read < segmentation.len && segmentation.kinds[read] === "text") {
+          text += glueText + segmentation.texts[read];
+          wordLike = wordLike || segmentation.isWordLike[read];
+          read++;
+          continue;
+        }
+        text += glueText;
+      }
+    }
+    texts.push(text);
+    isWordLike.push(wordLike);
+    kinds.push(kind);
+    starts.push(start);
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function carryTrailingForwardStickyAcrossCJKBoundary(segmentation) {
+  const texts = segmentation.texts.slice();
+  const isWordLike = segmentation.isWordLike.slice();
+  const kinds = segmentation.kinds.slice();
+  const starts = segmentation.starts.slice();
+  for (let i = 0;i < texts.length - 1; i++) {
+    if (kinds[i] !== "text" || kinds[i + 1] !== "text")
+      continue;
+    if (!isCJK(texts[i]) || !isCJK(texts[i + 1]))
+      continue;
+    const split = splitTrailingForwardStickyCluster(texts[i]);
+    if (split === null)
+      continue;
+    texts[i] = split.head;
+    texts[i + 1] = split.tail + texts[i + 1];
+    starts[i + 1] = starts[i] + split.head.length;
+  }
+  return {
+    len: texts.length,
+    texts,
+    isWordLike,
+    kinds,
+    starts
+  };
+}
+function buildMergedSegmentation(normalized, profile) {
+  const wordSegmenter = getSharedWordSegmenter();
+  let mergedLen = 0;
+  const mergedTexts = [];
+  const mergedWordLike = [];
+  const mergedKinds = [];
+  const mergedStarts = [];
+  for (const s of wordSegmenter.segment(normalized)) {
+    for (const piece of splitSegmentByBreakKind(s.segment, s.isWordLike ?? false, s.index)) {
+      const isText = piece.kind === "text";
+      if (profile.carryCJKAfterClosingQuote && isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJK(piece.text) && isCJK(mergedTexts[mergedLen - 1]) && endsWithClosingQuote(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && isCJKLineStartProhibitedSegment(piece.text) && isCJK(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && endsWithMyanmarMedialGlue(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = mergedWordLike[mergedLen - 1] || piece.isWordLike;
+      } else if (isText && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.isWordLike && containsArabicScript(piece.text) && endsWithArabicNoSpacePunctuation(mergedTexts[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+        mergedWordLike[mergedLen - 1] = true;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && piece.text.length === 1 && piece.text !== "-" && piece.text !== "—" && isRepeatedSingleCharRun(mergedTexts[mergedLen - 1], piece.text)) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else if (isText && !piece.isWordLike && mergedLen > 0 && mergedKinds[mergedLen - 1] === "text" && (isLeftStickyPunctuationSegment(piece.text) || piece.text === "-" && mergedWordLike[mergedLen - 1])) {
+        mergedTexts[mergedLen - 1] += piece.text;
+      } else {
+        mergedTexts[mergedLen] = piece.text;
+        mergedWordLike[mergedLen] = piece.isWordLike;
+        mergedKinds[mergedLen] = piece.kind;
+        mergedStarts[mergedLen] = piece.start;
+        mergedLen++;
+      }
+    }
+  }
+  for (let i = 1;i < mergedLen; i++) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isEscapedQuoteClusterSegment(mergedTexts[i]) && mergedKinds[i - 1] === "text") {
+      mergedTexts[i - 1] += mergedTexts[i];
+      mergedWordLike[i - 1] = mergedWordLike[i - 1] || mergedWordLike[i];
+      mergedTexts[i] = "";
+    }
+  }
+  for (let i = mergedLen - 2;i >= 0; i--) {
+    if (mergedKinds[i] === "text" && !mergedWordLike[i] && isForwardStickyClusterSegment(mergedTexts[i])) {
+      let j = i + 1;
+      while (j < mergedLen && mergedTexts[j] === "")
+        j++;
+      if (j < mergedLen && mergedKinds[j] === "text") {
+        mergedTexts[j] = mergedTexts[i] + mergedTexts[j];
+        mergedStarts[j] = mergedStarts[i];
+        mergedTexts[i] = "";
+      }
+    }
+  }
+  let compactLen = 0;
+  for (let read = 0;read < mergedLen; read++) {
+    const text = mergedTexts[read];
+    if (text.length === 0)
+      continue;
+    if (compactLen !== read) {
+      mergedTexts[compactLen] = text;
+      mergedWordLike[compactLen] = mergedWordLike[read];
+      mergedKinds[compactLen] = mergedKinds[read];
+      mergedStarts[compactLen] = mergedStarts[read];
+    }
+    compactLen++;
+  }
+  mergedTexts.length = compactLen;
+  mergedWordLike.length = compactLen;
+  mergedKinds.length = compactLen;
+  mergedStarts.length = compactLen;
+  const compacted = mergeGlueConnectedTextRuns({
+    len: compactLen,
+    texts: mergedTexts,
+    isWordLike: mergedWordLike,
+    kinds: mergedKinds,
+    starts: mergedStarts
+  });
+  const withMergedUrls = carryTrailingForwardStickyAcrossCJKBoundary(splitHyphenatedNumericRuns(mergeNumericRuns(mergeUrlQueryRuns(mergeUrlLikeRuns(compacted)))));
+  for (let i = 0;i < withMergedUrls.len - 1; i++) {
+    const split = splitLeadingSpaceAndMarks(withMergedUrls.texts[i]);
+    if (split === null)
+      continue;
+    if (withMergedUrls.kinds[i] !== "space" || withMergedUrls.kinds[i + 1] !== "text" || !containsArabicScript(withMergedUrls.texts[i + 1])) {
+      continue;
+    }
+    withMergedUrls.texts[i] = split.space;
+    withMergedUrls.isWordLike[i] = false;
+    withMergedUrls.kinds[i] = "space";
+    withMergedUrls.texts[i + 1] = split.marks + withMergedUrls.texts[i + 1];
+    withMergedUrls.starts[i + 1] = withMergedUrls.starts[i] + split.space.length;
+  }
+  return withMergedUrls;
+}
+function analyzeText(text, profile) {
+  const normalized = normalizeWhitespaceNormal(text);
+  if (normalized.length === 0) {
+    return {
+      normalized,
+      len: 0,
+      texts: [],
+      isWordLike: [],
+      kinds: [],
+      starts: []
+    };
+  }
+  return { normalized, ...buildMergedSegmentation(normalized, profile) };
+}
+
+// src/measurement.ts
+var measureContext = null;
+var segmentMetricCaches = new Map;
+var cachedEngineProfile = null;
+var emojiPresentationRe = /\p{Emoji_Presentation}/u;
+var maybeEmojiRe = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u20E3]/u;
+var sharedGraphemeSegmenter = null;
+var emojiCorrectionCache = new Map;
+function getMeasureContext() {
+  if (measureContext !== null)
+    return measureContext;
+  if (typeof OffscreenCanvas !== "undefined") {
+    measureContext = new OffscreenCanvas(1, 1).getContext("2d");
+    return measureContext;
+  }
+  if (typeof document !== "undefined") {
+    measureContext = document.createElement("canvas").getContext("2d");
+    return measureContext;
+  }
+  throw new Error("Text measurement requires OffscreenCanvas or a DOM canvas context.");
+}
+function getSegmentMetricCache(font) {
+  let cache = segmentMetricCaches.get(font);
+  if (!cache) {
+    cache = new Map;
+    segmentMetricCaches.set(font, cache);
+  }
+  return cache;
+}
+function getSegmentMetrics(seg, cache) {
+  let metrics = cache.get(seg);
+  if (metrics === undefined) {
+    const ctx = getMeasureContext();
+    metrics = {
+      width: ctx.measureText(seg).width,
+      containsCJK: isCJK(seg)
+    };
+    cache.set(seg, metrics);
+  }
+  return metrics;
+}
+function getEngineProfile() {
+  if (cachedEngineProfile !== null)
+    return cachedEngineProfile;
+  if (typeof navigator === "undefined") {
+    cachedEngineProfile = {
+      lineFitEpsilon: 0.005,
+      carryCJKAfterClosingQuote: false
+    };
+    return cachedEngineProfile;
+  }
+  const ua = navigator.userAgent;
+  const vendor = navigator.vendor;
+  const isSafari = vendor === "Apple Computer, Inc." && ua.includes("Safari/") && !ua.includes("Chrome/") && !ua.includes("Chromium/") && !ua.includes("CriOS/") && !ua.includes("FxiOS/") && !ua.includes("EdgiOS/");
+  const isChromium = ua.includes("Chrome/") || ua.includes("Chromium/") || ua.includes("CriOS/") || ua.includes("Edg/");
+  cachedEngineProfile = {
+    lineFitEpsilon: isSafari ? 1 / 64 : 0.005,
+    carryCJKAfterClosingQuote: isChromium
+  };
+  return cachedEngineProfile;
+}
+function parseFontSize(font) {
+  const m = font.match(/(\d+(?:\.\d+)?)\s*px/);
+  return m ? parseFloat(m[1]) : 16;
+}
+function getSharedGraphemeSegmenter() {
+  if (sharedGraphemeSegmenter === null) {
+    sharedGraphemeSegmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter;
+}
+function isEmojiGrapheme(g) {
+  return emojiPresentationRe.test(g) || g.includes("️");
+}
+function textMayContainEmoji(text) {
+  return maybeEmojiRe.test(text);
+}
+function getEmojiCorrection(font, fontSize) {
+  let correction = emojiCorrectionCache.get(font);
+  if (correction !== undefined)
+    return correction;
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const canvasW = ctx.measureText("\uD83D\uDE00").width;
+  correction = 0;
+  if (canvasW > fontSize + 0.5 && typeof document !== "undefined" && document.body !== null) {
+    const span = document.createElement("span");
+    span.style.font = font;
+    span.style.display = "inline-block";
+    span.style.visibility = "hidden";
+    span.style.position = "absolute";
+    span.textContent = "\uD83D\uDE00";
+    document.body.appendChild(span);
+    const domW = span.getBoundingClientRect().width;
+    document.body.removeChild(span);
+    if (canvasW - domW > 0.5) {
+      correction = canvasW - domW;
+    }
+  }
+  emojiCorrectionCache.set(font, correction);
+  return correction;
+}
+function countEmojiGraphemes(text) {
+  let count = 0;
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const g of graphemeSegmenter.segment(text)) {
+    if (isEmojiGrapheme(g.segment))
+      count++;
+  }
+  return count;
+}
+function getEmojiCount(seg, metrics) {
+  if (metrics.emojiCount === undefined) {
+    metrics.emojiCount = countEmojiGraphemes(seg);
+  }
+  return metrics.emojiCount;
+}
+function getCorrectedSegmentWidth(seg, metrics, emojiCorrection) {
+  if (emojiCorrection === 0)
+    return metrics.width;
+  return metrics.width - getEmojiCount(seg, metrics) * emojiCorrection;
+}
+function getSegmentGraphemeWidths(seg, metrics, cache, emojiCorrection) {
+  if (metrics.graphemeWidths !== undefined)
+    return metrics.graphemeWidths;
+  const widths = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter();
+  for (const gs of graphemeSegmenter.segment(seg)) {
+    const graphemeMetrics = getSegmentMetrics(gs.segment, cache);
+    widths.push(getCorrectedSegmentWidth(gs.segment, graphemeMetrics, emojiCorrection));
+  }
+  metrics.graphemeWidths = widths.length > 1 ? widths : null;
+  return metrics.graphemeWidths;
+}
+function getFontMeasurementState(font, needsEmojiCorrection) {
+  const ctx = getMeasureContext();
+  ctx.font = font;
+  const cache = getSegmentMetricCache(font);
+  const fontSize = parseFontSize(font);
+  const emojiCorrection = needsEmojiCorrection ? getEmojiCorrection(font, fontSize) : 0;
+  return { cache, fontSize, emojiCorrection };
+}
+function clearMeasurementCaches() {
+  segmentMetricCaches.clear();
+  emojiCorrectionCache.clear();
+  sharedGraphemeSegmenter = null;
+}
+
+// src/line-break.ts
+function isCollapsibleSpaceKind(kind) {
+  return kind === "space";
+}
+function fitSoftHyphenBreak(graphemeWidths, initialWidth, maxWidth, lineFitEpsilon, discretionaryHyphenWidth) {
+  let fitCount = 0;
+  let fittedWidth = initialWidth;
+  while (fitCount < graphemeWidths.length) {
+    const nextWidth = fittedWidth + graphemeWidths[fitCount];
+    const nextLineWidth = fitCount + 1 < graphemeWidths.length ? nextWidth + discretionaryHyphenWidth : nextWidth;
+    if (nextLineWidth > maxWidth + lineFitEpsilon)
+      break;
+    fittedWidth = nextWidth;
+    fitCount++;
+  }
+  return { fitCount, fittedWidth };
+}
+function normalizeLineStart(prepared, start) {
+  let segmentIndex = start.segmentIndex;
+  const graphemeIndex = start.graphemeIndex;
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  if (graphemeIndex > 0)
+    return start;
+  while (segmentIndex < prepared.widths.length) {
+    const kind = prepared.kinds[segmentIndex];
+    if (kind !== "space" && kind !== "zero-width-break" && kind !== "soft-hyphen") {
+      break;
+    }
+    segmentIndex++;
+  }
+  if (segmentIndex >= prepared.widths.length)
+    return null;
+  return { segmentIndex, graphemeIndex: 0 };
+}
+function countPreparedLines(prepared, maxWidth) {
+  const { widths, kinds, breakableWidths } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  if (kinds.includes("soft-hyphen")) {
+    return walkPreparedLines(prepared, maxWidth);
+  }
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  function placeOnFreshLine(segmentIndex) {
+    const w = widths[segmentIndex];
+    if (w > maxWidth && breakableWidths[segmentIndex] !== null) {
+      const gWidths = breakableWidths[segmentIndex];
+      lineW = 0;
+      for (let g = 0;g < gWidths.length; g++) {
+        const gw = gWidths[g];
+        if (lineW > 0 && lineW + gw > maxWidth + lineFitEpsilon) {
+          lineCount++;
+          lineW = gw;
+        } else {
+          if (lineW === 0)
+            lineCount++;
+          lineW += gw;
+        }
+      }
+    } else {
+      lineW = w;
+      lineCount++;
+    }
+    hasContent = true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (!hasContent) {
+      placeOnFreshLine(i);
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        continue;
+      }
+      lineW = 0;
+      hasContent = false;
+      placeOnFreshLine(i);
+    } else {
+      lineW = newW;
+    }
+  }
+  if (!hasContent) {
+    lineCount++;
+  }
+  return lineCount;
+}
+function walkPreparedLines(prepared, maxWidth, onLine) {
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  if (widths.length === 0)
+    return 0;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineCount = 0;
+  let lineW = 0;
+  let hasContent = false;
+  let lineStartSegmentIndex = 0;
+  let lineStartGraphemeIndex = 0;
+  let lineEndSegmentIndex = 0;
+  let lineEndGraphemeIndex = 0;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function emitCurrentLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    lineCount++;
+    onLine?.({
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    });
+    lineW = 0;
+    hasContent = false;
+    clearPendingSoftBreak();
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = 0;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineStartSegmentIndex = segmentIndex;
+    lineStartGraphemeIndex = graphemeIndex;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegment(segmentIndex) {
+    appendBreakableSegmentFrom(segmentIndex, 0);
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        emitCurrentLine();
+        startLineAtGrapheme(segmentIndex, g, gw);
+      } else {
+        lineW += gw;
+        lineEndSegmentIndex = segmentIndex;
+        lineEndGraphemeIndex = g + 1;
+      }
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+  }
+  function continueSoftHyphenBreakableSegment(segmentIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    if (gWidths === null)
+      return false;
+    const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+    if (fitCount === 0)
+      return false;
+    lineW = fittedWidth;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = fitCount;
+    clearPendingSoftBreak();
+    if (fitCount === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+      return true;
+    }
+    emitCurrentLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+    appendBreakableSegmentFrom(segmentIndex, fitCount);
+    return true;
+  }
+  for (let i = 0;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    if (kind === "soft-hyphen") {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        appendBreakableSegment(i);
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && continueSoftHyphenBreakableSegment(i)) {
+        continue;
+      }
+      if (pendingSoftBreakSegmentIndex >= 0 && pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+        emitCurrentLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+        if (w > maxWidth && breakableWidths[i] !== null) {
+          appendBreakableSegment(i);
+        } else {
+          startLineAtSegment(i, w);
+        }
+        if (kind === "space" || kind === "zero-width-break") {
+          clearPendingSoftBreak();
+        }
+        continue;
+      }
+      if (w > maxWidth && breakableWidths[i] !== null) {
+        emitCurrentLine();
+        appendBreakableSegment(i);
+      } else {
+        emitCurrentLine();
+        startLineAtSegment(i, w);
+      }
+    } else {
+      appendWholeSegment(i, w);
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+    }
+  }
+  if (hasContent) {
+    emitCurrentLine();
+  }
+  return lineCount;
+}
+function layoutNextLineRange(prepared, start, maxWidth) {
+  const normalizedStart = normalizeLineStart(prepared, start);
+  if (normalizedStart === null)
+    return null;
+  const { widths, kinds, breakableWidths, discretionaryHyphenWidth } = prepared;
+  const lineFitEpsilon = getEngineProfile().lineFitEpsilon;
+  let lineW = 0;
+  let hasContent = false;
+  const lineStartSegmentIndex = normalizedStart.segmentIndex;
+  const lineStartGraphemeIndex = normalizedStart.graphemeIndex;
+  let lineEndSegmentIndex = lineStartSegmentIndex;
+  let lineEndGraphemeIndex = lineStartGraphemeIndex;
+  let pendingSoftBreakSegmentIndex = -1;
+  let pendingSoftBreakWidth = 0;
+  function clearPendingSoftBreak() {
+    pendingSoftBreakSegmentIndex = -1;
+    pendingSoftBreakWidth = 0;
+  }
+  function finishLine(endSegmentIndex = lineEndSegmentIndex, endGraphemeIndex = lineEndGraphemeIndex, width = lineW) {
+    if (!hasContent)
+      return null;
+    return {
+      startSegmentIndex: lineStartSegmentIndex,
+      startGraphemeIndex: lineStartGraphemeIndex,
+      endSegmentIndex,
+      endGraphemeIndex,
+      width
+    };
+  }
+  function startLineAtSegment(segmentIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+    lineW = width;
+  }
+  function startLineAtGrapheme(segmentIndex, graphemeIndex, width) {
+    hasContent = true;
+    lineEndSegmentIndex = segmentIndex;
+    lineEndGraphemeIndex = graphemeIndex + 1;
+    lineW = width;
+  }
+  function appendWholeSegment(segmentIndex, width) {
+    if (!hasContent) {
+      startLineAtSegment(segmentIndex, width);
+      return;
+    }
+    lineW += width;
+    lineEndSegmentIndex = segmentIndex + 1;
+    lineEndGraphemeIndex = 0;
+  }
+  function appendBreakableSegmentFrom(segmentIndex, startGraphemeIndex) {
+    const gWidths = breakableWidths[segmentIndex];
+    for (let g = startGraphemeIndex;g < gWidths.length; g++) {
+      const gw = gWidths[g];
+      if (!hasContent) {
+        startLineAtGrapheme(segmentIndex, g, gw);
+        continue;
+      }
+      if (lineW + gw > maxWidth + lineFitEpsilon) {
+        return finishLine();
+      }
+      lineW += gw;
+      lineEndSegmentIndex = segmentIndex;
+      lineEndGraphemeIndex = g + 1;
+    }
+    if (hasContent && lineEndSegmentIndex === segmentIndex && lineEndGraphemeIndex === gWidths.length) {
+      lineEndSegmentIndex = segmentIndex + 1;
+      lineEndGraphemeIndex = 0;
+    }
+    return null;
+  }
+  function maybeFinishAtSoftHyphen(segmentIndex) {
+    if (pendingSoftBreakSegmentIndex < 0)
+      return null;
+    const gWidths = breakableWidths[segmentIndex] ?? null;
+    if (gWidths !== null) {
+      const { fitCount, fittedWidth } = fitSoftHyphenBreak(gWidths, lineW, maxWidth, lineFitEpsilon, discretionaryHyphenWidth);
+      if (fitCount === gWidths.length) {
+        lineW = fittedWidth;
+        lineEndSegmentIndex = segmentIndex + 1;
+        lineEndGraphemeIndex = 0;
+        clearPendingSoftBreak();
+        return null;
+      }
+      if (fitCount > 0) {
+        return finishLine(segmentIndex, fitCount, fittedWidth + discretionaryHyphenWidth);
+      }
+    }
+    if (pendingSoftBreakWidth <= maxWidth + lineFitEpsilon) {
+      return finishLine(pendingSoftBreakSegmentIndex, 0, pendingSoftBreakWidth);
+    }
+    return null;
+  }
+  for (let i = normalizedStart.segmentIndex;i < widths.length; i++) {
+    const w = widths[i];
+    const kind = kinds[i];
+    const startGraphemeIndex = i === normalizedStart.segmentIndex ? normalizedStart.graphemeIndex : 0;
+    if (kind === "soft-hyphen" && startGraphemeIndex === 0) {
+      if (hasContent) {
+        lineEndSegmentIndex = i + 1;
+        lineEndGraphemeIndex = 0;
+        pendingSoftBreakSegmentIndex = i + 1;
+        pendingSoftBreakWidth = lineW + discretionaryHyphenWidth;
+      }
+      continue;
+    }
+    if (!hasContent) {
+      if (startGraphemeIndex > 0) {
+        const line = appendBreakableSegmentFrom(i, startGraphemeIndex);
+        if (line !== null)
+          return line;
+      } else if (w > maxWidth && breakableWidths[i] !== null) {
+        const line = appendBreakableSegmentFrom(i, 0);
+        if (line !== null)
+          return line;
+      } else {
+        startLineAtSegment(i, w);
+      }
+      if (kind === "space" || kind === "zero-width-break") {
+        clearPendingSoftBreak();
+      }
+      continue;
+    }
+    const newW = lineW + w;
+    if (newW > maxWidth + lineFitEpsilon) {
+      if (isCollapsibleSpaceKind(kind)) {
+        clearPendingSoftBreak();
+        continue;
+      }
+      const softBreakLine = maybeFinishAtSoftHyphen(i);
+      if (softBreakLine !== null)
+        return softBreakLine;
+      return finishLine();
+    }
+    appendWholeSegment(i, w);
+    if (kind === "space" || kind === "zero-width-break") {
+      clearPendingSoftBreak();
+    }
+  }
+  return finishLine();
+}
+
+// src/layout.ts
+var sharedGraphemeSegmenter2 = null;
+var sharedLineTextCaches = new WeakMap;
+function getSharedGraphemeSegmenter2() {
+  if (sharedGraphemeSegmenter2 === null) {
+    sharedGraphemeSegmenter2 = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  }
+  return sharedGraphemeSegmenter2;
+}
+function createEmptyPrepared(includeSegments) {
+  if (includeSegments) {
+    return {
+      widths: [],
+      kinds: [],
+      segLevels: null,
+      breakableWidths: [],
+      discretionaryHyphenWidth: 0,
+      segments: []
+    };
+  }
+  return {
+    widths: [],
+    kinds: [],
+    segLevels: null,
+    breakableWidths: [],
+    discretionaryHyphenWidth: 0
+  };
+}
+function measureAnalysis(analysis, font, includeSegments) {
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  const engineProfile = getEngineProfile();
+  const { cache, emojiCorrection } = getFontMeasurementState(font, textMayContainEmoji(analysis.normalized));
+  const discretionaryHyphenWidth = getCorrectedSegmentWidth("-", getSegmentMetrics("-", cache), emojiCorrection);
+  if (analysis.len === 0)
+    return createEmptyPrepared(includeSegments);
+  const widths = [];
+  const kinds = [];
+  const segStarts = includeSegments ? [] : null;
+  const breakableWidths = [];
+  const segments = includeSegments ? [] : null;
+  function pushMeasuredSegment(text, width, kind, start, breakable) {
+    widths.push(width);
+    kinds.push(kind);
+    segStarts?.push(start);
+    breakableWidths.push(breakable);
+    if (segments !== null)
+      segments.push(text);
+  }
+  for (let mi = 0;mi < analysis.len; mi++) {
+    const segText = analysis.texts[mi];
+    const segWordLike = analysis.isWordLike[mi];
+    const segKind = analysis.kinds[mi];
+    const segStart = analysis.starts[mi];
+    if (segKind === "soft-hyphen") {
+      pushMeasuredSegment(segText, 0, segKind, segStart, null);
+      continue;
+    }
+    const segMetrics = getSegmentMetrics(segText, cache);
+    if (segKind === "text" && segMetrics.containsCJK) {
+      let unitText = "";
+      let unitStart = 0;
+      for (const gs of graphemeSegmenter.segment(segText)) {
+        const grapheme = gs.segment;
+        if (unitText.length === 0) {
+          unitText = grapheme;
+          unitStart = gs.index;
+          continue;
+        }
+        if (kinsokuEnd.has(unitText) || kinsokuStart.has(grapheme) || leftStickyPunctuation.has(grapheme) || engineProfile.carryCJKAfterClosingQuote && isCJK(grapheme) && endsWithClosingQuote(unitText)) {
+          unitText += grapheme;
+          continue;
+        }
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+        unitText = grapheme;
+        unitStart = gs.index;
+      }
+      if (unitText.length > 0) {
+        const unitMetrics = getSegmentMetrics(unitText, cache);
+        const w2 = getCorrectedSegmentWidth(unitText, unitMetrics, emojiCorrection);
+        pushMeasuredSegment(unitText, w2, "text", segStart + unitStart, null);
+      }
+      continue;
+    }
+    const w = getCorrectedSegmentWidth(segText, segMetrics, emojiCorrection);
+    if (segWordLike && segText.length > 1) {
+      const graphemeWidths = getSegmentGraphemeWidths(segText, segMetrics, cache, emojiCorrection);
+      pushMeasuredSegment(segText, w, segKind, segStart, graphemeWidths);
+    } else {
+      pushMeasuredSegment(segText, w, segKind, segStart, null);
+    }
+  }
+  const segLevels = segStarts === null ? null : computeSegmentLevels(analysis.normalized, segStarts);
+  if (segments !== null) {
+    return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth, segments };
+  }
+  return { widths, kinds, segLevels, breakableWidths, discretionaryHyphenWidth };
+}
+function prepareInternal(text, font, includeSegments) {
+  const analysis = analyzeText(text, getEngineProfile());
+  return measureAnalysis(analysis, font, includeSegments);
+}
+function profilePrepare(text, font) {
+  const t0 = performance.now();
+  const analysis = analyzeText(text, getEngineProfile());
+  const t1 = performance.now();
+  const prepared = measureAnalysis(analysis, font, false);
+  const t2 = performance.now();
+  let breakableSegments = 0;
+  for (const widths of prepared.breakableWidths) {
+    if (widths !== null)
+      breakableSegments++;
+  }
+  return {
+    analysisMs: t1 - t0,
+    measureMs: t2 - t1,
+    totalMs: t2 - t0,
+    analysisSegments: analysis.len,
+    preparedSegments: prepared.widths.length,
+    breakableSegments
+  };
+}
+function prepare(text, font) {
+  return prepareInternal(text, font, false);
+}
+function prepareWithSegments(text, font) {
+  return prepareInternal(text, font, true);
+}
+function getInternalPrepared(prepared) {
+  return prepared;
+}
+function layout(prepared, maxWidth, lineHeight) {
+  const lineCount = countPreparedLines(getInternalPrepared(prepared), maxWidth);
+  return { lineCount, height: lineCount * lineHeight };
+}
+function getSegmentGraphemes(segmentIndex, segments, cache) {
+  let graphemes = cache.get(segmentIndex);
+  if (graphemes !== undefined)
+    return graphemes;
+  graphemes = [];
+  const graphemeSegmenter = getSharedGraphemeSegmenter2();
+  for (const gs of graphemeSegmenter.segment(segments[segmentIndex])) {
+    graphemes.push(gs.segment);
+  }
+  cache.set(segmentIndex, graphemes);
+  return graphemes;
+}
+function getLineTextCache(prepared) {
+  let cache = sharedLineTextCaches.get(prepared);
+  if (cache !== undefined)
+    return cache;
+  cache = new Map;
+  sharedLineTextCaches.set(prepared, cache);
+  return cache;
+}
+function lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex) {
+  return endSegmentIndex > 0 && kinds[endSegmentIndex - 1] === "soft-hyphen" && !(startSegmentIndex === endSegmentIndex && startGraphemeIndex > 0);
+}
+function buildLineTextFromRange(segments, kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  let text = "";
+  const endsWithDiscretionaryHyphen = lineHasDiscretionaryHyphen(kinds, startSegmentIndex, startGraphemeIndex, endSegmentIndex);
+  for (let i = startSegmentIndex;i < endSegmentIndex; i++) {
+    if (kinds[i] === "soft-hyphen")
+      continue;
+    if (i === startSegmentIndex && startGraphemeIndex > 0) {
+      text += getSegmentGraphemes(i, segments, cache).slice(startGraphemeIndex).join("");
+    } else {
+      text += segments[i];
+    }
+  }
+  if (endGraphemeIndex > 0) {
+    if (endsWithDiscretionaryHyphen)
+      text += "-";
+    text += getSegmentGraphemes(endSegmentIndex, segments, cache).slice(startSegmentIndex === endSegmentIndex ? startGraphemeIndex : 0, endGraphemeIndex).join("");
+  } else if (endsWithDiscretionaryHyphen) {
+    text += "-";
+  }
+  return text;
+}
+function createLayoutLine(prepared, cache, width, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex) {
+  return {
+    text: buildLineTextFromRange(prepared.segments, prepared.kinds, cache, startSegmentIndex, startGraphemeIndex, endSegmentIndex, endGraphemeIndex),
+    width,
+    start: {
+      segmentIndex: startSegmentIndex,
+      graphemeIndex: startGraphemeIndex
+    },
+    end: {
+      segmentIndex: endSegmentIndex,
+      graphemeIndex: endGraphemeIndex
+    }
+  };
+}
+function materializeLayoutLine(prepared, cache, line) {
+  return createLayoutLine(prepared, cache, line.width, line.startSegmentIndex, line.startGraphemeIndex, line.endSegmentIndex, line.endGraphemeIndex);
+}
+function toLayoutLineRange(line) {
+  return {
+    width: line.width,
+    start: {
+      segmentIndex: line.startSegmentIndex,
+      graphemeIndex: line.startGraphemeIndex
+    },
+    end: {
+      segmentIndex: line.endSegmentIndex,
+      graphemeIndex: line.endGraphemeIndex
+    }
+  };
+}
+function stepLineRange(prepared, start, maxWidth) {
+  const line = layoutNextLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return toLayoutLineRange(line);
+}
+function materializeLine(prepared, line) {
+  return createLayoutLine(prepared, getLineTextCache(prepared), line.width, line.start.segmentIndex, line.start.graphemeIndex, line.end.segmentIndex, line.end.graphemeIndex);
+}
+function walkLineRanges(prepared, maxWidth, onLine) {
+  if (prepared.widths.length === 0)
+    return 0;
+  return walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    onLine(toLayoutLineRange(line));
+  });
+}
+function layoutNextLine(prepared, start, maxWidth) {
+  const line = stepLineRange(prepared, start, maxWidth);
+  if (line === null)
+    return null;
+  return materializeLine(prepared, line);
+}
+function layoutWithLines(prepared, maxWidth, lineHeight) {
+  const lines = [];
+  if (prepared.widths.length === 0)
+    return { lineCount: 0, height: 0, lines };
+  const graphemeCache = getLineTextCache(prepared);
+  const lineCount = walkPreparedLines(getInternalPrepared(prepared), maxWidth, (line) => {
+    lines.push(materializeLayoutLine(prepared, graphemeCache, line));
+  });
+  return { lineCount, height: lineCount * lineHeight, lines };
+}
+function clearCache() {
+  clearAnalysisCaches();
+  sharedGraphemeSegmenter2 = null;
+  sharedLineTextCaches = new WeakMap;
+  clearMeasurementCaches();
+}
+function setLocale(locale) {
+  setAnalysisLocale(locale);
+  clearCache();
+}
+
+
+// ═══════════════════════════════════════
+// ② 内容
+// ═══════════════════════════════════════
+// 编辑本段的标题、作者与正文。独立图片用 image，内嵌图用 diagram。
+var TITLE = "电脑关机后，Agent 仍能沿着看板交付";
+var META = "Why.J Engineering  ·  2026-11-28";
+var LEAD = "晚上合上电脑前，WhyJ-Quant 的 CI 需求卡还挂着一行「盘点现有检查」。第二天打开手机，我希望能看到 Agent 查了哪个提交、哪些用户路径还缺证据、下一步归谁。如果 Worker 已经开了 PR，却在回填看板前掉线，接班的 Worker 还得找回那条 PR，接着查它的 CI。";
+var SECTIONS = [
+  {
+    "id": "board",
+    "tocLabel": "需求卡与交付证据",
+    "heading": "需求卡负责交接，PR 和 Actions 保存交付证据",
+    "body": "第二天打开看板时，「CI-01 进行中」只能说明有人领了任务。接手者还需要知道该交付什么、上一次查到哪里，以及哪次运行可以核对。 需求卡写清验收条件，云端任务记录留下接力点，PR 和 Actions 把变更与测试证据绑定到具体提交。 WhyJ-Quant 的 CI 总卡 汇总覆盖盘点、安装后验收、工作台交互和只读行情连通性等工作。其中， CI-01 的覆盖盘点卡 要求交付一张覆盖表，逐条说明工作流从哪里启动、测试哪一层、实际断言什么。打开卡片需要 Project 权限。 接手者可以从 常规 Linux/Windows CI 核对现有检查，从 Windows Desktop 基线运行 核对桌面检查，再翻看 可选 Live Provider 运行 的行情连通性证据。三次运行都绑定到同一个提交 08f860b ，可以作为同一轮盘点的基线。每条运行能覆盖什么，还要看具体步骤和断言。 在 WhyJ-Quant Board 中，「CI补齐以及Review」「UI/UX 易用性优化」和「TODO」都占用 Status 字段。CI 总卡可以留在 CI 列，细项由子卡跟踪。团队需要跨类别查看「所有进行中」时，可以借鉴 DeepInfer Roadmap 的特性视图 ，把特性和进度分开筛选。两个看板视图都需要相应权限。 DeepInfer 需求清单 里的稳定编号也适合让 RFC 和实现回指具体需求。 信息 建议的记录位置 Agent 如何使用 需求、优先级、负责人、验收条件 Project 需求卡或仓库 Issue Agent 按稳定条目编号领取一段范围明确的工作。 执行阶段、阻塞、恢复位置 云端任务记录，摘要及链接回填到需求卡 新会话按任务 ID 定位上次已完成的动作。 变更、评审、测试与产物 PR、Actions 和报告 验收者核对同一个提交对应的证据和限制。",
+    "bodyHTML": "\u003cp>第二天打开看板时，「CI-01 进行中」只能说明有人领了任务。接手者还需要知道该交付什么、上一次查到哪里，以及哪次运行可以核对。\u003c/p>\n\u003cp>\u003cstrong>需求卡写清验收条件，云端任务记录留下接力点，PR 和 Actions 把变更与测试证据绑定到具体提交。\u003c/strong>\u003c/p>\n\u003cp>\u003ca href=\"https://github.com/users/yangjingo/projects/4?pane=issue&amp;itemId=321201735\" rel=\"noopener noreferrer\" target=\"_blank\">WhyJ-Quant 的 CI 总卡\u003c/a>汇总覆盖盘点、安装后验收、工作台交互和只读行情连通性等工作。其中，\u003ca href=\"https://github.com/users/yangjingo/projects/4?pane=issue&amp;itemId=321232280\" rel=\"noopener noreferrer\" target=\"_blank\">CI-01 的覆盖盘点卡\u003c/a>要求交付一张覆盖表，逐条说明工作流从哪里启动、测试哪一层、实际断言什么。打开卡片需要 Project 权限。\u003c/p>\n\u003cp>接手者可以从\u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/actions/runs/46099215204\" rel=\"noopener noreferrer\" target=\"_blank\">常规 Linux/Windows CI\u003c/a>核对现有检查，从 \u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/actions/runs/46099215212\" rel=\"noopener noreferrer\" target=\"_blank\">Windows Desktop 基线运行\u003c/a>核对桌面检查，再翻看\u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/actions/runs/46099215243\" rel=\"noopener noreferrer\" target=\"_blank\">可选 Live Provider 运行\u003c/a>的行情连通性证据。三次运行都绑定到同一个提交 \u003ccode>08f860b\u003c/code>，可以作为同一轮盘点的基线。每条运行能覆盖什么，还要看具体步骤和断言。\u003c/p>\n\u003cp>在 \u003ca href=\"https://github.com/users/yangjingo/projects/4/views/2\" rel=\"noopener noreferrer\" target=\"_blank\">WhyJ-Quant Board\u003c/a> 中，「CI补齐以及Review」「UI/UX 易用性优化」和「TODO」都占用 Status 字段。CI 总卡可以留在 CI 列，细项由子卡跟踪。团队需要跨类别查看「所有进行中」时，可以借鉴 \u003ca href=\"https://github.com/orgs/cann-framework/projects/1/views/4\" rel=\"noopener noreferrer\" target=\"_blank\">DeepInfer Roadmap 的特性视图\u003c/a>，把特性和进度分开筛选。两个看板视图都需要相应权限。\u003ca href=\"https://github.com/cann-framework/cann-deepinfer-recipe/blob/main/docs/requirements.yaml\" rel=\"noopener noreferrer\" target=\"_blank\">DeepInfer 需求清单\u003c/a>里的稳定编号也适合让 RFC 和实现回指具体需求。\u003c/p>\n\u003cdiv aria-label=\"需求卡负责交接，PR 和 Actions 保存交付证据\" class=\"table-wrap\" role=\"region\" tabindex=\"0\">\u003ctable>\n\u003cthead>\n\u003ctr>\n\u003cth scope=\"col\">信息\u003c/th>\n\u003cth scope=\"col\">建议的记录位置\u003c/th>\n\u003cth scope=\"col\">Agent 如何使用\u003c/th>\n\u003c/tr>\n\u003c/thead>\n\u003ctbody>\n\u003ctr>\n\u003ctd>需求、优先级、负责人、验收条件\u003c/td>\n\u003ctd>Project 需求卡或仓库 Issue\u003c/td>\n\u003ctd>Agent 按稳定条目编号领取一段范围明确的工作。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>执行阶段、阻塞、恢复位置\u003c/td>\n\u003ctd>云端任务记录，摘要及链接回填到需求卡\u003c/td>\n\u003ctd>新会话按任务 ID 定位上次已完成的动作。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>变更、评审、测试与产物\u003c/td>\n\u003ctd>PR、Actions 和报告\u003c/td>\n\u003ctd>验收者核对同一个提交对应的证据和限制。\u003c/td>\n\u003c/tr>\n\u003c/tbody>\n\u003c/table>\u003c/div>\n"
+  },
+  {
+    "id": "task",
+    "tocLabel": "CI-01 覆盖盘点",
+    "heading": "一次完整委派从 CI-01 的覆盖盘点开始",
+    "body": "同一个提交的三次基线运行可以供 CI-01 对照，但看见「成功」还判断不了测试是从源码目录启动，还是从已安装的候选包启动。 先让 CI-01 交付一张逐项可核对的覆盖表，再把其中确认的安装后路径缺口交给 CI-02。 把 CI-01 委派给 Agent 时，先要求它读固定版本的 WhyJ-Quant CI 指南 ，再核对盘点基线提交的工作流和 Actions 记录，把「入口、平台、断言、运行链接、缺口」逐项写进覆盖表。 GitHub Projects API 提供读取条目和更新项目的 GraphQL 操作。Agent 只有读取权限时，先交出带证据链接的草稿，由维护者写回原卡。 第一次可以用两个只读命令确认数据入口。这两条命令分别查看私有 Project 的任务列表和已知的 Windows Desktop 基线运行，需要登录有相应访问权限的 GitHub 账号。 gh project item-list 4 --owner yangjingo --format json --limit 50\ngh run view 46099215212 --repo yangjingo/WhyJ-Quant --json headSha,conclusion,jobs,url 如果 CI-01 的覆盖表确认安装后路径有缺口，维护者可以从 CI-02 的安装验收卡 挑一条路径，开独立的实现 Issue。候选用例是用发布包里的 CLI 回放固定行情，检查日期、零值、缺失值，再验证归档缺失时的失败行为。Worker 在隔离 checkout 中提交 PR，核对最终修订的 Actions 结果，再把证据链接写回 CI-02。 WhyJ-Quant 的 PR policy 已有 Issue 关联、说明章节和文档变更要求。安装后路径是否达标，由这个 Issue 的断言和合入门禁共同决定。",
+    "bodyHTML": "\u003cp>同一个提交的三次基线运行可以供 CI-01 对照，但看见「成功」还判断不了测试是从源码目录启动，还是从已安装的候选包启动。\u003c/p>\n\u003cp>\u003cstrong>先让 CI-01 交付一张逐项可核对的覆盖表，再把其中确认的安装后路径缺口交给 CI-02。\u003c/strong>\u003c/p>\n\u003cp>把 CI-01 委派给 Agent 时，先要求它读固定版本的 \u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/blob/08f860beeb8d3a3b9bf0eae15b7c9ebcde75fdb5/docs/ci-release.md\" rel=\"noopener noreferrer\" target=\"_blank\">WhyJ-Quant CI 指南\u003c/a>，再核对盘点基线提交的工作流和 Actions 记录，把「入口、平台、断言、运行链接、缺口」逐项写进覆盖表。\u003ca href=\"https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects\" rel=\"noopener noreferrer\" target=\"_blank\">GitHub Projects API\u003c/a>提供读取条目和更新项目的 GraphQL 操作。Agent 只有读取权限时，先交出带证据链接的草稿，由维护者写回原卡。\u003c/p>\n\u003cp>第一次可以用两个只读命令确认数据入口。这两条命令分别查看私有 Project 的任务列表和已知的 Windows Desktop 基线运行，需要登录有相应访问权限的 GitHub 账号。\u003c/p>\n\u003cpre>\u003ccode class=\"language-powershell\">gh project item-list 4 --owner yangjingo --format json --limit 50\ngh run view 46099215212 --repo yangjingo/WhyJ-Quant --json headSha,conclusion,jobs,url\n\u003c/code>\u003c/pre>\n\u003cp>如果 CI-01 的覆盖表确认安装后路径有缺口，维护者可以从 \u003ca href=\"https://github.com/users/yangjingo/projects/4?pane=issue&amp;itemId=321232316\" rel=\"noopener noreferrer\" target=\"_blank\">CI-02 的安装验收卡\u003c/a>挑一条路径，开独立的实现 Issue。候选用例是用发布包里的 CLI 回放固定行情，检查日期、零值、缺失值，再验证归档缺失时的失败行为。Worker 在隔离 checkout 中提交 PR，核对最终修订的 Actions 结果，再把证据链接写回 CI-02。\u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/blob/08f860beeb8d3a3b9bf0eae15b7c9ebcde75fdb5/docs/ci-release.md#issues-and-pull-requests\" rel=\"noopener noreferrer\" target=\"_blank\">WhyJ-Quant 的 PR policy\u003c/a>已有 Issue 关联、说明章节和文档变更要求。安装后路径是否达标，由这个 Issue 的断言和合入门禁共同决定。\u003c/p>\n"
+  },
+  {
+    "id": "figure-1",
+    "diagram": "\u003cdiv class=\"diagram diagram-handoff\" lang=\"en\" role=\"img\" aria-label=\"Project card to scoped task and worker, then GitHub PR to run evidence and acceptance\">\u003cspan class=\"diagram-node diagram-focus\">Project card\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">→\u003c/span>\u003cspan class=\"diagram-node\">Scoped task\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">→\u003c/span>\u003cspan class=\"diagram-node\">Worker\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">↑\u003c/span>\u003cspan>\u003c/span>\u003cspan>\u003c/span>\u003cspan>\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">↓\u003c/span>\u003cspan class=\"diagram-node diagram-focus\">Acceptance\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">←\u003c/span>\u003cspan class=\"diagram-node\">Run evidence\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">←\u003c/span>\u003cspan class=\"diagram-node\">GitHub PR\u003c/span>\u003c/div>",
+    "caption": "Figure 1: The board points to delivery evidence.",
+    "description": "需求卡提供目标与范围，Worker 生成变更，Actions 产出验证证据，维护者将验收结果写回原卡。"
+  },
+  {
+    "id": "cloud",
+    "tocLabel": "云端委派与执行环境",
+    "heading": "dots 接住云端委派，运行环境决定关机后能做什么",
+    "body": "CI-01 只需要读卡片和 Actions，CI-02 却要试跑一个安装候选。即使同一个 dot 接到了两项任务，关机后能执行的步骤也会不同。 dot 可以发起巡检和委派，CI-02 能否关机续跑取决于云端环境能否取得对应候选包、执行检查并保存结果。 我会先把 CI-01 的只读巡检交给 dot，由它核对最新 Actions 结果，把需要研判的运行链接和问题带回来。 OpenAI 的 dot 入门指南 说明，dot 有自己的云端电脑，也可以使用预先配置的 Codex 云环境派发编码任务。CI-02 的实现可以交给这样的环境。 dots 的运行边界 决定哪些步骤还要依赖本机文件、桌面登录态或本机工具。 OpenAI 对 dot 主动研究和动作权限的说明 区分了私有笔记和外部动作。更新共享看板时，应核对安排的任务、连接器权限和审批要求。对 PR 变化，可以先检查工作区是否支持 ChatGPT Work 的事件触发任务 ，也可以让自己的服务接收 GitHub Webhook。验收时在 dot 的 Activity 中核对委派任务的运行位置，并实测事件、私有 Project 可见性和写入权限。 CI-02 要在关机后运行，云环境得能检出指定提交、取得对应安装候选、重放固定输入并留下 Actions 结果。 WhyJ-Quant 的 Windows Desktop 工作流 为安装、升级和跨入口检查提供了起点。原生输入法、系统托盘或干净机器等验收项由符合条件的 Windows 环境执行。维护者可以在手机上作决定和审批。",
+    "bodyHTML": "\u003cp>CI-01 只需要读卡片和 Actions，CI-02 却要试跑一个安装候选。即使同一个 dot 接到了两项任务，关机后能执行的步骤也会不同。\u003c/p>\n\u003cp>\u003cstrong>dot 可以发起巡检和委派，CI-02 能否关机续跑取决于云端环境能否取得对应候选包、执行检查并保存结果。\u003c/strong>\u003c/p>\n\u003cp>我会先把 CI-01 的只读巡检交给 dot，由它核对最新 Actions 结果，把需要研判的运行链接和问题带回来。\u003ca href=\"https://help.openai.com/en/articles/20001530-getting-started-with-your-dot\" rel=\"noopener noreferrer\" target=\"_blank\">OpenAI 的 dot 入门指南\u003c/a>说明，dot 有自己的云端电脑，也可以使用预先配置的 Codex 云环境派发编码任务。CI-02 的实现可以交给这样的环境。\u003ca href=\"https://learn.chatgpt.com/docs/enterprise/dots-security\" rel=\"noopener noreferrer\" target=\"_blank\">dots 的运行边界\u003c/a>决定哪些步骤还要依赖本机文件、桌面登录态或本机工具。\u003c/p>\n\u003cp>\u003ca href=\"https://help.openai.com/en/articles/20001529-dots-privacy-security-and-safety-faqs\" rel=\"noopener noreferrer\" target=\"_blank\">OpenAI 对 dot 主动研究和动作权限的说明\u003c/a>区分了私有笔记和外部动作。更新共享看板时，应核对安排的任务、连接器权限和审批要求。对 PR 变化，可以先检查工作区是否支持 \u003ca href=\"https://help.openai.com/en/articles/10291617-scheduled-tasks-in-chatgpt\" rel=\"noopener noreferrer\" target=\"_blank\">ChatGPT Work 的事件触发任务\u003c/a>，也可以让自己的服务接收 GitHub Webhook。验收时在 dot 的 Activity 中核对委派任务的运行位置，并实测事件、私有 Project 可见性和写入权限。\u003c/p>\n\u003cp>CI-02 要在关机后运行，云环境得能检出指定提交、取得对应安装候选、重放固定输入并留下 Actions 结果。\u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/blob/08f860beeb8d3a3b9bf0eae15b7c9ebcde75fdb5/.github/workflows/desktop.yml\" rel=\"noopener noreferrer\" target=\"_blank\">WhyJ-Quant 的 Windows Desktop 工作流\u003c/a>为安装、升级和跨入口检查提供了起点。原生输入法、系统托盘或干净机器等验收项由符合条件的 Windows 环境执行。维护者可以在手机上作决定和审批。\u003c/p>\n"
+  },
+  {
+    "id": "recovery",
+    "tocLabel": "SuperAgent 如何恢复任务",
+    "heading": "SuperAgent 把一次任务变成可恢复的工作流",
+    "body": "假设 CI-02 的 Worker 已开 PR，但还没回填看板就掉线。重启后的 Worker 从哪一步继续？如果它只看到「CI-02 进行中」，就不知道该新建 PR，还是等待已有 PR 的测试。 在这套设计里，接班 Worker 先按稳定分支找回已有的 PR，再核对当前提交的 Actions 结果并回填看板。 Anthropic 在 Effective harnesses for long-running agents 中让接班的 Claude 读取进度文件和 Git 历史，再挑选未完成的工作。 DeepSeek 的 DSH SuperAgent 研究原型用 Ticket 追踪请求和执行，其 执行与恢复文档 说明了重启时如何读取任务记录，以及重试外部操作前如何检查已产生的结果。",
+    "bodyHTML": "\u003cp>假设 CI-02 的 Worker 已开 PR，但还没回填看板就掉线。重启后的 Worker 从哪一步继续？如果它只看到「CI-02 进行中」，就不知道该新建 PR，还是等待已有 PR 的测试。\u003c/p>\n\u003cp>\u003cstrong>在这套设计里，接班 Worker 先按稳定分支找回已有的 PR，再核对当前提交的 Actions 结果并回填看板。\u003c/strong>\u003c/p>\n\u003cp>Anthropic 在 \u003ca href=\"https://www.anthropic.com/research/effective-harnesses-for-long-running-agents\" rel=\"noopener noreferrer\" target=\"_blank\">Effective harnesses for long-running agents\u003c/a> 中让接班的 Claude 读取进度文件和 Git 历史，再挑选未完成的工作。\u003ca href=\"https://github.com/deepseek-ai/dsh-superagent-prototype/blob/8c32a9dc5d72c033816c6a8110b37f40cf94fba4/README.md\" rel=\"noopener noreferrer\" target=\"_blank\">DeepSeek 的 DSH SuperAgent\u003c/a>研究原型用 Ticket 追踪请求和执行，其\u003ca href=\"https://github.com/deepseek-ai/dsh-superagent-prototype/blob/8c32a9dc5d72c033816c6a8110b37f40cf94fba4/docs/003-execution.md\" rel=\"noopener noreferrer\" target=\"_blank\">执行与恢复文档\u003c/a>说明了重启时如何读取任务记录，以及重试外部操作前如何检查已产生的结果。\u003c/p>\n"
+  },
+  {
+    "id": "figure-2",
+    "diagram": "\u003cdiv class=\"diagram diagram-recovery\" lang=\"en\" role=\"img\" aria-label=\"Schedule or webhook to durable queue to cloud worker to PR and Actions, results reconciled back into the queue\">\u003cspan class=\"diagram-node\">Schedule / Webhook\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">→\u003c/span>\u003cspan class=\"diagram-node diagram-focus\">Durable queue\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">→\u003c/span>\u003cspan class=\"diagram-node\">Cloud worker\u003c/span>\u003cspan class=\"diagram-arrow\" aria-hidden=\"true\">→\u003c/span>\u003cspan class=\"diagram-node\">PR / Actions\u003c/span>\u003cspan class=\"diagram-return\" aria-hidden=\"true\">\u003cb>←\u003c/b> Reconcile result\u003c/span>\u003c/div>",
+    "caption": "Figure 2: Durable work survives a cloud worker restart.",
+    "description": "在拟议架构中，队列保存待办，接班 Worker 从远端结果恢复进度。"
+  },
+  {
+    "id": "recovery-continued",
+    "heading": "",
+    "body": "在 WhyJ-Quant 的拟议编排里，CI-02 从登记到验收经过四步。 入口登记任务。 按 GitHub Webhook 的投递建议 校验来源、异步处理，并用投递 ID 识别重发。编排器持久化事件后再应答，用「需求卡 ID + 条目编号」识别同一项工作。定时扫描只有在缺了状态时才到 GitHub 对账。 Worker 领取一次尝试。 任务记录保存授权范围、基线提交、当前尝试、预算、检查点、稳定分支和已知 PR。编排器领取时登记带期限的占用，更新状态时核对当前尝试编号，避免迟到的回执覆盖新进度。 接班 Worker 找回原 PR。 CI-02 在开 PR 后掉线时，接班 Worker 先按稳定分支查 GitHub，找到已有 PR 就补写链接，再查它当前 head SHA 的 CI。暂时查不到远端结果时按预算重试。缺少权限、目标机或人的决定时，将现有证据和等待事项写回卡片。 维护者按当前提交验收。 编排器把 Actions 的运行结果关联到 CI-02 对应的 PR 和提交，维护者复核关键断言后结束任务。PR 有新提交时，相关验证回到待核。值守者如需停机，按 dot 的暂停与委派说明 分别检查调度、在途任务和已委派的云任务。",
+    "bodyHTML": "\u003cp>在 WhyJ-Quant 的拟议编排里，CI-02 从登记到验收经过四步。\u003c/p>\n\u003col>\n\u003cli>\u003cstrong>入口登记任务。\u003c/strong> 按 \u003ca href=\"https://docs.github.com/en/webhooks/using-webhooks/best-practices-for-using-webhooks\" rel=\"noopener noreferrer\" target=\"_blank\">GitHub Webhook 的投递建议\u003c/a>校验来源、异步处理，并用投递 ID 识别重发。编排器持久化事件后再应答，用「需求卡 ID + 条目编号」识别同一项工作。定时扫描只有在缺了状态时才到 GitHub 对账。\u003c/li>\n\u003cli>\u003cstrong>Worker 领取一次尝试。\u003c/strong> 任务记录保存授权范围、基线提交、当前尝试、预算、检查点、稳定分支和已知 PR。编排器领取时登记带期限的占用，更新状态时核对当前尝试编号，避免迟到的回执覆盖新进度。\u003c/li>\n\u003cli>\u003cstrong>接班 Worker 找回原 PR。\u003c/strong> CI-02 在开 PR 后掉线时，接班 Worker 先按稳定分支查 GitHub，找到已有 PR 就补写链接，再查它当前 head SHA 的 CI。暂时查不到远端结果时按预算重试。缺少权限、目标机或人的决定时，将现有证据和等待事项写回卡片。\u003c/li>\n\u003cli>\u003cstrong>维护者按当前提交验收。\u003c/strong> 编排器把 Actions 的运行结果关联到 CI-02 对应的 PR 和提交，维护者复核关键断言后结束任务。PR 有新提交时，相关验证回到待核。值守者如需停机，按 \u003ca href=\"https://help.openai.com/en/articles/20001530-getting-started-with-your-dot\" rel=\"noopener noreferrer\" target=\"_blank\">dot 的暂停与委派说明\u003c/a>分别检查调度、在途任务和已委派的云任务。\u003c/li>\n\u003c/ol>\n"
+  },
+  {
+    "id": "review",
+    "tocLabel": "PR 自动评审",
+    "heading": "自动评审把风险反馈写回同一个 PR",
+    "body": "假设 CI-02 的 PR 已经加了安装检查。如果 smoke test 仍从源码目录启动，即使 Actions 全绿也可能绕过安装产物。维护者需要看到测试具体从哪里进来。 让评审 Bot 在同一个 PR 标出被绕过的入口，维护者复核后由作者补断言，再用新提交的 Actions 结果完成验收。 CI-02 要验证安装、Agent 调用和数据源。以安装检查为例，评审意见应指出启动命令的位置，以及该命令怎么绕过了候选包。作者改用安装后的入口后，维护者可以按同一个 Issue 的验收条件核对运行。 WhyJ-Quant 的 GitHub ruleset 对面向 main 的就绪 PR 启用了 Copilot 自动评审，实际触发取决于作者权限和额度。 GitHub 对 Copilot 代码评审的模型说明 把这项服务的模型组合和其他界面的模型选择分开说明。验收 Bot 时，可把评审的 head SHA、PR 或运行链接和结果记回 CI-07 卡片 ，查看需要 Project 权限。",
+    "bodyHTML": "\u003cp>假设 CI-02 的 PR 已经加了安装检查。如果 smoke test 仍从源码目录启动，即使 Actions 全绿也可能绕过安装产物。维护者需要看到测试具体从哪里进来。\u003c/p>\n\u003cp>\u003cstrong>让评审 Bot 在同一个 PR 标出被绕过的入口，维护者复核后由作者补断言，再用新提交的 Actions 结果完成验收。\u003c/strong>\u003c/p>\n\u003cp>CI-02 要验证安装、Agent 调用和数据源。以安装检查为例，评审意见应指出启动命令的位置，以及该命令怎么绕过了候选包。作者改用安装后的入口后，维护者可以按同一个 Issue 的验收条件核对运行。\u003c/p>\n\u003cp>\u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/rules/28285489\" rel=\"noopener noreferrer\" target=\"_blank\">WhyJ-Quant 的 GitHub ruleset\u003c/a>对面向 \u003ccode>main\u003c/code> 的就绪 PR 启用了 Copilot 自动评审，实际触发取决于作者权限和额度。\u003ca href=\"https://docs.github.com/en/copilot/concepts/agent-capabilities/agent-powered-workflows-and-operations/code-review#model-usage\" rel=\"noopener noreferrer\" target=\"_blank\">GitHub 对 Copilot 代码评审的模型说明\u003c/a>把这项服务的模型组合和其他界面的模型选择分开说明。验收 Bot 时，可把评审的 head SHA、PR 或运行链接和结果记回 \u003ca href=\"https://github.com/users/yangjingo/projects/4?pane=issue&amp;itemId=321232423\" rel=\"noopener noreferrer\" target=\"_blank\">CI-07 卡片\u003c/a>，查看需要 Project 权限。\u003c/p>\n"
+  },
+  {
+    "id": "verify",
+    "tocLabel": "关机验收",
+    "heading": "第一次验收就合上电脑",
+    "body": "手动运行一次 CI-01，可以观察任务能否完成。要验收 24 小时接力，还得观察本机关机后任务是否继续，以及 Worker 在开 PR 后中断时，团队能不能接着核对证据。 关机验收要看到 CI-01 从云端交付覆盖表，也要看到 CI-02 在 Worker 中断后找回原 PR 并继续验证。 我会选一个明确的离线窗口，先用 CI-01 验证只读巡检，再把获授权的 CI-02 候选放到测试仓或隔离分支做故障测试。每次记录触发时间、运行环境、任务标识、PR、head SHA 和 Actions 链接，方便另一个人复核。 测试 怎么触发 通过条件 CI-01 关机续跑 关机后从手机发起，或由定时任务触发。 云环境交付覆盖表，另一位同事能从需求卡定位盘点基线和所引用的运行。 CI-02 重复投递 对同一请求进行重发。 看板上仍只有一项业务任务，重复 PR 数为 0。 CI-02 开 PR 后中断 等 PR 创建成功、看板尚未收到链接时结束 Worker。 接班 Worker 找回同一个 PR，并继续核对当前提交的 Actions。记录恢复耗时。 CI-02 缺少写权限 用只读身份领取任务。 Worker 留下已取得的证据和待授权事项，任务进入等待。 CI-02 提交更新 旧提交验证通过后，给同一个 PR 推送新提交。 依赖旧提交的检查回到待核，维护者能定位新提交对应的运行。 这是这套 24 小时方案的验收口径。只要任务已获授权，团队可以在任何时点将它入队，Worker 按预算推进，需要人时留下等待项。第二天接手的人打开原卡，就能找到证据和下一步。",
+    "bodyHTML": "\u003cp>手动运行一次 CI-01，可以观察任务能否完成。要验收 24 小时接力，还得观察本机关机后任务是否继续，以及 Worker 在开 PR 后中断时，团队能不能接着核对证据。\u003c/p>\n\u003cp>\u003cstrong>关机验收要看到 CI-01 从云端交付覆盖表，也要看到 CI-02 在 Worker 中断后找回原 PR 并继续验证。\u003c/strong>\u003c/p>\n\u003cp>我会选一个明确的离线窗口，先用 CI-01 验证只读巡检，再把获授权的 CI-02 候选放到测试仓或隔离分支做故障测试。每次记录触发时间、运行环境、任务标识、PR、head SHA 和 Actions 链接，方便另一个人复核。\u003c/p>\n\u003cdiv aria-label=\"第一次验收就合上电脑\" class=\"table-wrap\" role=\"region\" tabindex=\"0\">\u003ctable>\n\u003cthead>\n\u003ctr>\n\u003cth scope=\"col\">测试\u003c/th>\n\u003cth scope=\"col\">怎么触发\u003c/th>\n\u003cth scope=\"col\">通过条件\u003c/th>\n\u003c/tr>\n\u003c/thead>\n\u003ctbody>\n\u003ctr>\n\u003ctd>CI-01 关机续跑\u003c/td>\n\u003ctd>关机后从手机发起，或由定时任务触发。\u003c/td>\n\u003ctd>云环境交付覆盖表，另一位同事能从需求卡定位盘点基线和所引用的运行。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>CI-02 重复投递\u003c/td>\n\u003ctd>对同一请求进行重发。\u003c/td>\n\u003ctd>看板上仍只有一项业务任务，重复 PR 数为 0。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>CI-02 开 PR 后中断\u003c/td>\n\u003ctd>等 PR 创建成功、看板尚未收到链接时结束 Worker。\u003c/td>\n\u003ctd>接班 Worker 找回同一个 PR，并继续核对当前提交的 Actions。记录恢复耗时。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>CI-02 缺少写权限\u003c/td>\n\u003ctd>用只读身份领取任务。\u003c/td>\n\u003ctd>Worker 留下已取得的证据和待授权事项，任务进入等待。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>CI-02 提交更新\u003c/td>\n\u003ctd>旧提交验证通过后，给同一个 PR 推送新提交。\u003c/td>\n\u003ctd>依赖旧提交的检查回到待核，维护者能定位新提交对应的运行。\u003c/td>\n\u003c/tr>\n\u003c/tbody>\n\u003c/table>\u003c/div>\n\u003cp>这是这套 24 小时方案的验收口径。只要任务已获授权，团队可以在任何时点将它入队，Worker 按预算推进，需要人时留下等待项。第二天接手的人打开原卡，就能找到证据和下一步。\u003c/p>\n"
+  },
+  {
+    "id": "synapse",
+    "tocLabel": "复用交付证据",
+    "heading": "Synapse 把完成后的证据写成团队能复用的材料",
+    "body": "CI-02 验收后，另一位同事可能想知道，为什么要从安装产物重放行情，以及这条检查覆盖了源码入口测试漏掉的什么。看板上的「已完成」只能告诉他团队做完了这项工作。 把需求、验证断言和运行结果一起写进技术解释，下一位同事才能沿着文章复跑这条检查。 把需求卡、最终 PR、Actions 运行和失败日志交给 Synapse 的 Forge 流程 ，就有材料解释这条测试为什么值得补。团队可用 Synapse 的博客和幻灯片技能 分别写技术解释和复盘短讲，两份材料沿用同一组证据。 Worker 可以从对应提交读取 WhyJ-Quant 的 issue-skill 界定任务范围，再按 pr-skill 核对交付。成文时保留回到原需求和原运行的入口。等另一位同事能沿着文章找到断言、复跑测试，并用在自己的安装场景里，团队才知道这份记录能被复用。",
+    "bodyHTML": "\u003cp>CI-02 验收后，另一位同事可能想知道，为什么要从安装产物重放行情，以及这条检查覆盖了源码入口测试漏掉的什么。看板上的「已完成」只能告诉他团队做完了这项工作。\u003c/p>\n\u003cp>\u003cstrong>把需求、验证断言和运行结果一起写进技术解释，下一位同事才能沿着文章复跑这条检查。\u003c/strong>\u003c/p>\n\u003cp>把需求卡、最终 PR、Actions 运行和失败日志交给 \u003ca href=\"https://github.com/yangjingo/Synapse/blob/0eda5e6789f8393acf3f818e8d9f85fdf315c451/skills/synapse-tech-blog/workflows/forge/WORKFLOW.md\" rel=\"noopener noreferrer\" target=\"_blank\">Synapse 的 Forge 流程\u003c/a>，就有材料解释这条测试为什么值得补。团队可用 \u003ca href=\"https://github.com/yangjingo/Synapse/tree/0eda5e6789f8393acf3f818e8d9f85fdf315c451/skills\" rel=\"noopener noreferrer\" target=\"_blank\">Synapse 的博客和幻灯片技能\u003c/a>分别写技术解释和复盘短讲，两份材料沿用同一组证据。\u003c/p>\n\u003cp>Worker 可以从对应提交读取 \u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/blob/08f860beeb8d3a3b9bf0eae15b7c9ebcde75fdb5/.agents/skills/issue-skill/SKILL.md\" rel=\"noopener noreferrer\" target=\"_blank\">WhyJ-Quant 的 issue-skill\u003c/a>界定任务范围，再按 \u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/blob/08f860beeb8d3a3b9bf0eae15b7c9ebcde75fdb5/.agents/skills/pr-skill/SKILL.md\" rel=\"noopener noreferrer\" target=\"_blank\">pr-skill\u003c/a>核对交付。成文时保留回到原需求和原运行的入口。等另一位同事能沿着文章找到断言、复跑测试，并用在自己的安装场景里，团队才知道这份记录能被复用。\u003c/p>\n"
+  },
+  {
+    "id": "entrypoints",
+    "tocLabel": "附录 A · 项目委派入口",
+    "tocBreak": true,
+    "heading": "附录 A · GitHub、Linear 和 Jira 的委派入口",
+    "body": "如果团队已经在 Linear 或 Jira 规划工作，CI-02 的状态就可能同时出现在原任务和 GitHub 看板，接手者需要知道该更新哪一边。 让团队已有的任务系统负责状态更新，用 GitHub PR 和 Actions 保存可回查的代码与验证证据。 对 WhyJ-Quant，GitHub Projects 加仓库 Issues 已经能关联需求、PR 和项目字段。使用 Linear 或 Jira 的团队可以继续沿用所在系统的委派入口和更新权限。 入口 适合怎样交办 Agent 怎样接手 GitHub Projects + Issues 维护者从看板选工作，把卡片或 Issue 链接交给 Agent。 Agent 通过 CLI 或 API 回填。具备权限时，维护者可以 将仓库 Issue 指派给 GitHub Copilot ，由它提交 PR 供评审。 Linear + GitHub 负责人通过委派或 @ 提及发起工作。 现有 Agent 可以用 Linear MCP 读写卡片。原生委派通过 AgentSession 与 Activity 接收任务、报告进展，再通过 Linear 的 GitHub 集成 关联 PR 和 Issue。 Jira + GitHub 团队已经在 Jira 管理需求与跨团队依赖。 团队可以 从 Jira 工作项启动编码 Agent ，让它提交 Draft PR 供评审。 Linear 的 Agent 委派设计 区分人的 assignee 和 Agent 的 delegate。我会把这个责任边界沿用到 GitHub。维护者继续负责需求与验收，Worker 会话负责推进当前尝试。会话结束或重试后，负责人与待验收内容还留在需求卡上。",
+    "bodyHTML": "\u003cp>如果团队已经在 Linear 或 Jira 规划工作，CI-02 的状态就可能同时出现在原任务和 GitHub 看板，接手者需要知道该更新哪一边。\u003c/p>\n\u003cp>\u003cstrong>让团队已有的任务系统负责状态更新，用 GitHub PR 和 Actions 保存可回查的代码与验证证据。\u003c/strong>\u003c/p>\n\u003cp>对 WhyJ-Quant，GitHub Projects 加仓库 Issues 已经能关联需求、PR 和项目字段。使用 Linear 或 Jira 的团队可以继续沿用所在系统的委派入口和更新权限。\u003c/p>\n\u003cdiv aria-label=\"附录 A · GitHub、Linear 和 Jira 的委派入口\" class=\"table-wrap\" role=\"region\" tabindex=\"0\">\u003ctable>\n\u003cthead>\n\u003ctr>\n\u003cth scope=\"col\">入口\u003c/th>\n\u003cth scope=\"col\">适合怎样交办\u003c/th>\n\u003cth scope=\"col\">Agent 怎样接手\u003c/th>\n\u003c/tr>\n\u003c/thead>\n\u003ctbody>\n\u003ctr>\n\u003ctd>GitHub Projects + Issues\u003c/td>\n\u003ctd>维护者从看板选工作，把卡片或 Issue 链接交给 Agent。\u003c/td>\n\u003ctd>Agent 通过 CLI 或 API 回填。具备权限时，维护者可以\u003ca href=\"https://docs.github.com/en/copilot/how-tos/copilot-on-github/use-copilot-agents/kick-off-a-task\" rel=\"noopener noreferrer\" target=\"_blank\">将仓库 Issue 指派给 GitHub Copilot\u003c/a>，由它提交 PR 供评审。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>Linear + GitHub\u003c/td>\n\u003ctd>负责人通过委派或 @ 提及发起工作。\u003c/td>\n\u003ctd>现有 Agent 可以用 \u003ca href=\"https://linear.app/docs/mcp\" rel=\"noopener noreferrer\" target=\"_blank\">Linear MCP\u003c/a>读写卡片。原生委派通过 \u003ca href=\"https://linear.app/developers/agent-interaction\" rel=\"noopener noreferrer\" target=\"_blank\">AgentSession 与 Activity\u003c/a>接收任务、报告进展，再通过 \u003ca href=\"https://linear.app/docs/github-integration\" rel=\"noopener noreferrer\" target=\"_blank\">Linear 的 GitHub 集成\u003c/a>关联 PR 和 Issue。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>Jira + GitHub\u003c/td>\n\u003ctd>团队已经在 Jira 管理需求与跨团队依赖。\u003c/td>\n\u003ctd>团队可以\u003ca href=\"https://support.atlassian.com/jira-software-cloud/docs/generate-code-from-a-work-item-in-jira/\" rel=\"noopener noreferrer\" target=\"_blank\">从 Jira 工作项启动编码 Agent\u003c/a>，让它提交 Draft PR 供评审。\u003c/td>\n\u003c/tr>\n\u003c/tbody>\n\u003c/table>\u003c/div>\n\u003cp>\u003ca href=\"https://linear.app/developers/agents\" rel=\"noopener noreferrer\" target=\"_blank\">Linear 的 Agent 委派设计\u003c/a>区分人的 assignee 和 Agent 的 delegate。我会把这个责任边界沿用到 GitHub。维护者继续负责需求与验收，Worker 会话负责推进当前尝试。会话结束或重试后，负责人与待验收内容还留在需求卡上。\u003c/p>\n"
+  },
+  {
+    "id": "codex-review",
+    "tocLabel": "附录 B · Codex 托管评审",
+    "heading": "附录 B · 用自己的账号接入 Codex 托管评审",
+    "body": "连接账号后，PR 上对 @codex review 的回应只能确认请求已收到。开启自动触发前，还需要看到一次完整的评审回执。 先用一条真实 PR 的手动评审验证仓库权限和回执，再开启自动评审。 用有 Code Review 权限的 ChatGPT 账号打开 Codex 的 Code Review 设置 ，连接 GitHub。GitHub 要求选择授权范围时，只选择目标仓库。配置自动评审需要对该仓库有写入或管理权限。 在一条真实 PR 下留言 @codex review 。看到 Codex 对评论作出反应后，继续等 PR 上出现由 Codex 发出的评审。反应表示收到了请求，评审回执才证明这次调用走完。 按 Codex 的 GitHub 评审指南 为目标仓库开启自动评审，并核对个人偏好的触发选项。仓库可在 AGENTS.md 的 Code Review Rules 段写下具体契约和容易漏掉的风险。 托管评审使用你授权的账号，可以在电脑关机时继续运行。需要在 CI 里控制提示词、模型或输出时，可用 openai/codex-action@v1 运行 Codex，把 OPENAI_API_KEY 存为 Actions Secret，再用 model 参数选择该 API 项目可用的模型。",
+    "bodyHTML": "\u003cp>连接账号后，PR 上对 \u003ccode>@codex review\u003c/code> 的回应只能确认请求已收到。开启自动触发前，还需要看到一次完整的评审回执。\u003c/p>\n\u003cp>\u003cstrong>先用一条真实 PR 的手动评审验证仓库权限和回执，再开启自动评审。\u003c/strong>\u003c/p>\n\u003col>\n\u003cli>用有 Code Review 权限的 ChatGPT 账号打开 \u003ca href=\"https://chatgpt.com/settings/code-review\" rel=\"noopener noreferrer\" target=\"_blank\">Codex 的 Code Review 设置\u003c/a>，连接 GitHub。GitHub 要求选择授权范围时，只选择目标仓库。配置自动评审需要对该仓库有写入或管理权限。\u003c/li>\n\u003cli>在一条真实 PR 下留言 \u003ccode>@codex review\u003c/code>。看到 Codex 对评论作出反应后，继续等 PR 上出现由 Codex 发出的评审。反应表示收到了请求，评审回执才证明这次调用走完。\u003c/li>\n\u003cli>按 \u003ca href=\"https://learn.chatgpt.com/docs/third-party/github\" rel=\"noopener noreferrer\" target=\"_blank\">Codex 的 GitHub 评审指南\u003c/a>为目标仓库开启自动评审，并核对个人偏好的触发选项。仓库可在 \u003ccode>AGENTS.md\u003c/code> 的 \u003cstrong>Code Review Rules\u003c/strong> 段写下具体契约和容易漏掉的风险。\u003c/li>\n\u003c/ol>\n\u003cp>托管评审使用你授权的账号，可以在电脑关机时继续运行。需要在 CI 里控制提示词、模型或输出时，可用 \u003ca href=\"https://learn.chatgpt.com/docs/github-action\" rel=\"noopener noreferrer\" target=\"_blank\">\u003ccode>openai/codex-action@v1\u003c/code>\u003c/a>运行 Codex，把 \u003ccode>OPENAI_API_KEY\u003c/code> 存为 Actions Secret，再用 \u003ccode>model\u003c/code> 参数选择该 API 项目可用的模型。\u003c/p>\n"
+  },
+  {
+    "id": "review-providers",
+    "tocLabel": "附录 C · 多模型评审",
+    "heading": "附录 C · 用 Actions 接入 Gemini、GLM、DeepSeek 和 Kimi",
+    "body": "四种模型接到同一个 Actions 后，拿到模型 ID 或一条短响应只说明接入走通。要比较它们对 CI-02 这类变更的判断，还得让它们评同一个改动。 比较评审模型时，固定同一 PR、提交和评审指令，记录响应与耗时，再由维护者复核每条发现。 先用 GitHub Actions Secrets 为各服务保存凭据，服务地址和模型 ID 写在可信的 workflow 配置或仓库 Variables 里。评审任务根据预先定义的 provider 名称选用对应的地址、模型和 Secret。下表的模型 ID 是配置示例，运行前以账号可调用的模型为准。 模型 地址、模型 ID 与凭据 配置要点 Gemini Pro 在 Google AI Studio 创建项目密钥，存为 GEMINI_API_KEY 。示例模型 gemini-3.1-pro-preview 。 用 Gemini CLI Action 的 PR 评审示例 接入，通过 gemini_model 选模型。账号若能在 Google Developer Program 福利页 领取 Cloud 额度，先按 计费说明 核对 Gemini API 的抵扣条件。 智谱 GLM https://open.bigmodel.cn/api/paas/v4/ · glm-5.3 · ZAI_API_KEY 用智谱开放平台的通用 API Key 调用 智谱的 OpenAI 兼容接口 。 DeepSeek https://api.deepseek.com · deepseek-flash 或 deepseek-v4-pro · DEEPSEEK_API_KEY 按 DeepSeek 的模型与地址表 确认模型 ID。复用 GLM 的 Chat Completions 调用，替换地址、模型和密钥。 Kimi 多模型网关 使用供应商给出的 OpenAI 兼容 Base URL · 模型 ID 取自目录 · REVIEW_GATEWAY_API_KEY 多条路由可能指向同一模型系列。先调用 /models ，复制所选 Kimi 路由的完整 ID，再向 /chat/completions 发一条短请求。核对最终正文是否非空，并记录实际返回的模型和耗时。 如果你已有多模型网关，把 Base URL（包含网关要求的版本路径，例如 /v1 ）放入 REVIEW_BASE_URL ，把 Actions Secret 传给调用步骤的 REVIEW_API_KEY 。下面的命令只列出模型 ID。 curl -fsS \"$REVIEW_BASE_URL/models\" \\\n  -H \"Authorization: Bearer $REVIEW_API_KEY\" |\n  jq -r '.data[].id' 确认模型 ID 后，可以在同一步骤设置 REVIEW_MODEL 并发一条短请求。命令只输出最终正文。 jq -n --arg model \"$REVIEW_MODEL\" \\\n  '{model:$model,messages:[{role:\"user\",content:\"Reply with OK.\"}],max_tokens:1024}' |\n  curl -fsS --max-time 30 \"$REVIEW_BASE_URL/chat/completions\" \\\n    -H \"Authorization: Bearer $REVIEW_API_KEY\" \\\n    -H \"Content-Type: application/json\" --data-binary @- |\n  jq -er '.choices[0].message.content | select(type == \"string\" and length > 0)' 先用 GitHub Actions 的手动触发 选择 PR 编号和一个 provider。 workflow_dispatch 要求 workflow 文件存在于默认分支。第一次只把结果写进运行摘要，注明 head SHA、服务实际返回的模型标识和是否超时，供下一轮对照。目录接口成功后，还要照上面的短请求验证生成能交付可读正文。 等单次验收通过，再决定哪个模型负责自动评审。评审任务只读取 PR diff 和基线分支的评审规范。需要自动回帖时，单独给发布步骤所需的 PR 写权限。 GitHub Actions 的安全指南 解释了高权限作业执行不可信 PR 代码的风险。公开仓库应把这种代码执行与模型密钥隔开。WhyJ-Quant 的合入继续由 CI required 与 PR policy 执行确定性检查。 一次试跑。 我用 WhyJ-Quant PR #1007 的 workflow diff 试跑 Kimi。前几次请求超时，成功的短请求返回模型 kimi-k3 。它把「手动运行仅限 main 」和「自动运行需要显式打开」都报成问题。我用 可选 Live Provider 的 CI 指南 和需求复核后，把两条都记为误报。这个例子说明了怎样用项目契约复核一条评审意见，模型对比还需要更多固定样本。",
+    "bodyHTML": "\u003cp>四种模型接到同一个 Actions 后，拿到模型 ID 或一条短响应只说明接入走通。要比较它们对 CI-02 这类变更的判断，还得让它们评同一个改动。\u003c/p>\n\u003cp>\u003cstrong>比较评审模型时，固定同一 PR、提交和评审指令，记录响应与耗时，再由维护者复核每条发现。\u003c/strong>\u003c/p>\n\u003cp>先用 \u003ca href=\"https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets\" rel=\"noopener noreferrer\" target=\"_blank\">GitHub Actions Secrets\u003c/a>为各服务保存凭据，服务地址和模型 ID 写在可信的 workflow 配置或仓库 Variables 里。评审任务根据预先定义的 provider 名称选用对应的地址、模型和 Secret。下表的模型 ID 是配置示例，运行前以账号可调用的模型为准。\u003c/p>\n\u003cdiv aria-label=\"附录 C · 用 Actions 接入 Gemini、GLM、DeepSeek 和 Kimi\" class=\"table-wrap\" role=\"region\" tabindex=\"0\">\u003ctable>\n\u003cthead>\n\u003ctr>\n\u003cth scope=\"col\">模型\u003c/th>\n\u003cth scope=\"col\">地址、模型 ID 与凭据\u003c/th>\n\u003cth scope=\"col\">配置要点\u003c/th>\n\u003c/tr>\n\u003c/thead>\n\u003ctbody>\n\u003ctr>\n\u003ctd>\u003cstrong>Gemini Pro\u003c/strong>\u003c/td>\n\u003ctd>在 \u003ca href=\"https://aistudio.google.com/api-keys\" rel=\"noopener noreferrer\" target=\"_blank\">Google AI Studio\u003c/a>创建项目密钥，存为 \u003ccode>GEMINI_API_KEY\u003c/code>。示例模型 \u003ccode>gemini-3.1-pro-preview\u003c/code>。\u003c/td>\n\u003ctd>用 \u003ca href=\"https://github.com/google-github-actions/run-gemini-cli/blob/main/examples/workflows/pr-review/README.md\" rel=\"noopener noreferrer\" target=\"_blank\">Gemini CLI Action 的 PR 评审示例\u003c/a>接入，通过 \u003ccode>gemini_model\u003c/code> 选模型。账号若能在 \u003ca href=\"https://me.developers.google.com/benefits\" rel=\"noopener noreferrer\" target=\"_blank\">Google Developer Program 福利页\u003c/a>领取 Cloud 额度，先按\u003ca href=\"https://developers.google.com/profile/help/faq?hl=en\" rel=\"noopener noreferrer\" target=\"_blank\">计费说明\u003c/a>核对 Gemini API 的抵扣条件。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>\u003cstrong>智谱 GLM\u003c/strong>\u003c/td>\n\u003ctd>\u003ccode>https://open.bigmodel.cn/api/paas/v4/\u003c/code> · \u003ccode>glm-5.3\u003c/code> · \u003ccode>ZAI_API_KEY\u003c/code>\u003c/td>\n\u003ctd>用智谱开放平台的通用 API Key 调用\u003ca href=\"https://docs.bigmodel.cn/cn/guide/develop/openai/introduction\" rel=\"noopener noreferrer\" target=\"_blank\">智谱的 OpenAI 兼容接口\u003c/a>。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>\u003cstrong>DeepSeek\u003c/strong>\u003c/td>\n\u003ctd>\u003ccode>https://api.deepseek.com\u003c/code> · \u003ccode>deepseek-flash\u003c/code> 或 \u003ccode>deepseek-v4-pro\u003c/code> · \u003ccode>DEEPSEEK_API_KEY\u003c/code>\u003c/td>\n\u003ctd>按 \u003ca href=\"https://api-docs.deepseek.com/quick_start/pricing/\" rel=\"noopener noreferrer\" target=\"_blank\">DeepSeek 的模型与地址表\u003c/a>确认模型 ID。复用 GLM 的 Chat Completions 调用，替换地址、模型和密钥。\u003c/td>\n\u003c/tr>\n\u003ctr>\n\u003ctd>\u003cstrong>Kimi 多模型网关\u003c/strong>\u003c/td>\n\u003ctd>使用供应商给出的 OpenAI 兼容 Base URL · 模型 ID 取自目录 · \u003ccode>REVIEW_GATEWAY_API_KEY\u003c/code>\u003c/td>\n\u003ctd>多条路由可能指向同一模型系列。先调用 \u003ccode>/models\u003c/code>，复制所选 Kimi 路由的完整 ID，再向 \u003ccode>/chat/completions\u003c/code> 发一条短请求。核对最终正文是否非空，并记录实际返回的模型和耗时。\u003c/td>\n\u003c/tr>\n\u003c/tbody>\n\u003c/table>\u003c/div>\n\u003cp>如果你已有多模型网关，把 Base URL（包含网关要求的版本路径，例如 \u003ccode>/v1\u003c/code>）放入 \u003ccode>REVIEW_BASE_URL\u003c/code>，把 Actions Secret 传给调用步骤的 \u003ccode>REVIEW_API_KEY\u003c/code>。下面的命令只列出模型 ID。\u003c/p>\n\u003cpre>\u003ccode class=\"language-bash\">curl -fsS \"$REVIEW_BASE_URL/models\" \\\n  -H \"Authorization: Bearer $REVIEW_API_KEY\" |\n  jq -r '.data[].id'\n\u003c/code>\u003c/pre>\n\u003cp>确认模型 ID 后，可以在同一步骤设置 \u003ccode>REVIEW_MODEL\u003c/code> 并发一条短请求。命令只输出最终正文。\u003c/p>\n\u003cpre>\u003ccode class=\"language-bash\">jq -n --arg model \"$REVIEW_MODEL\" \\\n  '{model:$model,messages:[{role:\"user\",content:\"Reply with OK.\"}],max_tokens:1024}' |\n  curl -fsS --max-time 30 \"$REVIEW_BASE_URL/chat/completions\" \\\n    -H \"Authorization: Bearer $REVIEW_API_KEY\" \\\n    -H \"Content-Type: application/json\" --data-binary @- |\n  jq -er '.choices[0].message.content | select(type == \"string\" and length &gt; 0)'\n\u003c/code>\u003c/pre>\n\u003cp>先用 \u003ca href=\"https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow\" rel=\"noopener noreferrer\" target=\"_blank\">GitHub Actions 的手动触发\u003c/a>选择 PR 编号和一个 provider。\u003ccode>workflow_dispatch\u003c/code> 要求 workflow 文件存在于默认分支。第一次只把结果写进运行摘要，注明 head SHA、服务实际返回的模型标识和是否超时，供下一轮对照。目录接口成功后，还要照上面的短请求验证生成能交付可读正文。\u003c/p>\n\u003cp>等单次验收通过，再决定哪个模型负责自动评审。评审任务只读取 PR diff 和基线分支的评审规范。需要自动回帖时，单独给发布步骤所需的 PR 写权限。\u003ca href=\"https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions\" rel=\"noopener noreferrer\" target=\"_blank\">GitHub Actions 的安全指南\u003c/a>解释了高权限作业执行不可信 PR 代码的风险。公开仓库应把这种代码执行与模型密钥隔开。WhyJ-Quant 的合入继续由 \u003ccode>CI required\u003c/code> 与 \u003ccode>PR policy\u003c/code> 执行确定性检查。\u003c/p>\n\u003cp>\u003cstrong>一次试跑。\u003c/strong> 我用 \u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/pull/1007\" rel=\"noopener noreferrer\" target=\"_blank\">WhyJ-Quant PR #1007\u003c/a>的 workflow diff 试跑 Kimi。前几次请求超时，成功的短请求返回模型 \u003ccode>kimi-k3\u003c/code>。它把「手动运行仅限 \u003ccode>main\u003c/code>」和「自动运行需要显式打开」都报成问题。我用\u003ca href=\"https://github.com/yangjingo/WhyJ-Quant/blob/08f860beeb8d3a3b9bf0eae15b7c9ebcde75fdb5/docs/ci-release.md#optional-live-provider-evaluation\" rel=\"noopener noreferrer\" target=\"_blank\">可选 Live Provider 的 CI 指南\u003c/a>和需求复核后，把两条都记为误报。这个例子说明了怎样用项目契约复核一条评审意见，模型对比还需要更多固定样本。\u003c/p>\n"
+  }
+];
+
+// ═══════════════════════════════════════
+// ③ 排版
+// ═══════════════════════════════════════
+var SERIF = "'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif";
+var SANS = "'Inter', 'Microsoft YaHei', 'Segoe UI', sans-serif";
+
+// 标题自适应：二分搜索最大字号，限制在 maxLines 行内
+function fitTitle(text, maxWidth, maxLines) {
+  var lo = 24, hi = 56, best = lo;
+  var minTitle = prepareWithSegments(text, '700 ' + lo + 'px ' + SERIF);
+  var bestLines = layoutWithLines(minTitle, maxWidth, Math.round(lo * 1.15)).lines;
+  while (lo <= hi) {
+    var size = Math.floor((lo + hi) / 2);
+    var font = '700 ' + size + 'px ' + SERIF;
+    var lh = Math.round(size * 1.15);
+    var p = prepareWithSegments(text, font);
+    var result = layoutWithLines(p, maxWidth, lh);
+    if (result.lineCount <= maxLines) {
+      best = size;
+      bestLines = result.lines;
+      lo = size + 1;
+    } else {
+      hi = size - 1;
+    }
+  }
+  return { size: best, lineHeight: Math.round(best * 1.15), lines: bestLines };
+}
+
+// ═══════════════════════════════════════
+// ④ 渲染
+// ═══════════════════════════════════════
+var titleWrap = document.getElementById('title-wrap');
+var leadWrap = document.getElementById('lead-wrap');
+var sectionsWrap = document.getElementById('sections-wrap');
+
+
+
+// Resolve chapter IDs once so the navigation survives a layout re-render.
+const reservedSectionIds = new Set(SECTIONS.map(section => section.id).filter(Boolean));
+const sectionIds = SECTIONS.map((section, index) => {
+  if (section.id) return section.id;
+  if (!section.heading || section.diagram || section.image) return '';
+  let id = 'section-' + (index + 1);
+  while (reservedSectionIds.has(id)) id += '-heading';
+  reservedSectionIds.add(id);
+  return id;
+});
+
+function figureZoom(figure, trigger) {
+  const label = figure.lang === 'en' || document.documentElement.lang.startsWith('en')
+    ? ['Zoom figure', 'Close figure']
+    : ['放大图片', '关闭图片'];
+  const description = trigger.getAttribute('aria-label') ||
+    trigger.querySelector('[aria-label]')?.getAttribute('aria-label') || trigger.alt || '';
+
+  function toggle(visible) {
+    figure.classList.toggle('zoomed', visible);
+    trigger.setAttribute('aria-expanded', String(visible));
+    trigger.setAttribute('aria-label', [label[Number(visible)], description].filter(Boolean).join(' · '));
+  }
+
+  trigger.classList.add('figure-zoom-target');
+  trigger.tabIndex = 0;
+  trigger.setAttribute('role', 'button');
+  toggle(false);
+  trigger.addEventListener('click', event => {
+    const selection = window.getSelection();
+    if (event.target.closest('a, button, input, select, textarea, summary') ||
+        (selection && !selection.isCollapsed && trigger.contains(selection.anchorNode))) return;
+    event.stopPropagation();
+    document.querySelectorAll('.figure-block.zoomed').forEach(other => {
+      if (other !== figure) other.dispatchEvent(new Event('close-figure'));
+    });
+    toggle(!figure.classList.contains('zoomed'));
+  });
+  trigger.addEventListener('keydown', event => {
+    if (event.target === trigger && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      window.getSelection()?.removeAllRanges();
+      trigger.click();
+    }
+  });
+  figure.addEventListener('close-figure', () => toggle(false));
+  figure.addEventListener('click', event => {
+    if (event.target === figure) toggle(false);
+  });
+}
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    document.querySelectorAll('.figure-block.zoomed').forEach(figure => figure.dispatchEvent(new Event('close-figure')));
+  }
+});
+
+function render() {
+  var pageW = titleWrap.clientWidth;
+
+  // ---- Title: pretext 自适应字号 ----
+  var title = fitTitle(TITLE, pageW, 3);
+  titleWrap.innerHTML = '';
+  for (var i = 0; i < title.lines.length; i++) {
+    var el = document.createElement('span');
+    el.className = 'title-line';
+    el.setAttribute('aria-hidden', 'true');
+    el.textContent = title.lines[i].text;
+    el.style.fontSize = title.size + 'px';
+    el.style.lineHeight = title.lineHeight + 'px';
+    titleWrap.appendChild(el);
+  }
+
+  // ---- Lead: pretext 测量行数，CSS 正常渲染 ----
+  var leadFont = '500 15.5px ' + SANS;
+  var leadLH = 26;
+  var leadP = prepareWithSegments(LEAD, leadFont);
+  var leadResult = layoutWithLines(leadP, pageW, leadLH);
+
+  leadWrap.innerHTML = '';
+  leadWrap.className = 'lead-block';
+  leadWrap.textContent = LEAD;
+  // 用 pretext 测量的行数设置精确高度，避免 CLS
+  leadWrap.style.minHeight = leadResult.lineCount * leadLH + 'px';
+
+  // ---- Sections: pretext 测量，CSS 渲染 ----
+  sectionsWrap.innerHTML = '';
+
+  for (var si = 0; si < SECTIONS.length; si++) {
+    var s = SECTIONS[si];
+
+    // figure section
+    if (s.diagram || s.image) {
+      var figSec = document.createElement('div');
+      figSec.className = 'section';
+      if (s.id) figSec.id = s.id;
+      var figBlock = document.createElement('figure');
+      figBlock.className = 'figure-block';
+      var zoomTarget;
+      if (s.diagram) {
+        figBlock.setAttribute('data-native', '');
+        zoomTarget = document.createElement('div');
+        zoomTarget.className = 'figure-content';
+        zoomTarget.innerHTML = s.diagram;
+        figBlock.appendChild(zoomTarget);
+      } else {
+        var img = document.createElement('img');
+        img.src = s.image;
+        img.alt = s.alt || s.description || s.caption || '';
+        (function(block, imgEl, promptText, captionText) {
+          imgEl.onerror = function() {
+            imgEl.style.display = 'none';
+            var ph = document.createElement('div');
+            ph.className = 'figure-placeholder';
+            ph.innerHTML = '<div class="figure-placeholder-icon">&#9634;</div>' +
+              '<div class="figure-placeholder-label">待生成插图</div>' +
+              (promptText ? '<div class="figure-placeholder-prompt">' + promptText.replace(/</g,'&lt;') + '</div>' : '');
+            block.insertBefore(ph, block.firstChild);
+          };
+        })(figBlock, img, s.prompt, s.caption);
+        figBlock.appendChild(img);
+        zoomTarget = img;
+      }
+      if (s.caption) {
+        const caption = document.createElement('figcaption');
+        caption.className = 'figure-caption';
+        const title = document.createElement('strong');
+        title.lang = 'en';
+        title.textContent = s.caption;
+        caption.appendChild(title);
+        if (s.description || s.source) {
+          const detail = document.createElement('p');
+          detail.textContent = s.description || '';
+          if (s.source) {
+            if (s.description) detail.append(' ');
+            const source = document.createElement('a');
+            source.href = s.source;
+            source.textContent = s.sourceLabel || 'Source';
+            detail.appendChild(source);
+          }
+          caption.appendChild(detail);
+        }
+        figBlock.appendChild(caption);
+      }
+      if (s.prompt) {
+        var promptEl = document.createElement('div');
+        promptEl.className = 'figure-prompt-vis';
+        promptEl.textContent = s.prompt;
+        figBlock.appendChild(promptEl);
+        figBlock.setAttribute('data-prompt', s.prompt);
+      }
+      figSec.appendChild(figBlock);
+      sectionsWrap.appendChild(figSec);
+      figureZoom(figBlock, zoomTarget);
+      continue;
+    }
+
+    var sec = document.createElement('div');
+    sec.className = 'section';
+    if (sectionIds[si]) sec.id = sectionIds[si];
+    if (s.heading) sec.tabIndex = -1;
+
+    if (s.heading) {
+      var hEl = document.createElement('h2');
+      hEl.className = 'section-h';
+      hEl.textContent = s.heading;
+      sec.appendChild(hEl);
+    } else {
+      sec.classList.add('section-continuation');
+    }
+
+    // callout (if any)
+    if (s.callout) {
+      var cEl = document.createElement('div');
+      cEl.className = 'callout';
+      cEl.textContent = s.callout;
+      sec.appendChild(cEl);
+    }
+
+    // body
+    var bEl = document.createElement('div');
+    bEl.className = 'section-body';
+    if (s.bodyHTML) {
+      bEl.innerHTML = s.bodyHTML;
+    } else {
+      bEl.textContent = s.body;
+      var bFont = '400 17px ' + SERIF;
+      var bP = prepareWithSegments(s.body, bFont);
+      var bResult = layoutWithLines(bP, pageW, 30);
+      bEl.style.height = bResult.lineCount * 30 + 'px';
+    }
+    sec.appendChild(bEl);
+
+    sectionsWrap.appendChild(sec);
+  }
+}
+
+function initArticleToc() {
+  const nav = document.querySelector('.article-toc');
+  const list = nav.querySelector('.toc-list');
+  const toggle = nav.querySelector('.toc-toggle');
+  const preview = nav.querySelector('.toc-preview');
+  const label = document.documentElement.lang.toLowerCase().startsWith('en') ? 'Contents' : '目录';
+  nav.setAttribute('aria-label', label);
+  nav.querySelector('.toc-heading').textContent = label;
+  nav.querySelector('.toc-toggle-label').textContent = label;
+
+  const chapters = new Map();
+  SECTIONS.forEach((section, index) => {
+    if (!section.heading || section.diagram || section.image) return;
+    const id = sectionIds[index];
+    const link = document.createElement('a');
+    link.href = '#' + encodeURIComponent(id);
+    link.textContent = section.tocLabel || section.heading;
+    const item = document.createElement('li');
+    if (section.tocBreak && chapters.size) item.className = 'toc-break';
+    item.append(link);
+    list.append(item);
+    chapters.set(id, link);
+  });
+  if (!chapters.size) return;
+  nav.hidden = false;
+
+  let activeLink;
+  let frame = 0;
+  let fragmentScrollY;
+
+  function setCurrent(link) {
+    if (activeLink === link) return;
+    activeLink?.removeAttribute('aria-current');
+    activeLink = link;
+    link.setAttribute('aria-current', 'location');
+    preview.textContent = link.textContent;
+    if (list.clientHeight && list.scrollHeight > list.clientHeight) {
+      const bounds = list.getBoundingClientRect();
+      const target = link.getBoundingClientRect();
+      if (target.top < bounds.top) list.scrollTop += target.top - bounds.top;
+      if (target.bottom > bounds.bottom) list.scrollTop += target.bottom - bounds.bottom;
+    }
+  }
+
+  function updateCurrent() {
+    frame = 0;
+    // A short article can keep the selected heading below the reading line.
+    if (fragmentScrollY === window.scrollY) return;
+    fragmentScrollY = undefined;
+    const readingLine = Math.min(148, Math.max(88, window.innerHeight * 0.22));
+    let current = chapters.values().next().value;
+    for (const [id, link] of chapters) {
+      const section = document.getElementById(id);
+      if (section && section.getBoundingClientRect().top > readingLine) break;
+      current = link;
+    }
+    setCurrent(current);
+  }
+
+  function selectFragment() {
+    for (const [id, link] of chapters) {
+      if (link.hash !== location.hash) continue;
+      document.getElementById(id)?.scrollIntoView();
+      fragmentScrollY = window.scrollY;
+      setCurrent(link);
+      return true;
+    }
+    return false;
+  }
+
+  toggle.addEventListener('click', () => {
+    toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true'));
+  });
+  list.addEventListener('click', event => {
+    const link = event.target.closest('a');
+    if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+    toggle.setAttribute('aria-expanded', 'false');
+    setCurrent(link);
+    if (link.hash === location.hash) requestAnimationFrame(selectFragment);
+  });
+  nav.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || toggle.getAttribute('aria-expanded') !== 'true') return;
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.focus();
+  });
+  window.addEventListener('scroll', () => {
+    if (!frame) frame = requestAnimationFrame(updateCurrent);
+  }, { passive: true });
+  window.addEventListener('hashchange', () => {
+    if (!selectFragment()) updateCurrent();
+  });
+  if (!selectFragment()) updateCurrent();
+}
+
+// ═══════════════════════════════════════
+// ⑤ 启动
+// ═══════════════════════════════════════
+document.title = TITLE;
+document.getElementById('article-meta').textContent = META;
+await document.fonts.ready;
+render();
+initArticleToc();
+
+var resizeTimer = 0;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 100);
+});
+
+// A brief ripple acknowledges a click on the reading surface.
+{
+  const ripple = document.getElementById('reading-ripple');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const interactive = 'a, button, input, select, textarea, label, summary, [role="button"], [contenteditable], .figure-block';
+  let animation;
+
+  document.addEventListener('click', (event) => {
+    if (reducedMotion.matches || !event.detail || event.defaultPrevented ||
+        event.target.closest(interactive) || getSelection()?.isCollapsed === false) return;
+
+    animation?.cancel();
+    ripple.style.left = event.clientX + 'px';
+    ripple.style.top = event.clientY + 'px';
+    ripple.hidden = false;
+    const current = ripple.animate([
+      { transform: 'translate(-50%, -50%) scale(.18)', opacity: .88 },
+      { transform: 'translate(-50%, -50%) scale(.63)', opacity: .68, offset: .36 },
+      { transform: 'translate(-50%, -50%) scale(1.08)', opacity: 0 },
+    ], { duration: 560, easing: 'cubic-bezier(.17, .65, .32, 1)' });
+    animation = current;
+    current.onfinish = () => {
+      if (animation === current) ripple.hidden = true;
+    };
+  });
+}
+</script>
+</body>
+</html>
