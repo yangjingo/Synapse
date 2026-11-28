@@ -214,7 +214,7 @@ Blog posts embed citations directly in the body text as hyperlinks, not as numbe
 - **HTML body**: `THUNLP 的论文` (plain text, for measurement)
 - **HTML bodyHTML**: `<a href="https://arxiv.org/abs/..." target="_blank">THUNLP 的论文</a>` (for rendering)
 
-Style: weave the source naturally into the sentence. "V4 报告里写了..." not "According to [1]...". The link turns the source name into a clickable reference.
+Put the source where its name, section, symbol, or run belongs in the sentence. For example, `[vLLM V1 的调度器设计](https://vllm.ai/blog/2025-01-27-v1-alpha-release)使用固定的 token 预算。` The plain body keeps the same anchor text in the same position for measurement. The rendered HTML preserves the anchor and its URL there. Check the rendered sentence when a paragraph uses multiple sources.
 
 #### Transitions (起承转合)
 

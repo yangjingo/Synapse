@@ -12,6 +12,7 @@
       --accent: #C45A20;
       --accent-light: #FDF0E6;
       --border: #E8E2D8;
+      --section-rule-space: 40px;
       --serif: 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
       --sans: 'Inter', 'Microsoft YaHei', 'Segoe UI', sans-serif;
     }
@@ -21,7 +22,136 @@
 
     .page { max-width: 700px; margin: 0 auto; padding: 72px 24px 0; }
 
+
+    .article-header, .article-body { min-width: 0; }
+    .article-toc {
+      --toc-ink: #635749;
+      --toc-active: #843C18;
+      color: var(--toc-ink);
+      font: 400 13px/1.45 var(--sans);
+    }
+    .toc-heading {
+      padding: 0 12px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+      font: 700 20px/1.25 var(--serif);
+    }
+    .toc-toggle { display: none; }
+    .toc-list {
+      list-style: none;
+      padding: 7px 3px 5px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+      overscroll-behavior-y: contain;
+    }
+    .toc-list li + li { margin-top: 2px; }
+    .toc-list li.toc-break {
+      border-top: 1px solid var(--border);
+      margin-top: 10px;
+      padding-top: 9px;
+    }
+    .toc-list a {
+      position: relative;
+      display: block;
+      padding: 8px 10px 8px 13px;
+      border-radius: 0 3px 3px 0;
+      color: inherit;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }
+    .toc-list a:hover { background: #F3EFE8; color: var(--ink); }
+    .toc-list a[aria-current='location'] {
+      background: var(--accent-light);
+      color: var(--toc-active);
+      font-weight: 650;
+    }
+    .toc-list a[aria-current='location']::before {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 2px;
+      background: var(--accent);
+      content: '';
+    }
+    .toc-list a:focus-visible, .toc-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+    #sections-wrap > .section[id] { scroll-margin-top: 30px; }
+
+    @media (min-width: 1100px) {
+      .page {
+        display: grid;
+        max-width: none;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 652px) minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+      }
+      .article-header { grid-area: 1 / 2; }
+      .article-body { grid-area: 2 / 2; }
+      .article-toc {
+        grid-area: 2 / 1;
+        position: sticky;
+        top: 32px;
+        align-self: start;
+        justify-self: end;
+        width: min(220px, calc(100% - 28px));
+        margin-top: var(--section-rule-space);
+        margin-right: 28px;
+        border-top: 1px solid var(--border);
+      }
+      .toc-heading { padding: 12px 12px 7px; border-bottom: 0; }
+      .toc-list { max-height: calc(100vh - 110px); }
+    }
+    @media (max-width: 1099px) {
+      .article-toc {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        margin-top: 23px;
+        border-block: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .toc-heading { display: none; }
+      .toc-toggle {
+        display: flex;
+        width: 100%;
+        min-height: 45px;
+        gap: 12px;
+        align-items: center;
+        padding: 0 12px;
+        border: 0;
+        background: transparent;
+        color: var(--ink);
+        font: 700 15px/1.3 var(--serif);
+        text-align: left;
+        cursor: pointer;
+      }
+      .toc-toggle::after {
+        flex: 0 0 auto;
+        width: 7px;
+        height: 7px;
+        margin: -4px 2px 0 auto;
+        border: solid currentColor;
+        border-width: 0 1.5px 1.5px 0;
+        transform: rotate(45deg);
+        content: '';
+      }
+      .toc-toggle[aria-expanded='true']::after { margin-top: 3px; transform: rotate(225deg); }
+      .toc-preview {
+        overflow: hidden;
+        color: var(--toc-ink);
+        font: 400 12px/1.35 var(--sans);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .toc-toggle[aria-expanded='false'] + .toc-list { display: none; }
+      .toc-list { max-height: min(52vh, 403px); border-top: 1px solid var(--border); }
+      .toc-list a { display: flex; min-height: 44px; align-items: center; }
+      #sections-wrap > .section[id] { scroll-margin-top: 66px; }
+    }
+
     .title-line {
+      display: block;
       font-family: var(--serif);
       font-weight: 700;
       color: var(--ink);
@@ -35,7 +165,7 @@
       color: var(--muted);
       margin: 16px 0 0;
     }
-    .hr { height: 1px; background: var(--border); margin: 40px 0; }
+    .hr { height: 1px; background: var(--border); margin: var(--section-rule-space) 0; }
 
     .section { margin-top: 40px; }
     .section-h {
@@ -48,6 +178,7 @@
       font: 400 17px/30px var(--serif);
       color: var(--ink);
     }
+    .section-body > * + * { margin-top: 12px; }
     .section-body a {
       color: var(--accent);
       text-decoration: underline;
@@ -227,18 +358,29 @@
 <body>
 <span id="reading-ripple" aria-hidden="true" hidden></span>
 <div class="page">
-  <div class="meta-date" id="article-meta"></div>
+  <header class="article-header">
+    <div class="meta-date" id="article-meta"></div>
 
-  <!-- ① pretext 自适应标题 -->
-  <div id="title-wrap"></div>
+    <!-- ① pretext 自适应标题 -->
+    <h1 id="title-wrap"></h1>
 
-  <!-- ② pretext 测量 lead，CSS 正常渲染 -->
-  <div id="lead-wrap"></div>
+    <!-- ② pretext 测量 lead，CSS 正常渲染 -->
+    <div id="lead-wrap"></div>
 
-  <div class="hr"></div>
+  </header>
+  <nav class="article-toc" aria-label="目录" hidden>
+    <div class="toc-heading" aria-hidden="true">目录</div>
+    <button type="button" class="toc-toggle" aria-controls="article-toc-list" aria-expanded="false">
+      <span class="toc-toggle-label">目录</span><span class="toc-preview" aria-hidden="true"></span>
+    </button>
+    <ol class="toc-list" id="article-toc-list"></ol>
+  </nav>
+  <div class="article-body">
+    <div class="hr"></div>
 
-  <!-- ③ 正文（pretext 测量高度，CSS 正常渲染） -->
-  <div id="sections-wrap"></div>
+    <!-- ③ 正文（pretext 测量高度，CSS 正常渲染） -->
+    <main id="sections-wrap"></main>
+  </div>
 
 </div>
 
@@ -2404,7 +2546,7 @@ var LEAD = "远端加载和模型计算可以异步执行。调度器等到 Work
 var SECTIONS = [
   {
     heading: "目标块在读回结束后才可读",
-    body: "调度器先为请求分配目标块，Worker 将远端数据写入这些块。调度器收到完成回报后，才会安排读取这些块的计算。"
+    bodyHTML: "<p>调度器先为请求分配目标块，Worker 再把远端数据写入这些块。调度器拿到块地址时，数据可能还在传输。</p><p><strong>调度器收到 Worker 的读回完成回报后，才安排读取这些目标块的计算。</strong></p>"
   },
   {
     id: "figure-1",
@@ -2428,7 +2570,7 @@ var SECTIONS = [
   },
   {
     heading: "一条请求记录可以核对放行顺序",
-    body: "核对同一请求的加载完成事件与首次 forward。若计算先于完成回报，就检查调度器在什么条件下把请求移出等待状态。"
+    bodyHTML: "<p>请求最后完成，只能说明它产生了结果。要确认调度器没有提前放行，还需要核对传输和计算的先后顺序。</p><p><strong>沿同一请求核对读回完成回报与首次读取目标块的 forward。</strong></p><p>若计算先于完成回报，就检查调度器在什么条件下把请求移出等待状态。</p>"
   }
 ];
 
@@ -2467,6 +2609,18 @@ var titleWrap = document.getElementById('title-wrap');
 var leadWrap = document.getElementById('lead-wrap');
 var sectionsWrap = document.getElementById('sections-wrap');
 
+
+
+// Resolve chapter IDs once so the navigation survives a layout re-render.
+const reservedSectionIds = new Set(SECTIONS.map(section => section.id).filter(Boolean));
+const sectionIds = SECTIONS.map((section, index) => {
+  if (section.id) return section.id;
+  if (!section.heading || section.diagram || section.image) return '';
+  let id = 'section-' + (index + 1);
+  while (reservedSectionIds.has(id)) id += '-heading';
+  reservedSectionIds.add(id);
+  return id;
+});
 
 function figureZoom(figure, trigger) {
   const label = figure.lang === 'en' || document.documentElement.lang.startsWith('en')
@@ -2514,13 +2668,13 @@ document.addEventListener('keydown', event => {
 });
 
 function render() {
-  var pageW = titleWrap.parentElement.clientWidth - 48; // padding
+  var pageW = titleWrap.clientWidth;
 
   // ---- Title: pretext 自适应字号 ----
   var title = fitTitle(TITLE, pageW, 3);
   titleWrap.innerHTML = '';
   for (var i = 0; i < title.lines.length; i++) {
-    var el = document.createElement('div');
+    var el = document.createElement('span');
     el.className = 'title-line';
     el.textContent = title.lines[i].text;
     el.style.fontSize = title.size + 'px';
@@ -2621,13 +2775,15 @@ function render() {
 
     var sec = document.createElement('div');
     sec.className = 'section';
+    if (sectionIds[si]) sec.id = sectionIds[si];
+    if (s.heading) sec.tabIndex = -1;
 
-    // heading
-
-    var hEl = document.createElement('div');
-    hEl.className = 'section-h';
-    hEl.textContent = s.heading;
-    sec.appendChild(hEl);
+    if (s.heading) {
+      var hEl = document.createElement('h2');
+      hEl.className = 'section-h';
+      hEl.textContent = s.heading;
+      sec.appendChild(hEl);
+    }
 
     // callout (if any)
     if (s.callout) {
@@ -2655,6 +2811,100 @@ function render() {
   }
 }
 
+function initArticleToc() {
+  const nav = document.querySelector('.article-toc');
+  const list = nav.querySelector('.toc-list');
+  const toggle = nav.querySelector('.toc-toggle');
+  const preview = nav.querySelector('.toc-preview');
+  const label = document.documentElement.lang.toLowerCase().startsWith('en') ? 'Contents' : '目录';
+  nav.setAttribute('aria-label', label);
+  nav.querySelector('.toc-heading').textContent = label;
+  nav.querySelector('.toc-toggle-label').textContent = label;
+
+  const chapters = new Map();
+  SECTIONS.forEach((section, index) => {
+    if (!section.heading || section.diagram || section.image) return;
+    const id = sectionIds[index];
+    const link = document.createElement('a');
+    link.href = '#' + encodeURIComponent(id);
+    link.textContent = section.tocLabel || section.heading;
+    const item = document.createElement('li');
+    if (section.tocBreak && chapters.size) item.className = 'toc-break';
+    item.append(link);
+    list.append(item);
+    chapters.set(id, link);
+  });
+  if (!chapters.size) return;
+  nav.hidden = false;
+
+  let activeLink;
+  let frame = 0;
+  let fragmentScrollY;
+
+  function setCurrent(link) {
+    if (activeLink === link) return;
+    activeLink?.removeAttribute('aria-current');
+    activeLink = link;
+    link.setAttribute('aria-current', 'location');
+    preview.textContent = link.textContent;
+    if (list.clientHeight && list.scrollHeight > list.clientHeight) {
+      const bounds = list.getBoundingClientRect();
+      const target = link.getBoundingClientRect();
+      if (target.top < bounds.top) list.scrollTop += target.top - bounds.top;
+      if (target.bottom > bounds.bottom) list.scrollTop += target.bottom - bounds.bottom;
+    }
+  }
+
+  function updateCurrent() {
+    frame = 0;
+    // A short article can keep the selected heading below the reading line.
+    if (fragmentScrollY === window.scrollY) return;
+    fragmentScrollY = undefined;
+    const readingLine = Math.min(148, Math.max(88, window.innerHeight * 0.22));
+    let current = chapters.values().next().value;
+    for (const [id, link] of chapters) {
+      const section = document.getElementById(id);
+      if (section && section.getBoundingClientRect().top > readingLine) break;
+      current = link;
+    }
+    setCurrent(current);
+  }
+
+  function selectFragment() {
+    for (const [id, link] of chapters) {
+      if (link.hash !== location.hash) continue;
+      document.getElementById(id)?.scrollIntoView();
+      fragmentScrollY = window.scrollY;
+      setCurrent(link);
+      return true;
+    }
+    return false;
+  }
+
+  toggle.addEventListener('click', () => {
+    toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true'));
+  });
+  list.addEventListener('click', event => {
+    const link = event.target.closest('a');
+    if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+    toggle.setAttribute('aria-expanded', 'false');
+    setCurrent(link);
+    if (link.hash === location.hash) requestAnimationFrame(selectFragment);
+  });
+  nav.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || toggle.getAttribute('aria-expanded') !== 'true') return;
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.focus();
+  });
+  window.addEventListener('scroll', () => {
+    if (!frame) frame = requestAnimationFrame(updateCurrent);
+  }, { passive: true });
+  window.addEventListener('hashchange', () => {
+    if (!selectFragment()) updateCurrent();
+  });
+  if (!selectFragment()) updateCurrent();
+}
+
 // ═══════════════════════════════════════
 // ⑤ 启动
 // ═══════════════════════════════════════
@@ -2662,6 +2912,7 @@ document.title = TITLE;
 document.getElementById('article-meta').textContent = META;
 await document.fonts.ready;
 render();
+initArticleToc();
 
 var resizeTimer = 0;
 window.addEventListener('resize', function() {
